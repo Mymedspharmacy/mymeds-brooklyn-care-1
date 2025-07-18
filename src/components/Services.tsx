@@ -1,43 +1,54 @@
 import { Truck, Pill, Shield, Users, Stethoscope, MessageCircle } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
-export const Services = () => {
+interface ServicesProps {
+  onAppointmentClick: () => void;
+}
+
+export const Services = ({ onAppointmentClick }: ServicesProps) => {
   const services = [
     {
       icon: Truck,
       title: "Free Prescription Delivery",
       description: "Convenient, reliable delivery service to your doorstep. Perfect for patients with mobility issues or busy schedules.",
-      features: ["Same-day delivery available", "Contactless delivery options", "Prescription tracking"]
+      features: ["Same-day delivery available", "Contactless delivery options", "Prescription tracking"],
+      hasBooking: false
     },
     {
       icon: Pill,
       title: "Medication Synchronization",
       description: "Align all your prescription refill dates to one convenient pickup day each month.",
-      features: ["Single monthly pickup", "Automated refill reminders", "Reduced pharmacy visits"]
+      features: ["Single monthly pickup", "Automated refill reminders", "Reduced pharmacy visits"],
+      hasBooking: false
     },
     {
       icon: Shield,
       title: "Immunizations",
       description: "Stay protected with our comprehensive vaccination services administered by certified pharmacists.",
-      features: ["Flu shots", "COVID-19 vaccines", "Travel immunizations", "Insurance accepted"]
+      features: ["Flu shots", "COVID-19 vaccines", "Travel immunizations", "Insurance accepted"],
+      hasBooking: true
     },
     {
       icon: Users,
       title: "Medication Therapy Management",
       description: "Personalized medication reviews to optimize your therapy and prevent drug interactions.",
-      features: ["One-on-one consultations", "Drug interaction checks", "Cost-saving opportunities"]
+      features: ["One-on-one consultations", "Drug interaction checks", "Cost-saving opportunities"],
+      hasBooking: true
     },
     {
       icon: Stethoscope,
       title: "Durable Medical Equipment",
       description: "Quality medical equipment and supplies to support your health and mobility needs.",
-      features: ["Wheelchairs & walkers", "Blood pressure monitors", "Diabetic supplies"]
+      features: ["Wheelchairs & walkers", "Blood pressure monitors", "Diabetic supplies"],
+      hasBooking: false
     },
     {
       icon: MessageCircle,
       title: "Private Consultation",
       description: "Confidential discussions about your medications, health concerns, and wellness goals.",
-      features: ["Medication counseling", "Health screenings", "Wellness advice"]
+      features: ["Medication counseling", "Health screenings", "Wellness advice"],
+      hasBooking: true
     }
   ];
 
@@ -46,7 +57,7 @@ export const Services = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-foreground mb-4">Our Services</h2>
-          <p className="text-xl text-pharmacy-gray max-w-3xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Comprehensive pharmaceutical care designed to meet all your health and wellness needs
           </p>
         </div>
@@ -61,10 +72,10 @@ export const Services = () => {
                 <CardTitle className="text-xl font-bold text-foreground">{service.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription className="text-pharmacy-gray mb-4 text-base leading-relaxed">
+                <CardDescription className="text-muted-foreground mb-4 text-base leading-relaxed">
                   {service.description}
                 </CardDescription>
-                <ul className="space-y-2">
+                <ul className="space-y-2 mb-6">
                   {service.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-center text-sm text-muted-foreground">
                       <div className="w-2 h-2 bg-primary rounded-full mr-3"></div>
@@ -72,6 +83,14 @@ export const Services = () => {
                     </li>
                   ))}
                 </ul>
+                {service.hasBooking && (
+                  <Button 
+                    onClick={onAppointmentClick}
+                    className="w-full"
+                  >
+                    Book Appointment
+                  </Button>
+                )}
               </CardContent>
             </Card>
           ))}
