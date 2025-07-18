@@ -52,6 +52,15 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				pharmacy: {
+					blue: 'hsl(var(--pharmacy-blue))',
+					'blue-dark': 'hsl(var(--pharmacy-blue-dark))',
+					'blue-light': 'hsl(var(--pharmacy-blue-light))',
+					green: 'hsl(var(--pharmacy-green))',
+					red: 'hsl(var(--pharmacy-red))',
+					purple: 'hsl(var(--pharmacy-purple))',
+					gray: 'hsl(var(--pharmacy-gray))'
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
