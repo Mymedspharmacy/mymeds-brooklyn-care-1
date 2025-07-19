@@ -53,6 +53,13 @@ export default {
 					foreground: 'hsl(var(--card-foreground))'
 				},
 				pharmacy: {
+					primary: 'hsl(var(--pharmacy-primary))',         /* #376f6b */
+					secondary: 'hsl(var(--pharmacy-secondary))',     /* #57bbb6 */
+					accent: 'hsl(var(--pharmacy-accent))',           /* #31968a */
+					light: 'hsl(var(--pharmacy-light))',             /* #2e8f88 */
+					dark: 'hsl(var(--pharmacy-dark))',               /* #231f20 */
+					white: 'hsl(var(--pharmacy-white))',             /* #ffffff */
+					// Legacy compatibility
 					blue: 'hsl(var(--pharmacy-blue))',
 					'blue-dark': 'hsl(var(--pharmacy-blue-dark))',
 					'blue-light': 'hsl(var(--pharmacy-blue-light))',

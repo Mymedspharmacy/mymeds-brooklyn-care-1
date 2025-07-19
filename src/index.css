@@ -36,22 +36,30 @@ All colors MUST be HSL.
     --input: 214.3 31.8% 91.4%;
     --ring: 214 100% 42%;
 
-    /* Pharmacy brand colors */
-    --pharmacy-blue: 214 100% 42%;
-    --pharmacy-blue-dark: 214 100% 20%;
-    --pharmacy-blue-light: 214 100% 95%;
-    --pharmacy-green: 142 76% 36%;
+    /* Pharmacy brand colors - Custom Palette */
+    --pharmacy-primary: 175 32% 33%;        /* #376f6b - darker teal */
+    --pharmacy-secondary: 175 40% 55%;      /* #57bbb6 - lighter teal */
+    --pharmacy-accent: 175 51% 39%;         /* #31968a - medium teal */
+    --pharmacy-light: 175 51% 37%;          /* #2e8f88 - supporting teal */
+    --pharmacy-dark: 350 7% 13%;            /* #231f20 - dark gray */
+    --pharmacy-white: 0 0% 100%;            /* #ffffff - white */
+    
+    /* Legacy colors for compatibility */
+    --pharmacy-blue: 175 32% 33%;
+    --pharmacy-blue-dark: 175 32% 25%;
+    --pharmacy-blue-light: 175 40% 95%;
+    --pharmacy-green: 175 51% 39%;
     --pharmacy-red: 0 84% 60%;
-    --pharmacy-purple: 271 76% 53%;
-    --pharmacy-gray: 220 15% 55%;
+    --pharmacy-purple: 175 51% 37%;
+    --pharmacy-gray: 350 7% 55%;
 
     /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(214 100% 95%), hsl(142 76% 95%));
-    --gradient-primary: linear-gradient(135deg, hsl(214 100% 42%), hsl(214 100% 35%));
+    --gradient-hero: linear-gradient(135deg, hsl(175 40% 95%), hsl(175 51% 95%));
+    --gradient-primary: linear-gradient(135deg, hsl(175 32% 33%), hsl(175 51% 39%));
 
     /* Shadows */
-    --shadow-elegant: 0 10px 30px -10px hsl(214 100% 42% / 0.2);
-    --shadow-card: 0 4px 20px -4px hsl(214 100% 42% / 0.1);
+    --shadow-elegant: 0 10px 30px -10px hsl(175 32% 33% / 0.2);
+    --shadow-card: 0 4px 20px -4px hsl(175 32% 33% / 0.1);
 
     --radius: 0.5rem;
 
