@@ -78,7 +78,7 @@ export default function AdminReset() {
           {loading && <Loader2 className="animate-spin" size={20} />} Reset Password
         </button>
       </form>
-      <style jsx>{`
+      <style>{`
         @keyframes shake {
           0%, 100% { transform: translateX(0); }
           10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
