@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import api from '../lib/api';
 
 export const Contact = () => {
   const [formData, setFormData] = useState({
@@ -14,14 +15,26 @@ export const Contact = () => {
     message: ''
   });
   const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Message Sent!",
-      description: "Thank you for contacting us. We'll get back to you soon.",
-    });
-    setFormData({ name: '', email: '', phone: '', message: '' });
+    setLoading(true);
+    setError('');
+    setSuccess(false);
+    try {
+      await api.post('/contact', formData);
+      setSuccess(true);
+      setFormData({ name: '', email: '', phone: '', message: '' });
+      toast({ title: 'Message Sent!', description: "Thank you for contacting us. We'll get back to you soon." });
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to send message');
+      toast({ title: 'Error', description: error, variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -73,7 +86,48 @@ export const Contact = () => {
                 <Mail className="h-6 w-6 text-primary mt-1" />
                 <div>
                   <h4 className="font-semibold text-foreground">Email</h4>
-                  <p className="text-muted-foreground">Mymedspharmacy@outlook.com</p>
+                  <button 
+                    onClick={() => {
+                      const emailAddress = 'Mymedspharmacy@outlook.com';
+                      const subject = 'Inquiry from My Meds Pharmacy Website';
+                      const body = `Dear My Meds Pharmacy Team,
+
+I hope this email finds you well. I am reaching out regarding:
+
+[Please describe your inquiry, question, or concern here]
+
+Best regards,
+[Your Name]
+
+---
+Sent from My Meds Pharmacy website
+Location: 2242 65th St., Brooklyn, NY 11204
+Phone: (347) 312-6458`;
+
+                      // Try to open email client
+                      const mailtoLink = `mailto:${emailAddress}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                      
+                      // Show user what's happening
+                      const userChoice = confirm(
+                        `Click OK to open your email client and compose a message to:\n\n${emailAddress}\n\nSubject: ${subject}\n\nIf your email client doesn't open, click Cancel to copy the email address to your clipboard.`
+                      );
+                      
+                      if (userChoice) {
+                        // User clicked OK - try to open email client
+                        window.location.href = mailtoLink;
+                      } else {
+                        // User clicked Cancel - copy email to clipboard
+                        navigator.clipboard.writeText(emailAddress).then(() => {
+                          alert(`Email address copied to clipboard: ${emailAddress}\n\nYou can now paste this into your email client.`);
+                        }).catch(() => {
+                          alert(`Please email us at: ${emailAddress}\n\nSubject: ${subject}`);
+                        });
+                      }
+                    }}
+                    className="text-muted-foreground hover:text-primary hover:underline cursor-pointer transition-colors"
+                  >
+                    Mymedspharmacy@outlook.com
+                  </button>
                 </div>
               </div>
 
@@ -163,9 +217,9 @@ export const Contact = () => {
                   />
                 </div>
 
-                <Button type="submit" className="w-full text-lg py-3">
-                  Send Message
-                </Button>
+                <Button type="submit" className="w-full text-lg py-3" disabled={loading}>{loading ? 'Sending...' : 'Send Message'}</Button>
+                {error && <div className="text-red-500 mt-2">{error}</div>}
+                {success && <div className="text-green-600 mt-2">Message sent successfully!</div>}
               </form>
             </CardContent>
           </Card>
@@ -184,7 +238,7 @@ export const Contact = () => {
             <CardContent className="p-0">
               <div className="w-full h-96 bg-muted relative">
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3030.4836926785934!2d-73.9956!3d40.6089!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c244e6f6a7a6a7%3A0x5b5b5b5b5b5b5b5b!2s2242%2065th%20St%2C%20Brooklyn%2C%20NY%2011204!5e0!3m2!1sen!2sus!4v1234567890123"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3029.9649649649647!2d-73.984963684593!3d40.6139649793416!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c244e6f6a7a6a7%3A0x5b5b5b5b5b5b5b5b!2s2242%2065th%20St%2C%20Brooklyn%2C%20NY%2011204%2C%20USA!5e0!3m2!1sen!2sus!4v1718040000000!5m2!1sen!2sus"
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
@@ -221,7 +275,22 @@ export const Contact = () => {
                 <p className="text-muted-foreground mb-4">Speak directly with our pharmacy team</p>
                 <Button 
                   className="w-full"
-                  onClick={() => window.open('tel:3473126458')}
+                  onClick={() => {
+                    // Try to open phone dialer
+                    const phoneNumber = '3473126458';
+                    const telLink = `tel:${phoneNumber}`;
+                    
+                    // For mobile devices, this will open the phone app
+                    // For desktop, it will show a confirmation dialog
+                    if (navigator.userAgent.match(/iPhone|iPad|iPod|Android/i)) {
+                      window.location.href = telLink;
+                    } else {
+                      // For desktop browsers, show a confirmation dialog
+                      if (confirm(`Call ${phoneNumber}?`)) {
+                        window.open(telLink);
+                      }
+                    }
+                  }}
                 >
                   Call (347) 312-6458
                 </Button>
@@ -235,9 +304,45 @@ export const Contact = () => {
                 <p className="text-muted-foreground mb-4">Send us your questions or concerns</p>
                 <Button 
                   className="w-full"
-                  onClick={() => window.open('mailto:Mymedspharmacy@outlook.com')}
+                  onClick={() => {
+                    const emailAddress = 'Mymedspharmacy@outlook.com';
+                    const subject = 'Inquiry from My Meds Pharmacy Website';
+                    const body = `Dear My Meds Pharmacy Team,
+
+I hope this email finds you well. I am reaching out regarding:
+
+[Please describe your inquiry, question, or concern here]
+
+Best regards,
+[Your Name]
+
+---
+Sent from My Meds Pharmacy website
+Location: 2242 65th St., Brooklyn, NY 11204
+Phone: (347) 312-6458`;
+
+                    // Try to open email client
+                    const mailtoLink = `mailto:${emailAddress}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                    
+                    // Show user what's happening
+                    const userChoice = confirm(
+                      `Click OK to open your email client and compose a message to:\n\n${emailAddress}\n\nSubject: ${subject}\n\nIf your email client doesn't open, click Cancel to copy the email address to your clipboard.`
+                    );
+                    
+                    if (userChoice) {
+                      // User clicked OK - try to open email client
+                      window.location.href = mailtoLink;
+                    } else {
+                      // User clicked Cancel - copy email to clipboard
+                      navigator.clipboard.writeText(emailAddress).then(() => {
+                        alert(`Email address copied to clipboard: ${emailAddress}\n\nYou can now paste this into your email client.`);
+                      }).catch(() => {
+                        alert(`Please email us at: ${emailAddress}\n\nSubject: ${subject}`);
+                      });
+                    }
+                  }}
                 >
-                  Send Email
+                  📧 Send Email
                 </Button>
               </CardContent>
             </Card>

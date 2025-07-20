@@ -4,15 +4,16 @@ import { Button } from "@/components/ui/button";
 
 interface ServicesProps {
   onAppointmentClick: () => void;
+  onShopClick?: () => void;
 }
 
-export const Services = ({ onAppointmentClick }: ServicesProps) => {
+export const Services = ({ onAppointmentClick, onShopClick }: ServicesProps) => {
   const services = [
     {
       icon: Truck,
       title: "Free Prescription Delivery",
       description: "Convenient, reliable delivery service to your doorstep. Perfect for patients with mobility issues or busy schedules.",
-      features: ["Same-day delivery available", "Contactless delivery options", "Prescription tracking"],
+      features: ["Free delivery over $50", "Brooklyn & Manhattan areas", "Same-day delivery available", "Contactless delivery options", "Prescription tracking"],
       hasBooking: false
     },
     {
@@ -41,7 +42,8 @@ export const Services = ({ onAppointmentClick }: ServicesProps) => {
       title: "Durable Medical Equipment",
       description: "Quality medical equipment and supplies to support your health and mobility needs.",
       features: ["Wheelchairs & walkers", "Blood pressure monitors", "Diabetic supplies"],
-      hasBooking: false
+      hasBooking: false,
+      hasShop: true
     },
     {
       icon: MessageCircle,
@@ -89,6 +91,14 @@ export const Services = ({ onAppointmentClick }: ServicesProps) => {
                     className="w-full"
                   >
                     Book Appointment
+                  </Button>
+                )}
+                {service.hasShop && (
+                  <Button 
+                    onClick={onShopClick}
+                    className="w-full bg-[#376f6b] hover:bg-[#57bbb6] text-white"
+                  >
+                    Shop Equipment
                   </Button>
                 )}
               </CardContent>

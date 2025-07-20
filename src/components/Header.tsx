@@ -1,6 +1,8 @@
+import { useNavigate } from 'react-router-dom';
 import { useState } from "react";
 import { Menu, X, Phone, Clock, MapPin, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
 
 interface HeaderProps {
   onRefillClick: () => void;
@@ -9,6 +11,7 @@ interface HeaderProps {
 }
 
 export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: HeaderProps) => {
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isServicesOpen, setIsServicesOpen] = useState(false);
   const [isPrescriptionOpen, setIsPrescriptionOpen] = useState(false);
@@ -24,7 +27,7 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
   return (
     <>
       {/* Top Bar */}
-      <div className="bg-pharmacy-blue-dark text-primary-foreground py-2 px-4">
+      <div className="bg-brand-dark text-brand-white py-2 px-4">
         <div className="container mx-auto flex flex-col md:flex-row justify-between items-center text-sm">
           <div className="flex items-center space-x-4 mb-2 md:mb-0">
             <div className="flex items-center">
@@ -46,148 +49,97 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
       </div>
 
       {/* Main Header */}
-      <header className="bg-background shadow-lg sticky top-0 z-50">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center py-4">
-            {/* Logo */}
-            <div className="flex items-center">
-              <div className="bg-primary text-primary-foreground rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl mr-3">
-                MM
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-pharmacy-blue-dark">My Meds Pharmacy</h1>
-                <p className="text-sm text-pharmacy-gray">Your Health, Our Priority</p>
-              </div>
+      <header className="bg-white shadow-lg sticky top-0 z-50 border-b-2 border-[#57bbb6]">
+        <div className="container mx-auto px-4 flex items-center justify-between py-4">
+          {/* Logo and Brand Name */}
+          <div className="flex items-center gap-4 cursor-pointer" onClick={() => navigate('/') }>
+            <img src="/logo.png" alt="My Meds Pharmacy Logo" className="h-32 w-32 object-contain" />
+            <div className="flex flex-col">
+              <span className="text-3xl font-bold text-[#376f6b] leading-none">My Meds</span>
+              <span className="text-xl font-semibold text-[#231f20]">Pharmacy</span>
             </div>
-
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-6">
-              <button onClick={() => scrollToSection('home')} className="text-muted-foreground hover:text-primary transition-colors">
-                Home
-              </button>
-              <button onClick={() => scrollToSection('about')} className="text-muted-foreground hover:text-primary transition-colors">
-                About Us
-              </button>
+          </div>
+          {/* Navigation */}
+          <nav className="flex-1 flex justify-center">
+            <ul className="flex gap-8 items-center">
+              <li><a href="/" className="text-[#231f20] font-semibold hover:text-[#57bbb6] transition-colors">Home</a></li>
+              <li><a href="#services" className="text-[#231f20] font-semibold hover:text-[#57bbb6] transition-colors">Services</a></li>
+              <li><a href="/shop" className="text-[#231f20] font-semibold hover:text-[#57bbb6] transition-colors">Shop</a></li>
+              <li><a href="/blog" className="text-[#231f20] font-semibold hover:text-[#57bbb6] transition-colors">Health Blog</a></li>
+              <li><a href="#about" className="text-[#231f20] font-semibold hover:text-[#57bbb6] transition-colors">About</a></li>
+              <li><a href="#contact" className="text-[#231f20] font-semibold hover:text-[#57bbb6] transition-colors">Contact</a></li>
+            </ul>
+          </nav>
+          {/* Action Buttons */}
+          <div className="flex gap-3">
+            <button className="flex items-center gap-2 bg-[#376f6b] text-white font-semibold px-5 py-2 rounded-lg shadow hover:bg-[#57bbb6] transition-colors text-base border-2 border-[#376f6b]" onClick={onRefillClick}>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 3.487A2.25 2.25 0 0 1 19.5 5.25v13.5A2.25 2.25 0 0 1 17.25 21H6.75A2.25 2.25 0 0 1 4.5 18.75V5.25a2.25 2.25 0 0 1 2.638-2.213l.112.026.112.026 6.75 1.5a2.25 2.25 0 0 1 1.5 2.138v.073a2.25 2.25 0 0 1-1.5 2.138l-6.75 1.5-.112.026-.112.026A2.25 2.25 0 0 1 4.5 10.5v8.25A2.25 2.25 0 0 0 6.75 21h10.5A2.25 2.25 0 0 0 19.5 18.75V5.25a2.25 2.25 0 0 0-2.638-2.213l-.112.026-.112.026-6.75 1.5a2.25 2.25 0 0 0-1.5 2.138v.073a2.25 2.25 0 0 0 1.5 2.138l6.75 1.5.112.026.112.026z" />
+              </svg>
+              Refill Rx
+            </button>
+            <button className="flex items-center gap-2 bg-[#2e8f88] text-white font-semibold px-5 py-2 rounded-lg shadow hover:bg-[#376f6b] transition-colors text-base border-2 border-[#2e8f88]" onClick={onTransferClick}>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+              </svg>
+              Transfer Rx
+            </button>
+            <button className="flex items-center gap-2 bg-[#57bbb6] text-[#231f20] font-semibold px-5 py-2 rounded-lg shadow hover:bg-[#376f6b] hover:text-white transition-colors text-base border-2 border-[#57bbb6]" onClick={() => {
+              // Try to open phone dialer
+              const phoneNumber = '3473126458';
+              const telLink = `tel:${phoneNumber}`;
               
-              {/* Services Dropdown */}
-              <div className="relative group">
-                <button 
-                  className="flex items-center text-muted-foreground hover:text-primary transition-colors"
-                  onMouseEnter={() => setIsServicesOpen(true)}
-                  onMouseLeave={() => setIsServicesOpen(false)}
-                >
-                  Services <ChevronDown className="ml-1 h-4 w-4" />
-                </button>
-                <div 
-                  className={`absolute top-full left-0 bg-background shadow-lg rounded-md py-2 w-64 transition-all duration-200 z-50 ${
-                    isServicesOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
-                  }`}
-                  onMouseEnter={() => setIsServicesOpen(true)}
-                  onMouseLeave={() => setIsServicesOpen(false)}
-                >
-                  <button onClick={() => scrollToSection('services')} className="block px-4 py-2 text-muted-foreground hover:bg-secondary hover:text-primary w-full text-left">
-                    Free Prescription Delivery
-                  </button>
-                  <button onClick={() => scrollToSection('services')} className="block px-4 py-2 text-muted-foreground hover:bg-secondary hover:text-primary w-full text-left">
-                    Medication Synchronization
-                  </button>
-                  <button onClick={() => scrollToSection('services')} className="block px-4 py-2 text-muted-foreground hover:bg-secondary hover:text-primary w-full text-left">
-                    Immunizations
-                  </button>
-                  <button onClick={() => scrollToSection('services')} className="block px-4 py-2 text-muted-foreground hover:bg-secondary hover:text-primary w-full text-left">
-                    Medication Therapy Management
-                  </button>
-                  <button onClick={() => scrollToSection('services')} className="block px-4 py-2 text-muted-foreground hover:bg-secondary hover:text-primary w-full text-left">
-                    Durable Medical Equipment
-                  </button>
-                  <button onClick={() => scrollToSection('services')} className="block px-4 py-2 text-muted-foreground hover:bg-secondary hover:text-primary w-full text-left">
-                    Private Consultation
-                  </button>
-                  <button onClick={onAppointmentClick} className="block px-4 py-2 text-muted-foreground hover:bg-secondary hover:text-primary w-full text-left">
-                    Book Appointment
-                  </button>
-                </div>
-              </div>
-
-              {/* Prescription Services Dropdown */}
-              <div className="relative group">
-                <button 
-                  className="flex items-center text-muted-foreground hover:text-primary transition-colors"
-                  onMouseEnter={() => setIsPrescriptionOpen(true)}
-                  onMouseLeave={() => setIsPrescriptionOpen(false)}
-                >
-                  Prescriptions <ChevronDown className="ml-1 h-4 w-4" />
-                </button>
-                <div 
-                  className={`absolute top-full left-0 bg-background shadow-lg rounded-md py-2 w-56 transition-all duration-200 z-50 ${
-                    isPrescriptionOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
-                  }`}
-                  onMouseEnter={() => setIsPrescriptionOpen(true)}
-                  onMouseLeave={() => setIsPrescriptionOpen(false)}
-                >
-                  <button onClick={onRefillClick} className="block px-4 py-2 text-muted-foreground hover:bg-secondary hover:text-primary w-full text-left">
-                    Refill Prescription
-                  </button>
-                  <button onClick={onTransferClick} className="block px-4 py-2 text-muted-foreground hover:bg-secondary hover:text-primary w-full text-left">
-                    Transfer Prescription
-                  </button>
-                  <button onClick={() => scrollToSection('otc')} className="block px-4 py-2 text-muted-foreground hover:bg-secondary hover:text-primary w-full text-left">
-                    Over-the-Counter
-                  </button>
-                </div>
-              </div>
-
-              <button onClick={() => scrollToSection('contact')} className="text-muted-foreground hover:text-primary transition-colors">
-                Contact Us
-              </button>
-              
-              <Button onClick={onRefillClick}>
-                Refill Now
-              </Button>
-            </nav>
-
-            {/* Mobile Menu Button */}
-            <button
-              className="lg:hidden"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              // For mobile devices, this will open the phone app
+              // For desktop, it will show a confirmation dialog
+              if (navigator.userAgent.match(/iPhone|iPad|iPod|Android/i)) {
+                window.location.href = telLink;
+              } else {
+                // For desktop browsers, show a confirmation dialog
+                if (confirm(`Call ${phoneNumber}?`)) {
+                  window.open(telLink);
+                }
+              }
+            }}>
+              <Phone className="w-5 h-5" />
+              Call Now
             </button>
           </div>
-
-          {/* Mobile Navigation */}
-          {isMenuOpen && (
-            <nav className="lg:hidden pb-4">
-              <div className="flex flex-col space-y-4">
-                <button onClick={() => scrollToSection('home')} className="text-left text-muted-foreground hover:text-primary">
-                  Home
-                </button>
-                <button onClick={() => scrollToSection('about')} className="text-left text-muted-foreground hover:text-primary">
-                  About Us
-                </button>
-                <button onClick={() => scrollToSection('services')} className="text-left text-muted-foreground hover:text-primary">
-                  Services
-                </button>
-                <button onClick={onAppointmentClick} className="text-left text-muted-foreground hover:text-primary">
-                  Book Appointment
-                </button>
-                <button onClick={onRefillClick} className="text-left text-muted-foreground hover:text-primary">
-                  Refill Prescription
-                </button>
-                <button onClick={onTransferClick} className="text-left text-muted-foreground hover:text-primary">
-                  Transfer Prescription
-                </button>
-                <button onClick={() => scrollToSection('otc')} className="text-left text-muted-foreground hover:text-primary">
-                  Over-the-Counter
-                </button>
-                <button onClick={() => scrollToSection('contact')} className="text-left text-muted-foreground hover:text-primary">
-                  Contact Us
-                </button>
-              </div>
-            </nav>
-          )}
         </div>
       </header>
+
+
+
+      {/* Mobile Navigation */}
+      {isMenuOpen && (
+        <nav className="lg:hidden pb-4">
+          <div className="flex flex-col space-y-4">
+            <button onClick={() => scrollToSection('home')} className="text-left text-muted-foreground hover:text-primary">
+              Home
+            </button>
+            <button onClick={() => scrollToSection('about')} className="text-left text-muted-foreground hover:text-primary">
+              About Us
+            </button>
+            <button onClick={() => scrollToSection('services')} className="text-left text-muted-foreground hover:text-primary">
+              Services
+            </button>
+            <button onClick={onAppointmentClick} className="text-left text-muted-foreground hover:text-primary">
+              Book Appointment
+            </button>
+            <button onClick={onRefillClick} className="text-left text-muted-foreground hover:text-primary">
+              Refill Prescription
+            </button>
+            <button onClick={onTransferClick} className="text-left text-muted-foreground hover:text-primary">
+              Transfer Prescription
+            </button>
+            <button onClick={() => scrollToSection('otc')} className="text-left text-muted-foreground hover:text-primary">
+              Over-the-Counter
+            </button>
+            <button onClick={() => scrollToSection('contact')} className="text-left text-muted-foreground hover:text-primary">
+              Contact Us
+            </button>
+          </div>
+        </nav>
+      )}
     </>
   );
 };

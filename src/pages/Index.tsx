@@ -11,11 +11,13 @@ import { TransferForm } from "@/components/TransferForm";
 import { OTCSection } from "@/components/OTCSection";
 import { Toaster } from "@/components/ui/toaster";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   const [showRefillForm, setShowRefillForm] = useState(false);
   const [showAppointmentForm, setShowAppointmentForm] = useState(false);
   const [showTransferForm, setShowTransferForm] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background">
@@ -25,7 +27,10 @@ const Index = () => {
         onTransferClick={() => setShowTransferForm(true)}
       />
       <Hero onRefillClick={() => setShowRefillForm(true)} />
-      <Services onAppointmentClick={() => setShowAppointmentForm(true)} />
+      <Services 
+        onAppointmentClick={() => setShowAppointmentForm(true)} 
+        onShopClick={() => navigate('/shop')}
+      />
       <About />
       <OTCSection />
       <Testimonials />

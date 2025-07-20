@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import api from '../lib/api';
 
 interface RefillFormProps {
   isOpen: boolean;
@@ -13,40 +14,63 @@ interface RefillFormProps {
 
 export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
   const [formData, setFormData] = useState({
-    patientName: '',
-    dateOfBirth: '',
+    firstName: '',
+    lastName: '',
     phone: '',
     email: '',
     prescriptionNumber: '',
-    medicationName: '',
-    physicianName: '',
-    pickupDate: '',
-    deliveryOption: 'pickup',
-    deliveryAddress: '',
-    specialInstructions: ''
+    medication: '',
+    pharmacy: '',
+    notes: ''
   });
-  const { toast } = useToast();
+  const [prescriptionFile, setPrescriptionFile] = useState<File | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Refill Request Submitted!",
-      description: "We'll process your prescription refill and contact you when it's ready.",
-    });
-    setFormData({
-      patientName: '',
-      dateOfBirth: '',
-      phone: '',
-      email: '',
-      prescriptionNumber: '',
-      medicationName: '',
-      physicianName: '',
-      pickupDate: '',
-      deliveryOption: 'pickup',
-      deliveryAddress: '',
-      specialInstructions: ''
-    });
-    onClose();
+    
+    // Validate file upload
+    if (!prescriptionFile) {
+      setError('Please upload your prescription file');
+      toast({ title: 'Error', description: 'Please upload your prescription file', variant: 'destructive' });
+      return;
+    }
+    
+    setLoading(true);
+    setError('');
+    setSuccess(false);
+    try {
+      // Create FormData to include file upload
+      const formDataToSend = new FormData();
+      formDataToSend.append('file', prescriptionFile);
+      
+      // Add all form fields to FormData
+      Object.entries(formData).forEach(([key, value]) => {
+        formDataToSend.append(key, value);
+      });
+      
+      await api.post('/prescriptions/refill', formDataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      setSuccess(true);
+      setFormData({
+        firstName: '', lastName: '', phone: '', email: '', prescriptionNumber: '', medication: '', pharmacy: '', notes: ''
+      });
+      setPrescriptionFile(null);
+      toast({ title: 'Refill Request Submitted!', description: "We'll process your prescription refill and contact you when it's ready." });
+      onClose();
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to submit refill request');
+      toast({ title: 'Error', description: error, variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -86,27 +110,28 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-muted-foreground mb-2">
-                      Full Name *
+                      First Name *
                     </label>
                     <Input
-                      name="patientName"
+                      name="firstName"
                       type="text"
                       required
-                      value={formData.patientName}
+                      value={formData.firstName}
                       onChange={handleChange}
-                      placeholder="Enter your full name"
+                      placeholder="Enter your first name"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-muted-foreground mb-2">
-                      Date of Birth *
+                      Last Name *
                     </label>
                     <Input
-                      name="dateOfBirth"
-                      type="date"
+                      name="lastName"
+                      type="text"
                       required
-                      value={formData.dateOfBirth}
+                      value={formData.lastName}
                       onChange={handleChange}
+                      placeholder="Enter your last name"
                     />
                   </div>
                 </div>
@@ -150,14 +175,15 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-muted-foreground mb-2">
-                      Prescription Number
+                      Prescription Number *
                     </label>
                     <Input
                       name="prescriptionNumber"
                       type="text"
+                      required
                       value={formData.prescriptionNumber}
                       onChange={handleChange}
-                      placeholder="Rx# (if available)"
+                      placeholder="Rx# (required)"
                     />
                   </div>
                   <div>
@@ -165,10 +191,10 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
                       Medication Name *
                     </label>
                     <Input
-                      name="medicationName"
+                      name="medication"
                       type="text"
                       required
-                      value={formData.medicationName}
+                      value={formData.medication}
                       onChange={handleChange}
                       placeholder="Name of medication"
                     />
@@ -177,88 +203,55 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
 
                 <div>
                   <label className="block text-sm font-medium text-muted-foreground mb-2">
-                    Prescribing Physician
+                    Current Pharmacy
                   </label>
                   <Input
-                    name="physicianName"
+                    name="pharmacy"
                     type="text"
-                    value={formData.physicianName}
+                    value={formData.pharmacy}
                     onChange={handleChange}
-                    placeholder="Doctor's name"
+                    placeholder="Name of current pharmacy"
                   />
                 </div>
               </div>
 
-              {/* Pickup/Delivery Options */}
-              <div className="space-y-4">
-                <div className="flex items-center space-x-2 mb-4">
-                  <Calendar className="h-5 w-5 text-primary" />
-                  <h3 className="text-lg font-semibold text-foreground">Pickup & Delivery</h3>
-                </div>
+              {/* Additional Notes */}
+              <div>
+                <label className="block text-sm font-medium text-muted-foreground mb-2">
+                  Additional Notes (Optional)
+                </label>
+                <Textarea
+                  name="notes"
+                  rows={3}
+                  value={formData.notes}
+                  onChange={handleChange}
+                  placeholder="Any special instructions, questions, or additional information..."
+                />
+              </div>
 
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">
-                      Preferred Date
-                    </label>
-                    <Input
-                      name="pickupDate"
-                      type="date"
-                      value={formData.pickupDate}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">
-                      Delivery Option
-                    </label>
-                    <select
-                      name="deliveryOption"
-                      value={formData.deliveryOption}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
-                    >
-                      <option value="pickup">Pickup at Pharmacy</option>
-                      <option value="delivery">Free Home Delivery</option>
-                    </select>
-                  </div>
-                </div>
-
-                {formData.deliveryOption === 'delivery' && (
-                  <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">
-                      Delivery Address *
-                    </label>
-                    <Input
-                      name="deliveryAddress"
-                      type="text"
-                      required={formData.deliveryOption === 'delivery'}
-                      value={formData.deliveryAddress}
-                      onChange={handleChange}
-                      placeholder="Full delivery address"
-                    />
+              {/* Prescription File Upload */}
+              <div>
+                <label className="block text-sm font-medium text-[#376f6b] mb-2">
+                  Upload Prescription *
+                </label>
+                <input 
+                  type="file" 
+                  accept="image/*,application/pdf" 
+                  onChange={e => setPrescriptionFile(e.target.files?.[0] || null)} 
+                  required 
+                  className="border p-2 rounded w-full" 
+                />
+                {prescriptionFile && (
+                  <div className="text-[#57bbb6] mt-1">
+                    Selected: {prescriptionFile.name}
                   </div>
                 )}
               </div>
 
-              {/* Special Instructions */}
-              <div>
-                <label className="block text-sm font-medium text-muted-foreground mb-2">
-                  Special Instructions
-                </label>
-                <Textarea
-                  name="specialInstructions"
-                  rows={3}
-                  value={formData.specialInstructions}
-                  onChange={handleChange}
-                  placeholder="Any special instructions or questions..."
-                />
-              </div>
-
               <div className="flex space-x-4 pt-4">
-                <Button type="submit" className="flex-1 bg-primary hover:bg-pharmacy-blue-dark text-lg py-3">
-                  Submit Refill Request
-                </Button>
+                <Button type="submit" className="w-full text-lg py-3" disabled={loading}>{loading ? 'Submitting...' : 'Submit'}</Button>
+                {error && <div className="text-red-500 mt-2">{error}</div>}
+                {success && <div className="text-green-600 mt-2">Refill request sent!</div>}
                 <Button type="button" variant="outline" onClick={onClose} className="px-6">
                   Cancel
                 </Button>

@@ -1,8 +1,10 @@
 import { ShoppingCart, Heart, Zap, Thermometer, Bandage, Pill } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 export const OTCSection = () => {
+  const navigate = useNavigate();
   const otcCategories = [
     {
       icon: Heart,
@@ -83,11 +85,33 @@ export const OTCSection = () => {
             Can't find what you're looking for? Our knowledgeable staff is here to help!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button>
+            <Button 
+              onClick={() => navigate('/shop')}
+              className="bg-[#376f6b] hover:bg-[#57bbb6] text-white"
+            >
               Browse Products In-Store
             </Button>
-            <Button variant="outline">
-              Call for Availability
+            <Button 
+              variant="outline"
+              onClick={() => {
+                // Try to open phone dialer
+                const phoneNumber = '3473126458';
+                const telLink = `tel:${phoneNumber}`;
+                
+                // For mobile devices, this will open the phone app
+                // For desktop, it will show a confirmation dialog
+                if (navigator.userAgent.match(/iPhone|iPad|iPod|Android/i)) {
+                  window.location.href = telLink;
+                } else {
+                  // For desktop browsers, show a confirmation dialog
+                  if (confirm(`Call ${phoneNumber}?`)) {
+                    window.open(telLink);
+                  }
+                }
+              }}
+              className="border-[#376f6b] text-[#376f6b] hover:bg-[#376f6b] hover:text-white transition-colors"
+            >
+              📞 Call for Availability
             </Button>
           </div>
         </div>

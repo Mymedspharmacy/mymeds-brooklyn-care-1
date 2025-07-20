@@ -70,6 +70,14 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				brand: {
+					DEFAULT: '#376f6b', // main brand color
+					light: '#57bbb6',  // lighter accent
+					dark: '#2e8f88',   // dark accent
+					accent: '#31968a', // secondary accent
+					white: '#ffffff',  // white
+					black: '#231f20',  // near-black
 				}
 			},
 			borderRadius: {

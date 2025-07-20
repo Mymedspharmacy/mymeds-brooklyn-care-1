@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import api from '../lib/api';
 
 interface AppointmentFormProps {
   isOpen: boolean;
@@ -23,6 +24,9 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
     notes: ''
   });
   const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
 
   const services = [
     'Immunizations (Flu Shot, COVID-19, etc.)',
@@ -41,17 +45,23 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
     '4:00 PM', '4:30 PM', '5:00 PM', '5:30 PM'
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Appointment Request Submitted!",
-      description: "We'll contact you within 24 hours to confirm your appointment.",
-    });
-    setFormData({
-      firstName: '', lastName: '', phone: '', email: '', service: '',
-      preferredDate: '', preferredTime: '', notes: ''
-    });
-    onClose();
+    setLoading(true);
+    setError('');
+    setSuccess(false);
+    try {
+      await api.post('/appointments/request', formData);
+      setSuccess(true);
+      setFormData({ firstName: '', lastName: '', phone: '', email: '', service: '', preferredDate: '', preferredTime: '', notes: '' });
+      toast({ title: 'Appointment Request Submitted!', description: "We'll contact you within 24 hours to confirm your appointment." });
+      onClose();
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to submit appointment request');
+      toast({ title: 'Error', description: error, variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -228,13 +238,13 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
             </div>
 
             <div className="flex gap-4">
-              <Button type="submit" className="flex-1">
-                Submit Request
-              </Button>
+              <Button type="submit" className="w-full text-lg py-3" disabled={loading}>{loading ? 'Submitting...' : 'Submit'}</Button>
               <Button type="button" variant="outline" onClick={onClose} className="flex-1">
                 Cancel
               </Button>
             </div>
+            {error && <div className="text-red-500 mt-2">{error}</div>}
+            {success && <div className="text-green-600 mt-2">Appointment request sent!</div>}
           </form>
         </CardContent>
       </Card>

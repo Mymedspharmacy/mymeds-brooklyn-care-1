@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import api from '../lib/api';
 
 interface TransferFormProps {
   isOpen: boolean;
@@ -21,28 +22,60 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
     currentPharmacy: '',
     currentPharmacyPhone: '',
     currentPharmacyAddress: '',
-    medicationName: '',
+    medication: '',
     prescriptionNumber: '',
     prescribingDoctor: '',
     insuranceProvider: '',
     insuranceMemberID: '',
     notes: ''
   });
+  const [prescriptionFile, setPrescriptionFile] = useState(null);
   const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Transfer Request Submitted!",
-      description: "We'll process your prescription transfer within 24 hours and notify you when it's ready.",
-    });
-    setFormData({
-      firstName: '', lastName: '', dateOfBirth: '', phone: '', email: '',
-      currentPharmacy: '', currentPharmacyPhone: '', currentPharmacyAddress: '',
-      medicationName: '', prescriptionNumber: '', prescribingDoctor: '',
-      insuranceProvider: '', insuranceMemberID: '', notes: ''
-    });
-    onClose();
+    
+    // Validate file upload
+    if (!prescriptionFile) {
+      setError('Please upload your prescription file');
+      toast({ title: 'Error', description: 'Please upload your prescription file', variant: 'destructive' });
+      return;
+    }
+    
+    setLoading(true);
+    setError('');
+    setSuccess(false);
+    try {
+      // Create FormData to include file upload
+      const formDataToSend = new FormData();
+      formDataToSend.append('file', prescriptionFile);
+      
+      // Add all form fields to FormData
+      Object.entries(formData).forEach(([key, value]) => {
+        formDataToSend.append(key, value);
+      });
+      
+      await api.post('/prescriptions/transfer', formDataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      setSuccess(true);
+      setFormData({
+        firstName: '', lastName: '', dateOfBirth: '', phone: '', email: '', currentPharmacy: '', currentPharmacyPhone: '', currentPharmacyAddress: '', medication: '', prescriptionNumber: '', prescribingDoctor: '', insuranceProvider: '', insuranceMemberID: '', notes: ''
+      });
+      setPrescriptionFile(null);
+      toast({ title: 'Transfer Request Submitted!', description: "We'll process your prescription transfer within 24 hours and notify you when it's ready." });
+      onClose();
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to submit transfer request');
+      toast({ title: 'Error', description: error, variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -224,15 +257,15 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
               </h3>
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="medicationName" className="block text-sm font-medium text-foreground mb-2">
+                  <label htmlFor="medication" className="block text-sm font-medium text-foreground mb-2">
                     Medication Name
                   </label>
                   <Input
-                    id="medicationName"
-                    name="medicationName"
+                    id="medication"
+                    name="medication"
                     type="text"
                     required
-                    value={formData.medicationName}
+                    value={formData.medication}
                     onChange={handleChange}
                     placeholder="e.g., Lisinopril 10mg"
                   />
@@ -312,6 +345,12 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
               />
             </div>
 
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-[#376f6b] mb-2">Upload Prescription *</label>
+              <input type="file" accept="image/*,application/pdf" onChange={e => setPrescriptionFile(e.target.files[0])} required className="border p-2 rounded w-full" />
+              {prescriptionFile && <div className="text-[#57bbb6] mt-1">Selected: {prescriptionFile.name}</div>}
+            </div>
+
             <div className="bg-secondary/50 p-4 rounded-lg">
               <p className="text-sm text-muted-foreground">
                 <strong>Important:</strong> We will contact your current pharmacy directly to transfer your prescription(s). 
@@ -320,12 +359,9 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
             </div>
 
             <div className="flex gap-4">
-              <Button type="submit" className="flex-1">
-                Submit Transfer Request
-              </Button>
-              <Button type="button" variant="outline" onClick={onClose} className="flex-1">
-                Cancel
-              </Button>
+              <Button type="submit" className="w-full text-lg py-3" disabled={loading}>{loading ? 'Submitting...' : 'Submit'}</Button>
+              {error && <div className="text-red-500 mt-2">{error}</div>}
+              {success && <div className="text-green-600 mt-2">Transfer request sent!</div>}
             </div>
           </form>
         </CardContent>
