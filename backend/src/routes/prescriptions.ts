@@ -51,8 +51,13 @@ function auth(req: AuthRequest, res: Response, next: NextFunction) {
   if (!header) return res.status(401).json({ error: 'No token' });
   try {
     const token = header.split(' ')[1];
-    req.user = jwt.verify(token, JWT_SECRET);
-    next();
+    const payload = jwt.verify(token, JWT_SECRET);
+    if (typeof payload === 'object' && 'userId' in payload) {
+      req.user = payload;
+      next();
+    } else {
+      res.status(401).json({ error: 'Invalid token' });
+    }
   } catch {
     res.status(401).json({ error: 'Invalid token' });
   }

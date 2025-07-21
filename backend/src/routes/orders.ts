@@ -57,7 +57,7 @@ router.post('/public', async (req: Request, res: Response) => {
           email: 'public@mymeds.com',
           name: 'Public Customer',
           password: 'public123',
-          role: 'USER'
+          role: 'CUSTOMER'
         }
       });
     }
@@ -114,7 +114,7 @@ router.post('/public', async (req: Request, res: Response) => {
           <p><strong>Total:</strong> $${total}</p>
           <h3>Items:</h3>
           <ul>
-            ${items.map(item => `<li>${item.quantity}x ${item.productName} - $${item.price}</li>`).join('')}
+            ${items.map((item: any) => `<li>${item.quantity}x ${item.productName} - $${item.price}</li>`).join('')}
           </ul>
           <p><strong>Notes:</strong> ${customerInfo.notes || 'None'}</p>
         `

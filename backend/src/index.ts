@@ -33,8 +33,15 @@ const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10 });
 const contactLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20 });
 
 // Health check
-app.get('/api/health', (req: Request, res: Response) => {
-  res.json({ status: 'ok', message: 'MyMeds backend is running!' });
+app.get('/api/health', async (req: Request, res: Response) => {
+  try {
+    // Try a simple DB query
+    await prisma.user.findFirst();
+    res.json({ status: 'ok', message: 'MyMeds backend and DB are running!' });
+  } catch (err) {
+    console.error('DB health check failed:', err);
+    res.status(500).json({ status: 'error', message: 'Database connection failed' });
+  }
 });
 
 // API routes
