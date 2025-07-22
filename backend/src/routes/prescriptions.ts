@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import nodemailer from 'nodemailer';
 
 interface AuthRequest extends Request {
   user?: any;
@@ -12,6 +13,18 @@ interface AuthRequest extends Request {
 const router = Router();
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'changeme';
+
+// Email transporter setup
+const emailRecipient = process.env.CONTACT_RECEIVER || process.env.EMAIL_USER;
+const emailTransporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST || 'smtp.office365.com',
+  port: Number(process.env.SMTP_PORT) || 587,
+  secure: false,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -101,6 +114,20 @@ router.post('/refill', upload.single('file'), async (req: Request, res: Response
       }
     });
     
+    // Send notification email
+    try {
+      if (emailRecipient) {
+        await emailTransporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: emailRecipient,
+          subject: `New Prescription Refill Request from ${firstName} ${lastName}`,
+          text: `Patient: ${firstName} ${lastName}\nPhone: ${phone}\nEmail: ${email}\nPrescription #: ${prescriptionNumber}\nMedication: ${medication}\nCurrent Pharmacy: ${pharmacy}\nNotes: ${notes}`
+        });
+      }
+    } catch (emailError) {
+      console.error('Failed to send refill notification email:', emailError);
+    }
+
     res.status(201).json({ 
       success: true, 
       message: 'Refill request submitted successfully',
@@ -151,6 +178,20 @@ router.post('/transfer', upload.single('file'), async (req: Request, res: Respon
       }
     });
     
+    // Send notification email
+    try {
+      if (emailRecipient) {
+        await emailTransporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: emailRecipient,
+          subject: `New Prescription Transfer Request from ${firstName} ${lastName}`,
+          text: `Patient: ${firstName} ${lastName}\nPhone: ${phone}\nEmail: ${email}\nPrescription #: ${prescriptionNumber}\nMedication: ${medication}\nCurrent Pharmacy: ${currentPharmacy}\nNotes: ${notes}`
+        });
+      }
+    } catch (emailError) {
+      console.error('Failed to send transfer notification email:', emailError);
+    }
+
     res.status(201).json({ 
       success: true, 
       message: 'Transfer request submitted successfully',

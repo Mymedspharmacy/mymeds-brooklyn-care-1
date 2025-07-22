@@ -15,6 +15,9 @@ import contactRoutes from './routes/contact';
 import rateLimit from 'express-rate-limit';
 import { AuthRequest } from './types/express';
 import paymentsRoutes from './routes/payments';
+import { supabaseAdminAuth } from './routes/users';
+import reviewsRoutes from './routes/reviews';
+import settingsRoutes from './routes/settings';
 
 // Load env vars
 dotenv.config();
@@ -24,7 +27,10 @@ const prisma = new PrismaClient();
 
 // Middleware
 app.use(helmet());
-app.use(cors({ origin: process.env.NODE_ENV === 'production' ? 'https://your-frontend-domain.com' : '*', credentials: true }));
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' ? 'https://your-frontend-domain.com' : 'http://localhost:8080',
+  credentials: true
+}));
 app.use(express.json({ limit: '2mb' }));
 app.use(morgan('combined'));
 
@@ -54,6 +60,51 @@ app.use('/api/appointments', appointmentRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/contact', contactLimiter, contactRoutes);
 app.use('/api/payments', paymentsRoutes);
+app.use('/api/reviews', reviewsRoutes);
+app.use('/api/settings', settingsRoutes);
+
+// Notification endpoints
+app.get('/api/notifications', supabaseAdminAuth, async (req: Request, res: Response) => {
+  try {
+    const [orders, appointments, prescriptions, contacts] = await Promise.all([
+      prisma.order.findMany({ where: { notified: false }, orderBy: { createdAt: 'desc' } }),
+      prisma.appointment.findMany({ where: { notified: false }, orderBy: { createdAt: 'desc' } }),
+      prisma.prescription.findMany({ where: { notified: false }, orderBy: { createdAt: 'desc' } }),
+      prisma.contactForm.findMany({ where: { notified: false }, orderBy: { createdAt: 'desc' } })
+    ]);
+    res.json({ orders, appointments, prescriptions, contacts });
+  } catch (err) {
+    console.error('Error fetching notifications:', err);
+    res.status(500).json({ error: 'Failed to fetch notifications' });
+  }
+});
+
+app.post('/api/notifications/mark-read', supabaseAdminAuth, async (req: Request, res: Response) => {
+  const { type, id } = req.body;
+  try {
+    let result;
+    switch (type) {
+      case 'order':
+        result = await prisma.order.update({ where: { id: Number(id) }, data: { notified: true } });
+        break;
+      case 'appointment':
+        result = await prisma.appointment.update({ where: { id: Number(id) }, data: { notified: true } });
+        break;
+      case 'prescription':
+        result = await prisma.prescription.update({ where: { id: Number(id) }, data: { notified: true } });
+        break;
+      case 'contact':
+        result = await prisma.contactForm.update({ where: { id: Number(id) }, data: { notified: true } });
+        break;
+      default:
+        return res.status(400).json({ error: 'Invalid notification type' });
+    }
+    res.json({ success: true, result });
+  } catch (err) {
+    console.error('Error marking notification as read:', err);
+    res.status(500).json({ error: 'Failed to mark notification as read' });
+  }
+});
 
 // 404 handler
 app.use((req: Request, res: Response, next: NextFunction) => {

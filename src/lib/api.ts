@@ -7,11 +7,17 @@ const api = axios.create({
   },
 });
 
+// On load, set the admin token if present
+const adminToken = localStorage.getItem('sb-admin-token');
+if (adminToken) {
+  api.defaults.headers.common['Authorization'] = `Bearer ${adminToken}`;
+}
+
 // Attach token to all requests if present
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  // Prefer sb-admin-token, fallback to 'token'
+  const token = localStorage.getItem('sb-admin-token') || localStorage.getItem('token');
   if (token) {
-
     config.headers['Authorization'] = `Bearer ${token}`;
   }
   return config;

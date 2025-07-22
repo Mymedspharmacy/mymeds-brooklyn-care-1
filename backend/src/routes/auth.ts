@@ -89,11 +89,15 @@ router.post('/admin-reset', async (req, res) => {
     } catch {
       return res.status(400).json({ error: 'Invalid or expired token' });
     }
-    const user = await prisma.user.findUnique({ where: { id: payload.userId } });
-    if (!user || user.role !== 'ADMIN') return res.status(400).json({ error: 'Invalid user' });
-    const hash = await bcrypt.hash(password, 10);
-    await prisma.user.update({ where: { id: user.id }, data: { password: hash } });
-    res.json({ success: true });
+    if (typeof payload === 'object' && payload !== null && 'userId' in payload) {
+      const user = await prisma.user.findUnique({ where: { id: (payload as any).userId } });
+      if (!user || user.role !== 'ADMIN') return res.status(400).json({ error: 'Invalid user' });
+      const hash = await bcrypt.hash(password, 10);
+      await prisma.user.update({ where: { id: user.id }, data: { password: hash } });
+      res.json({ success: true });
+    } else {
+      return res.status(400).json({ error: 'Invalid or expired token' });
+    }
   } catch (err) {
     console.error('Admin reset error:', err);
     res.status(500).json({ error: 'Failed to reset password' });

@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
+import nodemailer from 'nodemailer';
 
 interface AuthRequest extends Request {
   user?: any;
@@ -9,6 +10,17 @@ interface AuthRequest extends Request {
 const router = Router();
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'changeme';
+
+const emailRecipient = process.env.CONTACT_RECEIVER || process.env.EMAIL_USER;
+const emailTransporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST || 'smtp.office365.com',
+  port: Number(process.env.SMTP_PORT) || 587,
+  secure: false,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
 
 function auth(req: AuthRequest, res: Response, next: NextFunction) {
   const header = req.headers.authorization;
@@ -60,6 +72,20 @@ router.post('/request', async (req: Request, res: Response) => {
       }
     });
     
+    // Send notification email
+    try {
+      if (emailRecipient) {
+        await emailTransporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: emailRecipient,
+          subject: `New Appointment Request from ${firstName} ${lastName}`,
+          text: `Patient: ${firstName} ${lastName}\nPhone: ${phone}\nEmail: ${email}\nService: ${service}\nPreferred Date: ${preferredDate}\nPreferred Time: ${preferredTime}\nNotes: ${notes}`
+        });
+      }
+    } catch (emailError) {
+      console.error('Failed to send appointment notification email:', emailError);
+    }
+
     res.status(201).json({ 
       success: true, 
       message: 'Appointment request submitted successfully',

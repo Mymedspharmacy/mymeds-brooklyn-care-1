@@ -17,17 +17,29 @@ model User {
   appointments  Appointment[]
   orders        Order[]
   prescriptions Prescription[]
+  reviews       Review[]
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  products Product[]
 }
 
 model Product {
-  id          Int         @id @default(autoincrement())
+  id          Int              @id @default(autoincrement())
   name        String
   description String
   price       Float
   stock       Int
-  imageUrl    String?
-  createdAt   DateTime    @default(now())
+  imageUrl    String? // legacy, keep for now
+  createdAt   DateTime         @default(now())
+  categoryId  Int
+  category    Category         @relation(fields: [categoryId], references: [id])
   orders      OrderItem[]
+  images      ProductImage[]
+  variants    ProductVariant[]
+  Review      Review[]
 }
 
 model Order {
@@ -36,6 +48,7 @@ model Order {
   total     Float
   status    String
   createdAt DateTime    @default(now())
+  notified  Boolean     @default(false)
   user      User        @relation(fields: [userId], references: [id])
   items     OrderItem[]
 }
@@ -57,6 +70,7 @@ model Prescription {
   dosage       String
   instructions String
   createdAt    DateTime @default(now())
+  notified     Boolean  @default(false)
   user         User     @relation(fields: [userId], references: [id])
 }
 
@@ -67,6 +81,7 @@ model Appointment {
   reason    String
   status    String
   createdAt DateTime @default(now())
+  notified  Boolean  @default(false)
   user      User     @relation(fields: [userId], references: [id])
 }
 
@@ -84,6 +99,52 @@ model ContactForm {
   email     String
   message   String
   createdAt DateTime @default(now())
+  notified  Boolean  @default(false)
+}
+
+model ProductImage {
+  id        Int      @id @default(autoincrement())
+  url       String
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model ProductVariant {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  name      String // e.g., 'Size', 'Color'
+  value     String // e.g., 'Large', 'Red'
+  price     Float?
+  stock     Int?
+  createdAt DateTime @default(now())
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  product   Product  @relation(fields: [productId], references: [id])
+  productId Int
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    Int?
+  name      String
+  rating    Int
+  text      String
+  status    String   @default("pending") // or "approved"
+  createdAt DateTime @default(now())
+}
+
+model Settings {
+  id            Int      @id @default(1)
+  siteName      String   @default("My Meds Pharmacy")
+  contactEmail  String   @default("")
+  contactPhone  String   @default("")
+  address       String   @default("")
+  businessHours String   @default("")
+  facebook      String?
+  instagram     String?
+  twitter       String?
+  updatedAt     DateTime @updatedAt
 }
 
 enum Role {

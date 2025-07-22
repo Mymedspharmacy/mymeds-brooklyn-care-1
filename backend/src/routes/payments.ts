@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import Stripe from 'stripe';
 
 const router = Router();
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, { apiVersion: '2024-04-10' });
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, { apiVersion: '2025-06-30.basil' });
 
 // POST /api/payments/create-payment-intent
 router.post('/create-payment-intent', async (req: Request, res: Response) => {

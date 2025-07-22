@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
+import { createClient } from '@supabase/supabase-js';
 
 interface AuthRequest extends Request {
   user?: any;
@@ -9,6 +10,8 @@ interface AuthRequest extends Request {
 const router = Router();
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'changeme';
+const SUPABASE_JWT_SECRET = process.env.SUPABASE_JWT_SECRET!;
+const ADMIN_EMAIL = 'mymedspharmacy@outlook.com';
 
 function auth(req: AuthRequest, res: Response, next: NextFunction) {
   const header = req.headers.authorization;
@@ -27,11 +30,31 @@ function auth(req: AuthRequest, res: Response, next: NextFunction) {
   }
 }
 
+function supabaseAdminAuth(req: AuthRequest, res: Response, next: NextFunction) {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'No token' });
+  try {
+    const payload = jwt.verify(token, SUPABASE_JWT_SECRET) as any;
+    // Accept if role is ADMIN (or you can check for a specific email if needed)
+    if (payload.role && payload.role.toUpperCase() === 'ADMIN') {
+      req.user = payload;
+      return next();
+    }
+    // Optionally, allow specific admin emails
+    // if (payload.email && payload.email === ADMIN_EMAIL) {
+    //   req.user = payload;
+    //   return next();
+    // }
+    return res.status(403).json({ error: 'Forbidden' });
+  } catch (err) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+}
+
 // Get current user profile
 router.get('/me', auth, async (req: AuthRequest, res: Response) => {
   try {
     const user = await prisma.user.findUnique({ where: { id: req.user.userId }, select: { id: true, email: true, name: true, role: true, createdAt: true } });
-    if (!user) return res.status(404).json({ error: 'User not found' });
     res.json(user);
   } catch (err) {
     console.error('Error fetching user profile:', err);
@@ -40,9 +63,8 @@ router.get('/me', auth, async (req: AuthRequest, res: Response) => {
 });
 
 // List all users (admin only)
-router.get('/', auth, async (req: AuthRequest, res: Response) => {
+router.get('/', supabaseAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     const users = await prisma.user.findMany({ select: { id: true, email: true, name: true, role: true, createdAt: true } });
     res.json(users);
   } catch (err) {
@@ -52,9 +74,9 @@ router.get('/', auth, async (req: AuthRequest, res: Response) => {
 });
 
 // Update user (self or admin)
-router.put('/:id', auth, async (req: AuthRequest, res: Response) => {
+router.put('/:id', supabaseAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
-    if (req.user.userId !== Number(req.params.id) && req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
+    // Only admin can update any user
     const { name } = req.body;
     const user = await prisma.user.update({ where: { id: Number(req.params.id) }, data: { name } });
     res.json({ id: user.id, email: user.email, name: user.name, role: user.role });
@@ -65,9 +87,8 @@ router.put('/:id', auth, async (req: AuthRequest, res: Response) => {
 });
 
 // Delete user (admin only)
-router.delete('/:id', auth, async (req: AuthRequest, res: Response) => {
+router.delete('/:id', supabaseAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     await prisma.user.delete({ where: { id: Number(req.params.id) } });
     res.json({ success: true });
   } catch (err) {
@@ -76,4 +97,5 @@ router.delete('/:id', auth, async (req: AuthRequest, res: Response) => {
   }
 });
 
+export { supabaseAdminAuth };
 export default router; 

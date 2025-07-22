@@ -86,7 +86,7 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
       <div className="bg-background rounded-lg max-w-2xl w-full max-h-screen overflow-y-auto">
         <Card className="border-0 shadow-xl">
-          <CardHeader className="relative bg-primary text-primary-foreground rounded-t-lg">
+          <CardHeader className="relative rounded-t-lg" style={{ backgroundColor: '#376f6b', color: '#fff' }}>
             <button
               onClick={onClose}
               className="absolute top-4 right-4 text-primary-foreground hover:text-primary-foreground/70"

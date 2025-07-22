@@ -23,7 +23,8 @@ import {
   LogOut,
   AlertCircle,
   Phone,
-  Home
+  Home,
+  Bell
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -35,6 +36,7 @@ import api from '../lib/api';
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', icon: TrendingUp },
   { id: 'products', label: 'Products', icon: Package },
+  { id: 'categories', label: 'Categories', icon: Filter },
   { id: 'blogs', label: 'Blogs', icon: FileText },
   { id: 'orders', label: 'Orders', icon: ShoppingCart },
   { id: 'delivery', label: 'Delivery Map', icon: MapPin },
@@ -61,12 +63,6 @@ const DEMO_USERS = [
   { id: 1, name: 'John Doe', email: 'john@example.com', mobile: '555-1234', role: 'user', status: 'active', joinDate: '2024-01-15' },
   { id: 2, name: 'Jane Smith', email: 'jane@example.com', mobile: '555-5678', role: 'user', status: 'active', joinDate: '2024-01-20' },
   { id: 3, name: 'Admin User', email: 'admin@mymeds.com', mobile: '555-0000', role: 'admin', status: 'active', joinDate: '2024-01-01' },
-];
-
-const DEMO_REVIEWS = [
-  { id: 1, name: 'Maria Rodriguez', rating: 5, text: 'Excellent service and knowledgeable staff!', status: 'approved', date: '2024-01-15' },
-  { id: 2, name: 'James Thompson', rating: 4, text: 'Good experience, but delivery was a bit slow.', status: 'pending', date: '2024-01-16' },
-  { id: 3, name: 'Sarah Chen', rating: 5, text: 'Amazing pharmacy with caring staff!', status: 'approved', date: '2024-01-17' },
 ];
 
 export default function Admin() {
@@ -104,17 +100,21 @@ export default function Admin() {
   const [productsLoading, setProductsLoading] = useState(true);
   const [productsError, setProductsError] = useState('');
   const [editing, setEditing] = useState(null);
+  // Update product form state to include categoryId
   const [form, setForm] = useState({ 
     name: '', 
     price: '', 
     description: '', 
     available: true, 
     image: '', 
-    category: 'Mobility',
+    categoryId: '',
     stock: 0,
     sku: ''
   });
   const [imagePreview, setImagePreview] = useState('');
+  // Add state for product images
+  const [newImages, setNewImages] = useState<File[]>([]);
+  const [uploadingImages, setUploadingImages] = useState(false);
 
   useEffect(() => {
     if (tab === 'products') {
@@ -128,16 +128,17 @@ export default function Admin() {
   }, [tab]);
 
   function handleProductImage(e) {
-    const file = e.target.files[0];
-    if (file) {
+    const files = Array.from(e.target.files) as File[];
+    setNewImages(prev => [...prev, ...files]);
+    // Optionally, show previews for new images
+    files.forEach(file => {
       const reader = new FileReader();
       reader.onload = (ev) => {
         const result = typeof ev.target.result === 'string' ? ev.target.result : '';
-        setForm(f => ({ ...f, image: result }));
-        setImagePreview(result);
+        setImagePreview(prev => prev ? prev : result); // Show first image as preview
       };
       reader.readAsDataURL(file);
-    }
+    });
   }
 
   async function handleProductSubmit(e) {
@@ -147,25 +148,41 @@ export default function Admin() {
       return;
     }
     try {
+      let productRes;
       if (editing) {
-        const res = await api.put(`/products/${editing}`, { ...form, price: Number(form.price), stock: Number(form.stock) });
-        setProducts(products.map(p => p.id === editing ? res.data : p));
+        productRes = await api.put(`/products/${editing}`, { ...form, price: Number(form.price), stock: Number(form.stock) });
+        setProducts(products.map(p => p.id === editing ? productRes.data : p));
         setEditing(null);
         showToastMessage('Product updated successfully');
       } else {
-        const res = await api.post('/products', { ...form, price: Number(form.price), stock: Number(form.stock) });
-        setProducts([...products, res.data]);
+        productRes = await api.post('/products', { ...form, price: Number(form.price), stock: Number(form.stock) });
+        setProducts([...products, productRes.data]);
         showToastMessage('Product added successfully');
       }
-    } catch (err: any) {
+      // Upload new images if any
+      if (newImages.length > 0) {
+        setUploadingImages(true);
+        for (const file of newImages) {
+          const formData = new FormData();
+          formData.append('file', file);
+          await api.post(`/products/${productRes.data.id}/images`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          });
+        }
+        setUploadingImages(false);
+        setNewImages([]);
+      }
+      setForm({ name: '', price: '', description: '', available: true, image: '', categoryId: '', stock: 0, sku: '' });
+      setImagePreview('');
+      // Optionally, refetch products to get updated images
+      api.get('/products').then(res => setProducts(res.data));
+    } catch (err) {
       showToastMessage(err.response?.data?.error || 'Failed to save product', 'error');
     }
-    setForm({ name: '', price: '', description: '', available: true, image: '', category: 'Mobility', stock: 0, sku: '' });
-    setImagePreview('');
   }
   function handleEditProduct(p) {
     setEditing(p.id);
-    setForm({ name: p.name, price: String(p.price), description: p.description, available: p.available, image: p.image, category: p.category, stock: p.stock, sku: p.sku });
+    setForm({ name: p.name, price: String(p.price), description: p.description, available: p.available, image: p.image, categoryId: p.categoryId ? String(p.categoryId) : '', stock: p.stock, sku: p.sku });
     setImagePreview(p.image);
   }
   async function handleDeleteProduct(id) {
@@ -175,6 +192,17 @@ export default function Admin() {
       showToastMessage('Product deleted successfully');
     } catch (err: any) {
       showToastMessage(err.response?.data?.error || 'Failed to delete product', 'error');
+    }
+  }
+
+  // Function to delete an image
+  async function handleDeleteProductImage(imageId, productId) {
+    try {
+      await api.delete(`/products/images/${imageId}`);
+      // Refetch products to update images
+      api.get('/products').then(res => setProducts(res.data));
+    } catch (err) {
+      showToastMessage(err.response?.data?.error || 'Failed to delete image', 'error');
     }
   }
 
@@ -326,36 +354,196 @@ export default function Admin() {
   }
 
   // Reviews Management state
-  const [reviews, setReviews] = useState(DEMO_REVIEWS);
-  function approveReview(id) {
-    setReviews(reviews.map(r => r.id === id ? { ...r, status: 'approved' } : r));
-    showToastMessage('Review approved successfully');
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [reviewsError, setReviewsError] = useState('');
+
+  useEffect(() => {
+    if (tab === 'reviews') {
+      setReviewsLoading(true);
+      setReviewsError('');
+      api.get('/reviews')
+        .then(res => setReviews(res.data))
+        .catch(err => setReviewsError(err.response?.data?.error || 'Failed to load reviews'))
+        .finally(() => setReviewsLoading(false));
+    }
+  }, [tab]);
+
+  async function approveReview(id) {
+    try {
+      await api.put(`/reviews/${id}`, { status: 'approved' });
+      setReviews(reviews.map(r => r.id === id ? { ...r, status: 'approved' } : r));
+      showToastMessage('Review approved successfully');
+    } catch (err) {
+      showToastMessage(err.response?.data?.error || 'Failed to approve review', 'error');
+    }
   }
-  function rejectReview(id) {
-    if (window.confirm('Are you sure you want to reject this review?')) {
-      setReviews(reviews.filter(r => r.id !== id));
+  async function rejectReview(id) {
+    try {
+      await api.put(`/reviews/${id}`, { status: 'rejected' });
+      setReviews(reviews.map(r => r.id === id ? { ...r, status: 'rejected' } : r));
       showToastMessage('Review rejected successfully');
+    } catch (err) {
+      showToastMessage(err.response?.data?.error || 'Failed to reject review', 'error');
+    }
+  }
+  async function handleDeleteReview(id) {
+    try {
+      await api.delete(`/reviews/${id}`);
+      setReviews(reviews.filter(r => r.id !== id));
+      showToastMessage('Review deleted successfully');
+    } catch (err) {
+      showToastMessage(err.response?.data?.error || 'Failed to delete review', 'error');
+    }
+  }
+
+  // Category CRUD state
+  const [categories, setCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [categoriesError, setCategoriesError] = useState('');
+  const [categoryEditing, setCategoryEditing] = useState(null);
+  const [categoryForm, setCategoryForm] = useState({ name: '' });
+
+  useEffect(() => {
+    if (tab === 'categories' || tab === 'products') {
+      setCategoriesLoading(true);
+      setCategoriesError('');
+      api.get('/products/categories')
+        .then(res => setCategories(res.data))
+        .catch(err => setCategoriesError(err.response?.data?.error || 'Failed to load categories'))
+        .finally(() => setCategoriesLoading(false));
+    }
+  }, [tab]);
+
+  async function handleCategorySubmit(e) {
+    e.preventDefault();
+    if (!categoryForm.name) return;
+    try {
+      if (categoryEditing) {
+        const res = await api.put(`/products/categories/${categoryEditing}`, { name: categoryForm.name });
+        setCategories(categories.map(c => c.id === categoryEditing ? res.data : c));
+        setCategoryEditing(null);
+      } else {
+        const res = await api.post('/products/categories', { name: categoryForm.name });
+        setCategories([...categories, res.data]);
+      }
+      setCategoryForm({ name: '' });
+    } catch (err) {
+      showToastMessage(err.response?.data?.error || 'Failed to save category', 'error');
+    }
+  }
+  function handleEditCategory(c) {
+    setCategoryEditing(c.id);
+    setCategoryForm({ name: c.name });
+  }
+  async function handleDeleteCategory(id) {
+    try {
+      await api.delete(`/products/categories/${id}`);
+      setCategories(categories.filter(c => c.id !== id));
+    } catch (err) {
+      showToastMessage(err.response?.data?.error || 'Failed to delete category', 'error');
+    }
+  }
+
+  // Settings state
+  const [settings, setSettings] = useState({
+    siteName: '',
+    contactEmail: '',
+    contactPhone: '',
+    address: '',
+    businessHours: '',
+    facebook: '',
+    instagram: '',
+    twitter: ''
+  });
+  const [settingsLoading, setSettingsLoading] = useState(true);
+  const [settingsError, setSettingsError] = useState('');
+
+  useEffect(() => {
+    if (tab === 'settings') {
+      setSettingsLoading(true);
+      setSettingsError('');
+      api.get('/settings')
+        .then(res => {
+          if (res.data) setSettings(res.data);
+        })
+        .catch(err => setSettingsError(err.response?.data?.error || 'Failed to load settings'))
+        .finally(() => setSettingsLoading(false));
+    }
+  }, [tab]);
+
+  async function handleSettingsSave(e) {
+    e.preventDefault();
+    try {
+      await api.put('/settings', settings);
+      showToastMessage('Settings updated successfully');
+    } catch (err) {
+      showToastMessage(err.response?.data?.error || 'Failed to update settings', 'error');
+    }
+  }
+
+  // Notification state
+  const [notifications, setNotifications] = useState<{ orders: any[]; appointments: any[]; prescriptions: any[]; contacts: any[] }>({ orders: [], appointments: [], prescriptions: [], contacts: [] });
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [notifLoading, setNotifLoading] = useState(false);
+  const [notifError, setNotifError] = useState('');
+
+  // For sound notification
+  const notifSound = typeof window !== 'undefined' ? new Audio('https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae5b6.mp3') : null;
+  const [lastNotifCount, setLastNotifCount] = useState(0);
+
+  // For highlighting selected notification
+  const [highlightedOrder, setHighlightedOrder] = useState(null);
+  const [highlightedTab, setHighlightedTab] = useState(null);
+
+  async function fetchNotifications() {
+    setNotifLoading(true);
+    setNotifError('');
+    try {
+      const res = await api.get('/notifications');
+      setNotifications(res.data);
+      // Play sound if new notifications arrived
+      const total = (Object.values(res.data) as any[]).reduce((sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0);
+      if (total > lastNotifCount && notifSound) {
+        notifSound.play();
+      }
+      setLastNotifCount(total);
+    } catch (err) {
+      setNotifError(err.response?.data?.error || 'Failed to fetch notifications');
+    } finally {
+      setNotifLoading(false);
     }
   }
 
   useEffect(() => {
-    if (tab === 'orders') {
-      setOrdersLoading(true);
-      setOrdersError('');
-      api.get('/orders')
-        .then(res => setOrders(res.data))
-        .catch(err => setOrdersError(err.response?.data?.error || 'Failed to load orders'))
-        .finally(() => setOrdersLoading(false));
-    }
-  }, [tab]);
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30000); // Poll every 30s
+    return () => clearInterval(interval);
+  }, []);
 
-  async function handleOrderStatusUpdate(id, status) {
+  async function markNotificationRead(type, id) {
     try {
-      const res = await api.put(`/orders/${id}`, { status });
-      setOrders(orders.map(o => o.id === id ? { ...o, status: res.data.status } : o));
-      showToastMessage('Order status updated');
-    } catch (err: any) {
-      showToastMessage(err.response?.data?.error || 'Failed to update order', 'error');
+      await api.post('/notifications/mark-read', { type, id });
+      fetchNotifications();
+    } catch {}
+  }
+
+  function handleNotifClick(type, id) {
+    setNotifOpen(false);
+    if (type === 'order') {
+      setTab('orders');
+      setHighlightedOrder(id);
+      setHighlightedTab('orders');
+      setTimeout(() => setHighlightedOrder(null), 3000);
+    } else if (type === 'appointment') {
+      setTab('appointments');
+      setHighlightedTab('appointments');
+    } else if (type === 'prescription') {
+      setTab('prescriptions');
+      setHighlightedTab('prescriptions');
+    } else if (type === 'contact') {
+      setTab('contact');
+      setHighlightedTab('contact');
     }
   }
 
@@ -389,6 +577,97 @@ export default function Admin() {
               </div>
             </div>
             <div className="flex items-center gap-4">
+              <div className="relative">
+                <button
+                  onClick={() => setNotifOpen((o) => !o)}
+                  className="relative p-2 rounded-full hover:bg-gray-100 focus:outline-none"
+                  aria-label="Notifications"
+                >
+                  <Bell className="h-6 w-6 text-[#376f6b]" />
+                  {Object.values(notifications).some(arr => arr.length > 0) && (
+                    <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></span>
+                  )}
+                </button>
+                {notifOpen && (
+                  <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg z-50 border">
+                    <div className="p-4 border-b font-bold text-[#376f6b] flex items-center justify-between">
+                      Notifications
+                      <button onClick={() => setNotifOpen(false)} className="text-gray-400 hover:text-gray-600">&times;</button>
+                    </div>
+                    <div className="max-h-96 overflow-y-auto">
+                      {notifLoading && <div className="p-4 text-gray-500">Loading...</div>}
+                      {notifError && <div className="p-4 text-red-500">{notifError}</div>}
+                      {Object.values(notifications).every(arr => arr.length === 0) && !notifLoading && (
+                        <div className="p-4 text-gray-500">No new notifications</div>
+                      )}
+                      {notifications.orders.length > 0 && (
+                        <div className="border-b">
+                          <div className="p-2 font-semibold text-[#376f6b]">New Orders</div>
+                          {notifications.orders.map(order => (
+                            <div key={order.id} className="flex items-center justify-between px-4 py-2 hover:bg-gray-50 cursor-pointer" onClick={() => handleNotifClick('order', order.id)}>
+                              <div>
+                                <div className="font-medium">Order #{order.id} - {order.user?.name || 'Customer'}</div>
+                                <div className="text-xs text-gray-500">{order.createdAt && new Date(order.createdAt).toLocaleString()}</div>
+                              </div>
+                              <Button size="sm" variant="outline" onClick={e => { e.stopPropagation(); markNotificationRead('order', order.id); }}>
+                                Mark Read
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {notifications.appointments.length > 0 && (
+                        <div className="border-b">
+                          <div className="p-2 font-semibold text-[#376f6b]">New Appointments</div>
+                          {notifications.appointments.map(app => (
+                            <div key={app.id} className="flex items-center justify-between px-4 py-2 hover:bg-gray-50 cursor-pointer" onClick={() => handleNotifClick('appointment', app.id)}>
+                              <div>
+                                <div className="font-medium">Appointment #{app.id}</div>
+                                <div className="text-xs text-gray-500">{app.createdAt && new Date(app.createdAt).toLocaleString()}</div>
+                              </div>
+                              <Button size="sm" variant="outline" onClick={e => { e.stopPropagation(); markNotificationRead('appointment', app.id); }}>
+                                Mark Read
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {notifications.prescriptions.length > 0 && (
+                        <div className="border-b">
+                          <div className="p-2 font-semibold text-[#376f6b]">New Prescriptions</div>
+                          {notifications.prescriptions.map(pres => (
+                            <div key={pres.id} className="flex items-center justify-between px-4 py-2 hover:bg-gray-50 cursor-pointer" onClick={() => handleNotifClick('prescription', pres.id)}>
+                              <div>
+                                <div className="font-medium">Prescription #{pres.id}</div>
+                                <div className="text-xs text-gray-500">{pres.createdAt && new Date(pres.createdAt).toLocaleString()}</div>
+                              </div>
+                              <Button size="sm" variant="outline" onClick={e => { e.stopPropagation(); markNotificationRead('prescription', pres.id); }}>
+                                Mark Read
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {notifications.contacts.length > 0 && (
+                        <div className="border-b">
+                          <div className="p-2 font-semibold text-[#376f6b]">New Contact Forms</div>
+                          {notifications.contacts.map(contact => (
+                            <div key={contact.id} className="flex items-center justify-between px-4 py-2 hover:bg-gray-50 cursor-pointer" onClick={() => handleNotifClick('contact', contact.id)}>
+                              <div>
+                                <div className="font-medium">Contact #{contact.id} - {contact.name}</div>
+                                <div className="text-xs text-gray-500">{contact.createdAt && new Date(contact.createdAt).toLocaleString()}</div>
+                              </div>
+                              <Button size="sm" variant="outline" onClick={e => { e.stopPropagation(); markNotificationRead('contact', contact.id); }}>
+                                Mark Read
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
               <Button 
                 onClick={() => window.open('tel:+1234567890', '_self')}
                 variant="outline"
@@ -604,15 +883,15 @@ export default function Admin() {
                         <div>
                           <label className="text-sm font-medium">Category</label>
                           <select
-                            value={form.category}
-                            onChange={e => setForm({...form, category: e.target.value})}
+                            value={form.categoryId || ''}
+                            onChange={e => setForm({...form, categoryId: e.target.value})}
                             className="w-full p-2 border border-gray-300 rounded-md"
+                            required
                           >
-                            <option value="Mobility">Mobility</option>
-                            <option value="Monitoring">Monitoring</option>
-                            <option value="First Aid">First Aid</option>
-                            <option value="Personal Care">Personal Care</option>
-                            <option value="Supplements">Supplements</option>
+                            <option value="">Select Category</option>
+                            {categories.map(cat => (
+                              <option key={cat.id} value={cat.id}>{cat.name}</option>
+                            ))}
                           </select>
                         </div>
                         <div>
@@ -644,16 +923,37 @@ export default function Admin() {
                           required
                         />
                       </div>
+                      {/* Product Images */}
                       <div>
-                        <label className="text-sm font-medium">Product Image</label>
+                        <label className="text-sm font-medium">Product Images</label>
                         <Input
                           type="file"
                           onChange={handleProductImage}
                           accept="image/*"
+                          multiple
                         />
-                        {imagePreview && (
-                          <img src={imagePreview} alt="Preview" className="mt-2 h-20 w-20 object-cover rounded" />
-                        )}
+                        <div className="flex gap-2 mt-2 flex-wrap">
+                          {/* Existing images */}
+                          {editing && products.find(p => p.id === editing)?.images?.map(img => (
+                            <div key={img.id} className="relative group">
+                              <img src={img.url} alt="Product" className="h-20 w-20 object-cover rounded border" />
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteProductImage(img.id, editing)}
+                                className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 opacity-80 group-hover:opacity-100"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          ))}
+                          {/* New images preview */}
+                          {newImages.map((file, idx) => (
+                            <div key={idx} className="relative">
+                              <img src={URL.createObjectURL(file)} alt="Preview" className="h-20 w-20 object-cover rounded border" />
+                            </div>
+                          ))}
+                        </div>
+                        {uploadingImages && <div className="text-xs text-gray-500 mt-1">Uploading images...</div>}
                       </div>
                       <Button type="submit" className="bg-[#376f6b] hover:bg-[#2e8f88]">
                         {editing ? 'Update Product' : 'Add Product'}
@@ -687,7 +987,7 @@ export default function Admin() {
                         {products
                           .filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()))
                           .map(p => (
-                          <tr key={p.id} className="border-b hover:bg-gray-50">
+                          <tr key={p.id} className={`border-b hover:bg-gray-50 ${highlightedOrder === p.id ? 'bg-yellow-100' : ''}`}>
                             <td className="p-3">
                               {p.image && <img src={p.image} alt={p.name} className="h-12 w-12 object-cover rounded border" />}
                             </td>
@@ -738,6 +1038,75 @@ export default function Admin() {
               </Card>
             </div>
           )}
+        {tab === 'categories' && (
+          <div className="p-6">
+            <h2 className="text-2xl font-bold text-[#376f6b] mb-6">Category Management</h2>
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle>{categoryEditing ? 'Edit Category' : 'Add New Category'}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleCategorySubmit} className="flex gap-4 items-end">
+                  <div className="flex-1">
+                    <label className="text-sm font-medium">Category Name *</label>
+                    <Input
+                      placeholder="Category Name"
+                      value={categoryForm.name}
+                      onChange={e => setCategoryForm({ name: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <Button type="submit" className="bg-[#376f6b] hover:bg-[#2e8f88]">
+                    {categoryEditing ? 'Update' : 'Add'}
+                  </Button>
+                  {categoryEditing && (
+                    <Button type="button" variant="outline" onClick={() => { setCategoryEditing(null); setCategoryForm({ name: '' }); }}>
+                      Cancel
+                    </Button>
+                  )}
+                </form>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Categories</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {categoriesLoading ? (
+                  <div className="text-center py-8">Loading...</div>
+                ) : categoriesError ? (
+                  <div className="text-center py-8 text-red-500">{categoriesError}</div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left p-3 font-medium">Name</th>
+                          <th className="text-left p-3 font-medium">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {categories.map(c => (
+                          <tr key={c.id} className="border-b hover:bg-gray-50">
+                            <td className="p-3 font-medium">{c.name}</td>
+                            <td className="p-3">
+                              <Button size="sm" variant="outline" onClick={() => handleEditCategory(c)} className="text-[#376f6b] border-[#376f6b] hover:bg-[#376f6b] hover:text-white mr-2">
+                                <Edit className="h-3 w-3 mr-1" /> Edit
+                              </Button>
+                              <Button size="sm" variant="outline" onClick={() => handleDeleteCategory(c.id)} className="text-red-500 border-red-500 hover:bg-red-500 hover:text-white">
+                                <Trash2 className="h-3 w-3 mr-1" /> Delete
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
         {tab === 'blogs' && (
           <div className="p-6">
             <div className="flex justify-between items-center mb-6">
@@ -906,7 +1275,7 @@ export default function Admin() {
                         </thead>
                         <tbody>
                           {orders.map(o => (
-                            <tr key={o.id} className="border-b hover:bg-gray-50">
+                            <tr key={o.id} className={`border-b hover:bg-gray-50 ${highlightedOrder === o.id ? 'bg-yellow-100' : ''}`}>
                               <td className="p-3 font-medium">#{o.id}</td>
                               <td className="p-3 font-medium">{o.user?.name || 'Customer'}</td>
                               <td className="p-3 text-sm">{o.user?.email || 'No email'}</td>
@@ -1042,27 +1411,27 @@ export default function Admin() {
                       </tr>
                     </thead>
                     <tbody>
-                      {users.map(u => (
-                        <tr key={u.id} className="border-b hover:bg-gray-50">
-                          <td className="p-3 font-medium">{u.name}</td>
-                          <td className="p-3 text-sm">{u.email}</td>
-                          <td className="p-3 text-sm">{u.mobile}</td>
+                      {users.map(user => (
+                        <tr key={user.id} className="border-b hover:bg-gray-50">
+                          <td className="p-3 font-medium">{user.name}</td>
+                          <td className="p-3 text-sm">{user.email}</td>
+                          <td className="p-3 text-sm">{user.mobile}</td>
                           <td className="p-3">
-                            <Badge variant={u.role === 'admin' ? 'default' : 'outline'}>
-                              {u.role}
+                            <Badge variant={user.role === 'admin' ? 'default' : 'outline'}>
+                              {user.role}
                             </Badge>
                           </td>
                           <td className="p-3">
-                            <Badge variant={u.status === 'active' ? 'default' : 'secondary'}>
-                              {u.status}
+                            <Badge variant={user.status === 'active' ? 'default' : 'secondary'}>
+                              {user.status}
                             </Badge>
                           </td>
-                          <td className="p-3 text-sm text-gray-500">{u.joinDate}</td>
+                          <td className="p-3 text-sm text-gray-500">{user.joinDate}</td>
                           <td className="p-3">
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleUserUpdate(u.id, { status: 'active' })}
+                              onClick={() => handleUserUpdate(user.id, { status: 'active' })}
                               className="text-green-600 border-green-600 hover:bg-green-600 hover:text-white"
                             >
                               <UserCheck className="h-3 w-3 mr-1" />
@@ -1071,7 +1440,7 @@ export default function Admin() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleUserUpdate(u.id, { status: 'inactive' })}
+                              onClick={() => handleUserUpdate(user.id, { status: 'inactive' })}
                               className="text-red-600 border-red-600 hover:bg-red-600 hover:text-white"
                             >
                               <XCircle className="h-3 w-3 mr-1" />
@@ -1080,7 +1449,7 @@ export default function Admin() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleDeleteUser(u.id)}
+                              onClick={() => handleDeleteUser(user.id)}
                               className="text-red-500 border-red-500 hover:bg-red-500 hover:text-white"
                             >
                               <Trash2 className="h-3 w-3 mr-1" />
@@ -1160,6 +1529,15 @@ export default function Admin() {
                                 <XCircle className="h-3 w-3 mr-1" />
                                 Reject
                               </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleDeleteReview(review.id)}
+                                className="text-red-500 border-red-500 hover:bg-red-500 hover:text-white"
+                              >
+                                <Trash2 className="h-3 w-3 mr-1" />
+                                Delete
+                              </Button>
                             </div>
                           </td>
                         </tr>
@@ -1184,42 +1562,61 @@ export default function Admin() {
                 <CardContent className="space-y-4">
                   <div>
                     <label className="text-sm font-medium">Name</label>
-                    <Input placeholder="Admin Name" defaultValue="Admin User" />
+                    <Input placeholder="Admin Name" value={"Admin User"} disabled />
                   </div>
                   <div>
                     <label className="text-sm font-medium">Email</label>
-                    <Input placeholder="admin@mymeds.com" defaultValue="admin@mymeds.com" />
+                    <Input placeholder="admin@mymeds.com" value={"admin@mymeds.com"} disabled />
                   </div>
                   <div>
                     <label className="text-sm font-medium">Phone</label>
-                    <Input placeholder="Phone Number" defaultValue="555-0000" />
+                    <Input placeholder="Phone Number" value={settings.contactPhone} onChange={e => setSettings(s => ({ ...s, contactPhone: e.target.value }))} />
                   </div>
-                  <Button className="bg-[#376f6b] hover:bg-[#2e8f88]">
-                    Update Profile
+                  <Button className="bg-[#376f6b] hover:bg-[#2e8f88]" disabled>
+                    Update Profile (coming soon)
                   </Button>
                 </CardContent>
               </Card>
-
               <Card>
                 <CardHeader>
                   <CardTitle>Pharmacy Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium">Pharmacy Name</label>
-                    <Input placeholder="My Meds Brooklyn Care" defaultValue="My Meds Brooklyn Care" />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Address</label>
-                    <Textarea placeholder="Pharmacy Address" defaultValue="123 Main St, Brooklyn, NY" rows={3} />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Business Hours</label>
-                    <Input placeholder="9:00 AM - 6:00 PM" defaultValue="9:00 AM - 6:00 PM" />
-                  </div>
-                  <Button className="bg-[#376f6b] hover:bg-[#2e8f88]">
-                    Update Information
-                  </Button>
+                  <form onSubmit={handleSettingsSave} className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium">Pharmacy Name</label>
+                      <Input placeholder="Pharmacy Name" value={settings.siteName} onChange={e => setSettings(s => ({ ...s, siteName: e.target.value }))} />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Contact Email</label>
+                      <Input placeholder="Contact Email" value={settings.contactEmail} onChange={e => setSettings(s => ({ ...s, contactEmail: e.target.value }))} />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Address</label>
+                      <Textarea placeholder="Pharmacy Address" value={settings.address} onChange={e => setSettings(s => ({ ...s, address: e.target.value }))} rows={3} />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Business Hours</label>
+                      <Input placeholder="9:00 AM - 6:00 PM" value={settings.businessHours} onChange={e => setSettings(s => ({ ...s, businessHours: e.target.value }))} />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Facebook</label>
+                      <Input placeholder="Facebook URL" value={settings.facebook || ''} onChange={e => setSettings(s => ({ ...s, facebook: e.target.value }))} />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Instagram</label>
+                      <Input placeholder="Instagram URL" value={settings.instagram || ''} onChange={e => setSettings(s => ({ ...s, instagram: e.target.value }))} />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Twitter</label>
+                      <Input placeholder="Twitter URL" value={settings.twitter || ''} onChange={e => setSettings(s => ({ ...s, twitter: e.target.value }))} />
+                    </div>
+                    <Button type="submit" className="bg-[#376f6b] hover:bg-[#2e8f88]">
+                      Save Settings
+                    </Button>
+                    {settingsLoading && <div className="text-xs text-gray-500">Loading settings...</div>}
+                    {settingsError && <div className="text-xs text-red-500">{settingsError}</div>}
+                  </form>
                 </CardContent>
               </Card>
             </div>

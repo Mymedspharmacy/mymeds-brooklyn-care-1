@@ -1,8 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api, { setAuthToken } from '../lib/api';
+import { createClient } from '@supabase/supabase-js';
+import api from '../lib/api';
 import logo from '../assets/logo.png';
 import { Eye, EyeOff, Loader2, ArrowLeft, Lock, Mail, X } from 'lucide-react';
+
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL!,
+  import.meta.env.VITE_SUPABASE_ANON_KEY!
+);
 
 export default function AdminSignIn() {
   const [username, setUsername] = useState('');
@@ -30,15 +36,27 @@ export default function AdminSignIn() {
     setLoading(true);
     setError('');
     try {
-      const res = await api.post('/auth/login', { email: username, password });
-      setAuthToken(res.data.token);
-      localStorage.setItem('admin-auth', 'true');
+      // Supabase Auth sign in
+      const { data, error: supaError } = await supabase.auth.signInWithPassword({
+        email: username,
+        password
+      });
+      if (supaError || !data.session) {
+        setError(supaError?.message || 'Invalid credentials');
+        setLoading(false);
+        return;
+      }
+      // Store JWT in localStorage
+      localStorage.setItem('sb-admin-token', data.session.access_token);
+      localStorage.setItem('admin-auth', 'true'); // Ensure admin panel recognizes authentication
       if (rememberMe) {
         localStorage.setItem('admin-remember', 'true');
       }
+      // Set token for API requests
+      api.defaults.headers.common['Authorization'] = `Bearer ${data.session.access_token}`;
       navigate('/admin');
     } catch (err) {
-      setError(err.response?.data?.error || 'Invalid credentials');
+      setError('Login failed');
     } finally {
       setLoading(false);
     }
@@ -56,10 +74,15 @@ export default function AdminSignIn() {
     setResetMessage('');
     setResetError('');
     try {
-      await api.post('/auth/admin-reset-request', { email: resetEmail });
-      setResetMessage('If this email is registered as admin, you will receive a reset link.');
+      // Optionally, use Supabase password reset
+      const { error: resetErrorObj } = await supabase.auth.resetPasswordForEmail(resetEmail);
+      if (resetErrorObj) {
+        setResetError(resetErrorObj.message);
+      } else {
+        setResetMessage('If this email is registered as admin, you will receive a reset link.');
+      }
     } catch (err) {
-      setResetError(err.response?.data?.error || 'Failed to send reset email.');
+      setResetError('Failed to send reset email.');
     } finally {
       setResetLoading(false);
     }
