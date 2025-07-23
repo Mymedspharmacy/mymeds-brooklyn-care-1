@@ -40,11 +40,11 @@ function supabaseAdminAuth(req: AuthRequest, res: Response, next: NextFunction) 
       req.user = payload;
       return next();
     }
-    // Optionally, allow specific admin emails
-    // if (payload.email && payload.email === ADMIN_EMAIL) {
-    //   req.user = payload;
-    //   return next();
-    // }
+    // Allow specific admin emails as fallback
+    if (payload.email && payload.email === ADMIN_EMAIL) {
+      req.user = payload;
+      return next();
+    }
     return res.status(403).json({ error: 'Forbidden' });
   } catch (err) {
     return res.status(403).json({ error: 'Forbidden' });

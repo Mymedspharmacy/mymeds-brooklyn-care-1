@@ -1,8 +1,9 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
 import authRoutes from './routes/auth';
 import userRoutes from './routes/users';
@@ -18,9 +19,6 @@ import paymentsRoutes from './routes/payments';
 import { supabaseAdminAuth } from './routes/users';
 import reviewsRoutes from './routes/reviews';
 import settingsRoutes from './routes/settings';
-
-// Load env vars
-dotenv.config();
 
 const app = express();
 const prisma = new PrismaClient();
@@ -62,6 +60,8 @@ app.use('/api/contact', contactLimiter, contactRoutes);
 app.use('/api/payments', paymentsRoutes);
 app.use('/api/reviews', reviewsRoutes);
 app.use('/api/settings', settingsRoutes);
+
+debugger
 
 // Notification endpoints
 app.get('/api/notifications', supabaseAdminAuth, async (req: Request, res: Response) => {

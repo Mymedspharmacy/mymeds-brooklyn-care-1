@@ -489,7 +489,7 @@ export default function Admin() {
   const [notifError, setNotifError] = useState('');
 
   // For sound notification
-  const notifSound = typeof window !== 'undefined' ? new Audio('https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae5b6.mp3') : null;
+  const notifSound = typeof window !== 'undefined' ? new Audio('/notification.mp3') : null;
   const [lastNotifCount, setLastNotifCount] = useState(0);
 
   // For highlighting selected notification

@@ -134,7 +134,7 @@ router.post('/public', async (req: Request, res: Response) => {
 });
 
 // User: get own orders
-router.get('/my', auth, async (req: AuthRequest, res: Response) => {
+/*router.get('/my', auth, async (req: AuthRequest, res: Response) => {
   try {
     const orders = await prisma.order.findMany({ where: { userId: req.user.userId }, include: { items: true } });
     res.json(orders);
@@ -142,7 +142,7 @@ router.get('/my', auth, async (req: AuthRequest, res: Response) => {
     console.error('Error fetching orders:', err);
     res.status(500).json({ error: 'Failed to fetch orders' });
   }
-});
+});*/
 
 // Admin: get all orders
 router.get('/', auth, async (req: AuthRequest, res: Response) => {
