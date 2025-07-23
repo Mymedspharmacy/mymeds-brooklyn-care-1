@@ -13,9 +13,8 @@ const prisma = new PrismaClient();
   });
 
   if (user.count > 0) {
-    console.log('Admin password reset successfully.');
+    process.exit(0);
   } else {
-    console.log('Admin user not found.');
+    process.exit(0);
   }
-  process.exit(0);
 })(); 

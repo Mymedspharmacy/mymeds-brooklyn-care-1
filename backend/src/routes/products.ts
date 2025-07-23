@@ -14,9 +14,6 @@ const router = Router();
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'changeme';
 
-console.log('SUPABASE_URL:', process.env.SUPABASE_URL);
-console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY);
-
 const supabase = createClient(
   process.env.SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -42,14 +39,13 @@ function auth(req: AuthRequest, res: Response, next: NextFunction) {
 }
 
 // Public: list products
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', async (req, res) => {
   try {
-    const products = await prisma.product.findMany({
-      include: { category: true, images: true, variants: true }
-    });
+    let limit = parseInt(req.query.limit as string) || 20;
+    if (limit > 100) limit = 100;
+    const products = await prisma.product.findMany({ take: limit });
     res.json(products);
   } catch (err) {
-    console.error('Error fetching products:', err);
     res.status(500).json({ error: 'Failed to fetch products' });
   }
 });

@@ -32,22 +32,30 @@ function auth(req: AuthRequest, res: Response, next: NextFunction) {
 
 function supabaseAdminAuth(req: AuthRequest, res: Response, next: NextFunction) {
   const token = req.headers.authorization?.split(' ')[1];
+  // Require SUPABASE_JWT_SECRET in production
+  if (!SUPABASE_JWT_SECRET) {
+    if (process.env.NODE_ENV === 'production') {
+      console.error('SUPABASE_JWT_SECRET must be set in production!');
+      return res.status(500).json({ error: 'Server misconfiguration' });
+    }
+  }
   if (!token) return res.status(401).json({ error: 'No token' });
   try {
     const payload = jwt.verify(token, SUPABASE_JWT_SECRET) as any;
-    // Accept if role is ADMIN (or you can check for a specific email if needed)
+    // Only allow ADMIN role (case-insensitive)
     if (payload.role && payload.role.toUpperCase() === 'ADMIN') {
       req.user = payload;
       return next();
     }
-    // Allow specific admin emails as fallback
-    if (payload.email && payload.email === ADMIN_EMAIL) {
-      req.user = payload;
-      return next();
-    }
-    return res.status(403).json({ error: 'Forbidden' });
+    // If you want to allow more roles, add them here (e.g., SUPERADMIN)
+    // if (payload.role && ['ADMIN', 'SUPERADMIN'].includes(payload.role.toUpperCase())) {
+    //   req.user = payload;
+    //   return next();
+    // }
+    return res.status(403).json({ error: 'Forbidden: insufficient permissions' });
   } catch (err) {
-    return res.status(403).json({ error: 'Forbidden' });
+    // Return 401 for invalid/expired tokens
+    return res.status(401).json({ error: 'Invalid or expired token' });
   }
 }
 
@@ -65,7 +73,9 @@ router.get('/me', auth, async (req: AuthRequest, res: Response) => {
 // List all users (admin only)
 router.get('/', supabaseAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
-    const users = await prisma.user.findMany({ select: { id: true, email: true, name: true, role: true, createdAt: true } });
+    let limit = parseInt(req.query.limit as string) || 20;
+    if (limit > 100) limit = 100;
+    const users = await prisma.user.findMany({ select: { id: true, email: true, name: true, role: true, createdAt: true }, take: limit });
     res.json(users);
   } catch (err) {
     console.error('Error fetching users:', err);

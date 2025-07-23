@@ -28,12 +28,13 @@ function auth(req: AuthRequest, res: Response, next: NextFunction) {
 }
 
 // Public: list blogs
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', async (req, res) => {
   try {
-    const blogs = await prisma.blog.findMany();
+    let limit = parseInt(req.query.limit as string) || 20;
+    if (limit > 100) limit = 100;
+    const blogs = await prisma.blog.findMany({ take: limit });
     res.json(blogs);
   } catch (err) {
-    console.error('Error fetching blogs:', err);
     res.status(500).json({ error: 'Failed to fetch blogs' });
   }
 });

@@ -1,76 +1,76 @@
-# Welcome to your Lovable project
+# MyMeds Brooklyn Care
 
-## Project info
+## Production Deployment Guide
 
-**URL**: https://lovable.dev/projects/2fefcc23-989d-45c9-8e90-bb6956fd87aa
+### 1. Environment Setup
+- Copy `.env.example` to `.env` and fill in all secrets (never commit real secrets).
+- Ensure `DATABASE_URL`, `SUPABASE_JWT_SECRET`, and `JWT_SECRET` are set.
 
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/2fefcc23-989d-45c9-8e90-bb6956fd87aa) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+### 2. Install Dependencies
+```
+npm install
+cd backend
+npm install
 ```
 
-**Edit a file directly in GitHub**
+### 3. Build Frontend
+```
+npm run build
+```
+- The optimized frontend will be in the `dist/` folder.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### 4. Run Database Migrations
+```
+npx prisma migrate deploy --schema=backend/prisma/schema.prisma
+```
 
-**Use GitHub Codespaces**
+### 5. Start Backend with PM2
+```
+pm install -g pm2
+pm2 start ecosystem.config.js
+pm2 save
+pm2 startup
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### 6. Serve Frontend (Production)
+- Use Nginx or Caddy to serve the `dist/` folder and reverse proxy `/api/` to the backend.
 
-## What technologies are used for this project?
+#### Sample Nginx Config
+```
+server {
+    listen 80;
+    server_name www.mymedspharmacyinc.com;
 
-This project is built with:
+    location /api/ {
+        proxy_pass http://localhost:4000/api/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+    location / {
+        root /path/to/your/dist;
+        try_files $uri /index.html;
+    }
+}
+```
 
-## How can I deploy this project?
+### 7. Enable HTTPS
+- Use Let's Encrypt:
+```
+sudo apt install certbot python3-certbot-nginx
+sudo certbot --nginx
+```
 
-Simply open [Lovable](https://lovable.dev/projects/2fefcc23-989d-45c9-8e90-bb6956fd87aa) and click on Share -> Publish.
+### 8. Generate Admin JWT for Testing
+```
+node backend/generate-admin-jwt.js
+```
 
-## Can I connect a custom domain to my Lovable project?
+### 9. Health Check
+- Visit `/api/health` to verify backend is running.
 
-Yes, you can!
+---
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
-Database supabase : 
-Database supabase pass: Dev4innovate123
-Database supabase : CNxwy4rXMnFoAz3S
+For further optimization, see the full production checklist in this repo or ask your devops team for scaling and monitoring best practices.

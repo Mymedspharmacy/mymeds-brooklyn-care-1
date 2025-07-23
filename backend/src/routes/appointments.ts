@@ -131,7 +131,9 @@ router.get('/my', auth, async (req: AuthRequest, res: Response) => {
 router.get('/', auth, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
-    const appointments = await prisma.appointment.findMany();
+    let limit = parseInt(req.query.limit as string) || 20;
+    if (limit > 100) limit = 100;
+    const appointments = await prisma.appointment.findMany({ take: limit });
     res.json(appointments);
   } catch (err) {
     console.error('Error fetching all appointments:', err);

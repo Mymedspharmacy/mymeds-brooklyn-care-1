@@ -20,8 +20,6 @@ async function testConnection() {
       .limit(1)
 
     if (error) throw error
-    console.log('Database Connection: ✅ Successful')
-    console.log('Sample data:', data)
   } catch (err) {
     console.error('Connection Error:', err)
   }

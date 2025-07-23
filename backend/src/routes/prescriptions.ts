@@ -238,7 +238,9 @@ router.get('/my', auth, async (req: AuthRequest, res: Response) => {
 router.get('/', auth, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
-    const prescriptions = await prisma.prescription.findMany();
+    let limit = parseInt(req.query.limit as string) || 20;
+    if (limit > 100) limit = 100;
+    const prescriptions = await prisma.prescription.findMany({ take: limit });
     res.json(prescriptions);
   } catch (err) {
     console.error('Error fetching all prescriptions:', err);

@@ -121,7 +121,6 @@ router.post('/public', async (req: Request, res: Response) => {
       };
       
       await transporter.sendMail(mailOptions);
-      console.log('Order notification email sent');
     } catch (emailError) {
       console.error('Failed to send order notification email:', emailError);
     }
@@ -148,7 +147,9 @@ router.post('/public', async (req: Request, res: Response) => {
 router.get('/', auth, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
-    const orders = await prisma.order.findMany({ include: { items: true } });
+    let limit = parseInt(req.query.limit as string) || 20;
+    if (limit > 100) limit = 100;
+    const orders = await prisma.order.findMany({ include: { items: true }, take: limit });
     res.json(orders);
   } catch (err) {
     console.error('Error fetching all orders:', err);

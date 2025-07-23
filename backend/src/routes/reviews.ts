@@ -31,9 +31,12 @@ function auth(req: AuthRequest, res: Response, next: NextFunction) {
 router.get('/', auth, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
+    let limit = parseInt(req.query.limit as string) || 20;
+    if (limit > 100) limit = 100;
     const reviews = await prisma.review.findMany({
       include: { product: true, user: true },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
+      take: limit
     });
     res.json(reviews);
   } catch (err) {
@@ -44,14 +47,17 @@ router.get('/', auth, async (req: AuthRequest, res: Response) => {
 // Public: get approved reviews for a product
 router.get('/product/:productId', async (req: Request, res: Response) => {
   try {
+    let limit = parseInt(req.query.limit as string) || 20;
+    if (limit > 100) limit = 100;
     const productId = Number(req.params.productId);
     const reviews = await prisma.review.findMany({
       where: { productId, status: 'approved' },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
+      take: limit
     });
     res.json(reviews);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch reviews' });
+    res.status(500).json({ error: 'Failed to fetch product reviews' });
   }
 });
 

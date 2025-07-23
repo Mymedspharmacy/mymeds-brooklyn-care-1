@@ -51,6 +51,7 @@ model Order {
   notified  Boolean     @default(false)
   user      User        @relation(fields: [userId], references: [id])
   items     OrderItem[]
+  @@index([notified, createdAt])
 }
 
 model OrderItem {
@@ -72,6 +73,7 @@ model Prescription {
   createdAt    DateTime @default(now())
   notified     Boolean  @default(false)
   user         User     @relation(fields: [userId], references: [id])
+  @@index([notified, createdAt])
 }
 
 model Appointment {
@@ -83,6 +85,7 @@ model Appointment {
   createdAt DateTime @default(now())
   notified  Boolean  @default(false)
   user      User     @relation(fields: [userId], references: [id])
+  @@index([notified, createdAt])
 }
 
 model Blog {
@@ -100,6 +103,7 @@ model ContactForm {
   message   String
   createdAt DateTime @default(now())
   notified  Boolean  @default(false)
+  @@index([notified, createdAt])
 }
 
 model ProductImage {

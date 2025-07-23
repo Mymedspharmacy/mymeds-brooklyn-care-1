@@ -41,25 +41,24 @@ router.post('/', async (req: Request, res: Response) => {
         });
       }
     } catch (emailError: any) {
-      console.log('Email notification failed (optional):', emailError.message);
+      // console.log('Email notification failed (optional):', emailError.message);
     }
     
     res.status(201).json(contact);
   } catch (err) {
-    console.error('Error handling contact form:', err);
+    // console.error('Error handling contact form:', err);
     res.status(500).json({ error: 'Failed to submit contact form' });
   }
 });
 
 // Get all contact forms (admin only)
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', async (req, res) => {
   try {
-    const contacts = await prisma.contactForm.findMany({
-      orderBy: { createdAt: 'desc' }
-    });
+    let limit = parseInt(req.query.limit as string) || 20;
+    if (limit > 100) limit = 100;
+    const contacts = await prisma.contactForm.findMany({ take: limit });
     res.json(contacts);
   } catch (err) {
-    console.error('Error fetching contact forms:', err);
     res.status(500).json({ error: 'Failed to fetch contact forms' });
   }
 });

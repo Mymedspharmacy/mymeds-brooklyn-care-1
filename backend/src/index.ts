@@ -26,7 +26,7 @@ const prisma = new PrismaClient();
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? 'https://your-frontend-domain.com' : 'http://localhost:8080',
+  origin: process.env.NODE_ENV === 'production' ? 'https://www.mymedspharmacyinc.com' : 'http://localhost:8080',
   credentials: true
 }));
 app.use(express.json({ limit: '2mb' }));
@@ -61,17 +61,19 @@ app.use('/api/payments', paymentsRoutes);
 app.use('/api/reviews', reviewsRoutes);
 app.use('/api/settings', settingsRoutes);
 
-debugger
-
 // Notification endpoints
 app.get('/api/notifications', supabaseAdminAuth, async (req: Request, res: Response) => {
+  const start = Date.now();
   try {
+    let limit = parseInt(req.query.limit as string) || 20;
+    if (limit > 100) limit = 100;
     const [orders, appointments, prescriptions, contacts] = await Promise.all([
-      prisma.order.findMany({ where: { notified: false }, orderBy: { createdAt: 'desc' } }),
-      prisma.appointment.findMany({ where: { notified: false }, orderBy: { createdAt: 'desc' } }),
-      prisma.prescription.findMany({ where: { notified: false }, orderBy: { createdAt: 'desc' } }),
-      prisma.contactForm.findMany({ where: { notified: false }, orderBy: { createdAt: 'desc' } })
+      prisma.order.findMany({ where: { notified: false }, orderBy: { createdAt: 'desc' }, take: limit }),
+      prisma.appointment.findMany({ where: { notified: false }, orderBy: { createdAt: 'desc' }, take: limit }),
+      prisma.prescription.findMany({ where: { notified: false }, orderBy: { createdAt: 'desc' }, take: limit }),
+      prisma.contactForm.findMany({ where: { notified: false }, orderBy: { createdAt: 'desc' }, take: limit })
     ]);
+    console.log('Notification query time:', Date.now() - start, 'ms');
     res.json({ orders, appointments, prescriptions, contacts });
   } catch (err) {
     console.error('Error fetching notifications:', err);

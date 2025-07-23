@@ -11,9 +11,7 @@ const prisma = new PrismaClient();
     user = await prisma.user.create({
       data: { email, password: hash, name: 'Admin User', role: 'ADMIN' }
     });
-    console.log('Admin user created:', user);
   } else {
-    console.log('Admin user already exists:', user);
   }
   process.exit(0);
 })(); 
