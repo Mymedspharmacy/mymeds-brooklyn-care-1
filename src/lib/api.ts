@@ -15,21 +15,32 @@ if (adminToken) {
 
 // Attach token to all requests if present
 api.interceptors.request.use((config) => {
-  // Prefer sb-admin-token, fallback to 'token'
-  const token = localStorage.getItem('sb-admin-token') || localStorage.getItem('token');
+  const token = localStorage.getItem('sb-admin-token');
   if (token) {
     config.headers['Authorization'] = `Bearer ${token}`;
   }
   return config;
 });
 
+// Global response interceptor for auth errors
+api.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+      setAuthToken(null); // Remove token
+      window.location.href = '/admin-login'; // Redirect to login page
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default api;
 
 // Helper to set token (for login/register)
 export function setAuthToken(token: string | null) {
   if (token) {
-    localStorage.setItem('token', token);
+    localStorage.setItem('sb-admin-token', token);
   } else {
-    localStorage.removeItem('token');
+    localStorage.removeItem('sb-admin-token');
   }
 } 
