@@ -28,7 +28,7 @@ api.interceptors.response.use(
   error => {
     if (error.response && (error.response.status === 401 || error.response.status === 403)) {
       setAuthToken(null); // Remove token
-      window.location.href = '/admin-login'; // Redirect to login page
+      window.location.href = '/admin-signin'; // Redirect to correct login page
     }
     return Promise.reject(error);
   }
