@@ -56,73 +56,53 @@ export const Services = ({ onAppointmentClick, onShopClick }: ServicesProps) => 
 
   return (
     <section id="services" className="py-12 sm:py-16 lg:py-20 bg-muted/50">
-      <div className="container-fluid px-4">
-        <div className="row justify-content-center text-center mb-5">
-          <div className="col-12 col-lg-8">
-            <h2 className="display-5 fw-bold text-foreground mb-3">Our Services</h2>
-            <p className="lead text-muted-foreground">
-              Comprehensive pharmaceutical care designed to meet all your health and wellness needs
-            </p>
-          </div>
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-12 lg:mb-16">
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">Our Services</h2>
+          <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto">
+            Comprehensive pharmaceutical care designed to meet all your health and wellness needs
+          </p>
         </div>
 
-        <div className="row g-4 g-lg-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
           {services.map((service, index) => (
-            <div key={index} className="col-12 col-md-6 col-xl-4">
-              <div className="card h-100 border-0 shadow-lg hover-shadow-xl transition-all duration-300">
-                <div className="card-header bg-transparent border-0 text-center pb-3">
-                  <div className="d-inline-flex align-items-center justify-content-center bg-secondary rounded-circle mx-auto mb-3" 
-                       style={{ width: '4rem', height: '4rem' }}>
-                    <service.icon className="text-primary" size={28} />
-                  </div>
-                  <h5 className="card-title fw-bold text-foreground mb-0">{service.title}</h5>
+            <Card key={index} className="hover:shadow-lg transition-shadow duration-300 border-0 shadow-md h-full flex flex-col">
+              <CardHeader className="text-center pb-4">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4">
+                  <service.icon className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
                 </div>
-                
-                <div className="card-body d-flex flex-column pt-0">
-                  <p className="card-text text-muted-foreground mb-3 lh-base">
-                    {service.description}
-                  </p>
-                  
-                  <ul className="list-unstyled flex-grow-1 mb-4">
-                    {service.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="d-flex align-items-start mb-2">
-                        <span className="bg-primary rounded-circle me-3 mt-1 flex-shrink-0" 
-                              style={{ width: '0.5rem', height: '0.5rem' }}></span>
-                        <small className="text-muted-foreground">{feature}</small>
-                      </li>
-                    ))}
-                  </ul>
-                  
-                  <div className="mt-auto">
-                    {service.hasBooking && (
-                      <button 
-                        onClick={onAppointmentClick}
-                        className="btn btn-primary w-100 fw-semibold"
-                      >
-                        Book Appointment
-                      </button>
-                    )}
-                    {service.hasShop && (
-                      <button 
-                        onClick={onShopClick}
-                        className="btn w-100 fw-semibold text-white"
-                        style={{ backgroundColor: '#376f6b', borderColor: '#376f6b' }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = '#57bbb6';
-                          e.currentTarget.style.borderColor = '#57bbb6';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = '#376f6b';
-                          e.currentTarget.style.borderColor = '#376f6b';
-                        }}
-                      >
-                        Shop Equipment
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
+                <CardTitle className="text-lg sm:text-xl font-bold text-foreground">{service.title}</CardTitle>
+              </CardHeader>
+              <CardContent className="flex-1 flex flex-col">
+                <CardDescription className="text-muted-foreground mb-4 text-sm sm:text-base leading-relaxed">
+                  {service.description}
+                </CardDescription>
+                <ul className="space-y-2 mb-6 flex-1">
+                  {service.features.map((feature, featureIndex) => (
+                    <li key={featureIndex} className="flex items-center text-xs sm:text-sm text-muted-foreground">
+                      <div className="w-2 h-2 bg-primary rounded-full mr-3 flex-shrink-0"></div>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                {service.hasBooking && (
+                  <Button 
+                    onClick={onAppointmentClick}
+                    className="w-full text-sm sm:text-base"
+                  >
+                    Book Appointment
+                  </Button>
+                )}
+                {service.hasShop && (
+                  <Button 
+                    onClick={onShopClick}
+                    className="w-full bg-[#376f6b] hover:bg-[#57bbb6] text-white text-sm sm:text-base"
+                  >
+                    Shop Equipment
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>

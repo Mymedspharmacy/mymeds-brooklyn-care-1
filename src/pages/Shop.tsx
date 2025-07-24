@@ -156,29 +156,26 @@ export default function Shop() {
     <div className="min-h-screen bg-[#f5fefd]">
       {/* Free Delivery Banner */}
       <div className="bg-[#376f6b] text-white py-3">
-        <div className="container-fluid text-center">
-          <p className="mb-0 fw-medium">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <p className="text-lg font-medium">
             🚚 Free delivery over $50 in Brooklyn and Manhattan
           </p>
         </div>
       </div>
       
-      {/* Header with Bootstrap */}
-      <div className="bg-white shadow-sm border-bottom border-[#57bbb6]" style={{ borderBottomColor: '#57bbb6', borderBottomWidth: '1px' }}>
-        <div className="container-fluid py-3 py-sm-4">
-          <div className="row align-items-center">
-            <div className="col">
-              <h1 className="display-6 display-sm-5 display-lg-4 fw-normal text-[#376f6b] mb-0">SHOP</h1>
-            </div>
-            <div className="col-auto">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b border-[#57bbb6]/20">
+        <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal text-[#376f6b]">SHOP</h1>
+            <div className="flex items-center gap-4">
               <button 
                 onClick={() => setShowCart(true)}
-                className="btn btn-primary bg-[#376f6b] border-[#376f6b] position-relative"
-                style={{ width: '3rem', height: '3rem' }}
+                className="relative bg-[#376f6b] text-white p-2 sm:p-3 rounded-full hover:bg-[#57bbb6] transition-colors"
               >
-                <ShoppingCart size={20} />
+                <ShoppingCart size={20} className="sm:w-6 sm:h-6" />
                 {cartCount > 0 && (
-                  <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-[#57bbb6] text-[#231f20]">
+                  <span className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-[#57bbb6] text-[#231f20] text-xs font-bold rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center">
                     {cartCount}
                   </span>
                 )}
@@ -188,134 +185,120 @@ export default function Shop() {
         </div>
       </div>
 
-      <div className="container-fluid py-4 py-lg-5">
-        {/* Search Bar with Bootstrap */}
-        <div className="row mb-4">
-          <div className="col-12 col-sm-6 col-md-4">
-            <div className="input-group">
-              <span className="input-group-text bg-white border-[#57bbb6]">
-                <Search size={20} className="text-[#376f6b]" />
-              </span>
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="form-control border-[#57bbb6] focus:border-[#376f6b]"
-              />
+      <div className="max-w-7xl mx-auto px-4 py-6 lg:py-8">
+        {/* Search Bar */}
+        <div className="mb-6 lg:mb-8">
+          <div className="relative w-full sm:max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#376f6b]" size={20} />
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 border-2 border-[#57bbb6] rounded-lg focus:outline-none focus:border-[#376f6b] text-sm sm:text-base"
+            />
+          </div>
+        </div>
+
+        {/* Mobile Categories Dropdown */}
+        <div className="lg:hidden mb-6">
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="w-full px-4 py-3 border-2 border-[#57bbb6] rounded-lg focus:outline-none focus:border-[#376f6b] text-[#376f6b] font-medium"
+          >
+            {CATEGORIES.map(category => (
+              <option key={category} value={category}>{category}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Main Content with Sidebar */}
+        <div className="flex gap-8">
+          {/* Desktop Sidebar - Categories */}
+          <div className="hidden lg:block w-64 flex-shrink-0">
+            <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
+              <h3 className="text-lg font-medium text-[#376f6b] mb-4">Categories</h3>
+              <div className="space-y-2">
+                {CATEGORIES.map(category => (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedCategory(category)}
+                    className={`w-full text-left px-3 py-2 rounded-md transition-colors text-sm ${
+                      selectedCategory === category
+                        ? 'bg-[#376f6b] text-white'
+                        : 'text-[#376f6b] hover:bg-[#57bbb6] hover:text-white'
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Mobile Categories Dropdown with Bootstrap */}
-        <div className="row d-lg-none mb-4">
-          <div className="col-12">
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="form-select border-[#57bbb6] text-[#376f6b] fw-medium"
-            >
-              {CATEGORIES.map(category => (
-                <option key={category} value={category}>{category}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Main Content with Bootstrap Grid */}
-        <div className="row g-4">
-          {/* Desktop Sidebar with Bootstrap */}
-          <div className="col-lg-3 d-none d-lg-block">
-            <div className="card border-0 shadow-sm sticky-top" style={{ top: '2rem' }}>
-              <div className="card-header bg-white border-0">
-                <h5 className="card-title text-[#376f6b] mb-0">Categories</h5>
-              </div>
-              <div className="card-body">
-                <div className="list-group list-group-flush">
-                  {CATEGORIES.map(category => (
+          {/* Products Grid */}
+          <div className="flex-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 mb-12">
+              {filteredProducts.map((product) => (
+                <div key={product.id} className="bg-white rounded-xl lg:rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-[#57bbb6]/20">
+                  <div className="relative">
+                    <img 
+                      src={product.image} 
+                      alt={product.name} 
+                      className="w-full h-40 sm:h-48 object-cover cursor-pointer"
+                      onClick={() => setShowProductDetail(product)}
+                    />
                     <button
-                      key={category}
-                      onClick={() => setSelectedCategory(category)}
-                      className={`list-group-item list-group-item-action border-0 rounded mb-1 ${
-                        selectedCategory === category
-                          ? 'bg-[#376f6b] text-white'
-                          : 'text-[#376f6b] hover:bg-[#57bbb6] hover:text-white'
+                      onClick={() => toggleWishlist(product.id)}
+                      className={`absolute top-2 right-2 sm:top-3 sm:right-3 p-1.5 sm:p-2 rounded-full transition-colors ${
+                        wishlist.includes(product.id)
+                          ? 'bg-red-500 text-white'
+                          : 'bg-white/80 text-[#376f6b] hover:bg-[#57bbb6] hover:text-white'
                       }`}
                     >
-                      {category}
+                      <Heart size={16} className="sm:w-5 sm:h-5" fill={wishlist.includes(product.id) ? 'currentColor' : 'none'} />
                     </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Products Grid with Bootstrap */}
-          <div className="col-12 col-lg-9">
-            <div className="row g-3 g-md-4">
-              {filteredProducts.map((product) => (
-                <div key={product.id} className="col-12 col-sm-6 col-lg-4">
-                  <div className="card h-100 border-0 shadow-lg hover-shadow-xl transition-all duration-300">
-                    <div className="position-relative">
-                      <img 
-                        src={product.image} 
-                        alt={product.name} 
-                        className="card-img-top cursor-pointer"
-                        style={{ height: '200px', objectFit: 'cover' }}
-                        onClick={() => setShowProductDetail(product)}
-                      />
-                      <button
-                        onClick={() => toggleWishlist(product.id)}
-                        className={`btn btn-sm position-absolute top-0 end-0 m-2 rounded-circle ${
-                          wishlist.includes(product.id)
-                            ? 'btn-danger'
-                            : 'btn-light text-[#376f6b]'
-                        }`}
-                        style={{ width: '2.5rem', height: '2.5rem' }}
-                      >
-                        <Heart size={16} fill={wishlist.includes(product.id) ? 'currentColor' : 'none'} />
-                      </button>
+                    {product.originalPrice > product.price && (
+                      <div className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-red-500 text-white px-2 py-1 rounded-full text-xs sm:text-sm font-bold">
+                        SALE
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="p-4 sm:p-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xs bg-[#57bbb6] text-[#231f20] px-2 py-1 rounded-full font-semibold">
+                        {product.category}
+                      </span>
+                      <div className="flex items-center gap-1 ml-auto">
+                        <Star size={14} className="sm:w-4 sm:h-4 text-yellow-400 fill-current" />
+                        <span className="text-xs sm:text-sm font-semibold text-[#376f6b]">{product.rating}</span>
+                        <span className="text-xs text-gray-500">({product.reviews})</span>
+                      </div>
+                    </div>
+                    
+                    <h3 className="text-base sm:text-lg font-normal text-[#231f20] mb-2 cursor-pointer hover:text-[#376f6b] line-clamp-2"
+                        onClick={() => setShowProductDetail(product)}>
+                      {product.name}
+                    </h3>
+                    
+                    <p className="text-[#376f6b] text-xs sm:text-sm mb-3 line-clamp-2">{product.description}</p>
+                    
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="text-lg sm:text-2xl font-normal text-[#57bbb6]">${product.price}</span>
                       {product.originalPrice > product.price && (
-                        <div className="position-absolute top-0 start-0 m-2">
-                          <span className="badge bg-danger fw-bold">SALE</span>
-                        </div>
+                        <span className="text-sm sm:text-lg text-gray-500 line-through">${product.originalPrice}</span>
                       )}
                     </div>
                     
-                    <div className="card-body d-flex flex-column">
-                      <div className="d-flex align-items-center justify-content-between mb-2">
-                        <span className="badge bg-[#57bbb6] text-[#231f20] fw-semibold">
-                          {product.category}
-                        </span>
-                        <div className="d-flex align-items-center gap-1">
-                          <Star size={14} className="text-warning fill-current" />
-                          <small className="fw-semibold text-[#376f6b]">{product.rating}</small>
-                          <small className="text-muted">({product.reviews})</small>
-                        </div>
-                      </div>
-                      
-                      <h6 className="card-title text-[#231f20] mb-2 cursor-pointer hover:text-[#376f6b] line-clamp-2"
-                          onClick={() => setShowProductDetail(product)}>
-                        {product.name}
-                      </h6>
-                      
-                      <p className="card-text text-[#376f6b] small mb-3 line-clamp-2 flex-grow-1">{product.description}</p>
-                      
-                      <div className="d-flex align-items-center gap-2 mb-3">
-                        <span className="h5 fw-normal text-[#57bbb6] mb-0">${product.price}</span>
-                        {product.originalPrice > product.price && (
-                          <span className="text-muted text-decoration-line-through">${product.originalPrice}</span>
-                        )}
-                      </div>
-                      
-                      <button
-                        onClick={() => addToCart(product)}
-                        disabled={!product.available}
-                        className="btn btn-primary bg-[#376f6b] border-[#376f6b] w-100 fw-semibold"
-                      >
-                        {product.available ? 'Add to Cart' : 'Out of Stock'}
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => addToCart(product)}
+                      disabled={!product.available}
+                      className="w-full bg-[#376f6b] text-white py-2.5 sm:py-3 rounded-lg font-semibold hover:bg-[#57bbb6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                    >
+                      {product.available ? 'Add to Cart' : 'Out of Stock'}
+                    </button>
                   </div>
                 </div>
               ))}
@@ -326,77 +309,78 @@ export default function Shop() {
 
       {/* Cart Sidebar */}
       {showCart && (
-        <div className="offcanvas offcanvas-end show" style={{ visibility: 'visible' }} tabIndex={-1}>
-          <div className="offcanvas-header border-bottom">
-            <h5 className="offcanvas-title text-[#376f6b]">Shopping Cart</h5>
-            <button 
-              type="button" 
-              className="btn-close" 
-              onClick={() => setShowCart(false)}
-              aria-label="Close"
-            ></button>
-          </div>
-          <div className="offcanvas-body d-flex flex-column">
-            {cart.length === 0 ? (
-              <div className="text-center py-5">
-                <ShoppingCart size={48} className="text-muted mb-3" />
-                <p className="text-muted">Your cart is empty</p>
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end">
+          <div className="bg-white w-full max-w-md h-full overflow-y-auto">
+            <div className="p-6 border-b border-[#57bbb6]/20">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-normal text-[#376f6b]">Shopping Cart</h2>
+                <button onClick={() => setShowCart(false)} className="text-[#376f6b] hover:text-[#57bbb6]">
+                  <X size={24} />
+                </button>
               </div>
-            ) : (
-              <>
-                <div className="flex-grow-1">
-                  {cart.map((item) => (
-                    <div key={item.id} className="card mb-3 border-0 shadow-sm">
-                      <div className="card-body">
-                        <div className="row g-3">
-                          <div className="col-4">
-                            <img src={item.image} alt={item.name} className="img-fluid rounded" />
-                          </div>
-                          <div className="col-8">
-                            <h6 className="card-title small mb-1">{item.name}</h6>
-                            <p className="card-text small text-muted mb-2">${item.price}</p>
-                            <div className="input-group input-group-sm">
-                              <button 
-                                className="btn btn-outline-secondary"
-                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                              >
-                                <Minus size={14} />
-                              </button>
-                              <input 
-                                type="text" 
-                                className="form-control text-center" 
-                                value={item.quantity} 
-                                readOnly 
-                              />
-                              <button 
-                                className="btn btn-outline-secondary"
-                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              >
-                                <Plus size={14} />
-                              </button>
-                            </div>
+            </div>
+            
+            <div className="p-6">
+              {cart.length === 0 ? (
+                <div className="text-center py-12">
+                  <ShoppingCart size={48} className="mx-auto text-[#57bbb6] mb-4" />
+                  <p className="text-[#231f20] text-lg">Your cart is empty</p>
+                  <p className="text-[#376f6b]">Add some products to get started!</p>
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-4 mb-6">
+                    {cart.map((item) => (
+                      <div key={item.id} className="flex gap-4 p-4 border border-[#57bbb6]/20 rounded-lg">
+                        <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-[#231f20]">{item.name}</h4>
+                          <p className="text-[#57bbb6] font-bold">${item.price}</p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <button
+                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              className="w-8 h-8 rounded-full border border-[#57bbb6] flex items-center justify-center hover:bg-[#57bbb6] hover:text-white"
+                            >
+                              <Minus size={16} />
+                            </button>
+                            <span className="w-8 text-center font-semibold">{item.quantity}</span>
+                            <button
+                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              className="w-8 h-8 rounded-full border border-[#57bbb6] flex items-center justify-center hover:bg-[#57bbb6] hover:text-white"
+                            >
+                              <Plus size={16} />
+                            </button>
                           </div>
                         </div>
+                        <button
+                          onClick={() => removeFromCart(item.id)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <X size={20} />
+                        </button>
                       </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="border-top pt-3">
-                  <div className="d-flex justify-content-between align-items-center mb-3">
-                    <strong>Total: ${cartTotal.toFixed(2)}</strong>
+                    ))}
                   </div>
-                  <button 
-                    className="btn btn-primary bg-[#376f6b] border-[#376f6b] w-100 fw-semibold"
+                  
+                  <div className="border-t border-[#57bbb6]/20 pt-4 mb-6">
+                    <div className="flex justify-between items-center text-lg font-bold text-[#231f20]">
+                      <span>Total:</span>
+                      <span className="text-[#57bbb6]">${cartTotal.toFixed(2)}</span>
+                    </div>
+                  </div>
+                  
+                  <button
                     onClick={() => {
                       setShowCart(false);
                       setShowCheckout(true);
                     }}
+                    className="w-full bg-[#376f6b] text-white py-3 rounded-lg font-semibold hover:bg-[#57bbb6] transition-colors"
                   >
                     Proceed to Checkout
                   </button>
-                </div>
-              </>
-            )}
+                </>
+              )}
+            </div>
           </div>
         </div>
       )}
