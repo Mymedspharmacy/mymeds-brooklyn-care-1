@@ -69,8 +69,13 @@ router.post('/public', async (req: Request, res: Response) => {
         userId: user.id,
         total,
         status: 'pending',
+        notified: false, // Ensure notified is false for new orders
         items: {
-          create: items.map((i: any) => ({ productId: i.productId, quantity: i.quantity, price: i.price }))
+          create: items.map((item: any) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            price: item.price
+          }))
         }
       },
       include: { 

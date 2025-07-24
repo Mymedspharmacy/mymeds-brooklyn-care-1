@@ -483,8 +483,10 @@ export default function Admin() {
   async function fetchNotifications() {
     setNotifLoading(true);
     setNotifError('');
+    console.log('Fetching notifications...');
     try {
       const res = await api.get('/notifications');
+      console.log('Notifications API response:', res);
       setNotifications(res.data);
       // Play sound if new notifications arrived
       const total = (Object.values(res.data) as any[]).reduce((sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0);
@@ -493,6 +495,7 @@ export default function Admin() {
       }
       setLastNotifCount(total);
     } catch (err) {
+      console.error('Notifications API error:', err);
       setNotifError(err.response?.data?.error || 'Failed to fetch notifications');
     } finally {
       setNotifLoading(false);
