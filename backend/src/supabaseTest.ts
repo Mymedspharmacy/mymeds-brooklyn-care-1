@@ -1,3 +1,4 @@
+// This script is for local Supabase connection testing only. Do NOT use in production.
 import { createClient } from '@supabase/supabase-js'
 
 // CRITICAL CHECKS

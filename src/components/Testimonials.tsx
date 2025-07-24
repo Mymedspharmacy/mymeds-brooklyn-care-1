@@ -6,32 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 export const Testimonials = () => {
-  const [testimonials, setTestimonials] = useState([
-    {
-      id: 1,
-      name: "Maria Rodriguez",
-      rating: 5,
-      text: "The staff at My Meds Pharmacy is incredibly helpful and knowledgeable. They always take the time to explain my medications and answer all my questions. The free delivery service is a lifesaver!",
-      location: "Brooklyn, NY",
-      date: "2024-01-15"
-    },
-    {
-      id: 2,
-      name: "James Thompson",
-      rating: 5,
-      text: "I've been coming here for over 3 years and the service is consistently excellent. They remember my name, know my medications, and truly care about my health. Highly recommended!",
-      location: "Brooklyn, NY",
-      date: "2024-01-10"
-    },
-    {
-      id: 3,
-      name: "Sarah Chen",
-      rating: 5,
-      text: "My Meds Pharmacy goes above and beyond. When I had questions about drug interactions, the pharmacist spent 20 minutes with me explaining everything. This is real personalized care.",
-      location: "Brooklyn, NY",
-      date: "2024-01-08"
-    }
-  ]);
+  // TODO: Load real testimonials from the database or CMS in production
+  const [testimonials, setTestimonials] = useState([]);
 
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [newReview, setNewReview] = useState({

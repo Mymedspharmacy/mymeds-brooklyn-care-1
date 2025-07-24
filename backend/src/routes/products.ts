@@ -5,6 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 import multer from 'multer';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { unifiedAdminAuth } from './auth';
 
 interface AuthRequest extends Request {
   user?: any;
@@ -96,7 +97,7 @@ router.put('/:id', auth, async (req: AuthRequest, res: Response) => {
 });
 
 // Admin: delete product
-router.delete('/:id', auth, async (req: AuthRequest, res: Response) => {
+router.delete('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     await prisma.product.delete({ where: { id: Number(req.params.id) } });

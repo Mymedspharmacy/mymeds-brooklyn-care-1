@@ -44,6 +44,7 @@ export default function AdminSignIn() {
       if (supaError || !data.session) {
         setError(supaError?.message || 'Invalid credentials');
         setLoading(false);
+        console.log('Login failed:', supaError?.message || 'Invalid credentials');
         return;
       }
       // Store JWT in localStorage
@@ -54,6 +55,8 @@ export default function AdminSignIn() {
       }
       // Set token for API requests
       api.defaults.headers.common['Authorization'] = `Bearer ${data.session.access_token}`;
+      console.log('Login successful! Token:', data.session.access_token);
+      console.log('admin-auth:', localStorage.getItem('admin-auth'));
       navigate('/admin');
     } catch (err) {
       setError('Login failed');

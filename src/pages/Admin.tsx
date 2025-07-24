@@ -45,26 +45,6 @@ const TABS = [
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
-const DEMO_PRODUCTS = [
-  { id: 1, name: 'Wheelchair', price: 120, description: 'Lightweight, foldable wheelchair', available: true, image: '', category: 'Mobility', stock: 15, sku: 'WC-001' },
-  { id: 2, name: 'BP Machine', price: 60, description: 'Automatic blood pressure monitor', available: true, image: '', category: 'Monitoring', stock: 25, sku: 'BP-001' },
-  { id: 3, name: 'Walker', price: 80, description: 'Adjustable medical walker', available: false, image: '', category: 'Mobility', stock: 0, sku: 'WK-001' },
-];
-const DEMO_BLOGS = [
-  { id: 1, title: '5 Tips for Managing Your Medications', content: 'Take your medications at the same time every day. Use a pill organizer. ...', image: '', published: true, tags: ['Medication', 'Health Tips'] },
-  { id: 2, title: 'Understanding Blood Pressure', content: 'Blood pressure is the force of your blood pushing against the walls of your arteries. ...', image: '', published: false, tags: ['Cardiovascular', 'Health'] },
-];
-const DEMO_ORDERS = [
-  { id: 1, name: 'John Doe', address: '123 Main St, Brooklyn, NY', mobile: '555-1234', notes: 'Leave at door', status: 'pending', products: [{ name: 'Wheelchair', qty: 1, price: 120 }], date: '2024-07-01', total: 120 },
-  { id: 2, name: 'Jane Smith', address: '456 Park Ave, Brooklyn, NY', mobile: '555-5678', notes: '', status: 'delivered', products: [{ name: 'BP Machine', qty: 2, price: 60 }], date: '2024-07-02', total: 120 },
-  { id: 3, name: 'Mike Johnson', address: '789 Oak St, Brooklyn, NY', mobile: '555-9012', notes: 'Call before delivery', status: 'shipped', products: [{ name: 'Walker', qty: 1, price: 80 }], date: '2024-07-03', total: 80 },
-];
-const DEMO_USERS = [
-  { id: 1, name: 'John Doe', email: 'john@example.com', mobile: '555-1234', role: 'user', status: 'active', joinDate: '2024-01-15' },
-  { id: 2, name: 'Jane Smith', email: 'jane@example.com', mobile: '555-5678', role: 'user', status: 'active', joinDate: '2024-01-20' },
-  { id: 3, name: 'Admin User', email: 'admin@mymeds.com', mobile: '555-0000', role: 'admin', status: 'active', joinDate: '2024-01-01' },
-];
-
 export default function Admin() {
   const [tab, setTab] = useState('dashboard');
   const navigate = useNavigate();
@@ -72,7 +52,11 @@ export default function Admin() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showToast, setShowToast] = useState({ show: false, message: '', type: 'success' });
   useEffect(() => {
-    if (localStorage.getItem('admin-auth') !== 'true') {
+    const adminAuth = localStorage.getItem('admin-auth');
+    const adminToken = localStorage.getItem('sb-admin-token');
+    console.log('Admin panel mount: admin-auth =', adminAuth, 'token =', adminToken);
+    if (adminAuth !== 'true') {
+      console.log('Redirecting to /admin-signin because admin-auth is not true');
       navigate('/admin-signin');
     }
   }, [navigate]);

@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
+import { unifiedAdminAuth } from './auth';
 
 interface AuthRequest extends Request {
   user?: any;
@@ -28,7 +29,7 @@ function auth(req: AuthRequest, res: Response, next: NextFunction) {
 }
 
 // Admin: list all reviews
-router.get('/', auth, async (req: AuthRequest, res: Response) => {
+router.get('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     let limit = parseInt(req.query.limit as string) || 20;
@@ -86,7 +87,7 @@ router.post('/product/:productId', async (req: Request, res: Response) => {
 });
 
 // Admin: approve or reject a review
-router.put('/:id', auth, async (req: AuthRequest, res: Response) => {
+router.put('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     const id = Number(req.params.id);
@@ -105,7 +106,7 @@ router.put('/:id', auth, async (req: AuthRequest, res: Response) => {
 });
 
 // Admin: delete a review
-router.delete('/:id', auth, async (req: AuthRequest, res: Response) => {
+router.delete('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     const id = Number(req.params.id);

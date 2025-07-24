@@ -5,6 +5,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import nodemailer from 'nodemailer';
+import { unifiedAdminAuth } from './auth';
 
 interface AuthRequest extends Request {
   user?: any;
@@ -235,7 +236,7 @@ router.get('/my', auth, async (req: AuthRequest, res: Response) => {
 });
 
 // Admin: get all prescriptions
-router.get('/', auth, async (req: AuthRequest, res: Response) => {
+router.get('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     let limit = parseInt(req.query.limit as string) || 20;

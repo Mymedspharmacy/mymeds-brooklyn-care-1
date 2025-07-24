@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
+import { unifiedAdminAuth } from './auth';
 
 interface AuthRequest extends Request {
   user?: any;
@@ -28,7 +29,7 @@ function auth(req: AuthRequest, res: Response, next: NextFunction) {
 }
 
 // Get site-wide settings (public)
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
     const settings = await prisma.settings.findUnique({ where: { id: 1 } });
     res.json(settings);
@@ -38,7 +39,7 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 // Update site-wide settings (admin only)
-router.put('/', auth, async (req: AuthRequest, res: Response) => {
+router.put('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     const { siteName, contactEmail, contactPhone, address, businessHours, facebook, instagram, twitter } = req.body;

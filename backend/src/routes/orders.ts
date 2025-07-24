@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
+import { unifiedAdminAuth } from './auth';
 
 interface AuthRequest extends Request {
   user?: any;
@@ -144,7 +145,7 @@ router.post('/public', async (req: Request, res: Response) => {
 });*/
 
 // Admin: get all orders
-router.get('/', auth, async (req: AuthRequest, res: Response) => {
+router.get('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     let limit = parseInt(req.query.limit as string) || 20;
@@ -158,7 +159,7 @@ router.get('/', auth, async (req: AuthRequest, res: Response) => {
 });
 
 // Admin: get specific order by ID
-router.get('/:id', auth, async (req: AuthRequest, res: Response) => {
+router.get('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     const order = await prisma.order.findUnique({ 
@@ -187,7 +188,7 @@ router.get('/:id', auth, async (req: AuthRequest, res: Response) => {
 });
 
 // Admin: update order status
-router.put('/:id', auth, async (req: AuthRequest, res: Response) => {
+router.put('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     const { status } = req.body;
@@ -200,7 +201,7 @@ router.put('/:id', auth, async (req: AuthRequest, res: Response) => {
 });
 
 // Admin: delete order
-router.delete('/:id', auth, async (req: AuthRequest, res: Response) => {
+router.delete('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     await prisma.order.delete({ where: { id: Number(req.params.id) } });
@@ -212,7 +213,7 @@ router.delete('/:id', auth, async (req: AuthRequest, res: Response) => {
 });
 
 // Admin: get order items
-router.get('/:id/items', auth, async (req: AuthRequest, res: Response) => {
+router.get('/:id/items', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     const items = await prisma.orderItem.findMany({ 
@@ -227,7 +228,7 @@ router.get('/:id/items', auth, async (req: AuthRequest, res: Response) => {
 });
 
 // Admin: add item to order
-router.post('/:id/items', auth, async (req: AuthRequest, res: Response) => {
+router.post('/:id/items', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     const { productId, quantity, price } = req.body;

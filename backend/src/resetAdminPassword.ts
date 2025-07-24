@@ -1,3 +1,4 @@
+// This script is for initial setup/testing only. Do NOT use in production.
 import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 

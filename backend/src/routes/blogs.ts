@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
+import { unifiedAdminAuth } from './auth';
 
 interface AuthRequest extends Request {
   user?: any;
@@ -40,7 +41,7 @@ router.get('/', async (req, res) => {
 });
 
 // Admin: create blog
-router.post('/', auth, async (req: AuthRequest, res: Response) => {
+router.post('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     const { title, content, author } = req.body;

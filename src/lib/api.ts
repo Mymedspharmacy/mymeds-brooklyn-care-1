@@ -22,14 +22,23 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Global response interceptor for auth errors
+// Debug: Log all outgoing requests and responses
+api.interceptors.request.use((config) => {
+  console.log('API Request:', config.method, config.url, config.headers, config.data);
+  return config;
+});
 api.interceptors.response.use(
-  response => response,
+  response => {
+    console.log('API Response:', response.config.url, response.status, response.data);
+    return response;
+  },
   error => {
     if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-      setAuthToken(null); // Remove token
+      localStorage.removeItem('sb-admin-token');
+      localStorage.removeItem('admin-auth');
       window.location.href = '/admin-signin'; // Redirect to correct login page
     }
+    console.log('API Error:', error.config?.url, error.response?.status, error.response?.data);
     return Promise.reject(error);
   }
 );
