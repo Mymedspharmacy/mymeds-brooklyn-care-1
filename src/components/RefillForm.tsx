@@ -83,19 +83,19 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-background rounded-lg max-w-2xl w-full max-h-screen overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4">
+      <div className="bg-background rounded-lg max-w-2xl w-full max-h-screen overflow-y-auto mx-2 sm:mx-0">
         <Card className="border-0 shadow-xl">
           <CardHeader className="relative rounded-t-lg" style={{ backgroundColor: '#376f6b', color: '#fff' }}>
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 text-primary-foreground hover:text-primary-foreground/70"
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 text-primary-foreground hover:text-primary-foreground/70"
             >
-              <X className="h-6 w-6" />
+              <X className="h-5 w-5 sm:h-6 sm:w-6" />
             </button>
-            <div className="flex items-center space-x-3">
-              <Pill className="h-8 w-8" />
-              <CardTitle className="text-2xl">Prescription Refill Request</CardTitle>
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <Pill className="h-6 w-6 sm:h-8 sm:w-8" />
+              <CardTitle className="text-lg sm:text-2xl">Prescription Refill Request</CardTitle>
             </div>
           </CardHeader>
           <CardContent className="p-6">

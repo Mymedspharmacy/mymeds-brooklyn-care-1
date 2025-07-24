@@ -87,44 +87,53 @@ export default function Blog() {
     <div className="min-h-screen bg-[#f5fefd]">
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-[#57bbb6]/20">
-        <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8">
           <div className="text-center">
-            <h1 className="text-5xl font-normal text-[#376f6b] mb-4">Health & Wellness Blog</h1>
-            <p className="text-xl text-[#376f6b] max-w-3xl mx-auto">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-normal text-[#376f6b] mb-4">Health & Wellness Blog</h1>
+            <p className="text-base sm:text-lg lg:text-xl text-[#376f6b] max-w-3xl mx-auto">
               Expert medical insights, health tips, and wellness advice to help you live a healthier life
             </p>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-6 lg:py-8">
         {/* Search Bar */}
-        <div className="mb-8">
-          <div className="relative max-w-md">
+        <div className="mb-6 lg:mb-8">
+          <div className="relative w-full sm:max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#376f6b]" size={20} />
             <input
               type="text"
               placeholder="Search articles..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border-2 border-[#57bbb6] rounded-lg focus:outline-none focus:border-[#376f6b]"
+              className="w-full pl-10 pr-4 py-3 border-2 border-[#57bbb6] rounded-lg focus:outline-none focus:border-[#376f6b] text-sm sm:text-base"
             />
           </div>
         </div>
 
+        {/* Mobile Categories Dropdown */}
+        <div className="lg:hidden mb-6">
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="w-full px-4 py-3 border-2 border-[#57bbb6] rounded-lg focus:outline-none focus:border-[#376f6b] text-[#376f6b] font-medium"
+          >
+            <option value="All">All Categories</option>
+          </select>
+        </div>
+
         {/* Main Content with Sidebar */}
         <div className="flex gap-8">
-          {/* Sidebar - Categories */}
-          <div className="w-64 flex-shrink-0">
+          {/* Desktop Sidebar - Categories */}
+          <div className="hidden lg:block w-64 flex-shrink-0">
             <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
               <h3 className="text-lg font-medium text-[#376f6b] mb-4">Categories</h3>
               <div className="space-y-2">
-                {/* CATEGORIES array is removed, so this loop will not render anything */}
-                {/* This section needs to be updated to fetch categories from the backend */}
                 <button
                   key="All"
                   onClick={() => setSelectedCategory('All')}
-                  className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                  className={`w-full text-left px-3 py-2 rounded-md transition-colors text-sm ${
                     selectedCategory === 'All'
                       ? 'bg-[#376f6b] text-white'
                       : 'text-[#376f6b] hover:bg-[#57bbb6] hover:text-white'
@@ -141,9 +150,9 @@ export default function Blog() {
 
         {/* Featured Articles */}
         {selectedCategory === 'All' && searchTerm === '' && (
-          <div className="mb-12">
-            <h2 className="text-3xl font-normal text-[#376f6b] mb-6">Featured Articles</h2>
-            <div className="grid md:grid-cols-2 gap-8">
+          <div className="mb-8 lg:mb-12">
+            <h2 className="text-2xl sm:text-3xl font-normal text-[#376f6b] mb-4 lg:mb-6">Featured Articles</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
               {featuredArticles.map((article) => (
                 <div key={article.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
                   <div className="relative">

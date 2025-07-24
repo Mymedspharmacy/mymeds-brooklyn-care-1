@@ -165,17 +165,17 @@ export default function Shop() {
       
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-[#57bbb6]/20">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <h1 className="text-4xl font-normal text-[#376f6b]">SHOP</h1>
+        <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal text-[#376f6b]">SHOP</h1>
             <div className="flex items-center gap-4">
               <button 
                 onClick={() => setShowCart(true)}
-                className="relative bg-[#376f6b] text-white p-3 rounded-full hover:bg-[#57bbb6] transition-colors"
+                className="relative bg-[#376f6b] text-white p-2 sm:p-3 rounded-full hover:bg-[#57bbb6] transition-colors"
               >
-                <ShoppingCart size={24} />
+                <ShoppingCart size={20} className="sm:w-6 sm:h-6" />
                 {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-[#57bbb6] text-[#231f20] text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-[#57bbb6] text-[#231f20] text-xs font-bold rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center">
                     {cartCount}
                   </span>
                 )}
@@ -185,25 +185,38 @@ export default function Shop() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-6 lg:py-8">
         {/* Search Bar */}
-        <div className="mb-8">
-          <div className="relative max-w-md">
+        <div className="mb-6 lg:mb-8">
+          <div className="relative w-full sm:max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#376f6b]" size={20} />
             <input
               type="text"
               placeholder="Search products..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border-2 border-[#57bbb6] rounded-lg focus:outline-none focus:border-[#376f6b]"
+              className="w-full pl-10 pr-4 py-3 border-2 border-[#57bbb6] rounded-lg focus:outline-none focus:border-[#376f6b] text-sm sm:text-base"
             />
           </div>
         </div>
 
+        {/* Mobile Categories Dropdown */}
+        <div className="lg:hidden mb-6">
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="w-full px-4 py-3 border-2 border-[#57bbb6] rounded-lg focus:outline-none focus:border-[#376f6b] text-[#376f6b] font-medium"
+          >
+            {CATEGORIES.map(category => (
+              <option key={category} value={category}>{category}</option>
+            ))}
+          </select>
+        </div>
+
         {/* Main Content with Sidebar */}
         <div className="flex gap-8">
-          {/* Sidebar - Categories */}
-          <div className="w-64 flex-shrink-0">
+          {/* Desktop Sidebar - Categories */}
+          <div className="hidden lg:block w-64 flex-shrink-0">
             <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
               <h3 className="text-lg font-medium text-[#376f6b] mb-4">Categories</h3>
               <div className="space-y-2">
@@ -211,7 +224,7 @@ export default function Shop() {
                   <button
                     key={category}
                     onClick={() => setSelectedCategory(category)}
-                    className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                    className={`w-full text-left px-3 py-2 rounded-md transition-colors text-sm ${
                       selectedCategory === category
                         ? 'bg-[#376f6b] text-white'
                         : 'text-[#376f6b] hover:bg-[#57bbb6] hover:text-white'
@@ -226,63 +239,63 @@ export default function Shop() {
 
           {/* Products Grid */}
           <div className="flex-1">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 mb-12">
           {filteredProducts.map((product) => (
-            <div key={product.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-[#57bbb6]/20">
+            <div key={product.id} className="bg-white rounded-xl lg:rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-[#57bbb6]/20">
               <div className="relative">
                 <img 
                   src={product.image} 
                   alt={product.name} 
-                  className="w-full h-48 object-cover cursor-pointer"
+                  className="w-full h-40 sm:h-48 object-cover cursor-pointer"
                   onClick={() => setShowProductDetail(product)}
                 />
                 <button
                   onClick={() => toggleWishlist(product.id)}
-                  className={`absolute top-3 right-3 p-2 rounded-full transition-colors ${
+                  className={`absolute top-2 right-2 sm:top-3 sm:right-3 p-1.5 sm:p-2 rounded-full transition-colors ${
                     wishlist.includes(product.id)
                       ? 'bg-red-500 text-white'
                       : 'bg-white/80 text-[#376f6b] hover:bg-[#57bbb6] hover:text-white'
                   }`}
                 >
-                  <Heart size={20} fill={wishlist.includes(product.id) ? 'currentColor' : 'none'} />
+                  <Heart size={16} className="sm:w-5 sm:h-5" fill={wishlist.includes(product.id) ? 'currentColor' : 'none'} />
                 </button>
                 {product.originalPrice > product.price && (
-                  <div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded-full text-sm font-bold">
+                  <div className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-red-500 text-white px-2 py-1 rounded-full text-xs sm:text-sm font-bold">
                     SALE
                   </div>
                 )}
               </div>
               
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-xs bg-[#57bbb6] text-[#231f20] px-2 py-1 rounded-full font-semibold">
                     {product.category}
                   </span>
                   <div className="flex items-center gap-1 ml-auto">
-                    <Star size={16} className="text-yellow-400 fill-current" />
-                    <span className="text-sm font-semibold text-[#376f6b]">{product.rating}</span>
+                    <Star size={14} className="sm:w-4 sm:h-4 text-yellow-400 fill-current" />
+                    <span className="text-xs sm:text-sm font-semibold text-[#376f6b]">{product.rating}</span>
                     <span className="text-xs text-gray-500">({product.reviews})</span>
                   </div>
                 </div>
                 
-                <h3 className="text-lg font-normal text-[#231f20] mb-2 cursor-pointer hover:text-[#376f6b]"
+                <h3 className="text-base sm:text-lg font-normal text-[#231f20] mb-2 cursor-pointer hover:text-[#376f6b] line-clamp-2"
                     onClick={() => setShowProductDetail(product)}>
                   {product.name}
                 </h3>
                 
-                <p className="text-[#376f6b] text-sm mb-3 line-clamp-2">{product.description}</p>
+                <p className="text-[#376f6b] text-xs sm:text-sm mb-3 line-clamp-2">{product.description}</p>
                 
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="text-2xl font-normal text-[#57bbb6]">${product.price}</span>
+                  <span className="text-lg sm:text-2xl font-normal text-[#57bbb6]">${product.price}</span>
                   {product.originalPrice > product.price && (
-                    <span className="text-lg text-gray-500 line-through">${product.originalPrice}</span>
+                    <span className="text-sm sm:text-lg text-gray-500 line-through">${product.originalPrice}</span>
                   )}
                 </div>
                 
                 <button
                   onClick={() => addToCart(product)}
                   disabled={!product.available}
-                  className="w-full bg-[#376f6b] text-white py-3 rounded-lg font-semibold hover:bg-[#57bbb6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-[#376f6b] text-white py-2.5 sm:py-3 rounded-lg font-semibold hover:bg-[#57bbb6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                 >
                   {product.available ? 'Add to Cart' : 'Out of Stock'}
                 </button>

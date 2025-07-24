@@ -550,50 +550,51 @@ export default function Admin() {
     <div className="min-h-screen bg-gray-50">
       {/* Toast Notification */}
       {showToast.show && (
-        <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${
+        <div className={`fixed top-4 right-2 sm:right-4 z-50 p-3 sm:p-4 rounded-lg shadow-lg max-w-xs sm:max-w-sm ${
           showToast.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
         }`}>
-          {showToast.message}
+          <div className="text-sm sm:text-base">{showToast.message}</div>
         </div>
       )}
 
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+        <div className="max-w-7xl mx-auto px-4 py-3 sm:py-4">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <button 
                 onClick={() => navigate('/')}
-                className="w-14 h-14 bg-gradient-to-br from-[#376f6b] to-[#2e8f88] rounded-2xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                className="w-10 h-10 sm:w-14 sm:h-14 bg-gradient-to-br from-[#376f6b] to-[#2e8f88] rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
               >
-                <Home className="h-8 w-8 text-white" />
+                <Home className="h-5 w-5 sm:h-8 sm:w-8 text-white" />
               </button>
               <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-[#376f6b] to-[#2e8f88] bg-clip-text text-transparent">
-                  MY MEDS PHARMACY
+                <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-[#376f6b] to-[#2e8f88] bg-clip-text text-transparent">
+                  <span className="hidden sm:inline">MY MEDS PHARMACY</span>
+                  <span className="sm:hidden">MY MEDS</span>
                 </h1>
-                <p className="text-sm text-gray-600 font-medium">Admin Portal</p>
+                <p className="text-xs sm:text-sm text-gray-600 font-medium">Admin Portal</p>
               </div>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <div className="relative">
                 <button
                   onClick={() => setNotifOpen((o) => !o)}
-                  className="relative p-2 rounded-full hover:bg-gray-100 focus:outline-none"
+                  className="relative p-1.5 sm:p-2 rounded-full hover:bg-gray-100 focus:outline-none"
                   aria-label="Notifications"
                 >
-                  <Bell className="h-6 w-6 text-[#376f6b]" />
+                  <Bell className="h-5 w-5 sm:h-6 sm:w-6 text-[#376f6b]" />
                   {Object.values(notifications).some(arr => arr.length > 0) && (
-                    <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></span>
+                    <span className="absolute top-0 right-0 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-red-500 rounded-full border-2 border-white"></span>
                   )}
                 </button>
                 {notifOpen && (
-                  <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg z-50 border">
-                    <div className="p-4 border-b font-bold text-[#376f6b] flex items-center justify-between">
-                      Notifications
-                      <button onClick={() => setNotifOpen(false)} className="text-gray-400 hover:text-gray-600">&times;</button>
+                  <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-lg shadow-lg z-50 border">
+                    <div className="p-3 sm:p-4 border-b font-bold text-[#376f6b] flex items-center justify-between">
+                      <span className="text-sm sm:text-base">Notifications</span>
+                      <button onClick={() => setNotifOpen(false)} className="text-gray-400 hover:text-gray-600 text-lg">&times;</button>
                     </div>
-                    <div className="max-h-96 overflow-y-auto">
+                    <div className="max-h-80 sm:max-h-96 overflow-y-auto">
                       {notifLoading && <div className="p-4 text-gray-500">Loading...</div>}
                       {notifError && <div className="p-4 text-red-500">{notifError}</div>}
                       {Object.values(notifications).every(arr => arr.length === 0) && !notifLoading && (
@@ -670,55 +671,58 @@ export default function Admin() {
               <Button 
                 onClick={() => window.open('tel:+1234567890', '_self')}
                 variant="outline"
-                className="border-[#376f6b] text-[#376f6b] hover:bg-[#376f6b] hover:text-white transition-all duration-300"
+                size="sm"
+                className="border-[#376f6b] text-[#376f6b] hover:bg-[#376f6b] hover:text-white transition-all duration-300 hidden sm:flex"
               >
-                <Phone className="h-4 w-4 mr-2" />
-                Call Us
+                <Phone className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Call Us</span>
               </Button>
-              <span className="text-sm text-gray-500">Welcome, Admin</span>
+              <span className="text-xs sm:text-sm text-gray-500 hidden lg:block">Welcome, Admin</span>
               <Button 
                 onClick={confirmLogout}
                 variant="outline"
+                size="sm"
                 className="border-[#376f6b] text-[#376f6b] hover:bg-[#376f6b] hover:text-white"
               >
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
+                <LogOut className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Logout</span>
               </Button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6 lg:py-8">
         {/* Navigation Tabs */}
-        <div className="flex flex-wrap gap-2 mb-8">
+        <div className="flex flex-wrap gap-1 sm:gap-2 mb-6 lg:mb-8 overflow-x-auto">
           {TABS.map(tabItem => {
             const Icon = tabItem.icon;
             return (
               <button
                 key={tabItem.id}
                 onClick={() => setTab(tabItem.id)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+                className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded-lg font-medium transition-colors text-xs sm:text-sm whitespace-nowrap ${
                   tab === tabItem.id
                     ? 'bg-[#376f6b] text-white shadow-md'
                     : 'bg-white text-[#376f6b] border border-[#57bbb6] hover:bg-[#57bbb6] hover:text-white'
                 }`}
               >
-                <Icon className="h-4 w-4" />
-                {tabItem.label}
+                <Icon className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">{tabItem.label}</span>
+                <span className="sm:hidden">{tabItem.label.split(' ')[0]}</span>
               </button>
             );
           })}
         </div>
 
-                {/* Main Content */}
+        {/* Main Content */}
         <div className="bg-white rounded-lg shadow-sm border">
           {tab === 'dashboard' && (
-            <div className="p-6">
-              <h2 className="text-2xl font-bold text-[#376f6b] mb-6">Dashboard Overview</h2>
+            <div className="p-3 sm:p-4 lg:p-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-[#376f6b] mb-4 sm:mb-6">Dashboard Overview</h2>
               
               {/* Summary Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 lg:mb-8">
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Total Products</CardTitle>

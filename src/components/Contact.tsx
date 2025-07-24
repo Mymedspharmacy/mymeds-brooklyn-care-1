@@ -45,47 +45,47 @@ export const Contact = () => {
   };
 
   return (
-    <section id="contact" className="py-20 bg-background">
+    <section id="contact" className="py-12 sm:py-16 lg:py-20 bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-foreground mb-4">Contact Us</h2>
-          <p className="text-xl text-muted-foreground">
+        <div className="text-center mb-12 lg:mb-16">
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">Contact Us</h2>
+          <p className="text-lg sm:text-xl text-muted-foreground">
             Get in touch with our friendly team for any questions or concerns
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mb-8 lg:mb-12">
           {/* Contact Information */}
-          <div className="space-y-8">
+          <div className="space-y-6 lg:space-y-8">
             <div>
-              <h3 className="text-2xl font-bold text-foreground mb-6">Get In Touch</h3>
-              <p className="text-muted-foreground mb-8 text-lg leading-relaxed">
+              <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-4 lg:mb-6">Get In Touch</h3>
+              <p className="text-muted-foreground mb-6 lg:mb-8 text-base sm:text-lg leading-relaxed">
                 We're here to help with all your pharmaceutical needs. Contact us by phone, 
                 email, or visit us in person. Our knowledgeable staff is ready to assist you.
               </p>
             </div>
 
-            <div className="space-y-6">
-              <div className="flex items-start space-x-4">
-                <MapPin className="h-6 w-6 text-primary mt-1" />
+            <div className="space-y-4 lg:space-y-6">
+              <div className="flex items-start space-x-3 lg:space-x-4">
+                <MapPin className="h-5 w-5 lg:h-6 lg:w-6 text-primary mt-1 flex-shrink-0" />
                 <div>
-                  <h4 className="font-semibold text-foreground">Address</h4>
-                  <p className="text-muted-foreground">2242 65th St., Brooklyn, NY 11204</p>
+                  <h4 className="font-semibold text-foreground text-sm sm:text-base">Address</h4>
+                  <p className="text-muted-foreground text-sm sm:text-base">2242 65th St., Brooklyn, NY 11204</p>
                 </div>
               </div>
 
-              <div className="flex items-start space-x-4">
-                <Phone className="h-6 w-6 text-primary mt-1" />
+              <div className="flex items-start space-x-3 lg:space-x-4">
+                <Phone className="h-5 w-5 lg:h-6 lg:w-6 text-primary mt-1 flex-shrink-0" />
                 <div>
-                  <h4 className="font-semibold text-foreground">Phone</h4>
-                  <p className="text-muted-foreground">(347) 312-6458</p>
+                  <h4 className="font-semibold text-foreground text-sm sm:text-base">Phone</h4>
+                  <p className="text-muted-foreground text-sm sm:text-base">(347) 312-6458</p>
                 </div>
               </div>
 
-              <div className="flex items-start space-x-4">
-                <Mail className="h-6 w-6 text-primary mt-1" />
+              <div className="flex items-start space-x-3 lg:space-x-4">
+                <Mail className="h-5 w-5 lg:h-6 lg:w-6 text-primary mt-1 flex-shrink-0" />
                 <div>
-                  <h4 className="font-semibold text-foreground">Email</h4>
+                  <h4 className="font-semibold text-foreground text-sm sm:text-base">Email</h4>
                   <button 
                     onClick={() => {
                       const emailAddress = 'Mymedspharmacy@outlook.com';

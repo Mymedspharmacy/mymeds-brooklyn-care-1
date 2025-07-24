@@ -45,9 +45,9 @@ export const Testimonials = () => {
     : "0.0";
 
   return (
-    <section className="py-20 bg-secondary">
+    <section className="py-12 sm:py-16 lg:py-20 bg-secondary">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
+        <div className="text-center mb-8 sm:mb-12 lg:mb-16">
           <h2 className="text-4xl font-bold text-foreground mb-4">What Our Patients Say</h2>
           <p className="text-xl text-pharmacy-gray mb-6">
             Don't just take our word for it - hear from our satisfied patients
