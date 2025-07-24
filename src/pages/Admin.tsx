@@ -32,6 +32,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import api from '../lib/api';
+import supabase from '../lib/supabaseClient';
 
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', icon: TrendingUp },
@@ -52,17 +53,28 @@ export default function Admin() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showToast, setShowToast] = useState({ show: false, message: '', type: 'success' });
   useEffect(() => {
-    const adminAuth = localStorage.getItem('admin-auth');
-    const adminToken = localStorage.getItem('sb-admin-token');
-    console.log('Admin panel mount: admin-auth =', adminAuth, 'token =', adminToken);
-    if (adminAuth !== 'true') {
-      console.log('Redirecting to /admin-signin because admin-auth is not true');
-      navigate('/admin-signin');
-    }
+    // Listen for auth state changes and check session on mount
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!session) {
+        navigate('/admin-signin');
+      }
+    });
+
+    // Initial session check
+    supabase.auth.getSession().then(({ data }) => {
+      if (!data.session) {
+        navigate('/admin-signin');
+      }
+    });
+
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
   }, [navigate]);
   function logout() {
-    localStorage.removeItem('admin-auth');
-    navigate('/admin-signin');
+    supabase.auth.signOut().then(() => {
+      navigate('/admin-signin');
+    });
   }
 
   function showToastMessage(message: string, type: 'success' | 'error' = 'success') {
@@ -1546,15 +1558,15 @@ export default function Admin() {
                 <CardContent className="space-y-4">
                   <div>
                     <label className="text-sm font-medium">Name</label>
-                    <Input placeholder="Admin Name" value={"Admin User"} disabled />
+                    <Input id="adminName" name="adminName" placeholder="Admin Name" value={"Admin User"} disabled />
                   </div>
                   <div>
                     <label className="text-sm font-medium">Email</label>
-                    <Input placeholder="admin@mymeds.com" value={"admin@mymeds.com"} disabled />
+                    <Input id="adminEmail" name="adminEmail" placeholder="admin@mymeds.com" value={"admin@mymeds.com"} disabled />
                   </div>
                   <div>
                     <label className="text-sm font-medium">Phone</label>
-                    <Input placeholder="Phone Number" value={settings.contactPhone} onChange={e => setSettings(s => ({ ...s, contactPhone: e.target.value }))} />
+                    <Input id="contactPhone" name="contactPhone" placeholder="Phone Number" value={settings.contactPhone} onChange={e => setSettings(s => ({ ...s, contactPhone: e.target.value }))} />
                   </div>
                   <Button className="bg-[#376f6b] hover:bg-[#2e8f88]" disabled>
                     Update Profile (coming soon)
@@ -1569,31 +1581,31 @@ export default function Admin() {
                   <form onSubmit={handleSettingsSave} className="space-y-4">
                     <div>
                       <label className="text-sm font-medium">Pharmacy Name</label>
-                      <Input placeholder="Pharmacy Name" value={settings.siteName} onChange={e => setSettings(s => ({ ...s, siteName: e.target.value }))} />
+                      <Input id="siteName" name="siteName" placeholder="Pharmacy Name" value={settings.siteName} onChange={e => setSettings(s => ({ ...s, siteName: e.target.value }))} />
                     </div>
                     <div>
                       <label className="text-sm font-medium">Contact Email</label>
-                      <Input placeholder="Contact Email" value={settings.contactEmail} onChange={e => setSettings(s => ({ ...s, contactEmail: e.target.value }))} />
+                      <Input id="contactEmail" name="contactEmail" placeholder="Contact Email" value={settings.contactEmail} onChange={e => setSettings(s => ({ ...s, contactEmail: e.target.value }))} />
                     </div>
                     <div>
                       <label className="text-sm font-medium">Address</label>
-                      <Textarea placeholder="Pharmacy Address" value={settings.address} onChange={e => setSettings(s => ({ ...s, address: e.target.value }))} rows={3} />
+                      <Textarea id="pharmacyAddress" name="pharmacyAddress" placeholder="Pharmacy Address" value={settings.address} onChange={e => setSettings(s => ({ ...s, address: e.target.value }))} rows={3} />
                     </div>
                     <div>
                       <label className="text-sm font-medium">Business Hours</label>
-                      <Input placeholder="9:00 AM - 6:00 PM" value={settings.businessHours} onChange={e => setSettings(s => ({ ...s, businessHours: e.target.value }))} />
+                      <Input id="businessHours" name="businessHours" placeholder="9:00 AM - 6:00 PM" value={settings.businessHours} onChange={e => setSettings(s => ({ ...s, businessHours: e.target.value }))} />
                     </div>
                     <div>
                       <label className="text-sm font-medium">Facebook</label>
-                      <Input placeholder="Facebook URL" value={settings.facebook || ''} onChange={e => setSettings(s => ({ ...s, facebook: e.target.value }))} />
+                      <Input id="facebookUrl" name="facebookUrl" placeholder="Facebook URL" value={settings.facebook || ''} onChange={e => setSettings(s => ({ ...s, facebook: e.target.value }))} />
                     </div>
                     <div>
                       <label className="text-sm font-medium">Instagram</label>
-                      <Input placeholder="Instagram URL" value={settings.instagram || ''} onChange={e => setSettings(s => ({ ...s, instagram: e.target.value }))} />
+                      <Input id="instagramUrl" name="instagramUrl" placeholder="Instagram URL" value={settings.instagram || ''} onChange={e => setSettings(s => ({ ...s, instagram: e.target.value }))} />
                     </div>
                     <div>
                       <label className="text-sm font-medium">Twitter</label>
-                      <Input placeholder="Twitter URL" value={settings.twitter || ''} onChange={e => setSettings(s => ({ ...s, twitter: e.target.value }))} />
+                      <Input id="twitterUrl" name="twitterUrl" placeholder="Twitter URL" value={settings.twitter || ''} onChange={e => setSettings(s => ({ ...s, twitter: e.target.value }))} />
                     </div>
                     <Button type="submit" className="bg-[#376f6b] hover:bg-[#2e8f88]">
                       Save Settings

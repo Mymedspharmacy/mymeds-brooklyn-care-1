@@ -235,6 +235,8 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
                   Upload Prescription *
                 </label>
                 <input 
+                  id="prescriptionFile"
+                  name="prescriptionFile"
                   type="file" 
                   accept="image/*,application/pdf" 
                   onChange={e => setPrescriptionFile(e.target.files?.[0] || null)} 

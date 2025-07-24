@@ -347,7 +347,15 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
 
             <div className="mb-4">
               <label className="block text-sm font-medium text-[#376f6b] mb-2">Upload Prescription *</label>
-              <input type="file" accept="image/*,application/pdf" onChange={e => setPrescriptionFile(e.target.files[0])} required className="border p-2 rounded w-full" />
+              <input 
+                id="prescriptionFile"
+                name="prescriptionFile"
+                type="file" 
+                accept="image/*,application/pdf" 
+                onChange={e => setPrescriptionFile(e.target.files[0])} 
+                required 
+                className="border p-2 rounded w-full" 
+              />
               {prescriptionFile && <div className="text-[#57bbb6] mt-1">Selected: {prescriptionFile.name}</div>}
             </div>
 

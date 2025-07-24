@@ -1,14 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createClient } from '@supabase/supabase-js';
+import supabase from '../lib/supabaseClient';
 import api from '../lib/api';
 import logo from '../assets/logo.png';
 import { Eye, EyeOff, Loader2, ArrowLeft, Lock, Mail, X } from 'lucide-react';
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL!,
-  import.meta.env.VITE_SUPABASE_ANON_KEY!
-);
 
 export default function AdminSignIn() {
   const [username, setUsername] = useState('');
@@ -41,6 +36,7 @@ export default function AdminSignIn() {
         email: username,
         password
       });
+      console.log('Supabase login response:', { data, supaError });
       if (supaError || !data.session) {
         setError(supaError?.message || 'Invalid credentials');
         setLoading(false);
@@ -60,6 +56,7 @@ export default function AdminSignIn() {
       navigate('/admin');
     } catch (err) {
       setError('Login failed');
+      console.log('Login error:', err);
     } finally {
       setLoading(false);
     }
