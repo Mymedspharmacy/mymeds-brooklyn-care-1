@@ -97,7 +97,7 @@ export default function AdminReset() {
           {/* Submit Button */}
           {tokenValid && !success && (
             <button
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#376f6b] to-[#2e8f88] hover:from-[#2e8f88] hover:to-[#376f6b] text-white py-3 rounded-xl font-bold text-lg shadow-lg transition-all duration-200 hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-2 bg-[#376f6b] hover:bg-[#2e8f88] text-white py-3 rounded-xl font-bold text-lg shadow-lg transition-all duration-200 hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed"
               type="submit"
               disabled={loading}
             >
@@ -109,7 +109,7 @@ export default function AdminReset() {
           {!tokenValid && !success && (
             <button
               type="button"
-              className="mt-4 text-[#57bbb6] hover:text-[#2e8f88] underline text-base"
+              className="mt-4 text-[#376f6b] hover:text-[#2e8f88] underline text-base"
               onClick={() => navigate('/admin-signin')}
             >
               Request a new password reset

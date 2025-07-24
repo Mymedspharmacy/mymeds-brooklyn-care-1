@@ -98,8 +98,8 @@ export default function AdminSignIn() {
           {/* Back to Home Link */}
           <button
             type="button"
-            onClick={() => navigate('/')}
-            className="absolute top-4 left-4 text-[#57bbb6] hover:text-[#2e8f88] transition-colors flex items-center gap-1 text-sm"
+            onClick={() => navigate('/')} 
+            className="absolute top-4 left-4 text-[#376f6b] hover:text-[#2e8f88] transition-colors flex items-center gap-1 text-sm"
           >
             <ArrowLeft size={16} />
             Back to Home
