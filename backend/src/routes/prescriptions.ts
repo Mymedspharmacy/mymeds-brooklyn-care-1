@@ -5,7 +5,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import nodemailer from 'nodemailer';
-import { unifiedAdminAuth } from './auth';
+import unifiedAdminAuth  from './auth';
 
 interface AuthRequest extends Request {
   user?: any;
