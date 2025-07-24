@@ -96,7 +96,8 @@ export const Services = ({ onAppointmentClick, onShopClick }: ServicesProps) => 
                 {service.hasShop && (
                   <Button 
                     onClick={onShopClick}
-                    className="w-full bg-[#376f6b] hover:bg-[#57bbb6] text-white text-sm sm:text-base"
+                    variant="secondary"
+                    className="w-full text-sm sm:text-base"
                   >
                     Shop Equipment
                   </Button>
