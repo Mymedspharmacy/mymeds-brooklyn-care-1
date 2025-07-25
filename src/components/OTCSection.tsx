@@ -45,16 +45,16 @@ export const OTCSection = () => {
   ];
 
   return (
-    <section id="otc" className="py-20 bg-background">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-foreground mb-4">Over-the-Counter Products</h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+    <section id="otc" className="py-12 sm:py-16 md:py-20 bg-background">
+      <div className="container mx-auto px-2 sm:px-4">
+        <div className="text-center mb-10 sm:mb-16">
+          <h2 className="text-2xl sm:text-4xl font-bold text-foreground mb-2 sm:mb-4">Over-the-Counter Products</h2>
+          <p className="text-base sm:text-xl text-muted-foreground max-w-3xl mx-auto">
             Find everything you need for your daily health and wellness, available without prescription
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8 mb-8 sm:mb-12">
           {otcCategories.map((category, index) => (
             <Card key={index} className="hover:shadow-lg transition-shadow duration-300 border-0 shadow-md">
               <CardHeader className="text-center pb-4">
@@ -84,7 +84,7 @@ export const OTCSection = () => {
           <p className="text-lg text-muted-foreground mb-6">
             Can't find what you're looking for? Our knowledgeable staff is here to help!
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
             <Button 
               onClick={() => navigate('/shop')}
               className="bg-[#376f6b] hover:bg-[#57bbb6] text-white"

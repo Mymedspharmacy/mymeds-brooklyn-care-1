@@ -185,9 +185,9 @@ export default function Shop() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 py-8">
         {/* Search Bar */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <div className="relative max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#376f6b]" size={20} />
             <input
@@ -201,17 +201,17 @@ export default function Shop() {
         </div>
 
         {/* Main Content with Sidebar */}
-        <div className="flex gap-8">
+        <div className="flex flex-col md:flex-row gap-6 md:gap-8">
           {/* Sidebar - Categories */}
-          <div className="w-64 flex-shrink-0">
-            <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
-              <h3 className="text-lg font-medium text-[#376f6b] mb-4">Categories</h3>
-              <div className="space-y-2">
+          <div className="md:w-64 w-full flex-shrink-0 mb-4 md:mb-0">
+            <div className="bg-white rounded-lg shadow-md p-4 md:p-6 sticky top-24 md:static">
+              <h3 className="text-lg font-medium text-[#376f6b] mb-3 md:mb-4">Categories</h3>
+              <div className="flex md:block flex-wrap gap-2 md:space-y-2">
                 {CATEGORIES.map(category => (
                   <button
                     key={category}
                     onClick={() => setSelectedCategory(category)}
-                    className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                    className={`w-full md:w-auto text-left px-3 py-2 rounded-md transition-colors text-sm md:text-base ${
                       selectedCategory === category
                         ? 'bg-[#376f6b] text-white'
                         : 'text-[#376f6b] hover:bg-[#57bbb6] hover:text-white'
@@ -226,9 +226,9 @@ export default function Shop() {
 
           {/* Products Grid */}
           <div className="flex-1">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {filteredProducts.map((product) => (
-            <div key={product.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-[#57bbb6]/20">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
+              {filteredProducts.map((product) => (
+                <div key={product.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-[#57bbb6]/20">
               <div className="relative">
                 <img 
                   src={product.image} 
@@ -297,7 +297,7 @@ export default function Shop() {
       {/* Cart Sidebar */}
       {showCart && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end">
-          <div className="bg-white w-full max-w-md h-full overflow-y-auto">
+          <div className="bg-white w-full max-w-full sm:max-w-md h-full overflow-y-auto">
             <div className="p-6 border-b border-[#57bbb6]/20">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-normal text-[#376f6b]">Shopping Cart</h2>
@@ -374,8 +374,8 @@ export default function Shop() {
 
       {/* Product Detail Modal */}
       {showProductDetail && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-white rounded-2xl max-w-full sm:max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <h2 className="text-3xl font-normal text-[#376f6b]">{showProductDetail.name}</h2>
@@ -441,8 +441,8 @@ export default function Shop() {
 
       {/* Checkout Modal */}
       {showCheckout && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-white rounded-2xl max-w-full sm:max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-3xl font-normal text-[#376f6b]">Checkout</h2>
@@ -536,8 +536,8 @@ export default function Shop() {
 
       {/* Payment Modal */}
       {showPayment && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-white rounded-2xl max-w-full sm:max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-3xl font-normal text-[#376f6b]">Payment</h2>
@@ -578,8 +578,8 @@ export default function Shop() {
 
       {/* Order Confirmation */}
       {orderPlaced && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full text-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-full sm:max-w-md w-full text-center">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

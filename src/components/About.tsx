@@ -2,23 +2,23 @@ import { Award, Heart, Users, Clock } from "lucide-react";
 
 export const About = () => {
   return (
-    <section id="about" className="py-20 bg-background">
-      <div className="container mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+    <section id="about" className="py-12 sm:py-16 md:py-20 bg-background">
+      <div className="container mx-auto px-2 sm:px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
           <div>
-            <h2 className="text-4xl font-bold text-foreground mb-6">About My Meds Pharmacy</h2>
-            <p className="text-lg text-pharmacy-gray mb-6 leading-relaxed">
+            <h2 className="text-2xl sm:text-4xl font-bold text-foreground mb-4 sm:mb-6">About My Meds Pharmacy</h2>
+            <p className="text-base sm:text-lg text-pharmacy-gray mb-4 sm:mb-6 leading-relaxed">
               Located in the heart of Brooklyn, My Meds Pharmacy has been serving our community with 
               dedication, expertise, and genuine care. We believe that exceptional pharmaceutical care 
               goes beyond just dispensing medications.
             </p>
-            <p className="text-lg text-pharmacy-gray mb-8 leading-relaxed">
+            <p className="text-base sm:text-lg text-pharmacy-gray mb-6 sm:mb-8 leading-relaxed">
               Our team of licensed pharmacists and healthcare professionals are committed to 
               providing personalized service, expert advice, and innovative solutions to meet 
               your unique health needs.
             </p>
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-2 gap-4 sm:gap-6">
               <div className="text-center p-4">
                 <Award className="h-12 w-12 text-primary mx-auto mb-3" />
                 <h3 className="font-bold text-2xl text-foreground">Licensed</h3>

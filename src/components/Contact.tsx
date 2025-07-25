@@ -45,16 +45,16 @@ export const Contact = () => {
   };
 
   return (
-    <section id="contact" className="py-20 bg-background">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-foreground mb-4">Contact Us</h2>
-          <p className="text-xl text-muted-foreground">
+    <section id="contact" className="py-12 sm:py-16 md:py-20 bg-background">
+      <div className="container mx-auto px-2 sm:px-4">
+        <div className="text-center mb-10 sm:mb-16">
+          <h2 className="text-2xl sm:text-4xl font-bold text-foreground mb-2 sm:mb-4">Contact Us</h2>
+          <p className="text-base sm:text-xl text-muted-foreground">
             Get in touch with our friendly team for any questions or concerns
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mb-8 lg:mb-12">
           {/* Contact Information */}
           <div className="space-y-8">
             <div>
@@ -226,7 +226,7 @@ Phone: (347) 312-6458`;
         </div>
 
         {/* Integrated Map */}
-        <div className="mt-12">
+        <div className="mt-8 sm:mt-12">
           <Card className="overflow-hidden shadow-lg">
             <CardHeader>
               <CardTitle className="text-2xl text-foreground flex items-center">
@@ -265,9 +265,9 @@ Phone: (347) 312-6458`;
         </div>
 
         {/* Quick Actions */}
-        <div className="mt-12 text-center">
-          <h3 className="text-2xl font-bold text-foreground mb-6">Quick Actions</h3>
-          <div className="grid md:grid-cols-3 gap-6">
+        <div className="mt-8 sm:mt-12 text-center">
+          <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-4 sm:mb-6">Quick Actions</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
             <Card className="hover:shadow-lg transition-shadow duration-300">
               <CardContent className="p-6 text-center">
                 <Phone className="h-12 w-12 text-primary mx-auto mb-4" />

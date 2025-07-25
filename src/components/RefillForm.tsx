@@ -83,8 +83,8 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-background rounded-lg max-w-2xl w-full max-h-screen overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4">
+      <div className="bg-background rounded-lg max-w-full sm:max-w-2xl w-full max-h-screen overflow-y-auto">
         <Card className="border-0 shadow-xl">
           <CardHeader className="relative rounded-t-lg" style={{ backgroundColor: '#376f6b', color: '#fff' }}>
             <button

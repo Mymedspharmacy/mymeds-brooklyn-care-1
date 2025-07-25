@@ -45,11 +45,11 @@ export const Testimonials = () => {
     : "0.0";
 
   return (
-    <section className="py-20 bg-secondary">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-foreground mb-4">What Our Patients Say</h2>
-          <p className="text-xl text-pharmacy-gray mb-6">
+    <section className="py-12 sm:py-16 md:py-20 bg-secondary">
+      <div className="container mx-auto px-2 sm:px-4">
+        <div className="text-center mb-10 sm:mb-16">
+          <h2 className="text-2xl sm:text-4xl font-bold text-foreground mb-2 sm:mb-4">What Our Patients Say</h2>
+          <p className="text-base sm:text-xl text-pharmacy-gray mb-4 sm:mb-6">
             Don't just take our word for it - hear from our satisfied patients
           </p>
           
@@ -178,7 +178,7 @@ export const Testimonials = () => {
         )}
 
         {/* Reviews Grid */}
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8">
           {testimonials.map((testimonial) => (
             <Card key={testimonial.id} className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
               <CardContent className="p-6">

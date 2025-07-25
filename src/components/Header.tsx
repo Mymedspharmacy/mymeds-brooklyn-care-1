@@ -53,15 +53,23 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
         <div className="container mx-auto px-4 flex items-center justify-between py-4">
           {/* Logo and Brand Name */}
           <div className="flex items-center gap-4 cursor-pointer" onClick={() => navigate('/') }>
-            <img src="/logo.png" alt="My Meds Pharmacy Logo" className="h-32 w-32 object-contain" />
+            <img src="/logo.png" alt="My Meds Pharmacy Logo" className="h-20 w-20 sm:h-24 sm:w-24 md:h-32 md:w-32 object-contain transition-all" />
             <div className="flex flex-col">
-              <span className="text-3xl font-bold text-[#376f6b] leading-none">My Meds</span>
-              <span className="text-xl font-semibold text-[#231f20]">Pharmacy</span>
+              <span className="text-2xl sm:text-3xl font-bold text-[#376f6b] leading-none">My Meds</span>
+              <span className="text-lg sm:text-xl font-semibold text-[#231f20]">Pharmacy</span>
             </div>
           </div>
+          {/* Hamburger for mobile */}
+          <button
+            className="lg:hidden flex items-center justify-center p-2 rounded-md text-[#376f6b] hover:bg-[#f5fefd] focus:outline-none focus:ring-2 focus:ring-[#57bbb6] ml-2"
+            onClick={() => setIsMenuOpen(v => !v)}
+            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+          >
+            {isMenuOpen ? <X className="h-7 w-7" /> : <Menu className="h-7 w-7" />}
+          </button>
           {/* Navigation */}
-          <nav className="flex-1 flex justify-center">
-            <ul className="flex gap-8 items-center">
+          <nav className="hidden lg:flex flex-1 justify-center">
+            <ul className="flex gap-4 xl:gap-8 items-center">
               <li><a href="/" className="text-[#231f20] font-semibold hover:text-[#57bbb6] transition-colors">Home</a></li>
               <li><a href="#services" className="text-[#231f20] font-semibold hover:text-[#57bbb6] transition-colors">Services</a></li>
               <li><a href="/shop" className="text-[#231f20] font-semibold hover:text-[#57bbb6] transition-colors">Shop</a></li>
@@ -71,7 +79,7 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
             </ul>
           </nav>
           {/* Action Buttons */}
-          <div className="flex gap-3">
+          <div className="hidden sm:flex gap-2 md:gap-3">
             <button className="flex items-center gap-2 bg-[#376f6b] text-white font-semibold px-5 py-2 rounded-lg shadow hover:bg-[#57bbb6] transition-colors text-base border-2 border-[#376f6b]" onClick={onRefillClick}>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 3.487A2.25 2.25 0 0 1 19.5 5.25v13.5A2.25 2.25 0 0 1 17.25 21H6.75A2.25 2.25 0 0 1 4.5 18.75V5.25a2.25 2.25 0 0 1 2.638-2.213l.112.026.112.026 6.75 1.5a2.25 2.25 0 0 1 1.5 2.138v.073a2.25 2.25 0 0 1-1.5 2.138l-6.75 1.5-.112.026-.112.026A2.25 2.25 0 0 1 4.5 10.5v8.25A2.25 2.25 0 0 0 6.75 21h10.5A2.25 2.25 0 0 0 19.5 18.75V5.25a2.25 2.25 0 0 0-2.638-2.213l-.112.026-.112.026-6.75 1.5a2.25 2.25 0 0 0-1.5 2.138v.073a2.25 2.25 0 0 0 1.5 2.138l6.75 1.5.112.026.112.026z" />
@@ -105,6 +113,45 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
             </button>
           </div>
         </div>
+        {/* Mobile Navigation Drawer */}
+        <div className={`lg:hidden fixed inset-0 z-40 bg-black bg-opacity-40 transition-opacity duration-300 ${isMenuOpen ? 'block' : 'hidden'}`}
+          onClick={() => setIsMenuOpen(false)}
+        />
+        <nav className={`lg:hidden fixed top-0 right-0 h-full w-4/5 max-w-xs bg-white shadow-2xl z-50 transform transition-transform duration-300 ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`} aria-label="Mobile menu">
+          <div className="flex flex-col p-6 gap-4 h-full">
+            <button onClick={() => setIsMenuOpen(false)} className="self-end mb-2 text-[#376f6b] hover:text-[#57bbb6]">
+              <X className="h-7 w-7" />
+            </button>
+            <a href="/" onClick={() => setIsMenuOpen(false)} className="text-lg font-semibold text-[#231f20] hover:text-[#57bbb6] py-2">Home</a>
+            <a href="#services" onClick={() => setIsMenuOpen(false)} className="text-lg font-semibold text-[#231f20] hover:text-[#57bbb6] py-2">Services</a>
+            <a href="/shop" onClick={() => setIsMenuOpen(false)} className="text-lg font-semibold text-[#231f20] hover:text-[#57bbb6] py-2">Shop</a>
+            <a href="/blog" onClick={() => setIsMenuOpen(false)} className="text-lg font-semibold text-[#231f20] hover:text-[#57bbb6] py-2">Health Blog</a>
+            <a href="#about" onClick={() => setIsMenuOpen(false)} className="text-lg font-semibold text-[#231f20] hover:text-[#57bbb6] py-2">About</a>
+            <a href="#contact" onClick={() => setIsMenuOpen(false)} className="text-lg font-semibold text-[#231f20] hover:text-[#57bbb6] py-2">Contact</a>
+            <div className="flex flex-col gap-2 mt-4">
+              <button className="flex items-center gap-2 bg-[#376f6b] text-white font-semibold px-5 py-2 rounded-lg shadow hover:bg-[#57bbb6] transition-colors text-base border-2 border-[#376f6b]" onClick={onRefillClick}>
+                Refill Rx
+              </button>
+              <button className="flex items-center gap-2 bg-[#2e8f88] text-white font-semibold px-5 py-2 rounded-lg shadow hover:bg-[#376f6b] transition-colors text-base border-2 border-[#2e8f88]" onClick={onTransferClick}>
+                Transfer Rx
+              </button>
+              <button className="flex items-center gap-2 bg-[#57bbb6] text-[#231f20] font-semibold px-5 py-2 rounded-lg shadow hover:bg-[#376f6b] hover:text-white transition-colors text-base border-2 border-[#57bbb6]" onClick={() => {
+                const phoneNumber = '3473126458';
+                const telLink = `tel:${phoneNumber}`;
+                if (navigator.userAgent.match(/iPhone|iPad|iPod|Android/i)) {
+                  window.location.href = telLink;
+                } else {
+                  if (confirm(`Call ${phoneNumber}?`)) {
+                    window.open(telLink);
+                  }
+                }
+              }}>
+                <Phone className="w-5 h-5" />
+                Call Now
+              </button>
+            </div>
+          </div>
+        </nav>
       </header>
 
 

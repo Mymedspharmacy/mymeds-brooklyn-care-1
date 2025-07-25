@@ -55,16 +55,16 @@ export const Services = ({ onAppointmentClick, onShopClick }: ServicesProps) => 
   ];
 
   return (
-    <section id="services" className="py-20 bg-muted/50">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-foreground mb-4">Our Services</h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+    <section id="services" className="py-12 sm:py-16 md:py-20 bg-muted/50">
+      <div className="container mx-auto px-2 sm:px-4">
+        <div className="text-center mb-10 sm:mb-16">
+          <h2 className="text-2xl sm:text-4xl font-bold text-foreground mb-2 sm:mb-4">Our Services</h2>
+          <p className="text-base sm:text-xl text-muted-foreground max-w-3xl mx-auto">
             Comprehensive pharmaceutical care designed to meet all your health and wellness needs
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
           {services.map((service, index) => (
             <Card key={index} className="hover:shadow-lg transition-shadow duration-300 border-0 shadow-md">
               <CardHeader className="text-center pb-4">

@@ -97,9 +97,9 @@ export default function Blog() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 py-8">
         {/* Search Bar */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <div className="relative max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#376f6b]" size={20} />
             <input
@@ -113,18 +113,16 @@ export default function Blog() {
         </div>
 
         {/* Main Content with Sidebar */}
-        <div className="flex gap-8">
+        <div className="flex flex-col md:flex-row gap-6 md:gap-8">
           {/* Sidebar - Categories */}
-          <div className="w-64 flex-shrink-0">
-            <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
-              <h3 className="text-lg font-medium text-[#376f6b] mb-4">Categories</h3>
-              <div className="space-y-2">
-                {/* CATEGORIES array is removed, so this loop will not render anything */}
-                {/* This section needs to be updated to fetch categories from the backend */}
+          <div className="md:w-64 w-full flex-shrink-0 mb-4 md:mb-0">
+            <div className="bg-white rounded-lg shadow-md p-4 md:p-6 sticky top-24 md:static">
+              <h3 className="text-lg font-medium text-[#376f6b] mb-3 md:mb-4">Categories</h3>
+              <div className="flex md:block flex-wrap gap-2 md:space-y-2">
                 <button
                   key="All"
                   onClick={() => setSelectedCategory('All')}
-                  className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                  className={`w-full md:w-auto text-left px-3 py-2 rounded-md transition-colors text-sm md:text-base ${
                     selectedCategory === 'All'
                       ? 'bg-[#376f6b] text-white'
                       : 'text-[#376f6b] hover:bg-[#57bbb6] hover:text-white'
@@ -141,9 +139,9 @@ export default function Blog() {
 
         {/* Featured Articles */}
         {selectedCategory === 'All' && searchTerm === '' && (
-          <div className="mb-12">
-            <h2 className="text-3xl font-normal text-[#376f6b] mb-6">Featured Articles</h2>
-            <div className="grid md:grid-cols-2 gap-8">
+          <div className="mb-8 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-normal text-[#376f6b] mb-4 sm:mb-6">Featured Articles</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
               {featuredArticles.map((article) => (
                 <div key={article.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
                   <div className="relative">
@@ -217,7 +215,7 @@ export default function Blog() {
         )}
 
             {/* Articles Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {filteredArticles.map((article) => (
                 <div key={article.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
                   <div className="relative">
@@ -298,7 +296,7 @@ export default function Blog() {
             </div>
 
             {filteredArticles.length === 0 && (
-              <div className="text-center py-12">
+              <div className="text-center py-8 sm:py-12">
                 <BookOpen size={48} className="mx-auto text-[#57bbb6] mb-4" />
                 <p className="text-[#231f20] text-lg">No articles found</p>
                 <p className="text-[#376f6b]">Try adjusting your search or filter criteria</p>
@@ -310,8 +308,8 @@ export default function Blog() {
 
       {/* Article Detail Modal */}
       {selectedArticle && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-white rounded-2xl max-w-full sm:max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-start mb-6">
                 <div className="flex-1">

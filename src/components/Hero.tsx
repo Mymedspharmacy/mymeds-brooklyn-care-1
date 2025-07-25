@@ -8,21 +8,21 @@ interface HeroProps {
 
 export const Hero = ({ onRefillClick }: HeroProps) => {
   return (
-    <section id="home" className="py-20">
-      <div className="container mx-auto px-4">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
+    <section id="home" className="py-12 sm:py-16 md:py-20">
+      <div className="container mx-auto px-2 sm:px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
           <div className="space-y-8">
             <div>
-              <h1 className="text-4xl md:text-6xl font-bold text-brand-black leading-tight">
+              <h1 className="text-2xl sm:text-4xl md:text-6xl font-bold text-brand-black leading-tight">
                 Your Trusted
                 <span className="text-brand block">Neighborhood Pharmacy</span>
               </h1>
-              <p className="text-xl text-brand-dark mt-6 leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl text-brand-dark mt-4 sm:mt-6 leading-relaxed">
                 Providing exceptional pharmaceutical care and personalized service to the Brooklyn community since day one. Your health is our priority.
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <Button 
                 onClick={onRefillClick}
                 size="lg" 
@@ -56,7 +56,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
               </Button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-8">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 pt-6 sm:pt-8">
               <div className="text-center p-4 bg-background rounded-lg shadow-sm">
                 <Truck className="h-8 w-8 text-primary mx-auto mb-2" />
                 <h3 className="font-semibold text-foreground">Free Delivery over $50</h3>
@@ -75,16 +75,16 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
             </div>
           </div>
 
-          <div className="relative">
-            <div className="bg-background rounded-2xl shadow-2xl p-2">
+          <div className="relative mt-8 md:mt-0">
+            <div className="bg-background rounded-2xl shadow-2xl p-1 sm:p-2">
               <img 
                 src={heroImage}
                 alt="Modern pharmacy interior" 
-                className="w-full h-96 object-cover rounded-xl"
+                className="w-full h-56 sm:h-72 md:h-96 object-cover rounded-xl"
               />
-              <div className="absolute -top-4 -right-4 bg-[#376f6b] text-white rounded-full w-24 h-24 flex items-center justify-center">
+              <div className="absolute -top-4 -right-4 bg-[#376f6b] text-white rounded-full w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 flex items-center justify-center">
                 <div className="text-center">
-                  <div className="text-2xl font-bold">3+</div>
+                  <div className="text-lg sm:text-2xl font-bold">3+</div>
                   <div className="text-xs">Years</div>
                 </div>
               </div>

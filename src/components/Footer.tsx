@@ -6,7 +6,7 @@ export const Footer = () => {
   return (
     <footer className="relative bg-[#376f6b] text-white py-20 border-t-4 border-[#57bbb6] shadow-2xl">
       <div className="container mx-auto px-4">
-        <div className="grid md:grid-cols-4 gap-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
           {/* Company Info */}
           <div className="space-y-6">
             <div className="flex items-center">
@@ -77,7 +77,7 @@ export const Footer = () => {
         {/* Small Admin Portal button in bottom right corner */}
         <button
           onClick={() => window.location.href='/admin'}
-          className="fixed right-6 bottom-6 z-50 bg-[#57bbb6] text-[#231f20] font-bold py-2 px-4 rounded-full shadow hover:bg-white hover:text-[#376f6b] border-2 border-[#231f20] text-sm transition-colors"
+          className="fixed right-4 bottom-4 z-50 bg-[#57bbb6] text-[#231f20] font-bold py-2 px-4 rounded-full shadow hover:bg-white hover:text-[#376f6b] border-2 border-[#231f20] text-sm transition-colors sm:right-6 sm:bottom-6"
         >
           Admin Portal
         </button>

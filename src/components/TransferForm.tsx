@@ -88,8 +88,8 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <Card className="bg-background rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+      <Card className="bg-background rounded-lg shadow-xl max-w-full sm:max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6">
           <div>
             <CardTitle className="text-2xl font-bold text-foreground">Transfer Prescription</CardTitle>

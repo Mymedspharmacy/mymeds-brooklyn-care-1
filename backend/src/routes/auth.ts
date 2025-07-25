@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
+import { Request, Response, NextFunction } from 'express';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -104,5 +105,21 @@ router.post('/admin-reset', async (req, res) => {
   }
 });
 
+// Unified admin auth middleware
+export function unifiedAdminAuth(req: Request, res: Response, next: NextFunction) {
+  const header = req.headers.authorization;
+  if (!header) return res.status(401).json({ error: 'No token' });
+  try {
+    const token = header.split(' ')[1];
+    const payload = jwt.verify(token, process.env.JWT_SECRET || 'changeme');
+    if (typeof payload === 'object' && (payload as any).role === 'ADMIN') {
+      req.user = payload;
+      return next();
+    }
+    return res.status(403).json({ error: 'Forbidden: admin only' });
+  } catch {
+    return res.status(401).json({ error: 'Invalid or expired token' });
+  }
+}
 
 export default router; 
