@@ -1,5 +1,4 @@
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
-
 import { useNavigate } from "react-router-dom";
 
 export const Footer = () => {
@@ -10,7 +9,10 @@ export const Footer = () => {
           {/* Company Info */}
           <div className="space-y-6">
             <div className="flex items-center">
-              <img src="/logo.png" alt="My Meds Pharmacy Logo" className="w-40 h-40 object-contain mr-4" />
+              {/* 🔗 Clickable Logo */}
+              <a href="/admin"> {/* ← added link */}
+                <img src="/logo.png" alt="My Meds Pharmacy Logo" className="w-40 h-40 object-contain mr-4 cursor-pointer" />
+              </a> {/* ← added link */}
               <div className="flex flex-col">
                 <span className="text-3xl font-bold text-white leading-none">My Meds</span>
                 <span className="text-xl font-semibold text-white">Pharmacy</span>
@@ -71,16 +73,10 @@ export const Footer = () => {
             </div>
           </div>
         </div>
+
         <div className="border-t border-[#57bbb6]/30 mt-16 pt-8 text-center">
           <p className="text-white text-lg font-semibold">© 2024 My Meds Pharmacy. All rights reserved. | Licensed Pharmacy serving Brooklyn, NY</p>
         </div>
-        {/* Small Admin Portal button in bottom right corner */}
-        <button
-          onClick={() => window.location.href='/admin'}
-          className="fixed right-4 bottom-4 z-50 bg-[#376f6b] text-white font-bold py-2 px-4 rounded-full shadow hover:bg-[#5EABD6] hover:text-white border-2 border-[#231f20] text-sm transition-colors sm:right-6 sm:bottom-6"
-        >
-          Admin Portal
-        </button>
       </div>
     </footer>
   );

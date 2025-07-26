@@ -13,7 +13,7 @@ export const Services = ({ onAppointmentClick, onShopClick }: ServicesProps) => 
       icon: Truck,
       title: "Free Prescription Delivery",
       description: "Convenient, reliable delivery service to your doorstep. Perfect for patients with mobility issues or busy schedules.",
-      features: ["Free delivery over $50", "Brooklyn & Manhattan areas", "Same-day delivery available", "Contactless delivery options", "Prescription tracking"],
+      features: ["Free delivery for prescriptions ", "Brooklyn & Manhattan areas", "Same-day delivery available", "Contactless delivery options", "Prescription tracking"],
       hasBooking: false
     },
     {

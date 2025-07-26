@@ -126,7 +126,7 @@ export default function AdminSignIn() {
           {/* Logo and Title */}
           <div className="flex flex-col items-center mb-6">
             <div className="relative">
-              <img src={logo} alt="Pharmacy Logo" className="w-16 h-16 mb-4 rounded-full shadow-lg animate-pulse" />
+              <img src={logo} alt="Pharmacy Logo" className="w-20 sm:w-24 md:w-28 h-auto mb-4 shadow-lg"/>
               <div className="absolute -top-1 -right-1 w-6 h-6 bg-[#57bbb6] rounded-full flex items-center justify-center">
                 <Lock size={12} className="text-white" />
               </div>

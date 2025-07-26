@@ -59,7 +59,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 pt-6 sm:pt-8">
               <div className="text-center p-4 bg-background rounded-lg shadow-sm">
                 <Truck className="h-8 w-8 text-[#57bbb6] mx-auto mb-2" />
-                <h3 className="font-semibold text-foreground">Free Delivery over $50</h3>
+                <h3 className="font-semibold text-foreground">Free Delivery </h3>
                 <p className="text-sm text-pharmacy-gray">Local prescription delivery</p>
               </div>
               <div className="text-center p-4 bg-background rounded-lg shadow-sm">
@@ -82,12 +82,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
                 alt="Modern pharmacy interior" 
                 className="w-full h-56 sm:h-72 md:h-96 object-cover rounded-xl"
               />
-              <div className="absolute -top-4 -right-4 bg-[#376f6b] text-white rounded-full w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="text-lg sm:text-2xl font-bold">3+</div>
-                  <div className="text-xs">Years</div>
-                </div>
-              </div>
+              
             </div>
           </div>
         </div>
