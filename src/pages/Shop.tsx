@@ -282,7 +282,7 @@ export default function Shop() {
                 <button
                   onClick={() => addToCart(product)}
                   disabled={!product.available}
-                  className="w-full bg-[#376f6b] text-white py-3 rounded-lg font-semibold hover:bg-[#57bbb6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-[#376f6b] text-white py-3 rounded-lg font-semibold hover:bg-[#2e8f88] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {product.available ? 'Add to Cart' : 'Out of Stock'}
                 </button>
@@ -361,7 +361,7 @@ export default function Shop() {
                       setShowCart(false);
                       setShowCheckout(true);
                     }}
-                    className="w-full bg-[#376f6b] text-white py-3 rounded-lg font-semibold hover:bg-[#57bbb6] transition-colors"
+                    className="w-full bg-[#376f6b] text-white py-3 rounded-lg font-semibold hover:bg-[#2e8f88] transition-colors"
                   >
                     Proceed to Checkout
                   </button>
@@ -428,7 +428,7 @@ export default function Shop() {
                       setShowProductDetail(null);
                     }}
                     disabled={!showProductDetail.available}
-                    className="w-full bg-[#376f6b] text-white py-4 rounded-lg font-semibold text-lg hover:bg-[#57bbb6] transition-colors disabled:opacity-50"
+                    className="w-full bg-[#376f6b] text-white py-4 rounded-lg font-semibold text-lg hover:bg-[#2e8f88] transition-colors disabled:opacity-50"
                   >
                     {showProductDetail.available ? 'Add to Cart' : 'Out of Stock'}
                   </button>
@@ -523,7 +523,7 @@ export default function Shop() {
                   
                   <button
                     type="submit"
-                    className="w-full bg-[#376f6b] text-white py-4 rounded-lg font-semibold text-lg hover:bg-[#57bbb6] transition-colors"
+                    className="w-full bg-[#376f6b] text-white py-4 rounded-lg font-semibold text-lg hover:bg-[#2e8f88] transition-colors"
                   >
                     Place Order
                   </button>
@@ -589,7 +589,7 @@ export default function Shop() {
             <p className="text-[#231f20] mb-6">Thank you for your purchase. We'll contact you soon to confirm your order and arrange delivery.</p>
             <button
               onClick={() => setOrderPlaced(false)}
-              className="bg-[#376f6b] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#57bbb6] transition-colors"
+                              className="bg-[#376f6b] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#2e8f88] transition-colors"
             >
               Continue Shopping
             </button>

@@ -87,7 +87,7 @@ export const OTCSection = () => {
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
             <Button 
               onClick={() => navigate('/shop')}
-              className="bg-[#376f6b] hover:bg-[#57bbb6] text-white"
+                              className="bg-[#376f6b] hover:bg-[#2e8f88] text-white"
             >
               Browse Products In-Store
             </Button>

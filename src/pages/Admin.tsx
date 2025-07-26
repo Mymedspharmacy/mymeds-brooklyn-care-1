@@ -52,6 +52,9 @@ export default function Admin() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [showToast, setShowToast] = useState({ show: false, message: '', type: 'success' });
+  // Add loading state for auth check
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
   useEffect(() => {
     console.log('Admin page mounted - checking authentication...');
     
@@ -62,24 +65,18 @@ export default function Admin() {
     console.log('Admin token:', adminToken ? 'exists' : 'missing');
     console.log('Admin auth:', adminAuth);
     
-    if (!adminToken || adminAuth !== 'true') {
-      console.log('Authentication check failed - redirecting to signin');
-      navigate('/admin-signin');
-      return;
-    }
-
     // Verify the token is still valid by checking Supabase session
     supabase.auth.getSession().then(({ data }) => {
       console.log('Supabase session check:', data.session ? 'valid' : 'invalid');
-      if (!data.session) {
-        console.log('Supabase session invalid - clearing tokens and redirecting');
-        // Clear invalid tokens
+      if (!adminToken || adminAuth !== 'true' || !data.session) {
+        console.log('Authentication check failed - redirecting to signin');
         localStorage.removeItem('sb-admin-token');
         localStorage.removeItem('admin-auth');
         navigate('/admin-signin');
       } else {
         console.log('Authentication successful - staying on admin page');
       }
+      setCheckingAuth(false); // Done checking
     });
 
     // Listen for auth state changes
@@ -97,6 +94,7 @@ export default function Admin() {
       listener?.subscription.unsubscribe();
     };
   }, [navigate]);
+
   function logout() {
     // Clear local storage first
     localStorage.removeItem('sb-admin-token');
@@ -576,6 +574,15 @@ export default function Admin() {
       setTab('contact');
       setHighlightedTab('contact');
     }
+  }
+
+  // Show loading spinner/message while checking authentication
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl text-[#376f6b] font-bold animate-pulse">Checking authentication...</div>
+      </div>
+    );
   }
 
   return (

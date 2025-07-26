@@ -72,7 +72,7 @@ export const Testimonials = () => {
           {/* Add Review Button */}
           <Button 
             onClick={() => setShowReviewForm(true)}
-            className="bg-[#376f6b] hover:bg-[#57bbb6] text-white"
+                            className="bg-[#376f6b] hover:bg-[#2e8f88] text-white"
           >
             <Plus className="h-4 w-4 mr-2" />
             Write a Review
@@ -160,7 +160,7 @@ export const Testimonials = () => {
                   <Button 
                     onClick={handleAddReview}
                     disabled={!newReview.name || !newReview.text}
-                    className="flex-1 bg-[#376f6b] hover:bg-[#57bbb6] text-white disabled:opacity-50"
+                    className="flex-1 bg-[#376f6b] hover:bg-[#2e8f88] text-white disabled:opacity-50"
                   >
                     Submit Review
                   </Button>

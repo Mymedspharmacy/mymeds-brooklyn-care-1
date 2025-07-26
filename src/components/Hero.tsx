@@ -26,14 +26,14 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
               <Button 
                 onClick={onRefillClick}
                 size="lg" 
-                className="bg-brand hover:bg-brand-dark text-lg px-8 py-4"
+                className="bg-[#376f6b] hover:bg-[#2e8f88] text-white text-lg px-8 py-4 border-2 border-[#376f6b]"
               >
                 Refill Prescription
               </Button>
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="text-lg px-8 py-4 border-brand text-brand hover:bg-brand-light hover:text-brand-dark"
+                className="text-lg px-8 py-4 border-2 border-[#376f6b] text-[#376f6b] hover:bg-[#376f6b] hover:text-white transition-colors"
                 onClick={() => {
                   // Try to open phone dialer
                   const phoneNumber = '3473126458';
