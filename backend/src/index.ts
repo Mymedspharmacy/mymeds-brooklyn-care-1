@@ -73,9 +73,20 @@ const contactLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20 });
 // Health check
 app.get('/api/health', async (req: Request, res: Response) => {
   try {
+    // Basic health check - just return OK if server is running
+    res.json({ status: 'ok', message: 'MyMeds backend is running!' });
+  } catch (err) {
+    console.error('Health check failed:', err);
+    res.status(500).json({ status: 'error', message: 'Server error' });
+  }
+});
+
+// Database health check (separate endpoint)
+app.get('/api/health/db', async (req: Request, res: Response) => {
+  try {
     // Try a simple DB query
     await prisma.user.findFirst();
-    res.json({ status: 'ok', message: 'MyMeds backend and DB are running!' });
+    res.json({ status: 'ok', message: 'Database connection is working!' });
   } catch (err) {
     console.error('DB health check failed:', err);
     res.status(500).json({ status: 'error', message: 'Database connection failed' });
