@@ -13,7 +13,7 @@
     "prisma:deploy": "npx prisma migrate deploy",
     "test": "jest",
     "prisma": {
-      "schema": "prisma/schema.prisma"
+      "schema": "./backend/prisma/schema.prisma"
     }
   },
   "dependencies": {
