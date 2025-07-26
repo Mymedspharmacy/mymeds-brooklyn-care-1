@@ -20,10 +20,23 @@ import { supabaseAdminAuth } from './routes/users';
 import reviewsRoutes from './routes/reviews';
 import settingsRoutes from './routes/settings';
 
-console.log('DATABASE_URL:', process.env.DATABASE_URL);
+console.log('Starting MyMeds backend...');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('PORT:', process.env.PORT || 4000);
+console.log('DATABASE_URL:', process.env.DATABASE_URL ? '***configured***' : '***not configured***');
 
 const app = express();
 const prisma = new PrismaClient();
+
+// Test database connection on startup
+prisma.$connect()
+  .then(() => {
+    console.log('Database connected successfully');
+  })
+  .catch((err) => {
+    console.error('Failed to connect to database:', err);
+    // Don't exit - let the app start anyway
+  });
 
 // Redirect HTTP to HTTPS in production
 app.use((req, res, next) => {
@@ -165,6 +178,22 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 });
 
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Backend server running on port ${PORT}`);
+  console.log(`Health check available at: http://localhost:${PORT}/api/health`);
+});
+
+// Handle server errors
+server.on('error', (err) => {
+  console.error('Server error:', err);
+  process.exit(1);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully');
+  server.close(() => {
+    console.log('Server closed');
+    prisma.$disconnect();
+  });
 }); 
