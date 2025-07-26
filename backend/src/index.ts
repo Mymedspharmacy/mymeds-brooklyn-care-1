@@ -31,10 +31,13 @@ const prisma = new PrismaClient();
 // Test database connection on startup
 prisma.$connect()
   .then(() => {
-    console.log('Database connected successfully');
+    console.log('✅ Database connected successfully');
   })
   .catch((err) => {
-    console.error('Failed to connect to database:', err);
+    console.error('❌ Failed to connect to database:');
+    console.error('Error code:', err.code);
+    console.error('Error message:', err.message);
+    console.error('This is expected if DATABASE_URL is not configured in production');
     // Don't exit - let the app start anyway
   });
 
