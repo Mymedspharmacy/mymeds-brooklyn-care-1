@@ -60,7 +60,10 @@ const allowedOrigins = [
   'http://localhost:8081',
   'http://192.168.18.56:8080',
   'http://192.168.18.56:8081',
-  'https://www.mymedspharmacyinc.com'
+  'https://www.mymedspharmacyinc.com',
+  'https://www.mymedspharmacyinc.com', // Add your Vercel domain here
+  'http://localhost:5173', // Vite dev server
+  'http://localhost:3000'  // Common dev port
 ];
 
 app.use(cors({
