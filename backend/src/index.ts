@@ -61,7 +61,6 @@ const allowedOrigins = [
   'http://192.168.18.56:8080',
   'http://192.168.18.56:8081',
   'https://www.mymedspharmacyinc.com',
-  'https://www.mymedspharmacyinc.com', // Add your Vercel domain here
   'http://localhost:5173', // Vite dev server
   'http://localhost:3000'  // Common dev port
 ];
@@ -72,9 +71,15 @@ app.use(cors({
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
+    // Allow requests from your Vercel domain
     if (process.env.NODE_ENV === 'production' && origin === 'https://www.mymedspharmacyinc.com') {
       return callback(null, true);
     }
+    // Allow requests from any Vercel subdomain
+    if (process.env.NODE_ENV === 'production' && origin && origin.includes('vercel.app')) {
+      return callback(null, true);
+    }
+    console.log('CORS blocked origin:', origin);
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
