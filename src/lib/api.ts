@@ -33,12 +33,18 @@ api.interceptors.response.use(
     return response;
   },
   error => {
+    // Only redirect on authentication errors if we're not already on signin page
+    // and if it's a genuine auth failure (not just a token refresh issue)
     if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-      localStorage.removeItem('sb-admin-token');
-      localStorage.removeItem('admin-auth');
-      // Only redirect if we're not already on the signin page
+      console.log('API Auth Error - checking if we should redirect');
+      
+      // Don't redirect immediately - let the component handle it
+      // This prevents infinite redirect loops
       if (window.location.pathname !== '/admin-signin') {
-        window.location.href = '/admin-signin';
+        console.log('Auth error detected, but not redirecting automatically');
+        // Instead of immediate redirect, just clear tokens
+        localStorage.removeItem('sb-admin-token');
+        localStorage.removeItem('admin-auth');
       }
     }
     console.log('API Error:', error.config?.url, error.response?.status, error.response?.data);

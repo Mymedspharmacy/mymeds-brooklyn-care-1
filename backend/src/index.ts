@@ -97,7 +97,7 @@ const contactLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20 });
 // Health check
 app.get('/api/health', async (req: Request, res: Response) => {
   try {
-    // Basic health check - just return OK if server is running
+    // Basic health check - just return OK if server is running 
     res.json({ status: 'ok', message: 'MyMeds backend is running!' });
   } catch (err) {
     console.error('Health check failed:', err);

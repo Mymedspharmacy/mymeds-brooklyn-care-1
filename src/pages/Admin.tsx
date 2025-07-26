@@ -75,18 +75,28 @@ export default function Admin() {
         navigate('/admin-signin');
       } else {
         console.log('Authentication successful - staying on admin page');
+        // Set the token for API requests
+        api.defaults.headers.common['Authorization'] = `Bearer ${data.session.access_token}`;
       }
       setCheckingAuth(false); // Done checking
     });
 
-    // Listen for auth state changes
+    // Listen for auth state changes with better error handling
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('Auth state change:', event, session ? 'session exists' : 'no session');
-      if (!session) {
-        console.log('Auth state change detected no session - clearing tokens and redirecting');
+      
+      // Only redirect on specific events that indicate actual logout
+      if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' && !session) {
+        console.log('Auth state change detected logout - clearing tokens and redirecting');
         localStorage.removeItem('sb-admin-token');
         localStorage.removeItem('admin-auth');
         navigate('/admin-signin');
+      } else if (session) {
+        // Update the token in localStorage and API headers
+        localStorage.setItem('sb-admin-token', session.access_token);
+        localStorage.setItem('admin-auth', 'true');
+        api.defaults.headers.common['Authorization'] = `Bearer ${session.access_token}`;
+        console.log('Token refreshed and updated');
       }
     });
 
@@ -96,6 +106,13 @@ export default function Admin() {
   }, [navigate]);
 
   function logout() {
+    // Clear refresh interval if it exists
+    const refreshIntervalId = localStorage.getItem('refresh-interval');
+    if (refreshIntervalId) {
+      clearInterval(parseInt(refreshIntervalId));
+      localStorage.removeItem('refresh-interval');
+    }
+    
     // Clear local storage first
     localStorage.removeItem('sb-admin-token');
     localStorage.removeItem('admin-auth');

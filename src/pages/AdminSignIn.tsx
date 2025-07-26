@@ -61,16 +61,36 @@ export default function AdminSignIn() {
         console.log('Login failed:', supaError?.message || 'Invalid credentials');
         return;
       }
+      
       // Store JWT in localStorage
       localStorage.setItem('sb-admin-token', data.session.access_token);
       localStorage.setItem('admin-auth', 'true'); // Ensure admin panel recognizes authentication
       if (rememberMe) {
         localStorage.setItem('admin-remember', 'true');
       }
+      
       // Set token for API requests
       api.defaults.headers.common['Authorization'] = `Bearer ${data.session.access_token}`;
+      
       console.log('Login successful! Token:', data.session.access_token);
       console.log('admin-auth:', localStorage.getItem('admin-auth'));
+      
+      // Set up session refresh
+      const refreshSession = async () => {
+        const { data: refreshData } = await supabase.auth.refreshSession();
+        if (refreshData.session) {
+          localStorage.setItem('sb-admin-token', refreshData.session.access_token);
+          api.defaults.headers.common['Authorization'] = `Bearer ${refreshData.session.access_token}`;
+          console.log('Session refreshed automatically');
+        }
+      };
+      
+      // Refresh session every 50 minutes (before 1-hour expiration)
+      const refreshInterval = setInterval(refreshSession, 50 * 60 * 1000);
+      
+      // Store the interval ID so we can clear it on logout
+      localStorage.setItem('refresh-interval', refreshInterval.toString());
+      
       navigate('/admin');
     } catch (err) {
       setError('Login failed');
