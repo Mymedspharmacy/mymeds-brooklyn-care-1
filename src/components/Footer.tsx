@@ -77,7 +77,7 @@ export const Footer = () => {
         {/* Small Admin Portal button in bottom right corner */}
         <button
           onClick={() => window.location.href='/admin'}
-          className="fixed right-4 bottom-4 z-50 bg-[#57bbb6] text-[#231f20] font-bold py-2 px-4 rounded-full shadow hover:bg-white hover:text-[#376f6b] border-2 border-[#231f20] text-sm transition-colors sm:right-6 sm:bottom-6"
+          className="fixed right-4 bottom-4 z-50 bg-[#376f6b] text-white font-bold py-2 px-4 rounded-full shadow hover:bg-[#5EABD6] hover:text-white border-2 border-[#231f20] text-sm transition-colors sm:right-6 sm:bottom-6"
         >
           Admin Portal
         </button>

@@ -26,7 +26,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
               <Button 
                 onClick={onRefillClick}
                 size="lg" 
-                className="bg-[#376f6b] hover:bg-[#2e8f88] text-white text-lg px-8 py-4 border-2 border-[#376f6b]"
+                className="bg-[#376f6b] hover:bg-[#5EABD6] hover:text-white text-white text-lg px-8 py-4 border-2 border-[#376f6b]"
               >
                 Refill Prescription
               </Button>
@@ -58,17 +58,17 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 pt-6 sm:pt-8">
               <div className="text-center p-4 bg-background rounded-lg shadow-sm">
-                <Truck className="h-8 w-8 text-primary mx-auto mb-2" />
+                <Truck className="h-8 w-8 text-[#57bbb6] mx-auto mb-2" />
                 <h3 className="font-semibold text-foreground">Free Delivery over $50</h3>
                 <p className="text-sm text-pharmacy-gray">Local prescription delivery</p>
               </div>
               <div className="text-center p-4 bg-background rounded-lg shadow-sm">
-                <Clock className="h-8 w-8 text-accent mx-auto mb-2" />
+                <Clock className="h-8 w-8 text-[#57bbb6] mx-auto mb-2" />
                 <h3 className="font-semibold text-foreground">Extended Hours</h3>
                 <p className="text-sm text-pharmacy-gray">Open 6 days a week</p>
               </div>
               <div className="text-center p-4 bg-background rounded-lg shadow-sm">
-                <Phone className="h-8 w-8 text-pharmacy-purple mx-auto mb-2" />
+                <Phone className="h-8 w-8 text-[#57bbb6] mx-auto mb-2" />
                 <h3 className="font-semibold text-foreground">Expert Care</h3>
                 <p className="text-sm text-pharmacy-gray">Professional consultation</p>
               </div>

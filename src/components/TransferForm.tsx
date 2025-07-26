@@ -114,12 +114,12 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
                 </div>
                 <span className="text-sm text-muted-foreground mt-2">Current Pharmacy</span>
               </div>
-              <ArrowRight className="h-6 w-6 text-primary" />
+              <ArrowRight className="h-6 w-6 text-[#57bbb6]" />
               <div className="flex flex-col items-center">
-                <div className="w-12 h-12 bg-secondary rounded-full flex items-center justify-center">
-                  <div className="text-primary font-bold text-sm">MM</div>
+                <div className="w-12 h-12 bg-[#f0f9f8] rounded-full flex items-center justify-center">
+                  <div className="text-[#57bbb6] font-bold text-sm">MM</div>
                 </div>
-                <span className="text-sm text-primary mt-2 font-medium">My Meds Pharmacy</span>
+                <span className="text-sm text-[#57bbb6] mt-2 font-medium">My Meds Pharmacy</span>
               </div>
             </div>
           </div>
@@ -356,7 +356,7 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
                 required 
                 className="border p-2 rounded w-full" 
               />
-              {prescriptionFile && <div className="text-[#57bbb6] mt-1">Selected: {prescriptionFile.name}</div>}
+              {prescriptionFile && <div className="text-[#376f6b] mt-1">Selected: {prescriptionFile.name}</div>}
             </div>
 
             <div className="bg-secondary/50 p-4 rounded-lg">

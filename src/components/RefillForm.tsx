@@ -103,7 +103,7 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
               {/* Patient Information */}
               <div className="space-y-4">
                 <div className="flex items-center space-x-2 mb-4">
-                  <User className="h-5 w-5 text-primary" />
+                  <User className="h-5 w-5 text-[#57bbb6]" />
                   <h3 className="text-lg font-semibold text-foreground">Patient Information</h3>
                 </div>
                 
@@ -168,7 +168,7 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
               {/* Prescription Information */}
               <div className="space-y-4">
                 <div className="flex items-center space-x-2 mb-4">
-                  <Pill className="h-5 w-5 text-primary" />
+                  <Pill className="h-5 w-5 text-[#57bbb6]" />
                   <h3 className="text-lg font-semibold text-foreground">Prescription Information</h3>
                 </div>
 
@@ -244,7 +244,7 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
                   className="border p-2 rounded w-full" 
                 />
                 {prescriptionFile && (
-                  <div className="text-[#57bbb6] mt-1">
+                  <div className="text-[#376f6b] mt-1">
                     Selected: {prescriptionFile.name}
                   </div>
                 )}

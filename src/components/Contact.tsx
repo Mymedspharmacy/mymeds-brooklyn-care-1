@@ -67,24 +67,24 @@ export const Contact = () => {
 
             <div className="space-y-6">
               <div className="flex items-start space-x-4">
-                <MapPin className="h-6 w-6 text-primary mt-1" />
-                <div>
+                <MapPin className="h-6 w-6 text-[#57bbb6] mt-1 flex-shrink-0" />
+                <div className="min-w-0">
                   <h4 className="font-semibold text-foreground">Address</h4>
-                  <p className="text-muted-foreground">2242 65th St., Brooklyn, NY 11204</p>
+                  <p className="text-muted-foreground break-words">2242 65th St., Brooklyn, NY 11204</p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-4">
-                <Phone className="h-6 w-6 text-primary mt-1" />
-                <div>
+                <Phone className="h-6 w-6 text-[#57bbb6] mt-1 flex-shrink-0" />
+                <div className="min-w-0">
                   <h4 className="font-semibold text-foreground">Phone</h4>
                   <p className="text-muted-foreground">(347) 312-6458</p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-4">
-                <Mail className="h-6 w-6 text-primary mt-1" />
-                <div>
+                <Mail className="h-6 w-6 text-[#57bbb6] mt-1 flex-shrink-0" />
+                <div className="min-w-0">
                   <h4 className="font-semibold text-foreground">Email</h4>
                   <button 
                     onClick={() => {
@@ -124,7 +124,7 @@ Phone: (347) 312-6458`;
                         });
                       }
                     }}
-                    className="text-muted-foreground hover:text-primary hover:underline cursor-pointer transition-colors"
+                    className="text-muted-foreground hover:text-[#57bbb6] hover:underline cursor-pointer transition-colors break-words"
                   >
                     Mymedspharmacy@outlook.com
                   </button>
@@ -132,8 +132,8 @@ Phone: (347) 312-6458`;
               </div>
 
               <div className="flex items-start space-x-4">
-                <Clock className="h-6 w-6 text-primary mt-1" />
-                <div>
+                <Clock className="h-6 w-6 text-[#57bbb6] mt-1 flex-shrink-0" />
+                <div className="min-w-0">
                   <h4 className="font-semibold text-foreground">Hours</h4>
                   <div className="text-muted-foreground space-y-1">
                     <p><strong>Pharmacy:</strong></p>
@@ -217,7 +217,7 @@ Phone: (347) 312-6458`;
                   />
                 </div>
 
-                <Button type="submit" className="w-full text-lg py-3" disabled={loading}>{loading ? 'Sending...' : 'Send Message'}</Button>
+                <Button type="submit" className="w-full text-lg py-3 bg-[#376f6b] hover:bg-[#5EABD6] hover:text-white text-white" disabled={loading}>{loading ? 'Sending...' : 'Send Message'}</Button>
                 {error && <div className="text-red-500 mt-2">{error}</div>}
                 {success && <div className="text-green-600 mt-2">Message sent successfully!</div>}
               </form>
@@ -230,7 +230,7 @@ Phone: (347) 312-6458`;
           <Card className="overflow-hidden shadow-lg">
             <CardHeader>
               <CardTitle className="text-2xl text-foreground flex items-center">
-                <MapPin className="h-6 w-6 mr-2 text-primary" />
+                <MapPin className="h-6 w-6 mr-2 text-[#57bbb6]" />
                 Find Us
               </CardTitle>
               <p className="text-muted-foreground">Visit us at our convenient Brooklyn location</p>
@@ -270,11 +270,11 @@ Phone: (347) 312-6458`;
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
             <Card className="hover:shadow-lg transition-shadow duration-300">
               <CardContent className="p-6 text-center">
-                <Phone className="h-12 w-12 text-primary mx-auto mb-4" />
+                <Phone className="h-12 w-12 text-[#57bbb6] mx-auto mb-4" />
                 <h4 className="font-semibold mb-2">Call Us Now</h4>
                 <p className="text-muted-foreground mb-4">Speak directly with our pharmacy team</p>
                 <Button 
-                  className="w-full"
+                  className="w-full bg-[#376f6b] hover:bg-[#5EABD6] hover:text-white text-white"
                   onClick={() => {
                     // Try to open phone dialer
                     const phoneNumber = '3473126458';
@@ -299,11 +299,11 @@ Phone: (347) 312-6458`;
 
             <Card className="hover:shadow-lg transition-shadow duration-300">
               <CardContent className="p-6 text-center">
-                <Mail className="h-12 w-12 text-primary mx-auto mb-4" />
+                <Mail className="h-12 w-12 text-[#57bbb6] mx-auto mb-4" />
                 <h4 className="font-semibold mb-2">Email Us</h4>
                 <p className="text-muted-foreground mb-4">Send us your questions or concerns</p>
                 <Button 
-                  className="w-full"
+                  className="w-full bg-[#376f6b] hover:bg-[#5EABD6] hover:text-white text-white"
                   onClick={() => {
                     const emailAddress = 'Mymedspharmacy@outlook.com';
                     const subject = 'Inquiry from My Meds Pharmacy Website';
@@ -349,11 +349,11 @@ Phone: (347) 312-6458`;
 
             <Card className="hover:shadow-lg transition-shadow duration-300">
               <CardContent className="p-6 text-center">
-                <MapPin className="h-12 w-12 text-primary mx-auto mb-4" />
+                <MapPin className="h-12 w-12 text-[#57bbb6] mx-auto mb-4" />
                 <h4 className="font-semibold mb-2">Get Directions</h4>
                 <p className="text-muted-foreground mb-4">Navigate to our Brooklyn location</p>
                 <Button 
-                  className="w-full"
+                  className="w-full bg-[#376f6b] hover:bg-[#5EABD6] hover:text-white text-white"
                   onClick={() => window.open('https://maps.google.com/?q=2242+65th+St,+Brooklyn,+NY+11204')}
                 >
                   Get Directions

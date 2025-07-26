@@ -68,8 +68,8 @@ export const Services = ({ onAppointmentClick, onShopClick }: ServicesProps) => 
           {services.map((service, index) => (
             <Card key={index} className="hover:shadow-lg transition-shadow duration-300 border-0 shadow-md">
               <CardHeader className="text-center pb-4">
-                <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4">
-                  <service.icon className="h-8 w-8 text-primary" />
+                <div className="w-16 h-16 bg-[#f0f9f8] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <service.icon className="h-8 w-8 text-[#57bbb6]" />
                 </div>
                 <CardTitle className="text-xl font-bold text-foreground">{service.title}</CardTitle>
               </CardHeader>
@@ -80,7 +80,7 @@ export const Services = ({ onAppointmentClick, onShopClick }: ServicesProps) => 
                 <ul className="space-y-2 mb-6">
                   {service.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-center text-sm text-muted-foreground">
-                      <div className="w-2 h-2 bg-primary rounded-full mr-3"></div>
+                      <div className="w-2 h-2 bg-[#57bbb6] rounded-full mr-3"></div>
                       {feature}
                     </li>
                   ))}
@@ -88,7 +88,7 @@ export const Services = ({ onAppointmentClick, onShopClick }: ServicesProps) => 
                 {service.hasBooking && (
                   <Button 
                     onClick={onAppointmentClick}
-                    className="w-full"
+                    className="w-full bg-[#376f6b] hover:bg-[#5EABD6] hover:text-white text-white"
                   >
                     Book Appointment
                   </Button>
@@ -96,7 +96,7 @@ export const Services = ({ onAppointmentClick, onShopClick }: ServicesProps) => 
                 {service.hasShop && (
                   <Button 
                     onClick={onShopClick}
-                    className="w-full bg-[#376f6b] hover:bg-[#2e8f88] text-white"
+                    className="w-full bg-[#376f6b] hover:bg-[#5EABD6] hover:text-white text-white"
                   >
                     Shop Equipment
                   </Button>

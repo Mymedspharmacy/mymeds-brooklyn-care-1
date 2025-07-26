@@ -238,7 +238,7 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
             </div>
 
             <div className="flex gap-4">
-              <Button type="submit" className="w-full text-lg py-3" disabled={loading}>{loading ? 'Submitting...' : 'Submit'}</Button>
+              <Button type="submit" className="w-full text-lg py-3 bg-[#376f6b] hover:bg-[#5EABD6] hover:text-white text-white" disabled={loading}>{loading ? 'Submitting...' : 'Submit'}</Button>
               <Button type="button" variant="outline" onClick={onClose} className="flex-1">
                 Cancel
               </Button>

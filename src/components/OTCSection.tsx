@@ -58,8 +58,8 @@ export const OTCSection = () => {
           {otcCategories.map((category, index) => (
             <Card key={index} className="hover:shadow-lg transition-shadow duration-300 border-0 shadow-md">
               <CardHeader className="text-center pb-4">
-                <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4">
-                  <category.icon className="h-8 w-8 text-primary" />
+                <div className="w-16 h-16 bg-[#f0f9f8] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <category.icon className="h-8 w-8 text-[#57bbb6]" />
                 </div>
                 <CardTitle className="text-xl font-bold text-foreground">{category.title}</CardTitle>
               </CardHeader>
@@ -70,7 +70,7 @@ export const OTCSection = () => {
                 <ul className="space-y-2">
                   {category.items.map((item, itemIndex) => (
                     <li key={itemIndex} className="flex items-center text-sm text-muted-foreground">
-                      <div className="w-2 h-2 bg-primary rounded-full mr-3"></div>
+                      <div className="w-2 h-2 bg-[#57bbb6] rounded-full mr-3"></div>
                       {item}
                     </li>
                   ))}
@@ -87,7 +87,7 @@ export const OTCSection = () => {
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
             <Button 
               onClick={() => navigate('/shop')}
-                              className="bg-[#376f6b] hover:bg-[#2e8f88] text-white"
+                              className="bg-[#376f6b] hover:bg-[#5EABD6] hover:text-white text-white"
             >
               Browse Products In-Store
             </Button>

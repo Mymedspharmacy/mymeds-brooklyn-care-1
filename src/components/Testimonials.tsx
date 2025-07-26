@@ -72,7 +72,7 @@ export const Testimonials = () => {
           {/* Add Review Button */}
           <Button 
             onClick={() => setShowReviewForm(true)}
-                            className="bg-[#376f6b] hover:bg-[#2e8f88] text-white"
+                            className="bg-[#376f6b] hover:bg-[#5EABD6] hover:text-white text-white"
           >
             <Plus className="h-4 w-4 mr-2" />
             Write a Review
@@ -87,7 +87,7 @@ export const Testimonials = () => {
                 <h3 className="text-2xl font-bold text-[#376f6b]">Write a Review</h3>
                 <button 
                   onClick={() => setShowReviewForm(false)}
-                  className="text-[#376f6b] hover:text-[#57bbb6]"
+                  className="text-[#376f6b] hover:text-[#5EABD6]"
                 >
                   <X size={24} />
                 </button>
@@ -160,7 +160,7 @@ export const Testimonials = () => {
                   <Button 
                     onClick={handleAddReview}
                     disabled={!newReview.name || !newReview.text}
-                    className="flex-1 bg-[#376f6b] hover:bg-[#2e8f88] text-white disabled:opacity-50"
+                    className="flex-1 bg-[#376f6b] hover:bg-[#5EABD6] hover:text-white text-white disabled:opacity-50"
                   >
                     Submit Review
                   </Button>
@@ -184,7 +184,7 @@ export const Testimonials = () => {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center">
-                    <Quote className="h-8 w-8 text-primary mr-2" />
+                    <Quote className="h-8 w-8 text-[#57bbb6] mr-2" />
                     <div className="flex">
                       {[...Array(5)].map((_, i) => (
                         <Star 
@@ -205,7 +205,7 @@ export const Testimonials = () => {
                 
                 <div className="border-t pt-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-[#376f6b] rounded-full flex items-center justify-center">
+                    <div className="w-10 h-10 bg-[#57bbb6] rounded-full flex items-center justify-center">
                       <User className="h-5 w-5 text-white" />
                     </div>
                     <div>
