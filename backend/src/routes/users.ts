@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { PrismaClient, PrismaClient as PrismaClientType } from '.prisma/client';
+import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 import { createClient } from '@supabase/supabase-js';
 

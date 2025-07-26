@@ -250,7 +250,7 @@ router.post('/:id/items', unifiedAdminAuth, async (req: AuthRequest, res: Respon
     
     // Update order total
     const orderItems = await prisma.orderItem.findMany({ where: { orderId: Number(req.params.id) } });
-    const newTotal = orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const newTotal = orderItems.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0);
     await prisma.order.update({ where: { id: Number(req.params.id) }, data: { total: newTotal } });
     
     res.status(201).json(item);
