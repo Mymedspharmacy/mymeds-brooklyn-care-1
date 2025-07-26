@@ -17,6 +17,7 @@ COPY . .
 
 # Generate Prisma client (with dummy DATABASE_URL for build)
 RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" npx prisma generate
+RUN npx prisma migrate deploy
 
 # Build the application
 RUN npm run build

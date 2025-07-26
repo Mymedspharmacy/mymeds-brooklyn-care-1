@@ -9,6 +9,8 @@
     "start": "node dist/index.js",
     "prisma:migrate": "prisma migrate deploy",
     "prisma:generate": "prisma generate",
+    "postinstall": "npx prisma generate",
+    "prisma:deploy": "npx prisma migrate deploy",
     "test": "jest"
   },
   "dependencies": {

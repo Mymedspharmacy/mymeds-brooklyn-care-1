@@ -158,7 +158,7 @@ export default function Shop() {
       <div className="bg-[#376f6b] text-white py-3">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <p className="text-lg font-medium">
-            🚚 Free delivery over $50 in Brooklyn and Manhattan
+            🚚 Free Shipping over $50 in Brooklyn and Manhattan
           </p>
         </div>
       </div>
