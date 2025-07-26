@@ -22,9 +22,27 @@ export default function AdminSignIn() {
 
   useEffect(() => {
     setMounted(true);
+    
+    // Check if user is already authenticated
+    const adminToken = localStorage.getItem('sb-admin-token');
+    const adminAuth = localStorage.getItem('admin-auth');
+    
+    if (adminToken && adminAuth === 'true') {
+      // Verify the session is still valid
+      supabase.auth.getSession().then(({ data }) => {
+        if (data.session) {
+          navigate('/admin');
+        } else {
+          // Clear invalid tokens
+          localStorage.removeItem('sb-admin-token');
+          localStorage.removeItem('admin-auth');
+        }
+      });
+    }
+    
     const emailInput = document.getElementById('admin-email');
     if (emailInput) emailInput.focus();
-  }, []);
+  }, [navigate]);
 
   async function handleSubmit(e) {
     e.preventDefault();

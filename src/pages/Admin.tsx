@@ -53,16 +53,42 @@ export default function Admin() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showToast, setShowToast] = useState({ show: false, message: '', type: 'success' });
   useEffect(() => {
-    // Listen for auth state changes and check session on mount
-    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!session) {
+    console.log('Admin page mounted - checking authentication...');
+    
+    // Check for admin authentication token
+    const adminToken = localStorage.getItem('sb-admin-token');
+    const adminAuth = localStorage.getItem('admin-auth');
+    
+    console.log('Admin token:', adminToken ? 'exists' : 'missing');
+    console.log('Admin auth:', adminAuth);
+    
+    if (!adminToken || adminAuth !== 'true') {
+      console.log('Authentication check failed - redirecting to signin');
+      navigate('/admin-signin');
+      return;
+    }
+
+    // Verify the token is still valid by checking Supabase session
+    supabase.auth.getSession().then(({ data }) => {
+      console.log('Supabase session check:', data.session ? 'valid' : 'invalid');
+      if (!data.session) {
+        console.log('Supabase session invalid - clearing tokens and redirecting');
+        // Clear invalid tokens
+        localStorage.removeItem('sb-admin-token');
+        localStorage.removeItem('admin-auth');
         navigate('/admin-signin');
+      } else {
+        console.log('Authentication successful - staying on admin page');
       }
     });
 
-    // Initial session check
-    supabase.auth.getSession().then(({ data }) => {
-      if (!data.session) {
+    // Listen for auth state changes
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state change:', event, session ? 'session exists' : 'no session');
+      if (!session) {
+        console.log('Auth state change detected no session - clearing tokens and redirecting');
+        localStorage.removeItem('sb-admin-token');
+        localStorage.removeItem('admin-auth');
         navigate('/admin-signin');
       }
     });
@@ -72,6 +98,12 @@ export default function Admin() {
     };
   }, [navigate]);
   function logout() {
+    // Clear local storage first
+    localStorage.removeItem('sb-admin-token');
+    localStorage.removeItem('admin-auth');
+    localStorage.removeItem('admin-remember');
+    
+    // Then sign out from Supabase
     supabase.auth.signOut().then(() => {
       navigate('/admin-signin');
     });

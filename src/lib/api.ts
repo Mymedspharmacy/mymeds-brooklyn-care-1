@@ -36,7 +36,10 @@ api.interceptors.response.use(
     if (error.response && (error.response.status === 401 || error.response.status === 403)) {
       localStorage.removeItem('sb-admin-token');
       localStorage.removeItem('admin-auth');
-      window.location.href = '/admin-signin'; // Redirect to correct login page
+      // Only redirect if we're not already on the signin page
+      if (window.location.pathname !== '/admin-signin') {
+        window.location.href = '/admin-signin';
+      }
     }
     console.log('API Error:', error.config?.url, error.response?.status, error.response?.data);
     return Promise.reject(error);
