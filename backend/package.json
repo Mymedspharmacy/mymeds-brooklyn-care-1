@@ -11,11 +11,10 @@
     "prisma:generate": "prisma generate",
     "postinstall": "npx prisma generate",
     "prisma:deploy": "npx prisma migrate deploy",
-    "test": "jest",
-
-    "prisma": {
-      "schema": "./backend/prisma/schema.prisma"
-    }
+    "test": "jest"
+  },
+  "prisma": {
+    "schema": "./prisma/schema.prisma"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

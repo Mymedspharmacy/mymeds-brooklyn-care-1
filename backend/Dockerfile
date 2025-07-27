@@ -7,27 +7,27 @@ WORKDIR /app
 # Copy only package files first
 COPY package*.json ./
 
+# Copy Prisma schema before npm install (needed for postinstall script)
+COPY prisma ./prisma/
+
 # Install dependencies
 RUN npm install
 
 # Copy rest of the project files
 COPY . .
 
-# Copy environment variables file (for Prisma & app)
-COPY .env .env
+# Generate Prisma client (with dummy DATABASE_URL for build)
+RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" npx prisma generate
 
-# Generate Prisma client (env will be loaded automatically)
-RUN npx prisma generate --schema=./backend/prisma/schema.prisma
-
-# Deploy Prisma migrations (optional)
-RUN npx prisma migrate deploy --schema=./backend/prisma/schema.prisma
-
-# Build the app (optional)
-RUN npm run build || echo "No build step"
+# Build the application
+RUN npm run build
 
 # Remove devDependencies to reduce image size
 RUN npm prune --production
 
+# Make startup script executable
+RUN chmod +x start.sh
+
 EXPOSE 4000
 
-CMD ["npm", "start"]
+CMD ["./start.sh"]
