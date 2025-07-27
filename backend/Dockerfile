@@ -14,7 +14,7 @@ RUN npm install
 
 # Copy source code
 COPY . .
-
+RUN npx prisma generate --schema=./backend/prisma/schema.prisma
 # Generate Prisma client (with dummy DATABASE_URL for build)
 RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" npx prisma generate
 RUN npx prisma migrate deploy
