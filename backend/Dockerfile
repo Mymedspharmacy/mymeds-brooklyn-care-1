@@ -9,6 +9,9 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
+# Copy Prisma schema before npm install (needed for postinstall script)
+COPY prisma ./prisma/
+
 # Install all dependencies (including devDependencies for build)
 RUN npm install
 
@@ -17,7 +20,6 @@ COPY . .
 
 # Generate Prisma client (with dummy DATABASE_URL for build)
 RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" npx prisma generate
-RUN npx prisma migrate deploy
 
 # Build the application
 RUN npm run build
@@ -25,6 +27,9 @@ RUN npm run build
 # Remove devDependencies to keep production image lean
 RUN npm prune --production
 
+# Make startup script executable
+RUN chmod +x start.sh
+
 EXPOSE 4000
 
-CMD ["npm", "start"] 
+CMD ["./start.sh"] 
