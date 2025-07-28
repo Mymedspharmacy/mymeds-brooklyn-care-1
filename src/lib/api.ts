@@ -22,6 +22,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+
 // Debug: Log all outgoing requests and responses
 api.interceptors.request.use((config) => {
   console.log('API Request:', config.method, config.url, config.headers, config.data);
