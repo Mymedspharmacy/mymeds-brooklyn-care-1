@@ -4,6 +4,10 @@ RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
+# Accept database URL from build args
+ARG DATABASE_URL
+ENV DATABASE_URL=${DATABASE_URL}
+
 # Copy only package files first
 COPY package*.json ./
 
@@ -16,8 +20,8 @@ RUN npm install
 # Copy rest of the project files
 COPY . .
 
-# Generate Prisma client (with dummy DATABASE_URL for build)
-RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" npx prisma generate
+# ✅ Use actual DATABASE_URL during prisma generate
+RUN npx prisma generate
 
 # Build the application
 RUN npm run build
