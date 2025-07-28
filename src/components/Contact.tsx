@@ -58,8 +58,8 @@ export const Contact = () => {
           {/* Contact Information */}
           <div className="space-y-8">
             <div>
-              <h3 className="text-2xl font-bold text-foreground mb-6">Get In Touch</h3>
-              <p className="text-muted-foreground mb-8 text-lg leading-relaxed">
+              <h3 className="text-2xl font-bold text-foreground mb-6 text-center sm:text-left">Get In Touch</h3>
+              <p className="text-muted-foreground mb-8 text-lg leading-relaxed text-center sm:text-left">
                 We're here to help with all your pharmaceutical needs. Contact us by phone, 
                 email, or visit us in person. Our knowledgeable staff is ready to assist you.
               </p>

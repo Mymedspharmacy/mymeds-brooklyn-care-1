@@ -13,10 +13,6 @@ export const Footer = () => {
               <a href="/admin"> {/* ← added link */}
                 <img src="/logo.png" alt="My Meds Pharmacy Logo" className="w-40 h-40 object-contain mr-4 cursor-pointer" />
               </a> {/* ← added link */}
-              <div className="flex flex-col">
-                <span className="text-3xl font-bold text-white leading-none">My Meds</span>
-                <span className="text-xl font-semibold text-white">Pharmacy</span>
-              </div>
             </div>
             <p className="text-white leading-relaxed text-base font-medium">
               Providing exceptional pharmaceutical care and personalized service to the Brooklyn community.
