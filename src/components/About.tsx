@@ -6,7 +6,7 @@ export const About = () => {
       <div className="container mx-auto px-2 sm:px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
           <div>
-            <h2 className="text-2xl sm:text-4xl font-bold text-foreground mb-4 sm:mb-6">About My Meds Pharmacy</h2>
+            <h2 className="text-2xl sm:text-4xl font-bold text-foreground mb-4 sm:mb-6 text-center lg:text-left">About My Meds Pharmacy</h2>
             <p className="text-base sm:text-lg text-pharmacy-gray mb-4 sm:mb-6 leading-relaxed">
               Located in the heart of Brooklyn, My Meds Pharmacy has been serving our community with 
               dedication, expertise, and genuine care. We believe that exceptional pharmaceutical care 
@@ -44,7 +44,7 @@ export const About = () => {
 
           <div className="space-y-6">
             <div className="bg-secondary rounded-lg p-6">
-              <h3 className="text-xl font-bold text-foreground mb-4">Our Mission</h3>
+              <h3 className="text-xl font-bold text-foreground mb-4 text-center lg:text-left">Our Mission</h3>
               <p className="text-muted-foreground leading-relaxed">
                 To provide exceptional pharmaceutical care while building lasting relationships with 
                 our patients through trust, expertise, and personalized attention to their health needs.
@@ -52,7 +52,7 @@ export const About = () => {
             </div>
 
             <div className="bg-accent/10 rounded-lg p-6">
-              <h3 className="text-xl font-bold text-foreground mb-4">Why Choose Us?</h3>
+              <h3 className="text-xl font-bold text-foreground mb-4 text-center lg:text-left">Why Choose Us?</h3>
               <ul className="space-y-2 text-muted-foreground">
                 <li className="flex items-center">
                   <div className="w-2 h-2 bg-[#57bbb6] rounded-full mr-3"></div>

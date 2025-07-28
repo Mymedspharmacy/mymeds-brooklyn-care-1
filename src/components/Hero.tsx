@@ -13,9 +13,9 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
           <div className="space-y-8">
             <div>
-              <h1 className="text-2xl sm:text-4xl md:text-6xl font-bold text-brand-black leading-tight">
-                Your Trusted
-                <span className="text-brand block">Neighborhood Pharmacy</span>
+              <h1 className="text-2xl sm:text-4xl md:text-6xl font-bold text-brand-black leading-tight text-center lg:text-left">
+              Your Way To 
+                <span className="text-brand block">Better Health</span>
               </h1>
               <p className="text-base sm:text-lg md:text-xl text-brand-dark mt-4 sm:mt-6 leading-relaxed">
                 Providing exceptional pharmaceutical care and personalized service to the Brooklyn community since day one. Your health is our priority.
