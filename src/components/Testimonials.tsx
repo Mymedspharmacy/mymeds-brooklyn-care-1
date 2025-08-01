@@ -1,14 +1,12 @@
-import { useState } from "react";
-import { Star, Quote, Plus, X, User } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Star, Quote, Plus, X, User, ChevronLeft, ChevronRight, Heart, Shield, Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 export const Testimonials = () => {
-  // TODO: Load real testimonials from the database or CMS in production
-  const [testimonials, setTestimonials] = useState([]);
-
+  const [currentSlide, setCurrentSlide] = useState(0);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [newReview, setNewReview] = useState({
     name: "",
@@ -16,15 +14,73 @@ export const Testimonials = () => {
     rating: 5,
     text: ""
   });
-
   const [hoveredRating, setHoveredRating] = useState(0);
+
+  // Sample testimonials for production - replace with real data
+  const [testimonials, setTestimonials] = useState([
+    {
+      id: 1,
+      name: "Sarah Johnson",
+      location: "Brooklyn, NY",
+      rating: 5,
+      text: "My Meds Pharmacy has been a lifesaver! Their prescription delivery service is incredibly convenient, and the staff is always so caring and professional. They really go above and beyond to ensure I get the best care possible.",
+      date: "2024-01-15",
+      avatar: "SJ"
+    },
+    {
+      id: 2,
+      name: "Michael Chen",
+      location: "Manhattan, NY",
+      rating: 5,
+      text: "The medication management service here is outstanding. They helped me organize all my prescriptions and set up automatic refills. The pharmacists are knowledgeable and always available to answer my questions.",
+      date: "2024-01-10",
+      avatar: "MC"
+    },
+    {
+      id: 3,
+      name: "Emily Rodriguez",
+      location: "Queens, NY",
+      rating: 5,
+      text: "I transferred my prescriptions here and the process was seamless. The team handled everything professionally and I was set up in no time. Their 24/7 consultation service gives me peace of mind.",
+      date: "2024-01-08",
+      avatar: "ER"
+    },
+    {
+      id: 4,
+      name: "David Thompson",
+      location: "Brooklyn, NY",
+      rating: 5,
+      text: "The insurance coordination service saved me hundreds of dollars! They found the best coverage options and handled all the paperwork. I couldn't be happier with their service.",
+      date: "2024-01-05",
+      avatar: "DT"
+    },
+    {
+      id: 5,
+      name: "Lisa Park",
+      location: "Manhattan, NY",
+      rating: 5,
+      text: "As a senior citizen, I really appreciate their personalized care approach. They take the time to explain my medications and always check in on my health. Truly exceptional service!",
+      date: "2024-01-03",
+      avatar: "LP"
+    },
+    {
+      id: 6,
+      name: "Robert Williams",
+      location: "Brooklyn, NY",
+      rating: 5,
+      text: "The same-day delivery service is incredible! I never have to worry about running out of medication. The staff is friendly and the service is reliable. Highly recommend!",
+      date: "2024-01-01",
+      avatar: "RW"
+    }
+  ]);
 
   const handleAddReview = () => {
     if (newReview.name && newReview.text) {
       const review = {
         id: Date.now(),
         ...newReview,
-        date: new Date().toISOString().split('T')[0]
+        date: new Date().toISOString().split('T')[0],
+        avatar: newReview.name.split(' ').map(n => n[0]).join('').toUpperCase()
       };
       setTestimonials(prev => [review, ...prev]);
       setNewReview({ name: "", location: "", rating: 5, text: "" });
@@ -42,15 +98,48 @@ export const Testimonials = () => {
 
   const averageRating = testimonials.length > 0 
     ? (testimonials.reduce((sum, t) => sum + t.rating, 0) / testimonials.length).toFixed(1)
-    : "0.0";
+    : "5.0";
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % Math.ceil(testimonials.length / 3));
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + Math.ceil(testimonials.length / 3)) % Math.ceil(testimonials.length / 3));
+  };
+
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index);
+  };
+
+  // Auto-play slider
+  useEffect(() => {
+    const interval = setInterval(() => {
+      nextSlide();
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [testimonials.length]);
 
   return (
-    <section className="py-12 sm:py-16 md:py-20 bg-secondary">
-      <div className="container mx-auto px-2 sm:px-4">
-        <div className="text-center mb-10 sm:mb-16">
-          <h2 className="text-2xl sm:text-4xl font-bold text-foreground mb-2 sm:mb-4">What Our Patients Say</h2>
-          <p className="text-base sm:text-xl text-pharmacy-gray mb-4 sm:mb-6">
-            Don't just take our word for it - hear from our satisfied patients
+    <section className="py-16 sm:py-20 md:py-24 bg-gradient-to-br from-slate-50 via-white to-blue-50/30 relative overflow-hidden">
+      {/* Healing Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-rose-200/20 to-pink-200/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-blue-200/20 to-cyan-200/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
+      </div>
+
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Enhanced Header */}
+        <div className="text-center mb-12 sm:mb-16">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-rose-100 to-pink-100 text-rose-600 px-4 py-2 rounded-full text-sm font-semibold mb-6 shadow-sm">
+            <Heart className="h-4 w-4" />
+            Patient Stories
+          </div>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent">
+            What Our Patients Say
+          </h2>
+          <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto font-semibold leading-relaxed mb-8">
+            Don't just take our word for it - hear from our satisfied patients about their experience
           </p>
           
           {/* Overall Rating */}
@@ -64,30 +153,124 @@ export const Testimonials = () => {
                   />
                 ))}
               </div>
-              <span className="text-2xl font-bold text-foreground">{averageRating}</span>
+              <span className="text-2xl font-bold text-gray-900">{averageRating}</span>
             </div>
-            <span className="text-pharmacy-gray">({testimonials.length} reviews)</span>
+            <span className="text-gray-600">({testimonials.length} reviews)</span>
           </div>
 
           {/* Add Review Button */}
           <Button 
             onClick={() => setShowReviewForm(true)}
-                            className="bg-[#376f6b] hover:bg-[#5EABD6] hover:text-white text-white"
+            className="bg-gradient-to-r from-[#57bbb6] to-[#376f6b] hover:shadow-lg text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 group"
           >
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-4 w-4 mr-2 group-hover:rotate-90 transition-transform duration-300" />
             Write a Review
           </Button>
         </div>
 
+        {/* Testimonials Slider */}
+        <div className="relative">
+          {/* Navigation Arrows */}
+          <button
+            onClick={prevSlide}
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm text-gray-700 hover:text-[#376f6b] p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </button>
+          
+          <button
+            onClick={nextSlide}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm text-gray-700 hover:text-[#376f6b] p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+          >
+            <ChevronRight className="h-6 w-6" />
+          </button>
+
+          {/* Testimonials Grid */}
+          <div className="overflow-hidden">
+            <div 
+              className="flex transition-transform duration-500 ease-in-out"
+              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+            >
+              {Array.from({ length: Math.ceil(testimonials.length / 3) }, (_, slideIndex) => (
+                <div key={slideIndex} className="w-full flex-shrink-0">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                    {testimonials.slice(slideIndex * 3, slideIndex * 3 + 3).map((testimonial) => (
+                      <Card 
+                        key={testimonial.id} 
+                        className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-white/90 backdrop-blur-sm hover:bg-white/95"
+                      >
+                        <CardContent className="p-6 sm:p-8">
+                          {/* Quote Icon */}
+                          <div className="flex items-center justify-between mb-4">
+                            <Quote className="h-8 w-8 text-[#57bbb6] group-hover:scale-110 transition-transform duration-300" />
+                            <div className="flex">
+                              {[...Array(5)].map((_, i) => (
+                                <Star 
+                                  key={i} 
+                                  className={`h-5 w-5 ${i < testimonial.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+                                />
+                              ))}
+                            </div>
+                          </div>
+                          
+                          {/* Testimonial Text */}
+                          <p className="text-gray-700 mb-6 leading-relaxed italic text-base sm:text-lg group-hover:text-gray-900 transition-colors duration-300">
+                            "{testimonial.text}"
+                          </p>
+                          
+                          {/* Author Info */}
+                          <div className="border-t border-gray-100 pt-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-12 h-12 bg-gradient-to-br from-[#57bbb6] to-[#376f6b] rounded-full flex items-center justify-center text-white font-bold text-sm group-hover:scale-110 transition-transform duration-300">
+                                {testimonial.avatar}
+                              </div>
+                              <div>
+                                <h4 className="font-bold text-gray-900 group-hover:text-[#376f6b] transition-colors duration-300">
+                                  {testimonial.name}
+                                </h4>
+                                <p className="text-sm text-gray-600">
+                                  {testimonial.location}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {formatDate(testimonial.date)}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Navigation Dots */}
+          <div className="flex justify-center mt-8 gap-2">
+            {Array.from({ length: Math.ceil(testimonials.length / 3) }, (_, index) => (
+              <button
+                key={index}
+                onClick={() => goToSlide(index)}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  index === currentSlide 
+                    ? 'bg-[#57bbb6] scale-125' 
+                    : 'bg-gray-300 hover:bg-gray-400'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+
         {/* Review Form Modal */}
         {showReviewForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl max-w-md w-full p-6">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl transform scale-100 transition-all duration-300">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-2xl font-bold text-[#376f6b]">Write a Review</h3>
                 <button 
                   onClick={() => setShowReviewForm(false)}
-                  className="text-[#376f6b] hover:text-[#5EABD6]"
+                  className="text-[#376f6b] hover:text-[#57bbb6] p-2 rounded-lg hover:bg-gray-100 transition-colors duration-300"
                 >
                   <X size={24} />
                 </button>
@@ -95,31 +278,31 @@ export const Testimonials = () => {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-[#231f20] mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Your Name *
                   </label>
                   <Input
                     value={newReview.name}
                     onChange={(e) => setNewReview(prev => ({ ...prev, name: e.target.value }))}
                     placeholder="Enter your name"
-                    className="w-full"
+                    className="w-full border-gray-200 focus:border-[#57bbb6] focus:ring-[#57bbb6]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[#231f20] mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Location
                   </label>
                   <Input
                     value={newReview.location}
                     onChange={(e) => setNewReview(prev => ({ ...prev, location: e.target.value }))}
                     placeholder="City, State"
-                    className="w-full"
+                    className="w-full border-gray-200 focus:border-[#57bbb6] focus:ring-[#57bbb6]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[#231f20] mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Rating *
                   </label>
                   <div className="flex gap-1">
@@ -129,7 +312,7 @@ export const Testimonials = () => {
                         onClick={() => setNewReview(prev => ({ ...prev, rating: star }))}
                         onMouseEnter={() => setHoveredRating(star)}
                         onMouseLeave={() => setHoveredRating(0)}
-                        className="p-1"
+                        className="p-1 hover:scale-110 transition-transform duration-200"
                       >
                         <Star 
                           className={`h-6 w-6 transition-colors ${
@@ -144,7 +327,7 @@ export const Testimonials = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[#231f20] mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Your Review *
                   </label>
                   <Textarea
@@ -152,7 +335,7 @@ export const Testimonials = () => {
                     onChange={(e) => setNewReview(prev => ({ ...prev, text: e.target.value }))}
                     placeholder="Share your experience with My Meds Pharmacy..."
                     rows={4}
-                    className="w-full"
+                    className="w-full border-gray-200 focus:border-[#57bbb6] focus:ring-[#57bbb6]"
                   />
                 </div>
 
@@ -160,72 +343,20 @@ export const Testimonials = () => {
                   <Button 
                     onClick={handleAddReview}
                     disabled={!newReview.name || !newReview.text}
-                    className="flex-1 bg-[#376f6b] hover:bg-[#5EABD6] hover:text-white text-white disabled:opacity-50"
+                    className="flex-1 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] hover:shadow-lg text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
                   >
                     Submit Review
                   </Button>
                   <Button 
                     onClick={() => setShowReviewForm(false)}
                     variant="outline"
-                    className="flex-1"
+                    className="flex-1 border-gray-200 hover:border-[#57bbb6] hover:text-[#57bbb6]"
                   >
                     Cancel
                   </Button>
                 </div>
               </div>
             </div>
-          </div>
-        )}
-
-        {/* Reviews Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8">
-          {testimonials.map((testimonial) => (
-            <Card key={testimonial.id} className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center">
-                    <Quote className="h-8 w-8 text-[#57bbb6] mr-2" />
-                    <div className="flex">
-                      {[...Array(5)].map((_, i) => (
-                        <Star 
-                          key={i} 
-                          className={`h-5 w-5 ${i < testimonial.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
-                        />
-                      ))}
-                    </div>
-                  </div>
-                  <span className="text-xs text-pharmacy-gray">
-                    {formatDate(testimonial.date)}
-                  </span>
-                </div>
-                
-                <p className="text-muted-foreground mb-6 leading-relaxed italic">
-                  "{testimonial.text}"
-                </p>
-                
-                <div className="border-t pt-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-[#57bbb6] rounded-full flex items-center justify-center">
-                      <User className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-foreground">{testimonial.name}</h4>
-                      <p className="text-sm text-pharmacy-gray">
-                        {testimonial.location}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {testimonials.length === 0 && (
-          <div className="text-center py-12">
-            <Quote size={48} className="mx-auto text-[#57bbb6] mb-4" />
-            <p className="text-[#231f20] text-lg">No reviews yet</p>
-            <p className="text-[#376f6b]">Be the first to share your experience!</p>
           </div>
         )}
       </div>

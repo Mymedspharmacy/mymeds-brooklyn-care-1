@@ -1,109 +1,308 @@
-import { Truck, Pill, Shield, Users, Stethoscope, MessageCircle } from "lucide-react";
+import { ArrowRight, Star, Heart, Truck, Shield, Users, Stethoscope, MessageCircle, Pill, Clock, Award, CheckCircle, Zap, Thermometer, Bandage, ShoppingCart } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 interface ServicesProps {
+  onRefillClick: () => void;
+  onTransferClick: () => void;
   onAppointmentClick: () => void;
-  onShopClick?: () => void;
+  onShopClick: () => void;
 }
 
-export const Services = ({ onAppointmentClick, onShopClick }: ServicesProps) => {
+export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick, onShopClick }: ServicesProps) => {
   const services = [
     {
-      icon: Truck,
-      title: "Free Prescription Delivery",
-      description: "Convenient, reliable delivery service to your doorstep. Perfect for patients with mobility issues or busy schedules.",
-      features: ["Free delivery for prescriptions ", "Brooklyn & Manhattan areas", "Same-day delivery available", "Contactless delivery options", "Prescription tracking"],
-      hasBooking: false
+      icon: Pill,
+      title: "Prescription Refills",
+      description: "Quick and convenient prescription refills with automatic reminders and notifications",
+      features: [
+        "Same-day refills for most medications",
+        "Automatic refill reminders",
+        "Multiple pickup options",
+        "Insurance coordination"
+      ],
+      accent: "from-[#57bbb6] to-[#376f6b]",
+      bgGradient: "from-[#57bbb6]/10 to-[#376f6b]/10",
+      image: "/images/services/prescription-refill.jpg"
     },
     {
-      icon: Pill,
-      title: "Medication Synchronization",
-      description: "Align all your prescription refill dates to one convenient pickup day each month.",
-      features: ["Single monthly pickup", "Automated refill reminders", "Reduced pharmacy visits"],
-      hasBooking: false
+      icon: Truck,
+      title: "Free Delivery",
+      description: "Same-day local delivery service for prescriptions and health products",
+      features: [
+        "Same-day delivery within Brooklyn",
+        "Free delivery on orders over $25",
+        "Real-time tracking",
+        "Secure prescription handling"
+      ],
+      accent: "from-emerald-500 to-teal-500",
+      bgGradient: "from-emerald-50 to-teal-50",
+      image: "/images/services/delivery-service.jpg"
     },
     {
       icon: Shield,
-      title: "Immunizations",
-      description: "Stay protected with our comprehensive vaccination services administered by certified pharmacists.",
-      features: ["Flu shots", "COVID-19 vaccines", "Travel immunizations", "Insurance accepted"],
-      hasBooking: true
+      title: "Medication Reviews",
+      description: "Comprehensive medication therapy management and safety reviews",
+      features: [
+        "Personalized medication reviews",
+        "Drug interaction checking",
+        "Side effect monitoring",
+        "Dosage optimization"
+      ],
+      accent: "from-blue-500 to-indigo-500",
+      bgGradient: "from-blue-50 to-indigo-50",
+      image: "/images/services/medication-review.jpg"
     },
     {
       icon: Users,
-      title: "Medication Therapy Management",
-      description: "Personalized medication reviews to optimize your therapy and prevent drug interactions.",
-      features: ["One-on-one consultations", "Drug interaction checks", "Cost-saving opportunities"],
-      hasBooking: true
+      title: "Health Consultations",
+      description: "One-on-one consultations with licensed pharmacists for health advice",
+      features: [
+        "Private consultation rooms",
+        "Health screenings available",
+        "Vaccination services",
+        "Chronic disease management"
+      ],
+      accent: "from-purple-500 to-pink-500",
+      bgGradient: "from-purple-50 to-pink-50",
+      image: "/images/services/health-consultation.jpg"
     },
     {
       icon: Stethoscope,
-      title: "Durable Medical Equipment",
-      description: "Quality medical equipment and supplies to support your health and mobility needs.",
-      features: ["Wheelchairs & walkers", "Blood pressure monitors", "Diabetic supplies"],
-      hasBooking: false,
-      hasShop: true
+      title: "Immunizations",
+      description: "Comprehensive vaccination services for all ages and travel requirements",
+      features: [
+        "Flu shots and COVID-19 vaccines",
+        "Travel vaccinations",
+        "Pediatric immunizations",
+        "Vaccine records management"
+      ],
+      accent: "from-orange-500 to-red-500",
+      bgGradient: "from-orange-50 to-red-50",
+      image: "/images/services/immunizations.jpg"
     },
     {
       icon: MessageCircle,
-      title: "Private Consultation",
-      description: "Confidential discussions about your medications, health concerns, and wellness goals.",
-      features: ["Medication counseling", "Health screenings", "Wellness advice"],
-      hasBooking: true
+      title: "24/7 Support",
+      description: "Round-the-clock pharmacy support and emergency medication assistance",
+      features: [
+        "24/7 pharmacist consultation",
+        "Emergency medication access",
+        "After-hours pickup",
+        "Telepharmacy services"
+      ],
+      accent: "from-cyan-500 to-blue-500",
+      bgGradient: "from-cyan-50 to-blue-50",
+      image: "/images/services/24-7-support.jpg"
     }
   ];
 
   return (
-    <section id="services" className="py-12 sm:py-16 md:py-20 bg-muted/50">
-      <div className="container mx-auto px-2 sm:px-4">
-        <div className="text-center mb-10 sm:mb-16">
-          <h2 className="text-2xl sm:text-4xl font-bold text-foreground mb-2 sm:mb-4">Our Services</h2>
-          <p className="text-base sm:text-xl text-muted-foreground max-w-3xl mx-auto">
-            Comprehensive pharmaceutical care designed to meet all your health and wellness needs
+    <section id="services" className="py-16 sm:py-20 md:py-24 bg-gradient-to-br from-slate-50 via-white to-blue-50/30 relative overflow-hidden">
+      {/* Healing Background Elements */}
+      <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-r from-blue-200/20 to-cyan-200/20 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-r from-emerald-200/20 to-teal-200/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-r from-purple-200/10 to-indigo-200/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '4s' }}></div>
+
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Enhanced Header Section */}
+        <div className="text-center mb-16 sm:mb-20">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] text-white px-4 py-2 rounded-full text-sm font-semibold mb-6">
+            <Star className="h-4 w-4" />
+            Professional Care
+          </div>
+          
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight mb-6">
+            Our 
+            <span className="block bg-gradient-to-r from-[#57bbb6] to-[#376f6b] bg-clip-text text-transparent">
+              Comprehensive Services
+            </span>
+          </h2>
+          
+          <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto font-semibold">
+            From prescription management to health consultations, we provide complete pharmaceutical care 
+            tailored to your individual needs with the highest standards of professionalism and compassion.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
+        {/* Enhanced Services Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10 mb-16 sm:mb-20">
           {services.map((service, index) => (
-            <Card key={index} className="hover:shadow-lg transition-shadow duration-300 border-0 shadow-md">
-              <CardHeader className="text-center pb-4">
-                <div className="w-16 h-16 bg-[#f0f9f8] rounded-full flex items-center justify-center mx-auto mb-4">
-                  <service.icon className="h-8 w-8 text-[#57bbb6]" />
+            <Card key={index} className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-white/80 backdrop-blur-sm hover:bg-white/95">
+              {/* Service Image Background */}
+              <div className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
+                <img 
+                  src={service.image} 
+                  alt={service.title}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
+              
+              {/* Gradient Overlay */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${service.bgGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
+              
+              {/* Floating Elements */}
+              <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-500 delay-200">
+                <div className={`w-3 h-3 bg-gradient-to-r ${service.accent} rounded-full animate-pulse`}></div>
+              </div>
+
+              <CardContent className="relative p-6 sm:p-8">
+                {/* Enhanced Icon */}
+                <div className={`w-20 h-20 bg-gradient-to-br ${service.accent} rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 group-hover:shadow-xl transition-all duration-500 group-hover:rotate-3`}>
+                  <service.icon className="h-10 w-10 text-white group-hover:scale-110 transition-transform duration-300" />
                 </div>
-                <CardTitle className="text-xl font-bold text-foreground">{service.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-muted-foreground mb-4 text-base leading-relaxed">
+
+                {/* Service Title & Description */}
+                <CardTitle className="text-2xl font-bold text-gray-900 group-hover:text-[#376f6b] transition-colors duration-300 mb-4 text-center">
+                  {service.title}
+                </CardTitle>
+                
+                <CardDescription className="text-gray-600 mb-6 text-base leading-relaxed font-medium group-hover:text-gray-700 transition-colors duration-300 text-center">
                   {service.description}
                 </CardDescription>
-                <ul className="space-y-2 mb-6">
+
+                {/* Enhanced Features List */}
+                <div className="space-y-3">
                   {service.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-center text-sm text-muted-foreground">
-                      <div className="w-2 h-2 bg-[#57bbb6] rounded-full mr-3"></div>
-                      {feature}
-                    </li>
+                    <div key={featureIndex} className="flex items-start group/feature">
+                      <div className={`w-2 h-2 bg-gradient-to-r ${service.accent} rounded-full mr-3 mt-2 flex-shrink-0 group-hover/feature:scale-125 transition-transform duration-300`}></div>
+                      <span className="text-sm text-gray-600 group-hover:text-gray-700 font-medium leading-relaxed">
+                        {feature}
+                      </span>
+                    </div>
                   ))}
-                </ul>
-                {service.hasBooking && (
-                  <Button 
-                    onClick={onAppointmentClick}
-                    className="w-full bg-[#376f6b] hover:bg-[#5EABD6] hover:text-white text-white"
-                  >
-                    Book Appointment
-                  </Button>
-                )}
-                {service.hasShop && (
-                  <Button 
-                    onClick={onShopClick}
-                    className="w-full bg-[#376f6b] hover:bg-[#5EABD6] hover:text-white text-white"
-                  >
-                    Shop Equipment
-                  </Button>
-                )}
+                </div>
+
+                {/* Healing Border Effect */}
+                <div className={`absolute inset-0 rounded-2xl bg-gradient-to-r ${service.accent} opacity-0 group-hover:opacity-20 transition-opacity duration-500`}></div>
               </CardContent>
             </Card>
           ))}
+        </div>
+
+        {/* Special Offers Section */}
+        <div className="mb-16 sm:mb-20">
+          <div className="text-center mb-12">
+            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+              Special Offers
+            </h3>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Take advantage of our exclusive offers designed to make your healthcare journey more affordable and convenient
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+            {/* Free Refills Offer */}
+            <Card className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-gradient-to-br from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100">
+              <CardContent className="p-8 sm:p-10">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Pill className="h-8 w-8 text-white" />
+                  </div>
+                  <div className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                    FREE
+                  </div>
+                </div>
+                
+                <h4 className="text-2xl font-bold text-gray-900 mb-3">
+                  Free Prescription Refills
+                </h4>
+                <p className="text-gray-600 mb-6 leading-relaxed">
+                  Enjoy complimentary refills on all your prescriptions. No hidden fees, no surprises - just quality care at no extra cost.
+                </p>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center text-sm text-gray-600">
+                    <CheckCircle className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
+                    <span>All prescription medications included</span>
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <CheckCircle className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
+                    <span>No refill fees or service charges</span>
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <CheckCircle className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
+                    <span>Automatic refill reminders</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Free Shipping Offer */}
+            <Card className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-gradient-to-br from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100">
+              <CardContent className="p-8 sm:p-10">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Truck className="h-8 w-8 text-white" />
+                  </div>
+                  <div className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                    FREE
+                  </div>
+                </div>
+                
+                <h4 className="text-2xl font-bold text-gray-900 mb-3">
+                  Free Shipping on Orders Over $50
+                </h4>
+                <p className="text-gray-600 mb-6 leading-relaxed">
+                  Shop with confidence knowing that orders over $50 ship completely free. Fast, reliable delivery right to your doorstep.
+                </p>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center text-sm text-gray-600">
+                    <CheckCircle className="h-4 w-4 text-blue-500 mr-2 flex-shrink-0" />
+                    <span>Free shipping on orders $50+</span>
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <CheckCircle className="h-4 w-4 text-blue-500 mr-2 flex-shrink-0" />
+                    <span>Fast 2-3 business day delivery</span>
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <CheckCircle className="h-4 w-4 text-blue-500 mr-2 flex-shrink-0" />
+                    <span>Secure packaging & tracking</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Enhanced CTA Section */}
+        <div className="bg-gradient-to-r from-[#376f6b] to-[#57bbb6] rounded-3xl p-8 sm:p-12 text-center text-white relative overflow-hidden">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.1%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%222%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
+          </div>
+          
+          <div className="relative z-10">
+            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">
+              Ready to Experience Better Care?
+            </h3>
+            <p className="text-lg sm:text-xl mb-8 opacity-90">
+              Join thousands of satisfied customers who trust us with their health
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                onClick={onRefillClick}
+                className="bg-white text-[#376f6b] hover:bg-gray-100 font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+              >
+                <Pill className="w-5 h-5 mr-2" />
+                Refill Prescription
+              </Button>
+              
+              <Button 
+                onClick={onTransferClick}
+                variant="outline"
+                className="border-white text-white hover:bg-white hover:text-[#376f6b] font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
+              >
+                <ArrowRight className="w-5 h-5 mr-2" />
+                Transfer Prescription
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     </section>

@@ -1,80 +1,140 @@
-import { Award, Heart, Users, Clock } from "lucide-react";
+import { Award, Heart, Users, Clock, Star, ArrowRight, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const About = () => {
-  return (
-    <section id="about" className="py-12 sm:py-16 md:py-20 bg-background">
-      <div className="container mx-auto px-2 sm:px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-          <div>
-            <h2 className="text-2xl sm:text-4xl font-bold text-foreground mb-4 sm:mb-6 text-center lg:text-left">About My Meds Pharmacy</h2>
-            <p className="text-base sm:text-lg text-pharmacy-gray mb-4 sm:mb-6 leading-relaxed">
-              Located in the heart of Brooklyn, My Meds Pharmacy has been serving our community with 
-              dedication, expertise, and genuine care. We believe that exceptional pharmaceutical care 
-              goes beyond just dispensing medications.
-            </p>
-            <p className="text-base sm:text-lg text-pharmacy-gray mb-6 sm:mb-8 leading-relaxed">
-              Our team of licensed pharmacists and healthcare professionals are committed to 
-              providing personalized service, expert advice, and innovative solutions to meet 
-              your unique health needs.
-            </p>
+  const stats = [
+    {
+      icon: Award,
+      number: "Licensed",
+      label: "Certified Pharmacists",
+      color: "from-emerald-500 to-teal-500"
+    },
+    {
+      icon: Heart,
+      number: "Caring",
+      label: "Personalized Service",
+      color: "from-rose-500 to-pink-500"
+    },
+    {
+      icon: Users,
+      number: "Community",
+      label: "Local Focus",
+      color: "from-blue-500 to-cyan-500"
+    },
+    {
+      icon: Clock,
+      number: "Available",
+      label: "Extended Hours",
+      color: "from-purple-500 to-indigo-500"
+    }
+  ];
 
+  const benefits = [
+    "Experienced, licensed pharmacists",
+    "Convenient location and extended hours",
+    "Comprehensive health services",
+    "Free prescription delivery service",
+    "Insurance accepted and affordable pricing"
+  ];
+
+  return (
+    <section id="about" className="py-16 sm:py-20 md:py-24 bg-gradient-to-br from-white via-gray-50 to-blue-50/20">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+          
+          {/* Left Column - Enhanced Content */}
+          <div className="space-y-8">
+            {/* Enhanced Header */}
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] text-white px-4 py-2 rounded-full text-sm font-semibold">
+                <Star className="h-4 w-4" />
+                About Our Pharmacy
+              </div>
+              
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
+                About 
+                <span className="block bg-gradient-to-r from-[#57bbb6] to-[#376f6b] bg-clip-text text-transparent">
+                  My Meds Pharmacy
+                </span>
+              </h2>
+              
+              <div className="space-y-6 text-lg leading-relaxed">
+                <p className="text-gray-700">
+                  Located in the heart of Brooklyn, My Meds Pharmacy has been serving our community with 
+                  <span className="font-semibold text-[#376f6b]"> dedication, expertise, and genuine care</span>. 
+                  We believe that exceptional pharmaceutical care goes beyond just dispensing medications.
+                </p>
+                <p className="text-gray-700">
+                  Our team of licensed pharmacists and healthcare professionals are committed to 
+                  providing <span className="font-semibold text-[#57bbb6]">personalized service</span>, 
+                  <span className="font-semibold text-[#376f6b]"> expert advice</span>, and 
+                  <span className="font-semibold text-[#57bbb6]"> innovative solutions</span> to meet 
+                  your unique health needs.
+                </p>
+              </div>
+            </div>
+
+            {/* Enhanced Stats Grid - Aligned with text */}
             <div className="grid grid-cols-2 gap-4 sm:gap-6">
-              <div className="text-center p-4">
-                <Award className="h-12 w-12 text-[#57bbb6] mx-auto mb-3" />
-                <h3 className="font-bold text-2xl text-foreground">Licensed</h3>
-                <p className="text-pharmacy-gray">Certified Pharmacists</p>
-              </div>
-              <div className="text-center p-4">
-                <Heart className="h-12 w-12 text-[#57bbb6] mx-auto mb-3" />
-                <h3 className="font-bold text-2xl text-foreground">Caring</h3>
-                <p className="text-pharmacy-gray">Personalized Service</p>
-              </div>
-              <div className="text-center p-4">
-                <Users className="h-12 w-12 text-[#57bbb6] mx-auto mb-3" />
-                <h3 className="font-bold text-2xl text-foreground">Community</h3>
-                <p className="text-pharmacy-gray">Local Focus</p>
-              </div>
-              <div className="text-center p-4">
-                <Clock className="h-12 w-12 text-[#57bbb6] mx-auto mb-3" />
-                <h3 className="font-bold text-2xl text-foreground">Available</h3>
-                <p className="text-pharmacy-gray">Extended Hours</p>
-              </div>
+              {stats.map((stat, index) => (
+                <div 
+                  key={index} 
+                  className="group text-center p-4 sm:p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 border border-gray-100"
+                >
+                  <div className={`w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br ${stat.color} rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg group-hover:scale-110 transition-transform duration-500`}>
+                    <stat.icon className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+                  </div>
+                  <h3 className="font-bold text-lg sm:text-2xl text-gray-900 mb-1 sm:mb-2 group-hover:text-[#376f6b] transition-colors duration-300">
+                    {stat.number}
+                  </h3>
+                  <p className="text-gray-600 font-medium text-sm sm:text-base leading-relaxed">
+                    {stat.label}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="space-y-6">
-            <div className="bg-secondary rounded-lg p-6">
-              <h3 className="text-xl font-bold text-foreground mb-4 text-center lg:text-left">Our Mission</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                To provide exceptional pharmaceutical care while building lasting relationships with 
-                our patients through trust, expertise, and personalized attention to their health needs.
-              </p>
+          {/* Right Column - Enhanced Cards - Perfectly Aligned */}
+          <div className="space-y-8 mt-16">
+            {/* Mission Card - Aligned with left text */}
+            <div className="bg-gradient-to-br from-[#376f6b] to-[#57bbb6] rounded-2xl p-6 sm:p-8 shadow-2xl transform hover:scale-105 transition-transform duration-500">
+              <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                  <Star className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold text-white">Our Mission</h3>
+              </div>
+                             <p className="text-white/95 text-base sm:text-lg leading-relaxed">
+                 To provide exceptional pharmaceutical care while building lasting relationships with 
+                 our patients through <span className="font-semibold">trust, expertise, and personalized attention</span> 
+                 to their health needs. We strive to be more than just a pharmacy – we aim to be your 
+                 trusted healthcare partner, offering comprehensive medication management, expert consultation, 
+                 and compassionate support throughout your wellness journey. Our commitment extends beyond 
+                 dispensing medications to empowering our community with knowledge, accessibility, and 
+                 innovative healthcare solutions that enhance quality of life.
+               </p>
             </div>
 
-            <div className="bg-accent/10 rounded-lg p-6">
-              <h3 className="text-xl font-bold text-foreground mb-4 text-center lg:text-left">Why Choose Us?</h3>
-              <ul className="space-y-2 text-muted-foreground">
-                <li className="flex items-center">
-                  <div className="w-2 h-2 bg-[#57bbb6] rounded-full mr-3"></div>
-                  Experienced, licensed pharmacists
-                </li>
-                <li className="flex items-center">
-                  <div className="w-2 h-2 bg-[#57bbb6] rounded-full mr-3"></div>
-                  Convenient location and extended hours
-                </li>
-                <li className="flex items-center">
-                  <div className="w-2 h-2 bg-[#57bbb6] rounded-full mr-3"></div>
-                  Comprehensive health services
-                </li>
-                <li className="flex items-center">
-                  <div className="w-2 h-2 bg-[#57bbb6] rounded-full mr-3"></div>
-                  Free prescription delivery service
-                </li>
-                <li className="flex items-center">
-                  <div className="w-2 h-2 bg-[#57bbb6] rounded-full mr-3"></div>
-                  Insurance accepted and affordable pricing
-                </li>
-              </ul>
+            {/* Why Choose Us Card - Aligned with left feature boxes */}
+            <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-xl border border-gray-100 transform hover:scale-105 transition-transform duration-500">
+              <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[#57bbb6] to-[#376f6b] rounded-xl flex items-center justify-center">
+                  <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900">Why Choose Us?</h3>
+              </div>
+              
+                             <ul className="space-y-3 sm:space-y-4">
+                 {benefits.map((benefit, index) => (
+                   <li key={index} className="flex items-start group">
+                     <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-br from-[#57bbb6] to-[#376f6b] rounded-full mr-3 sm:mr-4 mt-1 flex-shrink-0 group-hover:scale-110 transition-transform duration-300"></div>
+                     <span className="text-gray-700 text-base sm:text-lg leading-relaxed group-hover:text-gray-900 transition-colors duration-300">
+                       {benefit}
+                     </span>
+                   </li>
+                 ))}
+               </ul>
             </div>
           </div>
         </div>
