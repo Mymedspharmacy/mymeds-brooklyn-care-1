@@ -15,46 +15,6 @@ export default function Services() {
   const [showBenefits, setShowBenefits] = useState(false);
   const [showProcess, setShowProcess] = useState(false);
 
-  // Animate stats on component mount
-  useEffect(() => {
-    if (selectedServiceData) {
-      const timer = setTimeout(() => {
-        setAnimatedStats({
-          cost: selectedServiceData.satisfactionRate,
-          duration: selectedServiceData.patientsServed,
-          availability: 100
-        });
-      }, 500);
-
-      return () => clearTimeout(timer);
-    }
-  }, [selectedServiceData]);
-
-  // Animate sections on scroll
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            if (entry.target.classList.contains('features-section')) {
-              setShowFeatures(true);
-            } else if (entry.target.classList.contains('benefits-section')) {
-              setShowBenefits(true);
-            } else if (entry.target.classList.contains('process-section')) {
-              setShowProcess(true);
-            }
-          }
-        });
-      },
-      { threshold: 0.3 }
-    );
-
-    const sections = document.querySelectorAll('.features-section, .benefits-section, .process-section');
-    sections.forEach(section => observer.observe(section));
-
-    return () => observer.disconnect();
-  }, [selectedServiceData]);
-
   const services = [
     {
       id: 'prescription-refills',
@@ -277,6 +237,10 @@ export default function Services() {
   const selectedServiceData = selectedService 
     ? services.find(s => s.id === selectedService) 
     : null;
+
+  // Debug logging
+  console.log('Selected service:', selectedService);
+  console.log('Selected service data:', selectedServiceData);
 
   // Animate stats on component mount
   useEffect(() => {
@@ -769,7 +733,8 @@ export default function Services() {
         </div>
       )}
 
-      <style jsx>{`
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes shimmer {
           0% { transform: translateX(-100%) skewX(-12deg); }
           100% { transform: translateX(200%) skewX(-12deg); }
@@ -787,7 +752,8 @@ export default function Services() {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
-      `}</style>
+      `
+      }} />
     </div>
   );
 } 

@@ -1,226 +1,22 @@
-import { useState, useEffect } from 'react';
-import { Calendar, Clock, User, ArrowRight, Search, Filter, BookOpen, Heart, Share2, Tag } from 'lucide-react';
-import wordPressAPI from '../lib/wordpress';
+import { BookOpen } from 'lucide-react';
 
 export default function Blog() {
-  const [selectedArticle, setSelectedArticle] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [likedArticles, setLikedArticles] = useState([]);
-  const [articleLikes, setArticleLikes] = useState({});
-  const [posts, setPosts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    loadPosts();
-    loadCategories();
-  }, []);
-
-  const loadPosts = async () => {
-    try {
-      setLoading(true);
-      
-      // Check if WordPress is configured
-      if (!import.meta.env.VITE_WORDPRESS_URL) {
-        console.warn('WordPress not configured, using sample posts');
-        setError('WordPress not configured. Please set up VITE_WORDPRESS_URL in your .env file.');
-        setPosts([
-          {
-            id: 1,
-            title: { rendered: 'Sample Blog Post 1' },
-            excerpt: { rendered: 'This is a sample blog post for testing purposes.' },
-            content: { rendered: 'This is the full content of the sample blog post.' },
-            date: new Date().toISOString(),
-            author: 1,
-            categories: [1],
-            sticky: true,
-            _embedded: {
-              'wp:featuredmedia': [{ source_url: '/placeholder.svg' }],
-              author: [{ name: 'Admin', avatar_urls: { '96': '/placeholder.svg' } }]
-            }
-          },
-          {
-            id: 2,
-            title: { rendered: 'Sample Blog Post 2' },
-            excerpt: { rendered: 'Another sample blog post for testing.' },
-            content: { rendered: 'This is the full content of another sample blog post.' },
-            date: new Date().toISOString(),
-            author: 1,
-            categories: [2],
-            sticky: false,
-            _embedded: {
-              'wp:featuredmedia': [{ source_url: '/placeholder.svg' }],
-              author: [{ name: 'Admin', avatar_urls: { '96': '/placeholder.svg' } }]
-            }
-          }
-        ]);
-        return;
-      }
-      
-      const postsData = await wordPressAPI.getPosts({
-        per_page: 20,
-        status: 'publish',
-      });
-      // Ensure postsData is an array
-      if (Array.isArray(postsData)) {
-        setPosts(postsData);
-      } else {
-        console.error('Posts data is not an array:', postsData);
-        setPosts([]);
-        setError('Invalid posts data received');
-      }
-    } catch (err) {
-      setError('Failed to load posts from WordPress');
-      console.error('Error loading posts:', err);
-      setPosts([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadCategories = async () => {
-    try {
-      // Check if WordPress is configured
-      if (!import.meta.env.VITE_WORDPRESS_URL) {
-        console.warn('WordPress not configured, using sample categories');
-        setCategories([
-          { id: 1, name: 'Health & Wellness' },
-          { id: 2, name: 'Pharmacy Tips' },
-          { id: 3, name: 'Medical News' },
-          { id: 4, name: 'Patient Care' }
-        ]);
-        return;
-      }
-      
-      const categoriesData = await wordPressAPI.getCategories();
-      // Ensure categoriesData is an array
-      if (Array.isArray(categoriesData)) {
-        setCategories(categoriesData);
-      } else {
-        console.error('Categories data is not an array:', categoriesData);
-        setCategories([]);
-      }
-    } catch (err) {
-      console.error('Error loading categories:', err);
-      setCategories([]);
-    }
-  };
-
-  // Filter posts
-  const filteredArticles = Array.isArray(posts) ? posts.filter(article => {
-    const matchesCategory = selectedCategory === 'All' || 
-      article.categories?.some(catId => {
-        const category = categories.find(cat => cat.id === catId);
-        return category && category.name === selectedCategory;
-      });
-    const matchesSearch = article.title.rendered.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         article.excerpt.rendered.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
-  }) : [];
-
-  const featuredArticles = Array.isArray(posts) ? posts.filter(article => article.sticky) : [];
-  const recentArticles = Array.isArray(posts) ? posts.slice(0, 3) : [];
-
-  function toggleLike(articleId) {
-    setLikedArticles(prev => 
-      prev.includes(articleId) 
-        ? prev.filter(id => id !== articleId)
-        : [...prev, articleId]
-    );
-    
-    // Update like count
-    setArticleLikes(prev => ({
-      ...prev,
-      [articleId]: prev[articleId] || 0
-    }));
-  }
-
-  function formatDate(dateString) {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  }
-
-  function shareArticle(article) {
-    const shareData = {
-      title: article.title.rendered,
-      text: article.excerpt.rendered.replace(/<[^>]*>/g, ''), // Remove HTML tags
-      url: `${window.location.origin}/blog?article=${article.id}`
-    };
-
-    if (navigator.share) {
-      // Use native sharing on mobile devices
-      navigator.share(shareData).catch((error) => {
-        console.log('Error sharing:', error);
-        fallbackShare(shareData);
-      });
-    } else {
-      // Fallback for desktop browsers
-      fallbackShare(shareData);
-    }
-  }
-
-  function fallbackShare(shareData) {
-    // Create a temporary textarea to copy the share text
-    const textarea = document.createElement('textarea');
-    textarea.value = `${shareData.title}\n\n${shareData.text}\n\nRead more: ${shareData.url}`;
-    document.body.appendChild(textarea);
-    textarea.select();
-    document.execCommand('copy');
-    document.body.removeChild(textarea);
-    
-    // Show a toast notification
-    alert('Article link copied to clipboard!');
-  }
-
-  // Get featured image URL
-  const getFeaturedImage = (post) => {
-    if (post._embedded && post._embedded['wp:featuredmedia'] && post._embedded['wp:featuredmedia'][0]) {
-      return post._embedded['wp:featuredmedia'][0].source_url;
-    }
-    // Return a default blog image or data URL
-    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik01MCA1MEgxNTBWMTUwSDUwVjUwWiIgZmlsbD0iIzU3QkJCNiIvPgo8dGV4dCB4PSIxMDAiIHk9IjExMCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+QmxvZzwvdGV4dD4KPC9zdmc+Cg==';
-  };
-
-  // Get author name
-  const getAuthorName = (post) => {
-    if (post._embedded && post._embedded.author && post._embedded.author[0]) {
-      return post._embedded.author[0].name;
-    }
-    return 'Admin';
-  };
-
-  // Get author image
-  const getAuthorImage = (post) => {
-    if (post._embedded && post._embedded.author && post._embedded.author[0] && 
-        post._embedded.author[0].avatar_urls) {
-      return post._embedded.author[0].avatar_urls['96'];
-    }
-    // Return a default avatar or data URL
-    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDgiIGN5PSI0OCIgcj0iNDgiIGZpbGw9IiM1N0JCQjYiLz4KPGNpcmNsZSBjeD0iNDgiIGN5PSIzNSIgcj0iMTIiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yMCA3MUMzMiA1OSA2NCA1OSA3NiA3MSIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cg==';
-  };
-
-  // Get category name
-  const getCategoryName = (post) => {
-    if (post.categories && post.categories.length > 0) {
-      const category = categories.find(cat => cat.id === post.categories[0]);
-      return category ? category.name : 'Uncategorized';
-    }
-    return 'Uncategorized';
-  };
-
-  // Get category names for display
-  const categoryNames = ['All', ...categories.map(cat => cat.name)];
-
   return (
     <div className="min-h-screen bg-[#f5fefd]">
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-[#57bbb6]/20">
         <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="flex items-center justify-center mb-6">
+            <button 
+              onClick={() => window.history.back()}
+              className="absolute left-4 flex items-center gap-2 text-[#376f6b] hover:text-[#57bbb6] transition-colors duration-300 p-2 rounded-lg hover:bg-[#57bbb6]/10"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Back
+            </button>
+          </div>
           <div className="text-center">
             <h1 className="text-5xl font-normal text-[#376f6b] mb-4">Health & Wellness Blog</h1>
             <p className="text-xl text-[#376f6b] max-w-3xl mx-auto">
@@ -230,311 +26,93 @@ export default function Blog() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 py-8">
-        {/* Search Bar */}
-        <div className="mb-6 sm:mb-8">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#376f6b]" size={20} />
-            <input
-              type="text"
-              placeholder="Search articles..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border-2 border-[#57bbb6] rounded-lg focus:outline-none focus:border-[#376f6b]"
-            />
+      {/* Coming Soon Section */}
+      <div className="max-w-4xl mx-auto px-4 py-16 text-center">
+        <div className="bg-white rounded-3xl shadow-2xl p-12 border border-[#57bbb6]/20">
+          {/* Icon */}
+          <div className="w-24 h-24 bg-gradient-to-br from-[#376f6b] to-[#57bbb6] rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg">
+            <BookOpen className="w-12 h-12 text-white" />
           </div>
-        </div>
-
-        {/* Main Content with Sidebar */}
-        <div className="flex flex-col md:flex-row gap-6 md:gap-8">
-          {/* Sidebar - Categories */}
-          <div className="md:w-64 w-full flex-shrink-0 mb-4 md:mb-0">
-            <div className="bg-white rounded-lg shadow-md p-4 md:p-6 sticky top-24 md:static">
-              <h3 className="text-lg font-medium text-[#376f6b] mb-3 md:mb-4">Categories</h3>
-              <div className="flex md:block flex-wrap gap-2 md:space-y-2">
-                {categoryNames.map(category => (
-                  <button
-                    key={category}
-                    onClick={() => setSelectedCategory(category)}
-                    className={`w-full md:w-auto text-left px-3 py-2 rounded-md transition-colors text-sm md:text-base ${
-                      selectedCategory === category
-                        ? 'bg-[#376f6b] text-white'
-                        : 'text-[#376f6b] hover:bg-[#57bbb6] hover:text-white'
-                    }`}
-                  >
-                    {category}
-                  </button>
-                ))}
+          
+          {/* Title */}
+          <h2 className="text-4xl md:text-5xl font-bold text-[#376f6b] mb-6">
+            Coming Soon
+          </h2>
+          
+          {/* Subtitle */}
+          <p className="text-xl md:text-2xl text-[#57bbb6] mb-8 font-medium">
+            Health & Wellness Blog
+          </p>
+          
+          {/* Description */}
+          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
+            We're preparing to share expert medical insights, health tips, and wellness advice 
+            to help you live a healthier life. Our blog will feature articles from licensed pharmacists 
+            and healthcare professionals.
+          </p>
+          
+          {/* Features Preview */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-xl border border-blue-100">
+              <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
               </div>
+              <h3 className="font-semibold text-[#376f6b] mb-2">Expert Articles</h3>
+              <p className="text-sm text-gray-600">Written by licensed pharmacists and healthcare professionals</p>
+            </div>
+            
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl border border-green-100">
+              <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-[#376f6b] mb-2">Health Tips</h3>
+              <p className="text-sm text-gray-600">Practical advice for better health and wellness</p>
+            </div>
+            
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-100">
+              <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-[#376f6b] mb-2">Latest Research</h3>
+              <p className="text-sm text-gray-600">Stay updated with the latest medical research and trends</p>
             </div>
           </div>
-
-          {/* Main Content */}
-          <div className="flex-1">
-            {loading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#376f6b] mx-auto"></div>
-                <p className="text-[#376f6b] mt-4">Loading posts...</p>
-              </div>
-            ) : error ? (
-              <div className="text-center py-12">
-                <p className="text-red-600 mb-4">{error}</p>
-                <button 
-                  onClick={loadPosts}
-                  className="bg-[#376f6b] text-white px-6 py-3 rounded-lg hover:bg-[#57bbb6] transition-colors"
-                >
-                  Try Again
-                </button>
-              </div>
-            ) : (
-              <>
-                {/* Featured Articles */}
-                {selectedCategory === 'All' && searchTerm === '' && featuredArticles.length > 0 && (
-                  <div className="mb-8 sm:mb-12">
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-normal text-[#376f6b] mb-4 sm:mb-6">Featured Articles</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
-                      {featuredArticles.map((article) => (
-                        <div key={article.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-                          <div className="relative">
-                            <img 
-                              src={getFeaturedImage(article)} 
-                              alt={article.title.rendered} 
-                              className="w-full h-64 object-cover"
-                            />
-                            <div className="absolute top-4 left-4">
-                              <span className="bg-[#57bbb6] text-[#231f20] px-3 py-1 rounded-full text-sm font-semibold">
-                                Featured
-                              </span>
-                            </div>
-                          </div>
-                          
-                          <div className="p-6">
-                            <div className="flex items-center gap-2 mb-3">
-                              <span className="bg-[#376f6b] text-white px-2 py-1 rounded-full text-xs font-semibold">
-                                {getCategoryName(article)}
-                              </span>
-                              <div className="flex items-center gap-1 text-sm text-[#376f6b]">
-                                <Clock size={14} />
-                                {Math.ceil(article.content.rendered.split(' ').length / 200)} min read
-                              </div>
-                            </div>
-                            
-                            <h3 className="text-xl font-normal text-[#231f20] mb-3 cursor-pointer hover:text-[#376f6b]"
-                                onClick={() => setSelectedArticle(article)}>
-                              {article.title.rendered}
-                            </h3>
-                            
-                            <p className="text-[#376f6b] mb-4 line-clamp-3" 
-                               dangerouslySetInnerHTML={{ __html: article.excerpt.rendered }} />
-                            
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                <img src={getAuthorImage(article)} alt={getAuthorName(article)} className="w-8 h-8 rounded-full" />
-                                <div>
-                                  <p className="text-sm font-semibold text-[#231f20]">{getAuthorName(article)}</p>
-                                  <p className="text-xs text-[#376f6b]">{formatDate(article.date)}</p>
-                                </div>
-                              </div>
-                              
-                              <div className="flex items-center gap-2">
-                                <button
-                                  onClick={() => toggleLike(article.id)}
-                                  className={`p-2 rounded-full transition-all duration-200 ${
-                                    likedArticles.includes(article.id)
-                                      ? 'text-green-600 scale-110'
-                                      : 'text-[#376f6b] hover:text-green-600 hover:scale-105'
-                                  }`}
-                                >
-                                  <Heart size={16} fill={likedArticles.includes(article.id) ? 'currentColor' : 'none'} />
-                                </button>
-                                <span className="text-xs text-[#376f6b]">
-                                  {(articleLikes[article.id] || 0)}
-                                </span>
-                                <button
-                                  onClick={() => shareArticle(article)}
-                                  className="p-2 rounded-full transition-colors text-[#376f6b] hover:text-[#57bbb6]"
-                                  title="Share article"
-                                >
-                                  <Share2 size={16} />
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Articles Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                  {filteredArticles.map((article) => (
-                    <div key={article.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-                      <div className="relative">
-                        <img 
-                          src={getFeaturedImage(article)} 
-                          alt={article.title.rendered} 
-                          className="w-full h-48 object-cover cursor-pointer"
-                          onClick={() => setSelectedArticle(article)}
-                        />
-                        <div className="absolute top-3 left-3">
-                          <span className="bg-[#57bbb6] text-[#231f20] px-2 py-1 rounded-full text-xs font-semibold">
-                            {getCategoryName(article)}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <div className="p-6">
-                        <div className="flex items-center gap-2 mb-3">
-                          <div className="flex items-center gap-1 text-sm text-[#376f6b]">
-                            <Clock size={14} />
-                            {Math.ceil(article.content.rendered.split(' ').length / 200)} min read
-                          </div>
-                        </div>
-                        
-                        <h3 className="text-lg font-normal text-[#231f20] mb-3 cursor-pointer hover:text-[#376f6b] line-clamp-2"
-                            onClick={() => setSelectedArticle(article)}>
-                          {article.title.rendered}
-                        </h3>
-                        
-                        <p className="text-[#376f6b] text-sm mb-4 line-clamp-3" 
-                           dangerouslySetInnerHTML={{ __html: article.excerpt.rendered }} />
-                        
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <img src={getAuthorImage(article)} alt={getAuthorName(article)} className="w-6 h-6 rounded-full" />
-                            <span className="text-sm font-semibold text-[#231f20]">{getAuthorName(article)}</span>
-                          </div>
-                          
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => toggleLike(article.id)}
-                              className={`p-1 rounded-full transition-all duration-200 ${
-                                likedArticles.includes(article.id)
-                                  ? 'text-green-600 scale-110'
-                                  : 'text-[#376f6b] hover:text-green-600 hover:scale-105'
-                              }`}
-                            >
-                              <Heart size={14} fill={likedArticles.includes(article.id) ? 'currentColor' : 'none'} />
-                            </button>
-                            <span className="text-xs text-[#376f6b]">
-                              {(articleLikes[article.id] || 0)}
-                            </span>
-                            <button
-                              onClick={() => shareArticle(article)}
-                              className="p-1 rounded-full transition-colors text-[#376f6b] hover:text-[#57bbb6]"
-                              title="Share article"
-                            >
-                              <Share2 size={14} />
-                            </button>
-                          </div>
-                        </div>
-                        
-                        <div className="mt-4 pt-4 border-t border-[#57bbb6]/20">
-                          <div className="flex items-center gap-2 text-xs text-[#376f6b]">
-                            <Calendar size={12} />
-                            {formatDate(article.date)}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {filteredArticles.length === 0 && (
-                  <div className="text-center py-8 sm:py-12">
-                    <BookOpen size={48} className="mx-auto text-[#57bbb6] mb-4" />
-                    <p className="text-[#231f20] text-lg">No articles found</p>
-                    <p className="text-[#376f6b]">Try adjusting your search or filter criteria</p>
-                  </div>
-                )}
-              </>
-            )}
+          
+          {/* Contact Info */}
+          <div className="bg-gradient-to-r from-[#376f6b] to-[#57bbb6] rounded-2xl p-8 text-white">
+            <h3 className="text-2xl font-bold mb-4">Need Health Advice Now?</h3>
+            <p className="text-lg mb-6 opacity-90">
+              Our pharmacists are available for consultation and health advice
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a 
+                href="tel:3473126458"
+                className="bg-white text-[#376f6b] px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-flex items-center justify-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                Call (347) 312-6458
+              </a>
+              <a 
+                href="mailto:info@mymedspharmacy.com"
+                className="bg-white/20 text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/30 transition-colors inline-flex items-center justify-center gap-2 border border-white/30"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                Email Us
+              </a>
+            </div>
           </div>
         </div>
       </div>
-
-      {/* Article Detail Modal */}
-      {selectedArticle && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4">
-          <div className="bg-white rounded-2xl max-w-full sm:max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-6">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-4">
-                    <span className="bg-[#57bbb6] text-[#231f20] px-3 py-1 rounded-full font-semibold">
-                      {getCategoryName(selectedArticle)}
-                    </span>
-                    <div className="flex items-center gap-1 text-sm text-[#376f6b]">
-                      <Clock size={16} />
-                      {Math.ceil(selectedArticle.content.rendered.split(' ').length / 200)} min read
-                    </div>
-                  </div>
-                  
-                  <h2 className="text-3xl font-normal text-[#376f6b] mb-4">{selectedArticle.title.rendered}</h2>
-                  
-                  <div className="flex items-center gap-3 mb-6">
-                    <img src={getAuthorImage(selectedArticle)} alt={getAuthorName(selectedArticle)} className="w-12 h-12 rounded-full" />
-                    <div>
-                      <p className="font-semibold text-[#231f20]">{getAuthorName(selectedArticle)}</p>
-                      <p className="text-sm text-[#376f6b]">{formatDate(selectedArticle.date)}</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <button 
-                  onClick={() => setSelectedArticle(null)}
-                  className="text-[#376f6b] hover:text-[#57bbb6] ml-4"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              
-              <img src={getFeaturedImage(selectedArticle)} alt={selectedArticle.title.rendered} className="w-full h-64 object-cover rounded-lg mb-6" />
-              
-              <div className="prose prose-lg max-w-none">
-                <div dangerouslySetInnerHTML={{ __html: selectedArticle.content.rendered }} />
-              </div>
-              
-              <div className="mt-8 pt-6 border-t border-[#57bbb6]/20">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Tag size={16} className="text-[#376f6b]" />
-                    <span className="text-sm font-semibold text-[#231f20]">Category:</span>
-                    <span className="text-sm bg-[#f5fefd] text-[#376f6b] px-2 py-1 rounded">
-                      {getCategoryName(selectedArticle)}
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-center gap-4">
-                    <button
-                      onClick={() => toggleLike(selectedArticle.id)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                        likedArticles.includes(selectedArticle.id)
-                          ? 'bg-green-50 text-green-600'
-                          : 'bg-[#f5fefd] text-[#376f6b] hover:bg-[#57bbb6] hover:text-white'
-                      }`}
-                    >
-                      <Heart size={16} fill={likedArticles.includes(selectedArticle.id) ? 'currentColor' : 'none'} />
-                      {likedArticles.includes(selectedArticle.id) ? 'Liked' : 'Like'} ({articleLikes[selectedArticle.id] || 0})
-                    </button>
-                    
-                    <button 
-                      onClick={() => shareArticle(selectedArticle)}
-                      className="flex items-center gap-2 px-4 py-2 bg-[#f5fefd] text-[#376f6b] rounded-lg hover:bg-[#57bbb6] hover:text-white transition-colors"
-                    >
-                      <Share2 size={16} />
-                      Share
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 } 

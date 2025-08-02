@@ -261,187 +261,113 @@ export default function Shop() {
 
   return (
     <div className="min-h-screen bg-[#f5fefd]">
-      {/* Free Delivery Banner */}
-      <div className="bg-[#376f6b] text-white py-3">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <p className="text-lg font-medium">
-            🚚 Free Shipping over $50 in Brooklyn and Manhattan
-          </p>
-        </div>
-      </div>
-      
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-[#57bbb6]/20">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <h1 className="text-4xl font-normal text-[#376f6b]">SHOP</h1>
             <div className="flex items-center gap-4">
               <button 
-                onClick={() => setShowCart(true)}
-                className="relative bg-[#376f6b] text-white p-3 rounded-full hover:bg-[#57bbb6] transition-colors"
+                onClick={() => window.history.back()}
+                className="flex items-center gap-2 text-[#376f6b] hover:text-[#57bbb6] transition-colors duration-300 p-2 rounded-lg hover:bg-[#57bbb6]/10"
               >
-                <ShoppingCart size={24} />
-                {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-[#57bbb6] text-[#231f20] text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
-                    {cartCount}
-                  </span>
-                )}
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Back
               </button>
+              <h1 className="text-4xl font-normal text-[#376f6b]">SHOP</h1>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 py-8">
-        {/* Search Bar */}
-        <div className="mb-6 sm:mb-8">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#376f6b]" size={20} />
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border-2 border-[#57bbb6] rounded-lg focus:outline-none focus:border-[#376f6b]"
-            />
+      {/* Coming Soon Section */}
+      <div className="max-w-4xl mx-auto px-4 py-16 text-center">
+        <div className="bg-white rounded-3xl shadow-2xl p-12 border border-[#57bbb6]/20">
+          {/* Icon */}
+          <div className="w-24 h-24 bg-gradient-to-br from-[#376f6b] to-[#57bbb6] rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg">
+            <ShoppingCart className="w-12 h-12 text-white" />
           </div>
-        </div>
-
-        {/* Main Content with Sidebar */}
-        <div className="flex flex-col md:flex-row gap-6 md:gap-8">
-          {/* Sidebar - Categories */}
-          <div className="md:w-64 w-full flex-shrink-0 mb-4 md:mb-0">
-            <div className="bg-white rounded-lg shadow-md p-4 md:p-6 sticky top-24 md:static">
-              <h3 className="text-lg font-medium text-[#376f6b] mb-3 md:mb-4">Categories</h3>
-              <div className="flex md:block flex-wrap gap-2 md:space-y-2">
-                {categoryNames.map(category => (
-                  <button
-                    key={category}
-                    onClick={() => setSelectedCategory(category)}
-                    className={`w-full md:w-auto text-left px-3 py-2 rounded-md transition-colors text-sm md:text-base ${
-                      selectedCategory === category
-                        ? 'bg-[#376f6b] text-white'
-                        : 'text-[#376f6b] hover:bg-[#57bbb6] hover:text-white'
-                    }`}
-                  >
-                    {category}
-                  </button>
-                ))}
+          
+          {/* Title */}
+          <h2 className="text-4xl md:text-5xl font-bold text-[#376f6b] mb-6">
+            Coming Soon
+          </h2>
+          
+          {/* Subtitle */}
+          <p className="text-xl md:text-2xl text-[#57bbb6] mb-8 font-medium">
+            Our Online Pharmacy Shop
+          </p>
+          
+          {/* Description */}
+          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
+            We're working hard to bring you a comprehensive online pharmacy experience. 
+            Soon you'll be able to browse our full range of health products, prescription medications, 
+            and wellness supplies with convenient online ordering and delivery.
+          </p>
+          
+          {/* Features Preview */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-xl border border-blue-100">
+              <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
               </div>
+              <h3 className="font-semibold text-[#376f6b] mb-2">Wide Selection</h3>
+              <p className="text-sm text-gray-600">Prescription medications, OTC products, and health supplies</p>
+            </div>
+            
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl border border-green-100">
+              <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-[#376f6b] mb-2">Fast Delivery</h3>
+              <p className="text-sm text-gray-600">Same-day delivery in Brooklyn and Manhattan</p>
+            </div>
+            
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-100">
+              <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-[#376f6b] mb-2">Expert Support</h3>
+              <p className="text-sm text-gray-600">Licensed pharmacists available for consultation</p>
             </div>
           </div>
-
-          {/* Products Grid */}
-          <div className="flex-1">
-            {loading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#376f6b] mx-auto"></div>
-                <p className="text-[#376f6b] mt-4">Loading products...</p>
-              </div>
-            ) : error ? (
-              <div className="text-center py-12">
-                <p className="text-red-600 mb-4">{error}</p>
-                {error.includes('WooCommerce not configured') && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 text-left">
-                    <h4 className="font-semibold text-blue-800 mb-2">To set up WooCommerce:</h4>
-                    <ol className="text-blue-700 text-sm space-y-1">
-                      <li>1. Create a <code className="bg-blue-100 px-1 rounded">.env</code> file in your project root</li>
-                      <li>2. Add your WooCommerce credentials:</li>
-                      <li className="ml-4">VITE_WOOCOMMERCE_URL="https://your-wordpress-site.com"</li>
-                      <li className="ml-4">VITE_WOOCOMMERCE_CONSUMER_KEY="your-consumer-key"</li>
-                      <li className="ml-4">VITE_WOOCOMMERCE_CONSUMER_SECRET="your-consumer-secret"</li>
-                      <li>3. Restart your development server</li>
-                    </ol>
-                  </div>
-                )}
-                <button 
-                  onClick={loadProducts}
-                  className="bg-[#376f6b] text-white px-6 py-3 rounded-lg hover:bg-[#57bbb6] transition-colors"
-                >
-                  Try Again
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
-                {filteredProducts.map((product) => (
-                  <div key={product.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-[#57bbb6]/20">
-                    <div className="relative">
-                      <img 
-                        src={getProductImage(product)} 
-                        alt={product.name} 
-                        className="w-full h-48 object-cover cursor-pointer"
-                        onClick={() => setShowProductDetail(product)}
-                      />
-                      <button
-                        onClick={() => toggleWishlist(product.id)}
-                        className={`absolute top-3 right-3 p-2 rounded-full transition-colors ${
-                          wishlist.includes(product.id)
-                            ? 'bg-red-500 text-white'
-                            : 'bg-white/80 text-[#376f6b] hover:bg-[#57bbb6] hover:text-white'
-                        }`}
-                      >
-                        <Heart size={20} fill={wishlist.includes(product.id) ? 'currentColor' : 'none'} />
-                      </button>
-                      {getOriginalPrice(product) && (
-                        <div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded-full text-sm font-bold">
-                          SALE
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="p-6">
-                      <div className="flex items-center gap-2 mb-2">
-                        {product.categories && product.categories.length > 0 && (
-                          <span className="text-xs bg-[#57bbb6] text-[#231f20] px-2 py-1 rounded-full font-semibold">
-                            {product.categories[0].name}
-                          </span>
-                        )}
-                        <div className="flex items-center gap-1 ml-auto">
-                          <Star size={16} className="text-yellow-400 fill-current" />
-                          <span className="text-sm font-semibold text-[#376f6b]">
-                            {product.average_rating || '4.5'}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            ({product.review_count || '0'})
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <h3 className="text-lg font-normal text-[#231f20] mb-2 cursor-pointer hover:text-[#376f6b]"
-                          onClick={() => setShowProductDetail(product)}>
-                        {product.name}
-                      </h3>
-                      
-                      <p className="text-[#376f6b] text-sm mb-3 line-clamp-2" 
-                         dangerouslySetInnerHTML={{ __html: product.short_description || product.description }} />
-                      
-                      <div className="flex items-center gap-2 mb-4">
-                        <span className="text-2xl font-normal text-[#57bbb6]">${getProductPrice(product)}</span>
-                        {getOriginalPrice(product) && (
-                          <span className="text-lg text-gray-500 line-through">${getOriginalPrice(product)}</span>
-                        )}
-                      </div>
-                      
-                      <button
-                        onClick={() => addToCart(product)}
-                        disabled={!product.stock_status || product.stock_status === 'outofstock'}
-                        className="w-full bg-[#376f6b] text-white py-3 rounded-lg font-semibold hover:bg-[#2e8f88] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {product.stock_status === 'outofstock' ? 'Out of Stock' : 'Add to Cart'}
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {!loading && !error && filteredProducts.length === 0 && (
-              <div className="text-center py-12">
-                <ShoppingCart size={48} className="mx-auto text-[#57bbb6] mb-4" />
-                <p className="text-[#231f20] text-lg">No products found</p>
-                <p className="text-[#376f6b]">Try adjusting your search or filter criteria</p>
-              </div>
-            )}
+          
+          {/* Contact Info */}
+          <div className="bg-gradient-to-r from-[#376f6b] to-[#57bbb6] rounded-2xl p-8 text-white">
+            <h3 className="text-2xl font-bold mb-4">Need Something Now?</h3>
+            <p className="text-lg mb-6 opacity-90">
+              Visit our physical location or call us for immediate assistance
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a 
+                href="tel:3473126458"
+                className="bg-white text-[#376f6b] px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-flex items-center justify-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                Call (347) 312-6458
+              </a>
+              <a 
+                href="https://maps.app.goo.gl/gXSVqF25sAB7r6m76"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white/20 text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/30 transition-colors inline-flex items-center justify-center gap-2 border border-white/30"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Visit Us
+              </a>
+            </div>
           </div>
         </div>
       </div>
