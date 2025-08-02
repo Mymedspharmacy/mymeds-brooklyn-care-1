@@ -28,8 +28,6 @@ const Index = () => {
       />
       <Hero 
         onRefillClick={() => setShowRefillForm(true)}
-        onAppointmentClick={() => setShowAppointmentForm(true)}
-        onTransferClick={() => setShowTransferForm(true)}
       />
       <Services 
         onRefillClick={() => setShowRefillForm(true)}
