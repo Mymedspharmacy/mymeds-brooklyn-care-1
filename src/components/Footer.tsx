@@ -15,7 +15,10 @@ import {
   Star,
   ArrowRight,
   ExternalLink,
-  Settings
+  Settings,
+  Users,
+  Stethoscope,
+  MessageCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -136,8 +139,8 @@ export const Footer = () => {
                 </li>
                 <li>
                   <a 
-                    href="#services" 
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group"
+                    onClick={() => navigate('/services')}
+                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer"
                   >
                     <ArrowRight className="h-4 w-4 mr-2 group-hover:translate-x-1 transition-transform duration-300" />
                     Services
@@ -197,8 +200,8 @@ export const Footer = () => {
               <ul className="space-y-3">
                 <li>
                   <a 
-                    href="#" 
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group"
+                    onClick={() => navigate('/services?service=prescription-refills')}
+                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer"
                   >
                     <Heart className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
                     Prescription Refills
@@ -206,8 +209,8 @@ export const Footer = () => {
                 </li>
                 <li>
                   <a 
-                    href="#" 
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group"
+                    onClick={() => navigate('/services?service=same-day-delivery')}
+                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer"
                   >
                     <Truck className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
                     Same-Day Delivery
@@ -215,8 +218,8 @@ export const Footer = () => {
                 </li>
                 <li>
                   <a 
-                    href="#" 
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group"
+                    onClick={() => navigate('/services?service=medication-management')}
+                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer"
                   >
                     <Shield className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
                     Medication Management
@@ -224,29 +227,29 @@ export const Footer = () => {
                 </li>
                 <li>
                   <a 
-                    href="#" 
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group"
+                    onClick={() => navigate('/services?service=health-consultations')}
+                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer"
                   >
-                    <Clock className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
-                    24/7 Consultation
+                    <Users className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
+                    Health Consultations
                   </a>
                 </li>
                 <li>
                   <a 
-                    href="#" 
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group"
+                    onClick={() => navigate('/services?service=immunizations')}
+                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer"
                   >
-                    <Star className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
-                    Insurance Coordination
-                  </a>
-                </li>
-                <li>
-                  <a 
-                    href="#" 
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group"
-                  >
-                    <Heart className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
+                    <Stethoscope className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
                     Immunizations
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    onClick={() => navigate('/services?service=24-7-support')}
+                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer"
+                  >
+                    <MessageCircle className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
+                    24/7 Support
                   </a>
                 </li>
               </ul>

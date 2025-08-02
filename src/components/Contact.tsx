@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import api from '../lib/api';
+import { safeClipboard } from "@/utils/errorHandling";
 
 export const Contact = () => {
   const [formData, setFormData] = useState({

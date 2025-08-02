@@ -120,7 +120,7 @@ export const OTCSection = () => {
           {otcCategories.map((category, index) => (
             <Card key={index} className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-white/80 backdrop-blur-sm hover:bg-white/95">
               {/* Category Image Background */}
-              <div className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
+              <div className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-500 pointer-events-none">
                 <img 
                   src={category.image} 
                   alt={category.title}
@@ -132,10 +132,10 @@ export const OTCSection = () => {
               </div>
               
               {/* Gradient Overlay */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${category.bgGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
+              <div className={`absolute inset-0 bg-gradient-to-br ${category.bgGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`}></div>
               
               {/* Floating Elements */}
-              <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-500 delay-200">
+              <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-500 delay-200 pointer-events-none">
                 <div className={`w-3 h-3 bg-gradient-to-r ${category.accent} rounded-full animate-pulse`}></div>
               </div>
 
@@ -168,8 +168,12 @@ export const OTCSection = () => {
 
                 {/* Enhanced Button */}
                 <Button 
-                  onClick={() => navigate('/shop')}
-                  className={`w-full bg-gradient-to-r ${category.accent} hover:shadow-lg text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 group-hover:shadow-xl text-sm`}
+                  onClick={() => {
+                    console.log('View Products clicked for:', category.title);
+                    navigate('/shop');
+                  }}
+                  className={`w-full bg-gradient-to-r ${category.accent} hover:shadow-lg text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 group-hover:shadow-xl text-sm cursor-pointer z-10 relative`}
+                  style={{ position: 'relative', zIndex: 10 }}
                 >
                   <span className="flex items-center justify-center gap-2">
                     View Products
@@ -178,7 +182,7 @@ export const OTCSection = () => {
                 </Button>
 
                 {/* Healing Border Effect */}
-                <div className={`absolute inset-0 rounded-2xl bg-gradient-to-r ${category.accent} opacity-0 group-hover:opacity-20 transition-opacity duration-500`}></div>
+                <div className={`absolute inset-0 rounded-2xl bg-gradient-to-r ${category.accent} opacity-0 group-hover:opacity-20 transition-opacity duration-500 pointer-events-none`}></div>
               </CardContent>
             </Card>
           ))}

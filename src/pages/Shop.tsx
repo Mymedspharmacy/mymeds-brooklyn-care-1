@@ -29,8 +29,19 @@ export default function Shop() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    loadProducts();
-    loadCategories();
+    const initializeData = async () => {
+      try {
+        await Promise.all([
+          loadProducts(),
+          loadCategories()
+        ]);
+      } catch (error) {
+        console.error('Failed to initialize shop data:', error);
+        setError('Failed to load shop data. Please refresh the page.');
+      }
+    };
+
+    initializeData();
   }, []);
 
   const loadProducts = async () => {

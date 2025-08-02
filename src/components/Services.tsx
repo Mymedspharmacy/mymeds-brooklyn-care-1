@@ -1,6 +1,7 @@
 import { ArrowRight, Star, Heart, Truck, Shield, Users, Stethoscope, MessageCircle, Pill, Clock, Award, CheckCircle, Zap, Thermometer, Bandage, ShoppingCart } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface ServicesProps {
   onRefillClick: () => void;
@@ -9,8 +10,11 @@ interface ServicesProps {
 }
 
 export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }: ServicesProps) => {
+  const navigate = useNavigate();
+  
   const services = [
     {
+      id: 'prescription-refills',
       icon: Pill,
       title: "Prescription Refills",
       description: "Quick and convenient prescription refills with automatic reminders and notifications",
@@ -25,6 +29,7 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
       image: "/images/services/prescription-refill.jpg"
     },
     {
+      id: 'same-day-delivery',
       icon: Truck,
       title: "Free Delivery",
       description: "Same-day local delivery service for prescriptions and health products",
@@ -39,6 +44,7 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
       image: "/images/services/delivery-service.jpg"
     },
     {
+      id: 'medication-management',
       icon: Shield,
       title: "Medication Reviews",
       description: "Comprehensive medication therapy management and safety reviews",
@@ -53,6 +59,7 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
       image: "/images/services/medication-review.jpg"
     },
     {
+      id: 'health-consultations',
       icon: Users,
       title: "Health Consultations",
       description: "One-on-one consultations with licensed pharmacists for health advice",
@@ -67,6 +74,7 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
       image: "/images/services/health-consultation.jpg"
     },
     {
+      id: 'immunizations',
       icon: Stethoscope,
       title: "Immunizations",
       description: "Comprehensive vaccination services for all ages and travel requirements",
@@ -81,6 +89,7 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
       image: "/images/services/immunizations.jpg"
     },
     {
+      id: '24-7-support',
       icon: MessageCircle,
       title: "24/7 Support",
       description: "Round-the-clock pharmacy support and emergency medication assistance",
@@ -127,7 +136,11 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
         {/* Enhanced Services Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10 mb-16 sm:mb-20">
           {services.map((service, index) => (
-            <Card key={index} className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-white/80 backdrop-blur-sm hover:bg-white/95">
+            <Card 
+              key={index} 
+              className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-white/80 backdrop-blur-sm hover:bg-white/95 cursor-pointer"
+              onClick={() => navigate(`/services?service=${service.id}`)}
+            >
               {/* Service Image Background */}
               <div className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
                 <img 
