@@ -1,8 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
-import { createClient } from '@supabase/supabase-js';
-
 interface AuthRequest extends Request {
   user?: any;
 }
@@ -10,7 +8,6 @@ interface AuthRequest extends Request {
 const router = Router();
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'changeme';
-const SUPABASE_JWT_SECRET = process.env.SUPABASE_JWT_SECRET!;
 const ADMIN_EMAIL = 'mymedspharmacy@outlook.com';
 
 function auth(req: AuthRequest, res: Response, next: NextFunction) {
@@ -30,33 +27,10 @@ function auth(req: AuthRequest, res: Response, next: NextFunction) {
   }
 }
 
+// This function is deprecated - use adminAuthMiddleware from adminAuth.ts instead
 function supabaseAdminAuth(req: AuthRequest, res: Response, next: NextFunction) {
-  const token = req.headers.authorization?.split(' ')[1];
-  // Require SUPABASE_JWT_SECRET in production
-  if (!SUPABASE_JWT_SECRET) {
-    if (process.env.NODE_ENV === 'production') {
-      console.error('SUPABASE_JWT_SECRET must be set in production!');
-      return res.status(500).json({ error: 'Server misconfiguration' });
-    }
-  }
-  if (!token) return res.status(401).json({ error: 'No token' });
-  try {
-    const payload = jwt.verify(token, SUPABASE_JWT_SECRET) as any;
-    // Only allow ADMIN role (case-insensitive)
-    if (payload.role && payload.role.toUpperCase() === 'ADMIN') {
-      req.user = payload;
-      return next();
-    }
-    // If you want to allow more roles, add them here (e.g., SUPERADMIN)
-    // if (payload.role && ['ADMIN', 'SUPERADMIN'].includes(payload.role.toUpperCase())) {
-    //   req.user = payload;
-    //   return next();
-    // }
-    return res.status(403).json({ error: 'Forbidden: insufficient permissions' });
-  } catch (err) {
-    // Return 401 for invalid/expired tokens
-    return res.status(401).json({ error: 'Invalid or expired token' });
-  }
+  console.warn('supabaseAdminAuth is deprecated - use adminAuthMiddleware instead');
+  return res.status(500).json({ error: 'Deprecated authentication method' });
 }
 
 // Get current user profile
@@ -71,7 +45,7 @@ router.get('/me', auth, async (req: AuthRequest, res: Response) => {
 });
 
 // List all users (admin only)
-router.get('/', supabaseAdminAuth, async (req: AuthRequest, res: Response) => {
+router.get('/', auth, async (req: AuthRequest, res: Response) => {
   try {
     let limit = parseInt(req.query.limit as string) || 20;
     if (limit > 100) limit = 100;
@@ -84,7 +58,7 @@ router.get('/', supabaseAdminAuth, async (req: AuthRequest, res: Response) => {
 });
 
 // Update user (self or admin)
-router.put('/:id', supabaseAdminAuth, async (req: AuthRequest, res: Response) => {
+router.put('/:id', auth, async (req: AuthRequest, res: Response) => {
   try {
     // Only admin can update any user
     const { name } = req.body;
@@ -97,7 +71,7 @@ router.put('/:id', supabaseAdminAuth, async (req: AuthRequest, res: Response) =>
 });
 
 // Delete user (admin only)
-router.delete('/:id', supabaseAdminAuth, async (req: AuthRequest, res: Response) => {
+router.delete('/:id', auth, async (req: AuthRequest, res: Response) => {
   try {
     await prisma.user.delete({ where: { id: Number(req.params.id) } });
     res.json({ success: true });
@@ -107,5 +81,4 @@ router.delete('/:id', supabaseAdminAuth, async (req: AuthRequest, res: Response)
   }
 });
 
-export { supabaseAdminAuth };
 export default router; 

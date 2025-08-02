@@ -24,7 +24,10 @@ import {
   AlertCircle,
   Phone,
   Home,
-  Bell
+  Bell,
+  ExternalLink,
+  Link,
+  Database
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,13 +35,11 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import api from '../lib/api';
-import supabase from '../lib/supabaseClient';
+import railwayAuth from '../lib/railwayAuth';
 
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', icon: TrendingUp },
-  { id: 'products', label: 'Products', icon: Package },
-  { id: 'categories', label: 'Categories', icon: Filter },
-  { id: 'blogs', label: 'Blogs', icon: FileText },
+  { id: 'integration', label: 'Integration Status', icon: Link },
   { id: 'orders', label: 'Orders', icon: ShoppingCart },
   { id: 'delivery', label: 'Delivery Map', icon: MapPin },
   { id: 'users', label: 'Users', icon: Users },
@@ -58,70 +59,26 @@ export default function Admin() {
   useEffect(() => {
     console.log('Admin page mounted - checking authentication...');
     
-    // Check for admin authentication token
-    const adminToken = localStorage.getItem('sb-admin-token');
-    const adminAuth = localStorage.getItem('admin-auth');
-    
-    console.log('Admin token:', adminToken ? 'exists' : 'missing');
-    console.log('Admin auth:', adminAuth);
-    
-    // Verify the token is still valid by checking Supabase session
-    supabase.auth.getSession().then(({ data }) => {
-      console.log('Supabase session check:', data.session ? 'valid' : 'invalid');
-      if (!adminToken || adminAuth !== 'true' || !data.session) {
-        console.log('Authentication check failed - redirecting to signin');
-        localStorage.removeItem('sb-admin-token');
-        localStorage.removeItem('admin-auth');
-        navigate('/admin-signin');
-      } else {
-        console.log('Authentication successful - staying on admin page');
-        // Set the token for API requests
-        api.defaults.headers.common['Authorization'] = `Bearer ${data.session.access_token}`;
-      }
-      setCheckingAuth(false); // Done checking
-    });
-
-    // Listen for auth state changes with better error handling
-    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth state change:', event, session ? 'session exists' : 'no session');
-      
-      // Only redirect on specific events that indicate actual logout
-      if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' && !session) {
-        console.log('Auth state change detected logout - clearing tokens and redirecting');
-        localStorage.removeItem('sb-admin-token');
-        localStorage.removeItem('admin-auth');
-        navigate('/admin-signin');
-      } else if (session) {
-        // Update the token in localStorage and API headers
-        localStorage.setItem('sb-admin-token', session.access_token);
-        localStorage.setItem('admin-auth', 'true');
-        api.defaults.headers.common['Authorization'] = `Bearer ${session.access_token}`;
-        console.log('Token refreshed and updated');
-      }
-    });
-
-    return () => {
-      listener?.subscription.unsubscribe();
-    };
+    // Check for Railway authentication
+    if (!railwayAuth.isAuthenticated()) {
+      console.log('Authentication check failed - redirecting to signin');
+      navigate('/admin-signin');
+    } else {
+      console.log('Authentication successful - staying on admin page');
+      // Token is already set in railwayAuth
+    }
+    setCheckingAuth(false); // Done checking
   }, [navigate]);
 
-  function logout() {
-    // Clear refresh interval if it exists
-    const refreshIntervalId = localStorage.getItem('refresh-interval');
-    if (refreshIntervalId) {
-      clearInterval(parseInt(refreshIntervalId));
-      localStorage.removeItem('refresh-interval');
-    }
-    
-    // Clear local storage first
-    localStorage.removeItem('sb-admin-token');
-    localStorage.removeItem('admin-auth');
-    localStorage.removeItem('admin-remember');
-    
-    // Then sign out from Supabase
-    supabase.auth.signOut().then(() => {
+  async function logout() {
+    try {
+      await railwayAuth.logout();
       navigate('/admin-signin');
-    });
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Force navigation even if logout fails
+      navigate('/admin-signin');
+    }
   }
 
   function showToastMessage(message: string, type: 'success' | 'error' = 'success') {
@@ -777,12 +734,14 @@ export default function Admin() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Products</CardTitle>
+                    <CardTitle className="text-sm font-medium">WooCommerce Status</CardTitle>
                     <Package className="h-4 w-4 text-[#376f6b]" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-[#376f6b]">{products.length}</div>
-                    <p className="text-xs text-muted-foreground">Available in store</p>
+                    <div className="text-2xl font-bold text-[#376f6b]">
+                      {import.meta.env.VITE_WOOCOMMERCE_URL ? 'Connected' : 'Not Configured'}
+                    </div>
+                    <p className="text-xs text-muted-foreground">Product management</p>
                   </CardContent>
                 </Card>
 
@@ -810,12 +769,14 @@ export default function Admin() {
 
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Reviews</CardTitle>
-                    <Star className="h-4 w-4 text-[#376f6b]" />
+                    <CardTitle className="text-sm font-medium">WordPress Status</CardTitle>
+                    <FileText className="h-4 w-4 text-[#376f6b]" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-[#376f6b]">{reviews.length}</div>
-                    <p className="text-xs text-muted-foreground">Customer reviews</p>
+                    <div className="text-2xl font-bold text-[#376f6b]">
+                      {import.meta.env.VITE_WORDPRESS_URL ? 'Connected' : 'Not Configured'}
+                    </div>
+                    <p className="text-xs text-muted-foreground">Blog management</p>
                   </CardContent>
                 </Card>
               </div>
@@ -1599,6 +1560,128 @@ export default function Admin() {
                       ))}
                     </tbody>
                   </table>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Integration Status Tab */}
+        {tab === 'integration' && (
+          <div className="p-6">
+            <h2 className="text-2xl font-bold text-[#376f6b] mb-6">Integration Status</h2>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              {/* WooCommerce Integration */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Package className="h-5 w-5 text-[#376f6b]" />
+                    WooCommerce Integration
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Status:</span>
+                    <Badge variant="default" className="bg-green-500">
+                      <CheckCircle className="h-3 w-3 mr-1" />
+                      Connected
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">URL:</span>
+                    <span className="text-sm text-gray-600">
+                      {import.meta.env.VITE_WOOCOMMERCE_URL || 'Not configured'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">API Keys:</span>
+                    <Badge variant={import.meta.env.VITE_WOOCOMMERCE_CONSUMER_KEY ? "default" : "destructive"}>
+                      {import.meta.env.VITE_WOOCOMMERCE_CONSUMER_KEY ? 'Configured' : 'Missing'}
+                    </Badge>
+                  </div>
+                  <div className="pt-4 border-t">
+                    <Button 
+                      onClick={() => window.open(`${import.meta.env.VITE_WOOCOMMERCE_URL}/wp-admin/edit.php?post_type=product`, '_blank')}
+                      className="w-full bg-[#376f6b] hover:bg-[#2e8f88]"
+                      disabled={!import.meta.env.VITE_WOOCOMMERCE_URL}
+                    >
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Manage Products in WooCommerce
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* WordPress Integration */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-[#376f6b]" />
+                    WordPress Blog Integration
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Status:</span>
+                    <Badge variant="default" className="bg-green-500">
+                      <CheckCircle className="h-3 w-3 mr-1" />
+                      Connected
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">URL:</span>
+                    <span className="text-sm text-gray-600">
+                      {import.meta.env.VITE_WORDPRESS_URL || 'Not configured'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">REST API:</span>
+                    <Badge variant="default" className="bg-green-500">
+                      Available
+                    </Badge>
+                  </div>
+                  <div className="pt-4 border-t">
+                    <Button 
+                      onClick={() => window.open(`${import.meta.env.VITE_WORDPRESS_URL}/wp-admin/edit.php`, '_blank')}
+                      className="w-full bg-[#376f6b] hover:bg-[#2e8f88]"
+                      disabled={!import.meta.env.VITE_WORDPRESS_URL}
+                    >
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Manage Blog Posts in WordPress
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Integration Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Database className="h-5 w-5 text-[#376f6b]" />
+                  Integration Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-[#376f6b] mb-2">How It Works</h4>
+                  <ul className="text-sm text-gray-700 space-y-1">
+                    <li>• <strong>Shop:</strong> Products are managed in WooCommerce and displayed on your website</li>
+                    <li>• <strong>Blog:</strong> Posts are managed in WordPress and displayed on your website</li>
+                    <li>• <strong>Orders:</strong> Continue to be managed through this admin panel</li>
+                    <li>• <strong>Users & Reviews:</strong> Managed through this admin panel</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-yellow-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-[#376f6b] mb-2">Important Notes</h4>
+                  <ul className="text-sm text-gray-700 space-y-1">
+                    <li>• Product management has moved to WooCommerce admin</li>
+                    <li>• Blog post management has moved to WordPress admin</li>
+                    <li>• This admin panel focuses on business operations</li>
+                    <li>• Use the buttons above to access external admin panels</li>
+                  </ul>
                 </div>
               </CardContent>
             </Card>

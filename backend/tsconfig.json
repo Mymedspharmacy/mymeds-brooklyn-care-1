@@ -10,8 +10,8 @@
     "strict": true,
     "skipLibCheck": true,
     "types": ["node"],
-    "typeRoots": ["./node_modules/@types"]
+    "typeRoots": ["./node_modules/@types", "./src/types"]
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/types/**/*.d.ts"],
   "exclude": ["node_modules", "dist", "src/__tests__", "../frontend"]
 } 

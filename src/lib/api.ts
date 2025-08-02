@@ -8,14 +8,14 @@ const api = axios.create({
 });
 
 // On load, set the admin token if present
-const adminToken = localStorage.getItem('sb-admin-token');
+const adminToken = localStorage.getItem('railway-admin-token');
 if (adminToken) {
   api.defaults.headers.common['Authorization'] = `Bearer ${adminToken}`;
 }
 
 // Attach token to all requests if present
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('sb-admin-token');
+  const token = localStorage.getItem('railway-admin-token');
   if (token) {
     config.headers['Authorization'] = `Bearer ${token}`;
   }
@@ -44,8 +44,8 @@ api.interceptors.response.use(
       if (window.location.pathname !== '/admin-signin') {
         console.log('Auth error detected, but not redirecting automatically');
         // Instead of immediate redirect, just clear tokens
-        localStorage.removeItem('sb-admin-token');
-        localStorage.removeItem('admin-auth');
+        localStorage.removeItem('railway-admin-token');
+        localStorage.removeItem('railway-admin-auth');
       }
     }
     console.log('API Error:', error.config?.url, error.response?.status, error.response?.data);
@@ -58,8 +58,8 @@ export default api;
 // Helper to set token (for login/register)
 export function setAuthToken(token: string | null) {
   if (token) {
-    localStorage.setItem('sb-admin-token', token);
+    localStorage.setItem('railway-admin-token', token);
   } else {
-    localStorage.removeItem('sb-admin-token');
+    localStorage.removeItem('railway-admin-token');
   }
 } 

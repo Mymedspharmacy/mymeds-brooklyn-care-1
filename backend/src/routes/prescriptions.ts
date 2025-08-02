@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
@@ -95,11 +96,14 @@ router.post('/refill', upload.single('file'), async (req: Request, res: Response
     // Get or create default user for public requests
     let defaultUser = await prisma.user.findFirst({ where: { role: 'ADMIN' } });
     if (!defaultUser) {
+      // Create admin user with proper hashed password
+      const adminPassword = process.env.ADMIN_PASSWORD || 'AdminPassword123!';
+      const hashedPassword = await bcrypt.hash(adminPassword, 10);
       defaultUser = await prisma.user.create({
         data: {
-          email: 'admin@mymeds.com',
-          password: 'hashedpassword',
-          name: 'Admin User',
+          email: process.env.ADMIN_EMAIL || 'admin@mymeds.com',
+          password: hashedPassword,
+          name: process.env.ADMIN_NAME || 'Admin User',
           role: 'ADMIN'
         }
       });
@@ -159,11 +163,14 @@ router.post('/transfer', upload.single('file'), async (req: Request, res: Respon
     // Get or create default user for public requests
     let defaultUser = await prisma.user.findFirst({ where: { role: 'ADMIN' } });
     if (!defaultUser) {
+      // Create admin user with proper hashed password
+      const adminPassword = process.env.ADMIN_PASSWORD || 'AdminPassword123!';
+      const hashedPassword = await bcrypt.hash(adminPassword, 10);
       defaultUser = await prisma.user.create({
         data: {
-          email: 'admin@mymeds.com',
-          password: 'hashedpassword',
-          name: 'Admin User',
+          email: process.env.ADMIN_EMAIL || 'admin@mymeds.com',
+          password: hashedPassword,
+          name: process.env.ADMIN_NAME || 'Admin User',
           role: 'ADMIN'
         }
       });

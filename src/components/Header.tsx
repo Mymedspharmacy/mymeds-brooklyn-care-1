@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from "react";
-import { Menu, X, Phone, Pill, ArrowRight, Calendar } from "lucide-react";
+import { Menu, X, Phone, Pill, ArrowRight, Calendar, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface HeaderProps {
@@ -139,7 +139,7 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
               <img
                 src="/logo.png"
                 alt="My Meds Pharmacy Logo"
-                className="h-12 w-auto sm:h-16 md:h-20 lg:h-20 xl:h-24 2xl:h-28 object-contain transition-all duration-300 ease-in-out group-hover:scale-105 drop-shadow-sm"
+                className="h-16 w-auto sm:h-20 md:h-24 lg:h-28 xl:h-32 2xl:h-36 object-contain transition-all duration-300 ease-in-out group-hover:scale-105 drop-shadow-sm"
               />
             </div>
           </div>
@@ -226,6 +226,16 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
               <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1.5 group-hover:translate-x-0.5 transition-transform" />
             </Button>
             
+            {/* Shop Button - Premium */}
+            <Button 
+              onClick={() => window.location.href = '/shop'}
+              className="bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 border border-orange-500/20 hover:border-red-500/30 group text-xs sm:text-sm"
+            >
+              <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 group-hover:rotate-12 transition-transform" />
+              Shop
+              <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1.5 group-hover:translate-x-0.5 transition-transform" />
+            </Button>
+            
             {/* Call Button - Premium */}
             <Button 
               onClick={handleCallClick}
@@ -288,6 +298,18 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
               >
                 <ArrowRight className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform" />
                 Transfer Prescription
+                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-0.5 transition-transform" />
+              </Button>
+              
+              <Button 
+                onClick={() => {
+                  window.location.href = '/shop';
+                  setIsMenuOpen(false);
+                }}
+                className="bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold px-5 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 border border-orange-500/20 hover:border-red-500/30 group text-sm"
+              >
+                <ShoppingCart className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform" />
+                Shop Products
                 <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-0.5 transition-transform" />
               </Button>
               

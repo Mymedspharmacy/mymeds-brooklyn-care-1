@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { Phone, Truck, Clock, ArrowRight, Shield, Heart, ChevronLeft, ChevronRight } from "lucide-react";
+import { Phone, Truck, Clock, ArrowRight, Shield, Heart, ChevronLeft, ChevronRight, ShoppingCart } from "lucide-react";
 import { useState, useEffect } from "react";
 
 interface HeroProps {
   onRefillClick: () => void;
+  onAppointmentClick: () => void;
+  onTransferClick: () => void;
 }
 
 // Hero slider images - High-quality professional pharmacy images
@@ -40,7 +42,7 @@ const heroImages = [
   }
 ];
 
-export const Hero = ({ onRefillClick }: HeroProps) => {
+export const Hero = ({ onRefillClick, onAppointmentClick, onTransferClick }: HeroProps) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
@@ -235,13 +237,38 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
                 <Button 
                   variant="outline" 
                   size="lg" 
-                  onClick={handleCallClick}
+                  onClick={onAppointmentClick}
                   className="text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 rounded-xl border-2 border-white/50 text-white hover:bg-white hover:text-[#376f6b] transition-all duration-300 transform hover:scale-105 backdrop-blur-sm group"
                 >
-                  <Phone className="mr-2 sm:mr-3 h-5 w-5 sm:h-6 sm:w-6" />
-                  <span className="hidden sm:inline">Call Now</span>
-                  <span className="sm:hidden">Call</span>
+                  <Clock className="mr-2 sm:mr-3 h-5 w-5 sm:h-6 sm:w-6" />
+                  <span className="hidden sm:inline">Book Appointment</span>
+                  <span className="sm:hidden">Appointment</span>
                   <ArrowRight className="ml-2 sm:ml-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </div>
+              
+              {/* Secondary Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  onClick={onTransferClick}
+                  className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 rounded-xl border-2 border-white/30 text-white hover:bg-white hover:text-[#376f6b] transition-all duration-300 transform hover:scale-105 backdrop-blur-sm group"
+                >
+                  <ArrowRight className="mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="hidden sm:inline">Transfer Prescription</span>
+                  <span className="sm:hidden">Transfer Rx</span>
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  onClick={() => window.location.href = '/shop'}
+                  className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 rounded-xl border-2 border-white/30 text-white hover:bg-white hover:text-[#376f6b] transition-all duration-300 transform hover:scale-105 backdrop-blur-sm group"
+                >
+                  <ShoppingCart className="mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="hidden sm:inline">Shop Products</span>
+                  <span className="sm:hidden">Shop</span>
                 </Button>
               </div>
 

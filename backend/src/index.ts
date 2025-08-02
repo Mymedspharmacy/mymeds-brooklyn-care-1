@@ -16,9 +16,17 @@ import contactRoutes from './routes/contact';
 import rateLimit from 'express-rate-limit';
 import { AuthRequest } from './types/express';
 import paymentsRoutes from './routes/payments';
-import { supabaseAdminAuth } from './routes/users';
+import { adminAuthMiddleware } from './adminAuth';
 import reviewsRoutes from './routes/reviews';
 import settingsRoutes from './routes/settings';
+import adminRoutes from './routes/admin';
+import woocommerceRoutes from './routes/woocommerce';
+import wordpressRoutes from './routes/wordpress';
+// @ts-ignore
+import hpp from 'hpp';
+import mongoSanitize from 'express-mongo-sanitize';
+// @ts-ignore
+import xss from 'xss-clean';
 
 console.log('Starting MyMeds backend...');
 console.log('NODE_ENV:', process.env.NODE_ENV);
@@ -53,8 +61,33 @@ app.use((req, res, next) => {
   next();
 });
 
-// Middleware
-app.use(helmet());
+// Enhanced Security Middleware
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+    },
+  },
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  }
+}));
+
+// Additional security middleware
+app.use(hpp()); // Prevent HTTP Parameter Pollution
+app.use(xss()); // Prevent XSS attacks
+app.use(mongoSanitize()); // Prevent NoSQL injection
+
 const allowedOrigins = [
   'http://localhost:8080',
   'http://localhost:8081',
@@ -90,9 +123,31 @@ app.options('*', cors()); // Handles preflight requests
 app.use(express.json({ limit: '2mb' }));
 app.use(morgan('combined'));
 
-// Rate limiting for auth and contact
-const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10 });
-const contactLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20 });
+// Enhanced Rate Limiting
+const authLimiter = rateLimit({ 
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 attempts per 15 minutes
+  message: { error: 'Too many login attempts, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: true
+});
+
+const contactLimiter = rateLimit({ 
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // 10 contact form submissions per 15 minutes
+  message: { error: 'Too many contact form submissions, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // 100 requests per 15 minutes
+  message: { error: 'Too many requests, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
 
 // Health check
 app.get('/api/health', async (req: Request, res: Response) => {
@@ -117,21 +172,24 @@ app.get('/api/health/db', async (req: Request, res: Response) => {
   }
 });
 
-// API routes
+// API routes with enhanced security
 app.use('/api/auth', authLimiter, authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/prescriptions', prescriptionRoutes);
-app.use('/api/appointments', appointmentRoutes);
-app.use('/api/blogs', blogRoutes);
+app.use('/api/admin', adminRoutes); // Admin routes with built-in security
+app.use('/api/woocommerce', generalLimiter, woocommerceRoutes); // WooCommerce integration
+app.use('/api/wordpress', generalLimiter, wordpressRoutes); // WordPress integration
+app.use('/api/users', generalLimiter, userRoutes);
+app.use('/api/products', generalLimiter, productRoutes);
+app.use('/api/orders', generalLimiter, orderRoutes);
+app.use('/api/prescriptions', generalLimiter, prescriptionRoutes);
+app.use('/api/appointments', generalLimiter, appointmentRoutes);
+app.use('/api/blogs', generalLimiter, blogRoutes);
 app.use('/api/contact', contactLimiter, contactRoutes);
-app.use('/api/payments', paymentsRoutes);
-app.use('/api/reviews', reviewsRoutes);
-app.use('/api/settings', settingsRoutes);
+app.use('/api/payments', generalLimiter, paymentsRoutes);
+app.use('/api/reviews', generalLimiter, reviewsRoutes);
+app.use('/api/settings', generalLimiter, settingsRoutes);
 
 // Notification endpoints
-app.get('/api/notifications', supabaseAdminAuth, async (req: Request, res: Response) => {
+app.get('/api/notifications', adminAuthMiddleware, async (req: Request, res: Response) => {
   const start = Date.now();
   try {
     let limit = parseInt(req.query.limit as string) || 20;
@@ -150,7 +208,7 @@ app.get('/api/notifications', supabaseAdminAuth, async (req: Request, res: Respo
   }
 });
 
-app.post('/api/notifications/mark-read', supabaseAdminAuth, async (req: Request, res: Response) => {
+app.post('/api/notifications/mark-read', adminAuthMiddleware, async (req: Request, res: Response) => {
   const { type, id } = req.body;
   try {
     let result;
@@ -189,9 +247,18 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 });
 
 const PORT = process.env.PORT || 4000;
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, async () => {
   console.log(`Backend server running on port ${PORT}`);
   console.log(`Health check available at: http://localhost:${PORT}/api/health`);
+  
+  // Initialize admin user on startup
+  try {
+    const { ensureAdminUser } = await import('./adminAuth');
+    await ensureAdminUser();
+    console.log('✅ Admin user initialized successfully');
+  } catch (error) {
+    console.error('❌ Failed to initialize admin user:', error);
+  }
 });
 
 // Handle server errors

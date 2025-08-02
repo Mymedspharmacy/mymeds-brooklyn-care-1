@@ -26,12 +26,15 @@ const Index = () => {
         onAppointmentClick={() => setShowAppointmentForm(true)}
         onTransferClick={() => setShowTransferForm(true)}
       />
-      <Hero onRefillClick={() => setShowRefillForm(true)} />
+      <Hero 
+        onRefillClick={() => setShowRefillForm(true)}
+        onAppointmentClick={() => setShowAppointmentForm(true)}
+        onTransferClick={() => setShowTransferForm(true)}
+      />
       <Services 
         onRefillClick={() => setShowRefillForm(true)}
         onTransferClick={() => setShowTransferForm(true)}
         onAppointmentClick={() => setShowAppointmentForm(true)} 
-        onShopClick={() => navigate('/shop')}
       />
       <About />
       <OTCSection />

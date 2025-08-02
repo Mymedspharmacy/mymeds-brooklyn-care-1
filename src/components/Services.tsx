@@ -6,10 +6,9 @@ interface ServicesProps {
   onRefillClick: () => void;
   onTransferClick: () => void;
   onAppointmentClick: () => void;
-  onShopClick: () => void;
 }
 
-export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick, onShopClick }: ServicesProps) => {
+export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }: ServicesProps) => {
   const services = [
     {
       icon: Pill,
@@ -300,6 +299,15 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick, o
               >
                 <ArrowRight className="w-5 h-5 mr-2" />
                 Transfer Prescription
+              </Button>
+              
+              <Button 
+                onClick={() => window.location.href = '/shop'}
+                variant="outline"
+                className="border-white text-white hover:bg-white hover:text-[#376f6b] font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
+              >
+                <ShoppingCart className="w-5 h-5 mr-2" />
+                Shop Products
               </Button>
             </div>
           </div>

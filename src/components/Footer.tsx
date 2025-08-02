@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { 
   Phone, 
   Mail, 
@@ -13,11 +14,14 @@ import {
   Truck,
   Star,
   ArrowRight,
-  ExternalLink
+  ExternalLink,
+  Settings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const Footer = () => {
+  const navigate = useNavigate();
+  
   const handleCallClick = () => {
     const phoneNumber = '3473126458';
     const telLink = `tel:${phoneNumber}`;
@@ -57,11 +61,16 @@ export const Footer = () => {
             {/* Company Info */}
             <div className="lg:col-span-1">
               <div className="mb-6">
-                <img 
-                  src="/logo.png" 
-                  alt="My Meds Pharmacy Logo" 
-                  className="h-16 w-auto mb-4"
-                />
+                <div 
+                  onClick={() => navigate('/')} 
+                  className="cursor-pointer group"
+                >
+                  <img 
+                    src="/logo.png" 
+                    alt="My Meds Pharmacy Logo" 
+                    className="h-16 w-auto mb-4 transition-all duration-300 ease-in-out group-hover:scale-105"
+                  />
+                </div>
                 <p className="text-gray-300 leading-relaxed mb-6">
                   Your trusted partner in health and wellness. We provide exceptional pharmaceutical care with personalized attention and expert guidance.
                 </p>
@@ -168,6 +177,15 @@ export const Footer = () => {
                   >
                     <ArrowRight className="h-4 w-4 mr-2 group-hover:translate-x-1 transition-transform duration-300" />
                     Contact
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    onClick={() => navigate('/admin')}
+                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer"
+                  >
+                    <Settings className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
+                    Admin Panel
                   </a>
                 </li>
               </ul>

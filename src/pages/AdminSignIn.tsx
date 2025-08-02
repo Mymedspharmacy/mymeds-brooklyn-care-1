@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import supabase from '../lib/supabaseClient';
-import api from '../lib/api';
+import railwayAuth from '../lib/railwayAuth';
 import logo from '../assets/logo.png';
 import { Eye, EyeOff, Loader2, ArrowLeft, Lock, Mail, X } from 'lucide-react';
 
@@ -24,20 +23,8 @@ export default function AdminSignIn() {
     setMounted(true);
     
     // Check if user is already authenticated
-    const adminToken = localStorage.getItem('sb-admin-token');
-    const adminAuth = localStorage.getItem('admin-auth');
-    
-    if (adminToken && adminAuth === 'true') {
-      // Verify the session is still valid
-      supabase.auth.getSession().then(({ data }) => {
-        if (data.session) {
-          navigate('/admin');
-        } else {
-          // Clear invalid tokens
-          localStorage.removeItem('sb-admin-token');
-          localStorage.removeItem('admin-auth');
-        }
-      });
+    if (railwayAuth.isAuthenticated()) {
+      navigate('/admin');
     }
     
     const emailInput = document.getElementById('admin-email');
@@ -48,53 +35,24 @@ export default function AdminSignIn() {
     e.preventDefault();
     setLoading(true);
     setError('');
+    
     try {
-      // Supabase Auth sign in
-      const { data, error: supaError } = await supabase.auth.signInWithPassword({
+      // Railway Auth sign in
+      const { token, user } = await railwayAuth.login({
         email: username,
         password
       });
-      console.log('Supabase login response:', { data, supaError });
-      if (supaError || !data.session) {
-        setError(supaError?.message || 'Invalid credentials');
-        setLoading(false);
-        console.log('Login failed:', supaError?.message || 'Invalid credentials');
-        return;
-      }
       
-      // Store JWT in localStorage
-      localStorage.setItem('sb-admin-token', data.session.access_token);
-      localStorage.setItem('admin-auth', 'true'); // Ensure admin panel recognizes authentication
+      console.log('Railway login successful!', { user });
+      
       if (rememberMe) {
         localStorage.setItem('admin-remember', 'true');
       }
       
-      // Set token for API requests
-      api.defaults.headers.common['Authorization'] = `Bearer ${data.session.access_token}`;
-      
-      console.log('Login successful! Token:', data.session.access_token);
-      console.log('admin-auth:', localStorage.getItem('admin-auth'));
-      
-      // Set up session refresh
-      const refreshSession = async () => {
-        const { data: refreshData } = await supabase.auth.refreshSession();
-        if (refreshData.session) {
-          localStorage.setItem('sb-admin-token', refreshData.session.access_token);
-          api.defaults.headers.common['Authorization'] = `Bearer ${refreshData.session.access_token}`;
-          console.log('Session refreshed automatically');
-        }
-      };
-      
-      // Refresh session every 50 minutes (before 1-hour expiration)
-      const refreshInterval = setInterval(refreshSession, 50 * 60 * 1000);
-      
-      // Store the interval ID so we can clear it on logout
-      localStorage.setItem('refresh-interval', refreshInterval.toString());
-      
       navigate('/admin');
-    } catch (err) {
-      setError('Login failed');
-      console.log('Login error:', err);
+    } catch (error) {
+      console.error('Login failed:', error);
+      setError(error.message || 'Invalid credentials');
     } finally {
       setLoading(false);
     }
@@ -112,15 +70,11 @@ export default function AdminSignIn() {
     setResetMessage('');
     setResetError('');
     try {
-      // Optionally, use Supabase password reset
-      const { error: resetErrorObj } = await supabase.auth.resetPasswordForEmail(resetEmail);
-      if (resetErrorObj) {
-        setResetError(resetErrorObj.message);
-      } else {
-        setResetMessage('If this email is registered as admin, you will receive a reset link.');
-      }
-    } catch (err) {
-      setResetError('Failed to send reset email.');
+      // Use Railway backend password reset
+      await railwayAuth.requestPasswordReset({ email: resetEmail });
+      setResetMessage('If this email is registered as admin, you will receive a reset link.');
+    } catch (error) {
+      setResetError(error.message || 'Failed to send reset email.');
     } finally {
       setResetLoading(false);
     }

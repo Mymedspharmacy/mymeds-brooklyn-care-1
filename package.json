@@ -8,7 +8,8 @@
     "build": "vite build",
     "build:dev": "vite build --output public",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test-backend": "node test-backend.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

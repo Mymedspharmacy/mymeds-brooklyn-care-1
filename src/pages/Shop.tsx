@@ -1,13 +1,9 @@
 import { useState, useEffect } from 'react';
-import { ShoppingCart, Heart, Star, Search, Filter, X, Plus, Minus } from 'lucide-react';
-import api from '../lib/api';
+import { ShoppingCart, Heart, Star, Search, Filter, X, Plus, Minus, ExternalLink } from 'lucide-react';
 import { PaymentForm } from '@/components/PaymentForm';
+import wooCommerceAPI from '../lib/woocommerce';
 
-// Comprehensive product catalog
-// REMOVE the PRODUCTS array and all demo data
-
-const CATEGORIES = ['All', 'Monitoring', 'Respiratory', 'Mobility', 'Heart Health', 'Cold & Flu', 'First Aid', 'Vitamins & Supplements', 'Digestive Health', 'Personal Care'];
-
+// WooCommerce integration
 export default function Shop() {
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
@@ -28,25 +24,113 @@ export default function Shop() {
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [showProductDetail, setShowProductDetail] = useState(null);
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    api.get('/products')
-      .then(res => setProducts(res.data))
-      .catch(() => setError('Failed to load products'));
+    loadProducts();
+    loadCategories();
   }, []);
 
+  const loadProducts = async () => {
+    try {
+      setLoading(true);
+      
+      // Check if WooCommerce is configured
+      if (!import.meta.env.VITE_WOOCOMMERCE_URL || 
+          !import.meta.env.VITE_WOOCOMMERCE_CONSUMER_KEY || 
+          !import.meta.env.VITE_WOOCOMMERCE_CONSUMER_SECRET) {
+        console.warn('WooCommerce not configured, using sample products');
+        setError('WooCommerce not configured. Please set up VITE_WOOCOMMERCE_URL, VITE_WOOCOMMERCE_CONSUMER_KEY, and VITE_WOOCOMMERCE_CONSUMER_SECRET in your .env file.');
+        setProducts([
+          {
+            id: 1,
+            name: 'Sample Product 1',
+            description: 'This is a sample product for testing purposes.',
+            price: '19.99',
+            regular_price: '24.99',
+            sale_price: '19.99',
+            images: [{ src: '/placeholder.svg' }],
+            categories: [{ name: 'Health & Wellness' }]
+          },
+          {
+            id: 2,
+            name: 'Sample Product 2',
+            description: 'Another sample product for testing.',
+            price: '29.99',
+            regular_price: '29.99',
+            sale_price: null,
+            images: [{ src: '/placeholder.svg' }],
+            categories: [{ name: 'Supplements' }]
+          }
+        ]);
+        return;
+      }
+      
+      const productsData = await wooCommerceAPI.getProducts({
+        per_page: 50,
+        status: 'publish',
+      });
+      // Ensure productsData is an array
+      if (Array.isArray(productsData)) {
+        setProducts(productsData);
+      } else {
+        console.error('Products data is not an array:', productsData);
+        setProducts([]);
+        setError('Invalid products data received');
+      }
+    } catch (err) {
+      setError('Failed to load products from WooCommerce');
+      console.error('Error loading products:', err);
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadCategories = async () => {
+    try {
+      // Check if WooCommerce is configured
+      if (!import.meta.env.VITE_WOOCOMMERCE_URL || 
+          !import.meta.env.VITE_WOOCOMMERCE_CONSUMER_KEY || 
+          !import.meta.env.VITE_WOOCOMMERCE_CONSUMER_SECRET) {
+        console.warn('WooCommerce not configured, using sample categories');
+        setCategories([
+          { id: 1, name: 'Health & Wellness' },
+          { id: 2, name: 'Supplements' },
+          { id: 3, name: 'Personal Care' },
+          { id: 4, name: 'Medical Supplies' }
+        ]);
+        return;
+      }
+      
+      const categoriesData = await wooCommerceAPI.getCategories();
+      // Ensure categoriesData is an array
+      if (Array.isArray(categoriesData)) {
+        setCategories(categoriesData);
+      } else {
+        console.error('Categories data is not an array:', categoriesData);
+        setCategories([]);
+      }
+    } catch (err) {
+      console.error('Error loading categories:', err);
+      setCategories([]);
+    }
+  };
+
   // Calculate cart totals
-  const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const cartTotal = cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   // Filter products
-  const filteredProducts = products.filter(product => {
-    const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
+  const filteredProducts = Array.isArray(products) ? products.filter(product => {
+    const matchesCategory = selectedCategory === 'All' || 
+      product.categories?.some(cat => cat.name === selectedCategory);
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          product.description.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
-  });
+  }) : [];
 
   function addToCart(product) {
     setCart(prev => {
@@ -58,7 +142,11 @@ export default function Shop() {
             : item
         );
       }
-      return [...prev, { ...product, quantity: 1 }];
+      return [...prev, { 
+        ...product, 
+        quantity: 1,
+        price: product.price || product.regular_price || '0'
+      }];
     });
   }
 
@@ -100,29 +188,9 @@ export default function Shop() {
 
   async function handlePaymentSuccess(paymentIntentId: string) {
     try {
-      // Prepare order data for backend
-      const orderData = {
-        items: cart.map(item => ({
-          productId: item.id,
-          quantity: item.quantity,
-          price: item.price,
-          productName: item.name
-        })),
-        total: cartTotal,
-        customerInfo: {
-          name: order.name,
-          email: order.email,
-          phone: order.phone,
-          address: `${order.address}, ${order.city}, ${order.zip}`,
-          notes: order.notes
-        },
-        paymentIntentId
-      };
-      
-      // Send order to backend
-      const response = await api.post('/orders/public', orderData);
-      
-      console.log('Order submitted successfully:', response.data);
+      // For WooCommerce integration, you might want to redirect to WooCommerce checkout
+      // or handle the order through WooCommerce API
+      console.log('Payment successful:', paymentIntentId);
       
       // Show success message
       setOrderPlaced(true);
@@ -141,8 +209,8 @@ export default function Shop() {
       });
       
     } catch (error) {
-      console.error('Failed to submit order:', error);
-      alert('Failed to submit order. Please try again or contact us directly.');
+      console.error('Failed to process order:', error);
+      alert('Failed to process order. Please try again or contact us directly.');
     }
   }
 
@@ -151,6 +219,34 @@ export default function Shop() {
     setShowPayment(false);
     setShowCheckout(true);
   }
+
+  // Get category names for display
+  const categoryNames = ['All', ...categories.map(cat => cat.name)];
+
+  // Get featured image URL
+  const getProductImage = (product) => {
+    if (product.images && product.images.length > 0) {
+      return product.images[0].src;
+    }
+    // Return a default pharmacy image or data URL
+    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik01MCA1MEgxNTBWMTUwSDUwVjUwWiIgZmlsbD0iIzU3QkJCNiIvPgo8dGV4dCB4PSIxMDAiIHk9IjExMCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UGhhcm1hY3k8L3RleHQ+Cjwvc3ZnPgo=';
+  };
+
+  // Get product price
+  const getProductPrice = (product) => {
+    if (product.sale_price) {
+      return product.sale_price;
+    }
+    return product.price || product.regular_price || '0';
+  };
+
+  // Get original price for sale items
+  const getOriginalPrice = (product) => {
+    if (product.sale_price && product.regular_price) {
+      return product.regular_price;
+    }
+    return null;
+  };
 
   return (
     <div className="min-h-screen bg-[#f5fefd]">
@@ -207,7 +303,7 @@ export default function Shop() {
             <div className="bg-white rounded-lg shadow-md p-4 md:p-6 sticky top-24 md:static">
               <h3 className="text-lg font-medium text-[#376f6b] mb-3 md:mb-4">Categories</h3>
               <div className="flex md:block flex-wrap gap-2 md:space-y-2">
-                {CATEGORIES.map(category => (
+                {categoryNames.map(category => (
                   <button
                     key={category}
                     onClick={() => setSelectedCategory(category)}
@@ -226,70 +322,115 @@ export default function Shop() {
 
           {/* Products Grid */}
           <div className="flex-1">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
-              {filteredProducts.map((product) => (
-                <div key={product.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-[#57bbb6]/20">
-              <div className="relative">
-                <img 
-                  src={product.image} 
-                  alt={product.name} 
-                  className="w-full h-48 object-cover cursor-pointer"
-                  onClick={() => setShowProductDetail(product)}
-                />
-                <button
-                  onClick={() => toggleWishlist(product.id)}
-                  className={`absolute top-3 right-3 p-2 rounded-full transition-colors ${
-                    wishlist.includes(product.id)
-                      ? 'bg-red-500 text-white'
-                      : 'bg-white/80 text-[#376f6b] hover:bg-[#57bbb6] hover:text-white'
-                  }`}
-                >
-                  <Heart size={20} fill={wishlist.includes(product.id) ? 'currentColor' : 'none'} />
-                </button>
-                {product.originalPrice > product.price && (
-                  <div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded-full text-sm font-bold">
-                    SALE
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#376f6b] mx-auto"></div>
+                <p className="text-[#376f6b] mt-4">Loading products...</p>
+              </div>
+            ) : error ? (
+              <div className="text-center py-12">
+                <p className="text-red-600 mb-4">{error}</p>
+                {error.includes('WooCommerce not configured') && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 text-left">
+                    <h4 className="font-semibold text-blue-800 mb-2">To set up WooCommerce:</h4>
+                    <ol className="text-blue-700 text-sm space-y-1">
+                      <li>1. Create a <code className="bg-blue-100 px-1 rounded">.env</code> file in your project root</li>
+                      <li>2. Add your WooCommerce credentials:</li>
+                      <li className="ml-4">VITE_WOOCOMMERCE_URL="https://your-wordpress-site.com"</li>
+                      <li className="ml-4">VITE_WOOCOMMERCE_CONSUMER_KEY="your-consumer-key"</li>
+                      <li className="ml-4">VITE_WOOCOMMERCE_CONSUMER_SECRET="your-consumer-secret"</li>
+                      <li>3. Restart your development server</li>
+                    </ol>
                   </div>
                 )}
-              </div>
-              
-              <div className="p-6">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs bg-[#57bbb6] text-[#231f20] px-2 py-1 rounded-full font-semibold">
-                    {product.category}
-                  </span>
-                  <div className="flex items-center gap-1 ml-auto">
-                    <Star size={16} className="text-yellow-400 fill-current" />
-                    <span className="text-sm font-semibold text-[#376f6b]">{product.rating}</span>
-                    <span className="text-xs text-gray-500">({product.reviews})</span>
-                  </div>
-                </div>
-                
-                <h3 className="text-lg font-normal text-[#231f20] mb-2 cursor-pointer hover:text-[#376f6b]"
-                    onClick={() => setShowProductDetail(product)}>
-                  {product.name}
-                </h3>
-                
-                <p className="text-[#376f6b] text-sm mb-3 line-clamp-2">{product.description}</p>
-                
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-2xl font-normal text-[#57bbb6]">${product.price}</span>
-                  {product.originalPrice > product.price && (
-                    <span className="text-lg text-gray-500 line-through">${product.originalPrice}</span>
-                  )}
-                </div>
-                
-                <button
-                  onClick={() => addToCart(product)}
-                  disabled={!product.available}
-                  className="w-full bg-[#376f6b] text-white py-3 rounded-lg font-semibold hover:bg-[#2e8f88] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                <button 
+                  onClick={loadProducts}
+                  className="bg-[#376f6b] text-white px-6 py-3 rounded-lg hover:bg-[#57bbb6] transition-colors"
                 >
-                  {product.available ? 'Add to Cart' : 'Out of Stock'}
+                  Try Again
                 </button>
               </div>
-            </div>
-          ))}
-            </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
+                {filteredProducts.map((product) => (
+                  <div key={product.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-[#57bbb6]/20">
+                    <div className="relative">
+                      <img 
+                        src={getProductImage(product)} 
+                        alt={product.name} 
+                        className="w-full h-48 object-cover cursor-pointer"
+                        onClick={() => setShowProductDetail(product)}
+                      />
+                      <button
+                        onClick={() => toggleWishlist(product.id)}
+                        className={`absolute top-3 right-3 p-2 rounded-full transition-colors ${
+                          wishlist.includes(product.id)
+                            ? 'bg-red-500 text-white'
+                            : 'bg-white/80 text-[#376f6b] hover:bg-[#57bbb6] hover:text-white'
+                        }`}
+                      >
+                        <Heart size={20} fill={wishlist.includes(product.id) ? 'currentColor' : 'none'} />
+                      </button>
+                      {getOriginalPrice(product) && (
+                        <div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded-full text-sm font-bold">
+                          SALE
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="p-6">
+                      <div className="flex items-center gap-2 mb-2">
+                        {product.categories && product.categories.length > 0 && (
+                          <span className="text-xs bg-[#57bbb6] text-[#231f20] px-2 py-1 rounded-full font-semibold">
+                            {product.categories[0].name}
+                          </span>
+                        )}
+                        <div className="flex items-center gap-1 ml-auto">
+                          <Star size={16} className="text-yellow-400 fill-current" />
+                          <span className="text-sm font-semibold text-[#376f6b]">
+                            {product.average_rating || '4.5'}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            ({product.review_count || '0'})
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <h3 className="text-lg font-normal text-[#231f20] mb-2 cursor-pointer hover:text-[#376f6b]"
+                          onClick={() => setShowProductDetail(product)}>
+                        {product.name}
+                      </h3>
+                      
+                      <p className="text-[#376f6b] text-sm mb-3 line-clamp-2" 
+                         dangerouslySetInnerHTML={{ __html: product.short_description || product.description }} />
+                      
+                      <div className="flex items-center gap-2 mb-4">
+                        <span className="text-2xl font-normal text-[#57bbb6]">${getProductPrice(product)}</span>
+                        {getOriginalPrice(product) && (
+                          <span className="text-lg text-gray-500 line-through">${getOriginalPrice(product)}</span>
+                        )}
+                      </div>
+                      
+                      <button
+                        onClick={() => addToCart(product)}
+                        disabled={!product.stock_status || product.stock_status === 'outofstock'}
+                        className="w-full bg-[#376f6b] text-white py-3 rounded-lg font-semibold hover:bg-[#2e8f88] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {product.stock_status === 'outofstock' ? 'Out of Stock' : 'Add to Cart'}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {!loading && !error && filteredProducts.length === 0 && (
+              <div className="text-center py-12">
+                <ShoppingCart size={48} className="mx-auto text-[#57bbb6] mb-4" />
+                <p className="text-[#231f20] text-lg">No products found</p>
+                <p className="text-[#376f6b]">Try adjusting your search or filter criteria</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -319,7 +460,7 @@ export default function Shop() {
                   <div className="space-y-4 mb-6">
                     {cart.map((item) => (
                       <div key={item.id} className="flex gap-4 p-4 border border-[#57bbb6]/20 rounded-lg">
-                        <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
+                        <img src={getProductImage(item)} alt={item.name} className="w-16 h-16 object-cover rounded" />
                         <div className="flex-1">
                           <h4 className="font-semibold text-[#231f20]">{item.name}</h4>
                           <p className="text-[#57bbb6] font-bold">${item.price}</p>
@@ -386,40 +527,35 @@ export default function Shop() {
               
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
-                  <img src={showProductDetail.image} alt={showProductDetail.name} className="w-full rounded-lg" />
+                  <img src={getProductImage(showProductDetail)} alt={showProductDetail.name} className="w-full rounded-lg" />
                 </div>
                 
                 <div>
                   <div className="flex items-center gap-2 mb-4">
-                    <span className="bg-[#57bbb6] text-[#231f20] px-3 py-1 rounded-full font-semibold">
-                      {showProductDetail.category}
-                    </span>
+                    {showProductDetail.categories && showProductDetail.categories.length > 0 && (
+                      <span className="bg-[#57bbb6] text-[#231f20] px-3 py-1 rounded-full font-semibold">
+                        {showProductDetail.categories[0].name}
+                      </span>
+                    )}
                     <div className="flex items-center gap-1">
                       <Star size={20} className="text-yellow-400 fill-current" />
-                      <span className="font-semibold text-[#376f6b]">{showProductDetail.rating}</span>
-                      <span className="text-gray-500">({showProductDetail.reviews} reviews)</span>
+                      <span className="font-semibold text-[#376f6b]">
+                        {showProductDetail.average_rating || '4.5'}
+                      </span>
+                      <span className="text-gray-500">
+                        ({showProductDetail.review_count || '0'} reviews)
+                      </span>
                     </div>
                   </div>
                   
-                  <p className="text-[#376f6b] text-lg mb-4">{showProductDetail.description}</p>
+                  <div className="text-[#376f6b] text-lg mb-4" 
+                       dangerouslySetInnerHTML={{ __html: showProductDetail.description }} />
                   
                   <div className="flex items-center gap-3 mb-6">
-                    <span className="text-3xl font-bold text-[#57bbb6]">${showProductDetail.price}</span>
-                    {showProductDetail.originalPrice > showProductDetail.price && (
-                      <span className="text-xl text-gray-500 line-through">${showProductDetail.originalPrice}</span>
+                    <span className="text-3xl font-bold text-[#57bbb6]">${getProductPrice(showProductDetail)}</span>
+                    {getOriginalPrice(showProductDetail) && (
+                      <span className="text-xl text-gray-500 line-through">${getOriginalPrice(showProductDetail)}</span>
                     )}
-                  </div>
-                  
-                  <div className="mb-6">
-                    <h4 className="font-semibold text-[#231f20] mb-2">Features:</h4>
-                    <ul className="space-y-1">
-                      {showProductDetail.features.map((feature, index) => (
-                        <li key={index} className="flex items-center gap-2 text-[#376f6b]">
-                          <div className="w-2 h-2 bg-[#57bbb6] rounded-full"></div>
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
                   </div>
                   
                   <button
@@ -427,10 +563,10 @@ export default function Shop() {
                       addToCart(showProductDetail);
                       setShowProductDetail(null);
                     }}
-                    disabled={!showProductDetail.available}
+                    disabled={!showProductDetail.stock_status || showProductDetail.stock_status === 'outofstock'}
                     className="w-full bg-[#376f6b] text-white py-4 rounded-lg font-semibold text-lg hover:bg-[#2e8f88] transition-colors disabled:opacity-50"
                   >
-                    {showProductDetail.available ? 'Add to Cart' : 'Out of Stock'}
+                    {showProductDetail.stock_status === 'outofstock' ? 'Out of Stock' : 'Add to Cart'}
                   </button>
                 </div>
               </div>
@@ -553,7 +689,7 @@ export default function Shop() {
                     {cart.map((item) => (
                       <div key={item.id} className="flex justify-between">
                         <span>{item.name} x {item.quantity}</span>
-                        <span>${(item.price * item.quantity).toFixed(2)}</span>
+                        <span>${(parseFloat(item.price) * item.quantity).toFixed(2)}</span>
                       </div>
                     ))}
                     <div className="border-t pt-2 mt-2">
@@ -589,7 +725,7 @@ export default function Shop() {
             <p className="text-[#231f20] mb-6">Thank you for your purchase. We'll contact you soon to confirm your order and arrange delivery.</p>
             <button
               onClick={() => setOrderPlaced(false)}
-                              className="bg-[#376f6b] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#2e8f88] transition-colors"
+              className="bg-[#376f6b] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#2e8f88] transition-colors"
             >
               Continue Shopping
             </button>

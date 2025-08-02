@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
-import { createClient } from '@supabase/supabase-js';
+// import { createClient } from '@supabase/supabase-js';
 import multer from 'multer';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
@@ -15,10 +15,11 @@ const router = Router();
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'changeme';
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Supabase is no longer used - migrated to Railway
+// const supabase = createClient(
+//   process.env.SUPABASE_URL!,
+//   process.env.SUPABASE_SERVICE_ROLE_KEY!
+// );
 const SUPABASE_BUCKET = 'product-images';
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -108,40 +109,32 @@ router.delete('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) 
   }
 });
 
-// Upload product image to Supabase Storage
+// Upload product image (Supabase storage disabled - migrated to Railway)
 router.post('/:id/images', auth, upload.single('file'), async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     const productId = Number(req.params.id);
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    const ext = path.extname(req.file.originalname);
-    const fileName = `${uuidv4()}${ext}`;
-    const { data, error } = await supabase.storage.from(SUPABASE_BUCKET).upload(fileName, req.file.buffer, {
-      contentType: req.file.mimetype,
-      upsert: false
-    });
-    if (error) return res.status(500).json({ error: error.message });
-    const { data: publicUrlData } = supabase.storage.from(SUPABASE_BUCKET).getPublicUrl(fileName);
-    const image = await prisma.productImage.create({ data: { url: publicUrlData.publicUrl, productId } });
-    res.status(201).json(image);
+    
+    // TODO: Implement file upload to Railway or cloud storage
+    // For now, return a placeholder response
+    res.status(501).json({ error: 'File upload not implemented yet' });
   } catch (err) {
     console.error('Error uploading product image:', err);
     res.status(500).json({ error: 'Failed to upload product image' });
   }
 });
 
-// Delete product image from Supabase Storage and DB
+// Delete product image (Supabase storage disabled - migrated to Railway)
 router.delete('/images/:imageId', auth, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     const imageId = Number(req.params.imageId);
     const image = await prisma.productImage.findUnique({ where: { id: imageId } });
     if (!image) return res.status(404).json({ error: 'Image not found' });
-    // Extract file name from URL
-    const fileName = image.url.split('/').pop();
-    if (fileName) {
-      await supabase.storage.from(SUPABASE_BUCKET).remove([fileName]);
-    }
+    
+    // TODO: Implement file deletion from Railway or cloud storage
+    // For now, just delete from database
     await prisma.productImage.delete({ where: { id: imageId } });
     res.json({ success: true });
   } catch (err) {
