@@ -168,6 +168,7 @@ export const OTCSection = () => {
 
                 {/* Enhanced Button */}
                 <Button 
+                  onClick={() => navigate('/shop')}
                   className={`w-full bg-gradient-to-r ${category.accent} hover:shadow-lg text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 group-hover:shadow-xl text-sm`}
                 >
                   <span className="flex items-center justify-center gap-2">

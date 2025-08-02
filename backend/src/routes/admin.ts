@@ -35,6 +35,22 @@ router.post('/login', async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error('Admin login error:', error.message);
     
+    // Check if it's a database connection error
+    if (error.message && error.message.includes("Can't reach database server")) {
+      return res.status(500).json({
+        error: 'Database connection failed. Please try again later.',
+        code: 'DATABASE_ERROR'
+      });
+    }
+    
+    // Check if it's a configuration error
+    if (error.message && error.message.includes('configuration')) {
+      return res.status(500).json({
+        error: 'Server configuration error. Please contact support.',
+        code: 'CONFIG_ERROR'
+      });
+    }
+    
     res.status(401).json({
       error: error.message,
       code: 'LOGIN_FAILED'
@@ -192,6 +208,58 @@ router.get('/health', adminAuthMiddleware, async (req: Request, res: Response) =
     console.error('Admin health check error:', error);
     res.status(500).json({
       error: 'Admin system health check failed',
+      code: 'HEALTH_CHECK_FAILED'
+    });
+  }
+});
+
+// Public health check for admin system (no auth required)
+router.get('/health/public', async (req: Request, res: Response) => {
+  try {
+    const { PrismaClient } = await import('@prisma/client');
+    const prisma = new PrismaClient();
+    
+    // Test database connection
+    let dbStatus = 'unknown';
+    let adminUserExists = false;
+    
+    try {
+      await prisma.$connect();
+      dbStatus = 'connected';
+      
+      // Check if admin user exists
+      const adminUser = await prisma.user.findFirst({
+        where: { role: 'ADMIN' },
+        select: { id: true, email: true, name: true }
+      });
+      
+      adminUserExists = !!adminUser;
+      
+      await prisma.$disconnect();
+    } catch (dbError: any) {
+      dbStatus = 'error';
+      console.error('Database connection error:', dbError);
+    }
+    
+    res.json({
+      success: true,
+      message: 'Admin system status check',
+      timestamp: new Date().toISOString(),
+      database: {
+        status: dbStatus,
+        adminUserExists: adminUserExists
+      },
+      environment: {
+        nodeEnv: process.env.NODE_ENV,
+        hasJwtSecret: !!process.env.JWT_SECRET,
+        hasAdminEmail: !!process.env.ADMIN_EMAIL,
+        hasAdminPassword: !!process.env.ADMIN_PASSWORD
+      }
+    });
+  } catch (error: any) {
+    console.error('Public health check error:', error);
+    res.status(500).json({
+      error: 'Health check failed',
       code: 'HEALTH_CHECK_FAILED'
     });
   }

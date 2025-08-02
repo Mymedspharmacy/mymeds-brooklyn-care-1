@@ -39,7 +39,7 @@ class RailwayAuth {
   // Login with email and password
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
-      const response = await api.post('/auth/login', credentials);
+      const response = await api.post('/admin/login', credentials);
       const { token, user } = response.data;
       
       this.token = token;
