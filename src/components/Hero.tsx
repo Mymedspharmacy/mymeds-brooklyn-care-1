@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Phone, Truck, Clock, ArrowRight, Shield, Heart, ChevronLeft, ChevronRight, ShoppingCart } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface HeroProps {
   onRefillClick: () => void;
@@ -41,6 +42,7 @@ const heroImages = [
 ];
 
 export const Hero = ({ onRefillClick }: HeroProps) => {
+  const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
@@ -262,7 +264,10 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
               </div>
 
               {/* Special Offers Banner */}
-              <div className="bg-white/15 backdrop-blur-md rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/30 mt-6 sm:mt-8">
+              <div 
+                className="bg-white/15 backdrop-blur-md rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/30 mt-6 sm:mt-8 cursor-pointer hover:bg-white/20 transition-all duration-300 transform hover:scale-105"
+                onClick={() => navigate('/special-offers')}
+              >
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="text-center sm:text-left">
                     <h3 className="text-white font-bold text-lg sm:text-xl mb-2">
@@ -280,11 +285,14 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
                     </div>
                   </div>
                   <Button 
-                    onClick={onRefillClick}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate('/special-offers');
+                    }}
                     size="sm"
                     className="bg-[#57bbb6] hover:bg-[#4a9a94] text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 transform hover:scale-105"
                   >
-                    Get Started
+                    View All Offers
                   </Button>
                 </div>
               </div>

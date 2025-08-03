@@ -15,6 +15,7 @@ const Index = lazy(() => import("./pages/Index"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Shop = lazy(() => import("./pages/Shop"));
 const Services = lazy(() => import("./pages/Services"));
+const SpecialOffers = lazy(() => import("./pages/SpecialOffers"));
 const Blog = lazy(() => import("./pages/Blog"));
 const Admin = lazy(() => import("./pages/Admin"));
 const AdminSignIn = lazy(() => import("./pages/AdminSignIn"));
@@ -65,6 +66,7 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/shop" element={<Shop />} />
                 <Route path="/services" element={<Services />} />
+                <Route path="/special-offers" element={<SpecialOffers />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/admin-signin" element={<AdminSignIn />} />

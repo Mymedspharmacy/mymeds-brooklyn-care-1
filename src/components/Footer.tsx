@@ -167,6 +167,16 @@ export const Footer = () => {
                   </a>
                 </li>
                 <li>
+                  <button 
+                    onClick={() => navigate('/special-offers')}
+                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
+                    aria-label="View special offers"
+                  >
+                    <Star className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
+                    Special Offers
+                  </button>
+                </li>
+                <li>
                   <a 
                     href="/blog" 
                     className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group"

@@ -116,11 +116,11 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
         </div>
       </div>
 
-      {/* Main Header - Premium Design */}
+      {/* Main Header - Enhanced Desktop Design */}
       <header className={`bg-white/95 backdrop-blur-md sticky top-0 z-40 border-b border-gray-100/50 transition-all duration-300 ${
         isScrolled ? 'shadow-xl bg-white/98' : 'shadow-lg'
       }`}>
-        <div className="container mx-auto px-4 py-4 sm:py-3 flex items-center justify-between gap-4 relative">
+        <div className="container mx-auto px-4 py-3 sm:py-2 flex items-center justify-between gap-4 relative">
           
           {/* Left: Mobile Menu Icon */}
           <div className="lg:hidden relative z-[9999]">
@@ -144,105 +144,113 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
             </div>
           </div>
 
-          {/* Navigation - Premium Design */}
-          <nav className="hidden lg:flex flex-1 justify-center">
-            <ul className="flex gap-6 xl:gap-8 2xl:gap-10 items-center">
-              <li>
-                <a 
-                  href="/" 
-                  className="text-[#231f20] font-semibold text-sm xl:text-base hover:text-[#57bbb6] transition-all duration-300 relative group px-3 py-2.5 rounded-lg hover:bg-[#f5fefd] whitespace-nowrap"
-                >
-                  Home
-                  <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-[#57bbb6] to-[#4a9a94] transition-all duration-300 group-hover:w-full group-hover:left-0 rounded-full"></span>
-                </a>
-              </li>
-              <li>
-                <a 
-                  href="#services" 
-                  className="text-[#231f20] font-semibold text-sm xl:text-base hover:text-[#57bbb6] transition-all duration-300 relative group px-3 py-2.5 rounded-lg hover:bg-[#f5fefd] whitespace-nowrap"
-                >
-                  Services
-                  <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-[#57bbb6] to-[#4a9a94] transition-all duration-300 group-hover:w-full group-hover:left-0 rounded-full"></span>
-                </a>
-              </li>
-              <li>
-                <a 
-                  href="/shop" 
-                  className="text-[#231f20] font-semibold text-sm xl:text-base hover:text-[#57bbb6] transition-all duration-300 relative group px-3 py-2.5 rounded-lg hover:bg-[#f5fefd] whitespace-nowrap"
-                >
-                  Shop
-                  <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-[#57bbb6] to-[#4a9a94] transition-all duration-300 group-hover:w-full group-hover:left-0 rounded-full"></span>
-                </a>
-              </li>
-              <li>
-                <a 
-                  href="/blog" 
-                  className="text-[#231f20] font-semibold text-sm xl:text-base hover:text-[#57bbb6] transition-all duration-300 relative group px-3 py-2.5 rounded-lg hover:bg-[#f5fefd] whitespace-nowrap"
-                >
-                  Blogs
-                  <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-[#57bbb6] to-[#4a9a94] transition-all duration-300 group-hover:w-full group-hover:left-0 rounded-full"></span>
-                </a>
-              </li>
-              <li>
-                <a 
-                  href="#about" 
-                  className="text-[#231f20] font-semibold text-sm xl:text-base hover:text-[#57bbb6] transition-all duration-300 relative group px-3 py-2.5 rounded-lg hover:bg-[#f5fefd] whitespace-nowrap"
-                >
-                  About
-                  <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-[#57bbb6] to-[#4a9a94] transition-all duration-300 group-hover:w-full group-hover:left-0 rounded-full"></span>
-                </a>
-              </li>
-              <li>
-                <a 
-                  href="#contact" 
-                  className="text-[#231f20] font-semibold text-sm xl:text-base hover:text-[#57bbb6] transition-all duration-300 relative group px-3 py-2.5 rounded-lg hover:bg-[#f5fefd] whitespace-nowrap"
-                >
-                  Contact
-                  <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-[#57bbb6] to-[#4a9a94] transition-all duration-300 group-hover:w-full group-hover:left-0 rounded-full"></span>
-                </a>
-              </li>
-            </ul>
+          {/* Enhanced Navigation - Desktop Only */}
+          <nav className="hidden lg:flex items-center justify-center flex-1">
+            <div className="bg-white/60 backdrop-blur-sm rounded-2xl px-6 py-3 shadow-lg border border-gray-100/50">
+              <ul className="flex items-center gap-1">
+                <li>
+                  <a 
+                    href="/" 
+                    className="text-[#376f6b] font-semibold text-sm xl:text-base hover:text-[#57bbb6] transition-all duration-300 relative group px-4 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-[#57bbb6]/10 hover:to-[#376f6b]/10 whitespace-nowrap hover:shadow-md hover:scale-105 transform"
+                  >
+                    Home
+                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] transition-all duration-300 group-hover:w-full rounded-full opacity-0 group-hover:opacity-100"></span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#57bbb6]/20 to-[#376f6b]/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="#services" 
+                    className="text-[#376f6b] font-semibold text-sm xl:text-base hover:text-[#57bbb6] transition-all duration-300 relative group px-4 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-[#57bbb6]/10 hover:to-[#376f6b]/10 whitespace-nowrap hover:shadow-md hover:scale-105 transform"
+                  >
+                    Services
+                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] transition-all duration-300 group-hover:w-full rounded-full opacity-0 group-hover:opacity-100"></span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#57bbb6]/20 to-[#376f6b]/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="/shop" 
+                    className="text-[#376f6b] font-semibold text-sm xl:text-base hover:text-[#57bbb6] transition-all duration-300 relative group px-4 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-[#57bbb6]/10 hover:to-[#376f6b]/10 whitespace-nowrap hover:shadow-md hover:scale-105 transform"
+                  >
+                    Shop
+                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] transition-all duration-300 group-hover:w-full rounded-full opacity-0 group-hover:opacity-100"></span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#57bbb6]/20 to-[#376f6b]/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="/blog" 
+                    className="text-[#376f6b] font-semibold text-sm xl:text-base hover:text-[#57bbb6] transition-all duration-300 relative group px-4 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-[#57bbb6]/10 hover:to-[#376f6b]/10 whitespace-nowrap hover:shadow-md hover:scale-105 transform"
+                  >
+                    Blogs
+                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] transition-all duration-300 group-hover:w-full rounded-full opacity-0 group-hover:opacity-100"></span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#57bbb6]/20 to-[#376f6b]/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="#about" 
+                    className="text-[#376f6b] font-semibold text-sm xl:text-base hover:text-[#57bbb6] transition-all duration-300 relative group px-4 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-[#57bbb6]/10 hover:to-[#376f6b]/10 whitespace-nowrap hover:shadow-md hover:scale-105 transform"
+                  >
+                    About
+                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] transition-all duration-300 group-hover:w-full rounded-full opacity-0 group-hover:opacity-100"></span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#57bbb6]/20 to-[#376f6b]/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="#contact" 
+                    className="text-[#376f6b] font-semibold text-sm xl:text-base hover:text-[#57bbb6] transition-all duration-300 relative group px-4 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-[#57bbb6]/10 hover:to-[#376f6b]/10 whitespace-nowrap hover:shadow-md hover:scale-105 transform"
+                  >
+                    Contact
+                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] transition-all duration-300 group-hover:w-full rounded-full opacity-0 group-hover:opacity-100"></span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#57bbb6]/20 to-[#376f6b]/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </a>
+                </li>
+              </ul>
+            </div>
           </nav>
 
-          {/* CTA Buttons - Premium Design */}
-          <div className="hidden sm:flex items-center gap-3 lg:gap-4 xl:gap-5 flex-shrink-0">
-            {/* Refill Button - Premium */}
+          {/* Enhanced CTA Buttons - Desktop Only */}
+          <div className="hidden lg:flex items-center gap-2 xl:gap-3 flex-shrink-0">
+            {/* Refill Button - Enhanced */}
             <Button 
               onClick={onRefillClick}
-              className="bg-gradient-to-r from-[#57bbb6] to-[#4a9a94] text-white font-bold px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 border border-[#57bbb6]/20 hover:border-[#4a9a94]/30 group text-xs sm:text-sm"
+              className="bg-gradient-to-r from-[#57bbb6] to-[#4a9a94] text-white font-bold px-3 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-[#57bbb6]/20 hover:border-[#4a9a94]/30 group text-xs xl:text-sm"
             >
-              <Pill className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 group-hover:rotate-12 transition-transform" />
+              <Pill className="w-3 h-3 xl:w-4 xl:h-4 mr-1.5 group-hover:rotate-12 transition-transform" />
               Refill Rx
-              <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1.5 group-hover:translate-x-0.5 transition-transform" />
+              <ArrowRight className="w-3 h-3 xl:w-4 xl:h-4 ml-1.5 group-hover:translate-x-0.5 transition-transform" />
             </Button>
             
-            {/* Transfer Button - Premium */}
+            {/* Transfer Button - Enhanced */}
             <Button 
               onClick={onTransferClick}
-              className="bg-gradient-to-r from-[#376f6b] to-[#2e5a57] text-white font-bold px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 border border-[#376f6b]/20 hover:border-[#2e5a57]/30 group text-xs sm:text-sm"
+              className="bg-gradient-to-r from-[#376f6b] to-[#2e5a57] text-white font-bold px-3 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-[#376f6b]/20 hover:border-[#2e5a57]/30 group text-xs xl:text-sm"
             >
-              <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 group-hover:rotate-12 transition-transform" />
+              <ArrowRight className="w-3 h-3 xl:w-4 xl:h-4 mr-1.5 group-hover:rotate-12 transition-transform" />
               Transfer Rx
-              <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1.5 group-hover:translate-x-0.5 transition-transform" />
+              <ArrowRight className="w-3 h-3 xl:w-4 xl:h-4 ml-1.5 group-hover:translate-x-0.5 transition-transform" />
             </Button>
             
-            {/* Shop Button - Premium */}
+            {/* Shop Button - Enhanced */}
             <Button 
               onClick={() => window.location.href = '/shop'}
-              className="bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 border border-orange-500/20 hover:border-red-500/30 group text-xs sm:text-sm"
+              className="bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold px-3 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-orange-500/20 hover:border-red-500/30 group text-xs xl:text-sm"
             >
-              <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 group-hover:rotate-12 transition-transform" />
+              <ShoppingCart className="w-3 h-3 xl:w-4 xl:h-4 mr-1.5 group-hover:rotate-12 transition-transform" />
               Shop
-              <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1.5 group-hover:translate-x-0.5 transition-transform" />
+              <ArrowRight className="w-3 h-3 xl:w-4 xl:h-4 ml-1.5 group-hover:translate-x-0.5 transition-transform" />
             </Button>
             
-            {/* Call Button - Premium */}
+            {/* Call Button - Enhanced */}
             <Button 
               onClick={handleCallClick}
               variant="outline"
-              className="bg-white/80 backdrop-blur-sm text-[#376f6b] font-semibold px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105 border border-[#376f6b]/30 hover:bg-[#376f6b] hover:text-white group text-xs sm:text-sm"
+              className="bg-white/80 backdrop-blur-sm text-[#376f6b] font-semibold px-3 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-[#376f6b]/30 hover:bg-[#376f6b] hover:text-white group text-xs xl:text-sm"
             >
-              <Phone className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 group-hover:animate-pulse" />
+              <Phone className="w-3 h-3 xl:w-4 xl:h-4 mr-1.5 group-hover:animate-pulse" />
               Call Now
             </Button>
           </div>

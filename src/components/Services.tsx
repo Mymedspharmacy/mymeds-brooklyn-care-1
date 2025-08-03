@@ -208,7 +208,10 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
             {/* Free Refills Offer */}
-            <Card className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-gradient-to-br from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100">
+            <Card 
+              className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-gradient-to-br from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 cursor-pointer"
+              onClick={() => navigate('/special-offers')}
+            >
               <CardContent className="p-8 sm:p-10">
                 <div className="flex items-center justify-between mb-6">
                   <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg">
@@ -226,7 +229,7 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
                   Enjoy complimentary refills on all your prescriptions. No hidden fees, no surprises - just quality care at no extra cost.
                 </p>
                 
-                <div className="space-y-2">
+                <div className="space-y-2 mb-6">
                   <div className="flex items-center text-sm text-gray-600">
                     <CheckCircle className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
                     <span>All prescription medications included</span>
@@ -240,11 +243,28 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
                     <span>Automatic refill reminders</span>
                   </div>
                 </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-500">Click to see all offers</span>
+                  <Button 
+                    className="bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate('/special-offers');
+                    }}
+                  >
+                    View All Offers
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
               </CardContent>
             </Card>
 
             {/* Free Shipping Offer */}
-            <Card className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-gradient-to-br from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100">
+            <Card 
+              className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-gradient-to-br from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 cursor-pointer"
+              onClick={() => navigate('/special-offers')}
+            >
               <CardContent className="p-8 sm:p-10">
                 <div className="flex items-center justify-between mb-6">
                   <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center shadow-lg">
@@ -262,7 +282,7 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
                   Shop with confidence knowing that orders over $50 ship completely free. Fast, reliable delivery right to your doorstep.
                 </p>
                 
-                <div className="space-y-2">
+                <div className="space-y-2 mb-6">
                   <div className="flex items-center text-sm text-gray-600">
                     <CheckCircle className="h-4 w-4 text-blue-500 mr-2 flex-shrink-0" />
                     <span>Free shipping on orders $50+</span>
@@ -275,6 +295,20 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
                     <CheckCircle className="h-4 w-4 text-blue-500 mr-2 flex-shrink-0" />
                     <span>Secure packaging & tracking</span>
                   </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-500">Click to see all offers</span>
+                  <Button 
+                    className="bg-gradient-to-r from-blue-500 to-cyan-600 text-white hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate('/special-offers');
+                    }}
+                  >
+                    View All Offers
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
                 </div>
               </CardContent>
             </Card>

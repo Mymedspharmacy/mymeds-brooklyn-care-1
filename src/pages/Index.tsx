@@ -10,14 +10,32 @@ import { AppointmentForm } from "@/components/AppointmentForm";
 import { TransferForm } from "@/components/TransferForm";
 import { OTCSection } from "@/components/OTCSection";
 import { Toaster } from "@/components/ui/toaster";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Index = () => {
   const [showRefillForm, setShowRefillForm] = useState(false);
   const [showAppointmentForm, setShowAppointmentForm] = useState(false);
   const [showTransferForm, setShowTransferForm] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Handle navigation state from special offers page
+  useEffect(() => {
+    if (location.state) {
+      if (location.state.openRefillForm) {
+        setShowRefillForm(true);
+        // Clear the state to prevent reopening on refresh
+        navigate(location.pathname, { replace: true, state: {} });
+      } else if (location.state.openTransferForm) {
+        setShowTransferForm(true);
+        navigate(location.pathname, { replace: true, state: {} });
+      } else if (location.state.openAppointmentForm) {
+        setShowAppointmentForm(true);
+        navigate(location.pathname, { replace: true, state: {} });
+      }
+    }
+  }, [location.state, navigate, location.pathname]);
 
   return (
     <div className="min-h-screen bg-background">

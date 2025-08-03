@@ -51,7 +51,10 @@ export default function Services() {
       availability: "24/7",
       satisfactionRate: 98,
       patientsServed: 5000,
-      avgResponseTime: "2 hours"
+      avgResponseTime: "2 hours",
+      actionType: "refill",
+      actionButton: "Refill Prescription",
+      actionIcon: Pill
     },
     {
       id: 'same-day-delivery',
@@ -87,7 +90,10 @@ export default function Services() {
       availability: "Mon-Sat 9AM-6PM",
       satisfactionRate: 96,
       patientsServed: 3000,
-      avgResponseTime: "4 hours"
+      avgResponseTime: "4 hours",
+      actionType: "shop",
+      actionButton: "Shop Products",
+      actionIcon: ShoppingCart
     },
     {
       id: 'medication-management',
@@ -123,7 +129,10 @@ export default function Services() {
       availability: "By appointment",
       satisfactionRate: 99,
       patientsServed: 2000,
-      avgResponseTime: "24 hours"
+      avgResponseTime: "24 hours",
+      actionType: "appointment",
+      actionButton: "Book Consultation",
+      actionIcon: Calendar
     },
     {
       id: 'health-consultations',
@@ -159,7 +168,10 @@ export default function Services() {
       availability: "By appointment",
       satisfactionRate: 97,
       patientsServed: 1500,
-      avgResponseTime: "48 hours"
+      avgResponseTime: "48 hours",
+      actionType: "appointment",
+      actionButton: "Book Consultation",
+      actionIcon: Calendar
     },
     {
       id: 'immunizations',
@@ -195,43 +207,10 @@ export default function Services() {
       availability: "Walk-in & appointments",
       satisfactionRate: 95,
       patientsServed: 4000,
-      avgResponseTime: "1 hour"
-    },
-    {
-      id: '24-7-support',
-      icon: MessageCircle,
-      title: "24/7 Support",
-      description: "Round-the-clock pharmacy support and emergency medication assistance",
-      longDescription: "We understand that health concerns don't follow a 9-to-5 schedule. That's why we provide 24/7 pharmacy support for emergencies, medication questions, and urgent refills.",
-      features: [
-        "24/7 pharmacist consultation",
-        "Emergency medication access",
-        "After-hours pickup",
-        "Telepharmacy services",
-        "Medication emergency assistance",
-        "Health advice hotline"
-      ],
-      benefits: [
-        "Peace of mind knowing help is always available",
-        "Emergency medication access",
-        "Professional advice when you need it most",
-        "Reduced emergency room visits"
-      ],
-      process: [
-        "Call our 24/7 hotline",
-        "Speak with a licensed pharmacist",
-        "Get immediate assistance",
-        "Emergency pickup if needed"
-      ],
-      accent: "from-cyan-500 to-blue-500",
-      bgGradient: "from-cyan-50 to-blue-50",
-      image: "/images/services/24-7-support.jpg",
-      price: "Free consultation",
-      duration: "As needed",
-      availability: "24/7",
-      satisfactionRate: 100,
-      patientsServed: 10000,
-      avgResponseTime: "Immediate"
+      avgResponseTime: "1 hour",
+      actionType: "appointment",
+      actionButton: "Book Vaccination",
+      actionIcon: Calendar
     }
   ];
 
@@ -304,6 +283,30 @@ export default function Services() {
 
   const handleMapClick = () => {
     window.open('https://maps.app.goo.gl/gXSVqF25sAB7r6m76', '_blank');
+  };
+
+  const handleActionClick = (service) => {
+    switch (service.actionType) {
+      case 'refill':
+        // Navigate to home page and trigger refill form
+        navigate('/', { state: { openRefillForm: true } });
+        break;
+      case 'transfer':
+        // Navigate to home page and trigger transfer form
+        navigate('/', { state: { openTransferForm: true } });
+        break;
+      case 'appointment':
+        // Navigate to home page and trigger appointment form
+        navigate('/', { state: { openAppointmentForm: true } });
+        break;
+      case 'shop':
+        // Navigate to shop page
+        navigate('/shop');
+        break;
+      default:
+        // Default to calling
+        handleCallClick();
+    }
   };
 
   return (
@@ -514,7 +517,47 @@ export default function Services() {
                         )}
                       </div>
                       <div className="p-4 rounded-xl bg-gradient-to-r from-gray-50 to-white border border-gray-100 group-hover:shadow-lg transition-all duration-300">
-                        <p className="text-gray-700 font-medium leading-relaxed">{step}</p>
+                        <p className="text-gray-700 font-medium leading-relaxed mb-4">{step}</p>
+                        
+                        {/* Action button for each step */}
+                        {index === 0 && (
+                          <Button 
+                            onClick={() => handleActionClick(selectedServiceData)}
+                            className={`bg-gradient-to-r ${selectedServiceData.accent} text-white hover:shadow-lg transition-all duration-300 transform hover:scale-105 text-sm px-4 py-2`}
+                          >
+                            <selectedServiceData.actionIcon className="w-4 h-4 mr-2" />
+                            Get Started
+                          </Button>
+                        )}
+                        {index === 1 && (
+                          <Button 
+                            onClick={handleCallClick}
+                            variant="outline"
+                            className="border-[#57bbb6] text-[#57bbb6] hover:bg-[#57bbb6] hover:text-white transition-all duration-300 transform hover:scale-105 text-sm px-4 py-2"
+                          >
+                            <Phone className="w-4 h-4 mr-2" />
+                            Contact Us
+                          </Button>
+                        )}
+                        {index === 2 && (
+                          <Button 
+                            onClick={handleEmailClick}
+                            variant="outline"
+                            className="border-[#57bbb6] text-[#57bbb6] hover:bg-[#57bbb6] hover:text-white transition-all duration-300 transform hover:scale-105 text-sm px-4 py-2"
+                          >
+                            <Mail className="w-4 h-4 mr-2" />
+                            Learn More
+                          </Button>
+                        )}
+                        {index === 3 && (
+                          <Button 
+                            onClick={() => handleActionClick(selectedServiceData)}
+                            className={`bg-gradient-to-r ${selectedServiceData.accent} text-white hover:shadow-lg transition-all duration-300 transform hover:scale-105 text-sm px-4 py-2`}
+                          >
+                            <selectedServiceData.actionIcon className="w-4 h-4 mr-2" />
+                            Complete Service
+                          </Button>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -533,8 +576,16 @@ export default function Services() {
                 
                 <div className="flex flex-col sm:flex-row gap-6 justify-center">
                   <Button 
-                    onClick={handleCallClick}
+                    onClick={() => handleActionClick(selectedServiceData)}
                     className="bg-white text-[#376f6b] hover:bg-gray-100 font-bold px-8 py-4 text-lg rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  >
+                    <selectedServiceData.actionIcon className="w-5 h-5 mr-3" />
+                    {selectedServiceData.actionButton}
+                  </Button>
+                  <Button 
+                    onClick={handleCallClick}
+                    variant="outline"
+                    className="border-white text-white hover:bg-white hover:text-[#376f6b] font-bold px-8 py-4 text-lg rounded-xl transition-all duration-300 transform hover:scale-105"
                   >
                     <Phone className="w-5 h-5 mr-3" />
                     Call Now
@@ -546,14 +597,6 @@ export default function Services() {
                   >
                     <Mail className="w-5 h-5 mr-3" />
                     Email Us
-                  </Button>
-                  <Button 
-                    onClick={handleMapClick}
-                    variant="outline"
-                    className="border-white text-white hover:bg-white hover:text-[#376f6b] font-bold px-8 py-4 text-lg rounded-xl transition-all duration-300 transform hover:scale-105"
-                  >
-                    <MapPin className="w-5 h-5 mr-3" />
-                    Visit Us
                   </Button>
                 </div>
 
