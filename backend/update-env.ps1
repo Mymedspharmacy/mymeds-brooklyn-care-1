@@ -1,4 +1,6 @@
-﻿ADMIN_EMAIL=a.mymedspharmacy03@gmail.com
+# Update .env file with correct Railway database URL
+$envContent = @"
+ADMIN_EMAIL=a.mymedspharmacy03@gmail.com
 ADMIN_NAME=MYMEDSPHARMACY
 ADMIN_PASSWORD=admin@mymedspharmacy@01
 CONTACT_RECEIVER=a.mymedspharmacy03@gmail.com
@@ -33,3 +35,7 @@ RAILWAY_TCP_PROXY_DOMAIN=shortline.proxy.rlwy.net
 RAILWAY_TCP_PROXY_PORT=35432
 
 STRIPE_SECRET_KEY=sk_test_51RotVPRyGAg8aKqqIoJRZdMFb7s78P2m5X9MW5cdWzg9h9TeeK22GiMzLITeucDapmyBl4EoG57C5WIfE
+"@
+
+$envContent | Out-File -FilePath ".env" -Encoding UTF8
+Write-Host "Updated .env file with Railway proxy database URL" 
