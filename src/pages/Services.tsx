@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useScrollToTop } from '@/hooks/useScrollToTop';
 import { ArrowLeft, Star, Heart, Truck, Shield, Users, Stethoscope, MessageCircle, Pill, Clock, Award, CheckCircle, Zap, Thermometer, Bandage, ShoppingCart, Phone, Mail, MapPin, Calendar, DollarSign, Clock as ClockIcon, TrendingUp, Shield as ShieldIcon, Users as UsersIcon, Activity } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -237,6 +238,9 @@ export default function Services() {
   const selectedServiceData = selectedService 
     ? services.find(s => s.id === selectedService) 
     : null;
+
+  // Scroll to top when component mounts or service changes
+  useScrollToTop([selectedService]);
 
   // Debug logging
   console.log('Selected service:', selectedService);

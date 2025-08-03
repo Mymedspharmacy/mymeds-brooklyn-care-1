@@ -1,6 +1,8 @@
 import { BookOpen } from 'lucide-react';
+import { useScrollToTop } from '@/hooks/useScrollToTop';
 
 export default function Blog() {
+  useScrollToTop();
   return (
     <div className="min-h-screen bg-[#f5fefd]">
       {/* Header */}

@@ -342,15 +342,24 @@ export const Footer = () => {
               © {currentYear} My Meds Pharmacy. All rights reserved.
             </div>
             <div className="flex items-center gap-6 text-sm">
-              <a href="#" className="text-gray-400 hover:text-[#57bbb6] transition-colors duration-300">
+              <button 
+                onClick={() => navigate('/privacy-policy')}
+                className="text-gray-400 hover:text-[#57bbb6] transition-colors duration-300 cursor-pointer"
+              >
                 Privacy Policy
-              </a>
-              <a href="#" className="text-gray-400 hover:text-[#57bbb6] transition-colors duration-300">
+              </button>
+              <button 
+                onClick={() => navigate('/terms-of-service')}
+                className="text-gray-400 hover:text-[#57bbb6] transition-colors duration-300 cursor-pointer"
+              >
                 Terms of Service
-              </a>
-              <a href="#" className="text-gray-400 hover:text-[#57bbb6] transition-colors duration-300">
+              </button>
+              <button 
+                onClick={() => navigate('/hipaa-notice')}
+                className="text-gray-400 hover:text-[#57bbb6] transition-colors duration-300 cursor-pointer"
+              >
                 HIPAA Notice
-              </a>
+              </button>
             </div>
           </div>
         </div>

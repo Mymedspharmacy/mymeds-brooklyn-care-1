@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { ShoppingCart, Heart, Star, Search, Filter, X, Plus, Minus, ExternalLink } from 'lucide-react';
 import { PaymentForm } from '@/components/PaymentForm';
 import wooCommerceAPI from '../lib/woocommerce';
+import { useScrollToTop } from '@/hooks/useScrollToTop';
 
 // WooCommerce integration
 export default function Shop() {
+  useScrollToTop();
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const [showCart, setShowCart] = useState(false);
