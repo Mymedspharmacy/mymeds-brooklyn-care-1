@@ -84,28 +84,36 @@ export const Footer = () => {
                 <a 
                   href="#" 
                   className="w-10 h-10 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 group"
-                  aria-label="Facebook"
+                  aria-label="Follow us on Facebook"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.click()}
                 >
                   <Facebook className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
                 </a>
                 <a 
                   href="#" 
                   className="w-10 h-10 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 group"
-                  aria-label="Twitter"
+                  aria-label="Follow us on Twitter"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.click()}
                 >
                   <Twitter className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
                 </a>
                 <a 
                   href="#" 
                   className="w-10 h-10 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 group"
-                  aria-label="Instagram"
+                  aria-label="Follow us on Instagram"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.click()}
                 >
                   <Instagram className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
                 </a>
                 <a 
                   href="#" 
                   className="w-10 h-10 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 group"
-                  aria-label="LinkedIn"
+                  aria-label="Follow us on LinkedIn"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.click()}
                 >
                   <Linkedin className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
                 </a>
@@ -132,24 +140,27 @@ export const Footer = () => {
                   <a 
                     href="/" 
                     className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group"
+                    aria-label="Navigate to home page"
                   >
                     <ArrowRight className="h-4 w-4 mr-2 group-hover:translate-x-1 transition-transform duration-300" />
                     Home
                   </a>
                 </li>
                 <li>
-                  <a 
+                  <button 
                     onClick={() => navigate('/services')}
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer"
+                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
+                    aria-label="Navigate to services page"
                   >
                     <ArrowRight className="h-4 w-4 mr-2 group-hover:translate-x-1 transition-transform duration-300" />
                     Services
-                  </a>
+                  </button>
                 </li>
                 <li>
                   <a 
                     href="/shop" 
                     className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group"
+                    aria-label="Navigate to shop page"
                   >
                     <ArrowRight className="h-4 w-4 mr-2 group-hover:translate-x-1 transition-transform duration-300" />
                     Shop
@@ -159,6 +170,7 @@ export const Footer = () => {
                   <a 
                     href="/blog" 
                     className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group"
+                    aria-label="Navigate to health blog"
                   >
                     <ArrowRight className="h-4 w-4 mr-2 group-hover:translate-x-1 transition-transform duration-300" />
                     Health Blog
@@ -168,6 +180,7 @@ export const Footer = () => {
                   <a 
                     href="#about" 
                     className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group"
+                    aria-label="Scroll to about us section"
                   >
                     <ArrowRight className="h-4 w-4 mr-2 group-hover:translate-x-1 transition-transform duration-300" />
                     About Us
@@ -177,19 +190,21 @@ export const Footer = () => {
                   <a 
                     href="#contact" 
                     className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group"
+                    aria-label="Scroll to contact section"
                   >
                     <ArrowRight className="h-4 w-4 mr-2 group-hover:translate-x-1 transition-transform duration-300" />
                     Contact
                   </a>
                 </li>
                 <li>
-                  <a 
+                  <button 
                     onClick={() => navigate('/admin')}
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer"
+                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
+                    aria-label="Access admin panel"
                   >
                     <Settings className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
                     Admin Panel
-                  </a>
+                  </button>
                 </li>
               </ul>
             </div>
@@ -199,58 +214,64 @@ export const Footer = () => {
               <h3 className="text-xl font-bold mb-6 text-white">Our Services</h3>
               <ul className="space-y-3">
                 <li>
-                  <a 
+                  <button 
                     onClick={() => navigate('/services?service=prescription-refills')}
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer"
+                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
+                    aria-label="Learn about prescription refill services"
                   >
                     <Heart className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
                     Prescription Refills
-                  </a>
+                  </button>
                 </li>
                 <li>
-                  <a 
+                  <button 
                     onClick={() => navigate('/services?service=same-day-delivery')}
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer"
+                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
+                    aria-label="Learn about same-day delivery services"
                   >
                     <Truck className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
                     Same-Day Delivery
-                  </a>
+                  </button>
                 </li>
                 <li>
-                  <a 
+                  <button 
                     onClick={() => navigate('/services?service=medication-management')}
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer"
+                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
+                    aria-label="Learn about medication management services"
                   >
                     <Shield className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
                     Medication Management
-                  </a>
+                  </button>
                 </li>
                 <li>
-                  <a 
+                  <button 
                     onClick={() => navigate('/services?service=health-consultations')}
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer"
+                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
+                    aria-label="Learn about health consultation services"
                   >
                     <Users className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
                     Health Consultations
-                  </a>
+                  </button>
                 </li>
                 <li>
-                  <a 
+                  <button 
                     onClick={() => navigate('/services?service=immunizations')}
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer"
+                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
+                    aria-label="Learn about immunization services"
                   >
                     <Stethoscope className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
                     Immunizations
-                  </a>
+                  </button>
                 </li>
                 <li>
-                  <a 
+                  <button 
                     onClick={() => navigate('/services?service=24-7-support')}
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer"
+                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
+                    aria-label="Learn about 24/7 support services"
                   >
                     <MessageCircle className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
                     24/7 Support
-                  </a>
+                  </button>
                 </li>
               </ul>
             </div>
@@ -268,6 +289,7 @@ export const Footer = () => {
                     <button 
                       onClick={handleCallClick}
                       className="text-white font-semibold hover:text-[#57bbb6] transition-colors duration-300"
+                      aria-label="Call us at (347) 312-6458"
                     >
                       (347) 312-6458
                     </button>
@@ -283,6 +305,7 @@ export const Footer = () => {
                     <button 
                       onClick={handleEmailClick}
                       className="text-white font-semibold hover:text-[#57bbb6] transition-colors duration-300"
+                      aria-label="Send email to info@mymedspharmacy.com"
                     >
                       info@mymedspharmacy.com
                     </button>
@@ -298,6 +321,7 @@ export const Footer = () => {
                                          <button 
                        onClick={handleMapClick}
                        className="text-white font-semibold hover:text-[#57bbb6] transition-colors duration-300 flex items-center group"
+                       aria-label="Open location in maps"
                      >
                        J279+5V Brooklyn, NY
                        <ExternalLink className="h-3 w-3 ml-1 group-hover:translate-x-0.5 transition-transform duration-300" />
@@ -325,8 +349,12 @@ export const Footer = () => {
                     type="email" 
                     placeholder="Enter your email"
                     className="flex-1 px-4 py-2 rounded-l-lg border-0 focus:ring-2 focus:ring-[#57bbb6] focus:outline-none text-gray-900"
+                    aria-label="Email address for newsletter subscription"
                   />
-                  <Button className="bg-gradient-to-r from-[#57bbb6] to-[#376f6b] hover:shadow-lg text-white px-4 py-2 rounded-r-lg transition-all duration-300 transform hover:scale-105">
+                  <Button 
+                    className="bg-gradient-to-r from-[#57bbb6] to-[#376f6b] hover:shadow-lg text-white px-4 py-2 rounded-r-lg transition-all duration-300 transform hover:scale-105"
+                    aria-label="Subscribe to newsletter"
+                  >
                     Subscribe
                   </Button>
                 </div>
@@ -345,18 +373,21 @@ export const Footer = () => {
               <button 
                 onClick={() => navigate('/privacy-policy')}
                 className="text-gray-400 hover:text-[#57bbb6] transition-colors duration-300 cursor-pointer"
+                aria-label="Read our privacy policy"
               >
                 Privacy Policy
               </button>
               <button 
                 onClick={() => navigate('/terms-of-service')}
                 className="text-gray-400 hover:text-[#57bbb6] transition-colors duration-300 cursor-pointer"
+                aria-label="Read our terms of service"
               >
                 Terms of Service
               </button>
               <button 
                 onClick={() => navigate('/hipaa-notice')}
                 className="text-gray-400 hover:text-[#57bbb6] transition-colors duration-300 cursor-pointer"
+                aria-label="Read our HIPAA notice"
               >
                 HIPAA Notice
               </button>
