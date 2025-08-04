@@ -42,6 +42,10 @@ export default function Admin() {
   const [deliveryOrders, setDeliveryOrders] = useState<any[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [showOrderDetails, setShowOrderDetails] = useState(false);
+  const [selectedRefill, setSelectedRefill] = useState<any>(null);
+  const [showRefillDetails, setShowRefillDetails] = useState(false);
+  const [selectedTransfer, setSelectedTransfer] = useState<any>(null);
+  const [showTransferDetails, setShowTransferDetails] = useState(false);
   const [wooCommerceStatus, setWooCommerceStatus] = useState<any>(null);
   const [wordPressStatus, setWordPressStatus] = useState<any>(null);
   const [settings, setSettings] = useState({
@@ -366,6 +370,16 @@ export default function Admin() {
     setShowOrderDetails(true);
   }
 
+  function handleRefillClick(refill: any) {
+    setSelectedRefill(refill);
+    setShowRefillDetails(true);
+  }
+
+  function handleTransferClick(transfer: any) {
+    setSelectedTransfer(transfer);
+    setShowTransferDetails(true);
+  }
+
   async function updateOrderDeliveryStatus(orderId: number, status: string) {
     try {
       // Update the order status via API
@@ -665,7 +679,11 @@ export default function Admin() {
                           order.user?.name?.toLowerCase().includes(searchTerm.toLowerCase())
                         )
                         .map((order: any) => (
-                          <TableRow key={order.id}>
+                          <TableRow 
+                            key={order.id}
+                            className="cursor-pointer hover:bg-gray-50"
+                            onClick={() => handleOrderClick(order)}
+                          >
                             <TableCell>#{order.id}</TableCell>
                             <TableCell>{order.user?.name || 'N/A'}</TableCell>
                             <TableCell>{formatCurrency(order.total)}</TableCell>
@@ -676,7 +694,10 @@ export default function Admin() {
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  onClick={() => updateOrderStatus(order.id, 'completed')}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    updateOrderStatus(order.id, 'completed');
+                                  }}
                                   disabled={order.status === 'completed'}
                                   className="text-green-600 hover:text-green-700"
                                   title="Mark as Completed"
@@ -687,7 +708,10 @@ export default function Admin() {
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  onClick={() => updateOrderStatus(order.id, 'cancelled')}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    updateOrderStatus(order.id, 'cancelled');
+                                  }}
                                   disabled={order.status === 'cancelled'}
                                   className="text-red-600 hover:text-red-700"
                                   title="Cancel Order"
@@ -745,53 +769,56 @@ export default function Admin() {
 
                   {/* Interactive Map */}
                   <div className="relative">
-                    <div className="bg-gray-100 rounded-lg p-4 min-h-[500px] relative overflow-hidden">
-                      {/* Map Background */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-green-50 opacity-50"></div>
+                    <div className="bg-gray-100 rounded-lg overflow-hidden min-h-[500px] relative">
+                      {/* Real Map */}
+                      <iframe
+                        src="https://www.openstreetmap.org/export/embed.html?bbox=-74.1,40.6,-73.8,40.8&layer=mapnik&marker=40.6782,-73.9442"
+                        width="100%"
+                        height="500"
+                        frameBorder="0"
+                        scrolling="no"
+                        marginHeight={0}
+                        marginWidth={0}
+                        title="Brooklyn Delivery Map"
+                        className="rounded-lg"
+                      />
                       
-                      {/* Map Grid Lines */}
-                      <div className="absolute inset-0 opacity-20">
-                        <div className="grid grid-cols-10 grid-rows-10 h-full">
-                          {Array.from({ length: 100 }).map((_, i) => (
-                            <div key={i} className="border border-gray-300"></div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Delivery Pins */}
-                      {deliveryOrders.map((order: any, index: number) => (
-                        <div
-                          key={order.id}
-                          className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-full"
-                          style={{
-                            left: `${20 + (index * 8) % 80}%`,
-                            top: `${30 + (index * 6) % 60}%`,
-                          }}
-                          onClick={() => handleOrderClick(order)}
-                        >
-                          {/* Pin */}
-                          <div className="relative">
-                            <div className={`w-6 h-6 rounded-full border-2 border-white shadow-lg flex items-center justify-center ${
-                              order.status === 'approved' ? 'bg-green-500' : 'bg-yellow-500'
-                            }`}>
-                              <MapPin className="w-4 h-4 text-white" />
-                            </div>
-                            
-                            {/* Order Info Tooltip */}
-                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 bg-white rounded-lg shadow-lg border p-3 opacity-0 hover:opacity-100 transition-opacity duration-200 z-10">
-                              <div className="text-xs">
-                                <div className="font-semibold text-gray-900">Order #{order.id}</div>
-                                <div className="text-gray-600">{order.user?.name || 'Customer'}</div>
-                                <div className="text-gray-600">{formatCurrency(order.total)}</div>
-                                <div className="text-gray-600">ETA: {order.estimatedDelivery}</div>
-                                <div className="mt-1">
-                                  {getStatusBadge(order.status)}
+                      {/* Overlay with Delivery Pins */}
+                      <div className="absolute inset-0 pointer-events-none">
+                        {deliveryOrders.map((order: any, index: number) => (
+                          <div
+                            key={order.id}
+                            className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-full pointer-events-auto"
+                            style={{
+                              left: `${20 + (index * 8) % 80}%`,
+                              top: `${30 + (index * 6) % 60}%`,
+                            }}
+                            onClick={() => handleOrderClick(order)}
+                          >
+                            {/* Pin */}
+                            <div className="relative">
+                              <div className={`w-6 h-6 rounded-full border-2 border-white shadow-lg flex items-center justify-center ${
+                                order.status === 'approved' ? 'bg-green-500' : 'bg-yellow-500'
+                              }`}>
+                                <MapPin className="w-4 h-4 text-white" />
+                              </div>
+                              
+                              {/* Order Info Tooltip */}
+                              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 bg-white rounded-lg shadow-lg border p-3 opacity-0 hover:opacity-100 transition-opacity duration-200 z-10 pointer-events-none">
+                                <div className="text-xs">
+                                  <div className="font-semibold text-gray-900">Order #{order.id}</div>
+                                  <div className="text-gray-600">{order.user?.name || 'Customer'}</div>
+                                  <div className="text-gray-600">{formatCurrency(order.total)}</div>
+                                  <div className="text-gray-600">ETA: {order.estimatedDelivery}</div>
+                                  <div className="mt-1">
+                                    {getStatusBadge(order.status)}
+                                  </div>
                                 </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
 
                       {/* Map Legend */}
                       <div className="absolute bottom-4 left-4 bg-white rounded-lg shadow-lg p-3">
@@ -905,7 +932,11 @@ export default function Admin() {
                   </TableHeader>
                   <TableBody>
                     {refillRequests.map((refill: any) => (
-                      <TableRow key={refill.id}>
+                      <TableRow 
+                        key={refill.id} 
+                        className="cursor-pointer hover:bg-gray-50"
+                        onClick={() => handleRefillClick(refill)}
+                      >
                         <TableCell>#{refill.id}</TableCell>
                         <TableCell>{refill.user?.name || 'N/A'}</TableCell>
                         <TableCell>{refill.medication}</TableCell>
@@ -918,7 +949,10 @@ export default function Admin() {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => updateRefillStatus(refill.id, 'approved')}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                updateRefillStatus(refill.id, 'approved');
+                              }}
                               disabled={refill.status === 'approved'}
                               className="text-blue-600 hover:text-blue-700"
                               title="Approve Refill"
@@ -929,7 +963,10 @@ export default function Admin() {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => updateRefillStatus(refill.id, 'completed')}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                updateRefillStatus(refill.id, 'completed');
+                              }}
                               disabled={refill.status === 'completed'}
                               className="text-green-600 hover:text-green-700"
                               title="Mark as Completed"
@@ -968,7 +1005,11 @@ export default function Admin() {
                   </TableHeader>
                   <TableBody>
                     {transferRequests.map((transfer: any) => (
-                      <TableRow key={transfer.id}>
+                      <TableRow 
+                        key={transfer.id}
+                        className="cursor-pointer hover:bg-gray-50"
+                        onClick={() => handleTransferClick(transfer)}
+                      >
                         <TableCell>#{transfer.id}</TableCell>
                         <TableCell>{transfer.user?.name || 'N/A'}</TableCell>
                         <TableCell>{transfer.currentPharmacy}</TableCell>
@@ -987,7 +1028,10 @@ export default function Admin() {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => updateTransferStatus(transfer.id, 'approved')}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                updateTransferStatus(transfer.id, 'approved');
+                              }}
                               disabled={transfer.status === 'approved'}
                               className="text-blue-600 hover:text-blue-700"
                               title="Approve Transfer"
@@ -998,7 +1042,10 @@ export default function Admin() {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => updateTransferStatus(transfer.id, 'completed')}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                updateTransferStatus(transfer.id, 'completed');
+                              }}
                               disabled={transfer.status === 'completed'}
                               className="text-green-600 hover:text-green-700"
                               title="Mark as Completed"
@@ -1499,6 +1546,273 @@ export default function Admin() {
                     </Button>
                   )}
                   <Button variant="outline" onClick={() => setShowOrderDetails(false)}>
+                    Close
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Refill Request Details Dialog */}
+      <Dialog open={showRefillDetails} onOpenChange={setShowRefillDetails}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2">
+              <Pill className="h-5 w-5" />
+              <span>Refill Request Details</span>
+            </DialogTitle>
+          </DialogHeader>
+          {selectedRefill && (
+            <div className="space-y-6">
+              {/* Request Header */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Request ID</label>
+                  <p className="text-lg font-semibold text-gray-900">#{selectedRefill.id}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Status</label>
+                  <div className="mt-1">{getStatusBadge(selectedRefill.status)}</div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Urgency</label>
+                  <div className="mt-1">{getStatusBadge(selectedRefill.urgency)}</div>
+                </div>
+              </div>
+
+              {/* Patient Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Patient Information</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Name</label>
+                      <p className="text-sm text-gray-900">{selectedRefill.user?.name || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Email</label>
+                      <p className="text-sm text-gray-900">{selectedRefill.user?.email || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Phone</label>
+                      <p className="text-sm text-gray-900">{selectedRefill.user?.phone || 'N/A'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Medication Information</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Medication</label>
+                      <p className="text-sm text-gray-900">{selectedRefill.medication}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Dosage</label>
+                      <p className="text-sm text-gray-900">{selectedRefill.dosage}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Instructions</label>
+                      <p className="text-sm text-gray-900">{selectedRefill.instructions || 'No special instructions'}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Additional Information */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Additional Information</h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Notes</label>
+                    <p className="text-sm text-gray-900">{selectedRefill.notes || 'No additional notes'}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Prescription ID</label>
+                    <p className="text-sm text-gray-900">{selectedRefill.prescriptionId || 'Not specified'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-between pt-4 border-t">
+                <div className="text-sm text-gray-600">
+                  <p>Requested: {formatDate(selectedRefill.requestedDate)}</p>
+                  {selectedRefill.completedDate && (
+                    <p>Completed: {formatDate(selectedRefill.completedDate)}</p>
+                  )}
+                </div>
+                <div className="flex items-center space-x-2">
+                  {selectedRefill.status === 'pending' && (
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        updateRefillStatus(selectedRefill.id, 'approved');
+                        setShowRefillDetails(false);
+                      }}
+                      className="text-blue-600 hover:text-blue-700"
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Approve Refill
+                    </Button>
+                  )}
+                  {selectedRefill.status === 'approved' && (
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        updateRefillStatus(selectedRefill.id, 'completed');
+                        setShowRefillDetails(false);
+                      }}
+                      className="text-green-600 hover:text-green-700"
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Mark as Completed
+                    </Button>
+                  )}
+                  <Button variant="outline" onClick={() => setShowRefillDetails(false)}>
+                    Close
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Transfer Request Details Dialog */}
+      <Dialog open={showTransferDetails} onOpenChange={setShowTransferDetails}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2">
+              <RefreshCw className="h-5 w-5" />
+              <span>Transfer Request Details</span>
+            </DialogTitle>
+          </DialogHeader>
+          {selectedTransfer && (
+            <div className="space-y-6">
+              {/* Request Header */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Request ID</label>
+                  <p className="text-lg font-semibold text-gray-900">#{selectedTransfer.id}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Status</label>
+                  <div className="mt-1">{getStatusBadge(selectedTransfer.status)}</div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">From Pharmacy</label>
+                  <p className="text-sm text-gray-900">{selectedTransfer.currentPharmacy}</p>
+                </div>
+              </div>
+
+              {/* Patient Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Patient Information</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Name</label>
+                      <p className="text-sm text-gray-900">{selectedTransfer.user?.name || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Email</label>
+                      <p className="text-sm text-gray-900">{selectedTransfer.user?.email || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Phone</label>
+                      <p className="text-sm text-gray-900">{selectedTransfer.user?.phone || 'N/A'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Transfer Information</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Current Pharmacy</label>
+                      <p className="text-sm text-gray-900">{selectedTransfer.currentPharmacy}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">New Pharmacy</label>
+                      <p className="text-sm text-gray-900">{selectedTransfer.newPharmacy}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Reason</label>
+                      <p className="text-sm text-gray-900">{selectedTransfer.reason || 'No reason provided'}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Medications */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Medications to Transfer</h3>
+                <div className="border rounded-lg p-4 bg-gray-50">
+                  {Array.isArray(selectedTransfer.medications) ? (
+                    <div className="space-y-2">
+                      {selectedTransfer.medications.map((med: string, index: number) => (
+                        <div key={index} className="flex items-center space-x-2">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                          <span className="text-sm text-gray-900">{med}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-900">{selectedTransfer.medications}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Additional Information */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Additional Information</h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Notes</label>
+                    <p className="text-sm text-gray-900">{selectedTransfer.notes || 'No additional notes'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-between pt-4 border-t">
+                <div className="text-sm text-gray-600">
+                  <p>Requested: {formatDate(selectedTransfer.requestedDate)}</p>
+                  {selectedTransfer.completedDate && (
+                    <p>Completed: {formatDate(selectedTransfer.completedDate)}</p>
+                  )}
+                </div>
+                <div className="flex items-center space-x-2">
+                  {selectedTransfer.status === 'pending' && (
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        updateTransferStatus(selectedTransfer.id, 'approved');
+                        setShowTransferDetails(false);
+                      }}
+                      className="text-blue-600 hover:text-blue-700"
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Approve Transfer
+                    </Button>
+                  )}
+                  {selectedTransfer.status === 'approved' && (
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        updateTransferStatus(selectedTransfer.id, 'completed');
+                        setShowTransferDetails(false);
+                      }}
+                      className="text-green-600 hover:text-green-700"
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Mark as Completed
+                    </Button>
+                  )}
+                  <Button variant="outline" onClick={() => setShowTransferDetails(false)}>
                     Close
                   </Button>
                 </div>
