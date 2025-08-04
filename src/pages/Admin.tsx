@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 import api from '../lib/api';
 import railwayAuth from '../lib/railwayAuth';
 
@@ -53,6 +54,9 @@ export default function Admin() {
   const [deleteItem, setDeleteItem] = useState<{ type: string; id: number; name: string } | null>(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editingItem, setEditingItem] = useState<{ type: string; data: any } | null>(null);
+  const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
+  const [selectAllOrders, setSelectAllOrders] = useState(false);
   const [settings, setSettings] = useState({
     siteName: 'MyMeds Pharmacy',
     contactEmail: 'contact@mymedspharmacy.com',
@@ -587,6 +591,54 @@ export default function Admin() {
     }
   }
 
+  // Bulk Operations for Orders
+  async function bulkDeleteOrders() {
+    if (selectedOrders.length === 0) {
+      showToastMessage('No orders selected for deletion', 'error');
+      return;
+    }
+
+    try {
+      // Delete orders one by one (or implement bulk delete endpoint)
+      for (const orderId of selectedOrders) {
+        await api.delete(`/orders/${orderId}`);
+      }
+      
+      showToastMessage(`Successfully deleted ${selectedOrders.length} order(s)`);
+      setSelectedOrders([]);
+      setSelectAllOrders(false);
+      fetchOrders();
+      generateDeliveryOrders(); // Refresh delivery map
+    } catch (error) {
+      console.error('Error bulk deleting orders:', error);
+      showToastMessage('Failed to delete some orders', 'error');
+    }
+  }
+
+  function handleOrderSelection(orderId: number) {
+    setSelectedOrders(prev => {
+      if (prev.includes(orderId)) {
+        return prev.filter(id => id !== orderId);
+      } else {
+        return [...prev, orderId];
+      }
+    });
+  }
+
+  function handleSelectAllOrders() {
+    if (selectAllOrders) {
+      setSelectedOrders([]);
+      setSelectAllOrders(false);
+    } else {
+      const filteredOrders = orders.filter((order: any) => 
+        order.id.toString().includes(searchTerm) ||
+        order.user?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setSelectedOrders(filteredOrders.map((order: any) => order.id));
+      setSelectAllOrders(true);
+    }
+  }
+
   // Helper functions for delete and edit operations
   function handleDeleteClick(type: string, id: number, name: string) {
     setDeleteItem({ type, id, name });
@@ -867,22 +919,61 @@ export default function Admin() {
           <TabsContent value="orders" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Order Management</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Order Management</CardTitle>
+                  <div className="flex items-center space-x-2">
+                    {selectedOrders.length > 0 && (
+                      <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                        {selectedOrders.length} selected
+                      </Badge>
+                    )}
+                    {selectedOrders.length > 0 && (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => setShowBulkDeleteConfirm(true)}
+                        className="bg-red-600 hover:bg-red-700"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete Selected ({selectedOrders.length})
+                      </Button>
+                    )}
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <Input
-                    placeholder="Search orders..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="max-w-sm"
-                  />
+                  <div className="flex items-center justify-between">
+                    <Input
+                      placeholder="Search orders..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="max-w-sm"
+                    />
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        checked={selectAllOrders}
+                        onCheckedChange={handleSelectAllOrders}
+                        className="data-[state=checked]:bg-brand"
+                      />
+                      <span className="text-sm text-gray-600">Select All</span>
+                    </div>
+                  </div>
 
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead className="w-12">
+                          <Checkbox
+                            checked={selectAllOrders}
+                            onCheckedChange={handleSelectAllOrders}
+                            className="data-[state=checked]:bg-brand"
+                          />
+                        </TableHead>
                         <TableHead>Order ID</TableHead>
                         <TableHead>Customer</TableHead>
+                        <TableHead>Contact</TableHead>
+                        <TableHead>Items</TableHead>
                         <TableHead>Total</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Date</TableHead>
@@ -898,14 +989,59 @@ export default function Admin() {
                         .map((order: any) => (
                           <TableRow 
                             key={order.id}
-                            className="cursor-pointer hover:bg-gray-50"
-                            onClick={() => handleOrderClick(order)}
+                            className={`hover:bg-gray-50 ${selectedOrders.includes(order.id) ? 'bg-blue-50' : ''}`}
                           >
-                            <TableCell>#{order.id}</TableCell>
-                            <TableCell>{order.user?.name || 'N/A'}</TableCell>
-                            <TableCell>{formatCurrency(order.total)}</TableCell>
+                            <TableCell>
+                              <Checkbox
+                                checked={selectedOrders.includes(order.id)}
+                                onCheckedChange={() => handleOrderSelection(order.id)}
+                                onClick={(e) => e.stopPropagation()}
+                                className="data-[state=checked]:bg-brand"
+                              />
+                            </TableCell>
+                            <TableCell 
+                              className="cursor-pointer font-medium text-brand hover:text-brand-dark"
+                              onClick={() => handleOrderClick(order)}
+                            >
+                              #{order.id}
+                            </TableCell>
+                            <TableCell>
+                              <div>
+                                <div className="font-medium">{order.user?.name || 'N/A'}</div>
+                                <div className="text-sm text-gray-500">ID: {order.user?.id || 'N/A'}</div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div>
+                                <div className="text-sm">{order.user?.email || 'N/A'}</div>
+                                <div className="text-sm text-gray-500">{order.user?.phone || 'N/A'}</div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="text-sm">
+                                {order.items?.length || 0} item(s)
+                                {order.items?.length > 0 && (
+                                  <div className="text-xs text-gray-500 mt-1">
+                                    {order.items.slice(0, 2).map((item: any, index: number) => (
+                                      <div key={index}>• {item.name || 'Product'} ({item.quantity || 1})</div>
+                                    ))}
+                                    {order.items.length > 2 && (
+                                      <div className="text-xs text-gray-500">+{order.items.length - 2} more</div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell className="font-medium">{formatCurrency(order.total)}</TableCell>
                             <TableCell>{getStatusBadge(order.status)}</TableCell>
-                            <TableCell>{formatDate(order.createdAt)}</TableCell>
+                            <TableCell>
+                              <div>
+                                <div className="text-sm">{formatDate(order.createdAt)}</div>
+                                {order.updatedAt && order.updatedAt !== order.createdAt && (
+                                  <div className="text-xs text-gray-500">Updated: {formatDate(order.updatedAt)}</div>
+                                )}
+                              </div>
+                            </TableCell>
                             <TableCell>
                               <div className="flex items-center space-x-2">
                                 <Button
@@ -2183,6 +2319,48 @@ export default function Admin() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Delete Confirmation Dialog */}
+      <Dialog open={showBulkDeleteConfirm} onOpenChange={setShowBulkDeleteConfirm}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2">
+              <Trash2 className="h-5 w-5 text-red-500" />
+              <span>Confirm Bulk Delete</span>
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-gray-600">
+              Are you sure you want to delete <strong>{selectedOrders.length} order(s)</strong>? This action cannot be undone.
+            </p>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                <span className="text-sm font-medium text-red-800">Warning</span>
+              </div>
+              <p className="text-sm text-red-700 mt-1">
+                This will permanently delete all selected orders and their associated data.
+              </p>
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setShowBulkDeleteConfirm(false)}>
+                Cancel
+              </Button>
+              <Button 
+                variant="destructive" 
+                onClick={() => {
+                  bulkDeleteOrders();
+                  setShowBulkDeleteConfirm(false);
+                }}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete {selectedOrders.length} Order(s)
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
