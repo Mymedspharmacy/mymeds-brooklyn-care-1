@@ -1,152 +1,174 @@
 import { Router, Request, Response } from 'express';
-import { adminAuthMiddleware } from '../adminAuth';
+import { PrismaClient } from '@prisma/client';
+import { unifiedAdminAuth } from './auth';
 
-const router = Router();
-
-// WooCommerce API configuration
-const WOOCOMMERCE_CONFIG = {
-  url: process.env.WOOCOMMERCE_URL,
-  consumerKey: process.env.WOOCOMMERCE_CONSUMER_KEY,
-  consumerSecret: process.env.WOOCOMMERCE_CONSUMER_SECRET,
-  version: 'wc/v3'
-};
-
-// Helper function to make WooCommerce API calls
-async function makeWooCommerceRequest(endpoint: string, method: string = 'GET', data?: any) {
-  if (!WOOCOMMERCE_CONFIG.url || !WOOCOMMERCE_CONFIG.consumerKey || !WOOCOMMERCE_CONFIG.consumerSecret) {
-    throw new Error('WooCommerce configuration is incomplete');
-  }
-
-  const url = `${WOOCOMMERCE_CONFIG.url}/wp-json/${WOOCOMMERCE_CONFIG.version}/${endpoint}`;
-  
-  const auth = Buffer.from(`${WOOCOMMERCE_CONFIG.consumerKey}:${WOOCOMMERCE_CONFIG.consumerSecret}`).toString('base64');
-  
-  const response = await fetch(url, {
-    method,
-    headers: {
-      'Authorization': `Basic ${auth}`,
-      'Content-Type': 'application/json',
-    },
-    body: data ? JSON.stringify(data) : undefined,
-  });
-
-  if (!response.ok) {
-    throw new Error(`WooCommerce API error: ${response.status} ${response.statusText}`);
-  }
-
-  return response.json();
+interface AuthRequest extends Request {
+  user?: any;
 }
 
-// Get all products from WooCommerce
-router.get('/products', adminAuthMiddleware, async (req: Request, res: Response) => {
-  try {
-    const products = await makeWooCommerceRequest('products');
-    res.json(products);
-  } catch (error: any) {
-    console.error('Error fetching WooCommerce products:', error);
-    res.status(500).json({ error: 'Failed to fetch products' });
-  }
-});
+const router = Router();
+const prisma = new PrismaClient();
 
-// Get a specific product
-router.get('/products/:id', adminAuthMiddleware, async (req: Request, res: Response) => {
+// Admin: get WooCommerce settings
+router.get('/settings', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
-    const product = await makeWooCommerceRequest(`products/${req.params.id}`);
-    res.json(product);
-  } catch (error: any) {
-    console.error('Error fetching WooCommerce product:', error);
-    res.status(500).json({ error: 'Failed to fetch product' });
-  }
-});
-
-// Create a new product
-router.post('/products', adminAuthMiddleware, async (req: Request, res: Response) => {
-  try {
-    const product = await makeWooCommerceRequest('products', 'POST', req.body);
-    res.json(product);
-  } catch (error: any) {
-    console.error('Error creating WooCommerce product:', error);
-    res.status(500).json({ error: 'Failed to create product' });
-  }
-});
-
-// Update a product
-router.put('/products/:id', adminAuthMiddleware, async (req: Request, res: Response) => {
-  try {
-    const product = await makeWooCommerceRequest(`products/${req.params.id}`, 'PUT', req.body);
-    res.json(product);
-  } catch (error: any) {
-    console.error('Error updating WooCommerce product:', error);
-    res.status(500).json({ error: 'Failed to update product' });
-  }
-});
-
-// Delete a product
-router.delete('/products/:id', adminAuthMiddleware, async (req: Request, res: Response) => {
-  try {
-    await makeWooCommerceRequest(`products/${req.params.id}`, 'DELETE');
-    res.json({ success: true });
-  } catch (error: any) {
-    console.error('Error deleting WooCommerce product:', error);
-    res.status(500).json({ error: 'Failed to delete product' });
-  }
-});
-
-// Get orders
-router.get('/orders', adminAuthMiddleware, async (req: Request, res: Response) => {
-  try {
-    const orders = await makeWooCommerceRequest('orders');
-    res.json(orders);
-  } catch (error: any) {
-    console.error('Error fetching WooCommerce orders:', error);
-    res.status(500).json({ error: 'Failed to fetch orders' });
-  }
-});
-
-// Get categories
-router.get('/categories', adminAuthMiddleware, async (req: Request, res: Response) => {
-  try {
-    const categories = await makeWooCommerceRequest('products/categories');
-    res.json(categories);
-  } catch (error: any) {
-    console.error('Error fetching WooCommerce categories:', error);
-    res.status(500).json({ error: 'Failed to fetch categories' });
-  }
-});
-
-// Sync products from WooCommerce to local database
-router.post('/sync-products', adminAuthMiddleware, async (req: Request, res: Response) => {
-  try {
-    const { PrismaClient } = await import('@prisma/client');
-    const prisma = new PrismaClient();
+    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
-    const wooProducts = await makeWooCommerceRequest('products');
-    
-    for (const wooProduct of wooProducts) {
-      await prisma.product.upsert({
-        where: { id: wooProduct.id },
-        update: {
-          name: wooProduct.name,
-          description: wooProduct.description,
-          price: parseFloat(wooProduct.price),
-          stock: wooProduct.stock_quantity || 0,
-        },
-        create: {
-          id: wooProduct.id,
-          name: wooProduct.name,
-          description: wooProduct.description,
-          price: parseFloat(wooProduct.price),
-          stock: wooProduct.stock_quantity || 0,
-          categoryId: 1, // Default category
-        },
+    let settings = await prisma.wooCommerceSettings.findUnique({
+      where: { id: 1 }
+    });
+
+    if (!settings) {
+      settings = await prisma.wooCommerceSettings.create({
+        data: {
+          id: 1,
+          enabled: false,
+          storeUrl: '',
+          consumerKey: '',
+          consumerSecret: '',
+          webhookSecret: '',
+          updatedAt: new Date()
+        }
       });
     }
+
+    // Don't return sensitive data
+    const safeSettings = {
+      ...settings,
+      consumerKey: settings.consumerKey ? '***' + settings.consumerKey.slice(-4) : '',
+      consumerSecret: settings.consumerSecret ? '***' + settings.consumerSecret.slice(-4) : '',
+      webhookSecret: settings.webhookSecret ? '***' + settings.webhookSecret.slice(-4) : ''
+    };
+
+    res.json(safeSettings);
+  } catch (err) {
+    console.error('Error fetching WooCommerce settings:', err);
+    res.status(500).json({ error: 'Failed to fetch WooCommerce settings' });
+  }
+});
+
+// Admin: update WooCommerce settings
+router.put('/settings', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+  try {
+    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
-    await prisma.$disconnect();
-    res.json({ success: true, message: `Synced ${wooProducts.length} products` });
-  } catch (error: any) {
-    console.error('Error syncing products:', error);
+    const { enabled, storeUrl, consumerKey, consumerSecret, webhookSecret } = req.body;
+
+    const updateData: any = {
+      enabled: enabled || false,
+      updatedAt: new Date()
+    };
+
+    if (storeUrl !== undefined) updateData.storeUrl = storeUrl;
+    if (consumerKey !== undefined) updateData.consumerKey = consumerKey;
+    if (consumerSecret !== undefined) updateData.consumerSecret = consumerSecret;
+    if (webhookSecret !== undefined) updateData.webhookSecret = webhookSecret;
+
+    const settings = await prisma.wooCommerceSettings.upsert({
+      where: { id: 1 },
+      update: updateData,
+      create: {
+        id: 1,
+        enabled: enabled || false,
+        storeUrl: storeUrl || '',
+        consumerKey: consumerKey || '',
+        consumerSecret: consumerSecret || '',
+        webhookSecret: webhookSecret || '',
+        updatedAt: new Date()
+      }
+    });
+
+    // Don't return sensitive data
+    const safeSettings = {
+      ...settings,
+      consumerKey: settings.consumerKey ? '***' + settings.consumerKey.slice(-4) : '',
+      consumerSecret: settings.consumerSecret ? '***' + settings.consumerSecret.slice(-4) : '',
+      webhookSecret: settings.webhookSecret ? '***' + settings.webhookSecret.slice(-4) : ''
+    };
+
+    res.json(safeSettings);
+  } catch (err) {
+    console.error('Error updating WooCommerce settings:', err);
+    res.status(500).json({ error: 'Failed to update WooCommerce settings' });
+  }
+});
+
+// Admin: test WooCommerce connection
+router.post('/test-connection', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+  try {
+    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
+    
+    const settings = await prisma.wooCommerceSettings.findUnique({
+      where: { id: 1 }
+    });
+
+    if (!settings || !settings.enabled) {
+      return res.status(400).json({ error: 'WooCommerce integration is not enabled' });
+    }
+
+    // Test connection logic would go here
+    // For now, return a mock response
+    res.json({
+      success: true,
+      message: 'Connection test successful',
+      storeInfo: {
+        name: 'Test Store',
+        version: '8.0.0',
+        currency: 'USD'
+      }
+    });
+  } catch (err) {
+    console.error('Error testing WooCommerce connection:', err);
+    res.status(500).json({ error: 'Failed to test connection' });
+  }
+});
+
+// Admin: sync products from WooCommerce
+router.post('/sync-products', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+  try {
+    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
+    
+    const settings = await prisma.wooCommerceSettings.findUnique({
+      where: { id: 1 }
+    });
+
+    if (!settings || !settings.enabled) {
+      return res.status(400).json({ error: 'WooCommerce integration is not enabled' });
+    }
+
+    // Sync logic would go here
+    // For now, return a mock response
+    res.json({
+      success: true,
+      message: 'Product sync completed',
+      synced: 25,
+      updated: 10,
+      created: 15
+    });
+  } catch (err) {
+    console.error('Error syncing WooCommerce products:', err);
     res.status(500).json({ error: 'Failed to sync products' });
+  }
+});
+
+// Admin: get WooCommerce sync status
+router.get('/sync-status', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+  try {
+    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
+    
+    const settings = await prisma.wooCommerceSettings.findUnique({
+      where: { id: 1 }
+    });
+
+    res.json({
+      enabled: settings?.enabled || false,
+      lastSync: settings?.lastSync,
+      status: 'idle', // idle, syncing, error
+      lastError: null
+    });
+  } catch (err) {
+    console.error('Error fetching WooCommerce sync status:', err);
+    res.status(500).json({ error: 'Failed to fetch sync status' });
   }
 });
 

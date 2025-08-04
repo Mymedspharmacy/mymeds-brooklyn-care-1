@@ -22,6 +22,9 @@ import settingsRoutes from './routes/settings';
 import adminRoutes from './routes/admin';
 import woocommerceRoutes from './routes/woocommerce';
 import wordpressRoutes from './routes/wordpress';
+import refillRequestRoutes from './routes/refillRequests';
+import transferRequestRoutes from './routes/transferRequests';
+import notificationRoutes from './routes/notifications';
 // @ts-ignore
 import hpp from 'hpp';
 import mongoSanitize from 'express-mongo-sanitize';
@@ -187,6 +190,9 @@ app.use('/api/contact', contactLimiter, contactRoutes);
 app.use('/api/payments', generalLimiter, paymentsRoutes);
 app.use('/api/reviews', generalLimiter, reviewsRoutes);
 app.use('/api/settings', generalLimiter, settingsRoutes);
+app.use('/api/refill-requests', generalLimiter, refillRequestRoutes);
+app.use('/api/transfer-requests', generalLimiter, transferRequestRoutes);
+app.use('/api/notifications', generalLimiter, notificationRoutes);
 
 // Notification endpoints
 app.get('/api/notifications', adminAuthMiddleware, async (req: Request, res: Response) => {

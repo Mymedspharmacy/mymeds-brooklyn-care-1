@@ -19,6 +19,8 @@ model User {
   orders        Order[]
   prescriptions Prescription[]
   reviews       Review[]
+  refillRequests RefillRequest[]
+  transferRequests TransferRequest[]
 }
 
 model Category {
@@ -75,6 +77,41 @@ model Prescription {
   notified     Boolean  @default(false)
   user         User     @relation(fields: [userId], references: [id])
   @@index([notified, createdAt])
+}
+
+model RefillRequest {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  prescriptionId Int?
+  medication   String
+  dosage       String
+  instructions String?
+  urgency      String   @default("normal") // low, normal, high, urgent
+  status       String   @default("pending") // pending, approved, rejected, completed
+  notes        String?
+  requestedDate DateTime @default(now())
+  completedDate DateTime?
+  notified     Boolean  @default(false)
+  user         User     @relation(fields: [userId], references: [id])
+  @@index([notified, requestedDate])
+  @@index([status, requestedDate])
+}
+
+model TransferRequest {
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  currentPharmacy String
+  newPharmacy     String   @default("My Meds Pharmacy")
+  medications     String   // JSON array of medications
+  reason          String?
+  status          String   @default("pending") // pending, approved, rejected, completed
+  notes           String?
+  requestedDate   DateTime @default(now())
+  completedDate   DateTime?
+  notified        Boolean  @default(false)
+  user            User     @relation(fields: [userId], references: [id])
+  @@index([notified, requestedDate])
+  @@index([status, requestedDate])
 }
 
 model Appointment {
@@ -150,6 +187,39 @@ model Settings {
   instagram     String?
   twitter       String?
   updatedAt     DateTime @updatedAt
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  type      String   // order, prescription, appointment, contact, refill, transfer
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  data      String?  // JSON data for additional context
+  createdAt DateTime @default(now())
+  @@index([read, createdAt])
+  @@index([type, createdAt])
+}
+
+model WooCommerceSettings {
+  id              Int      @id @default(1)
+  enabled         Boolean  @default(false)
+  storeUrl        String?
+  consumerKey     String?
+  consumerSecret  String?
+  webhookSecret   String?
+  lastSync        DateTime?
+  updatedAt       DateTime @updatedAt
+}
+
+model WordPressSettings {
+  id              Int      @id @default(1)
+  enabled         Boolean  @default(false)
+  siteUrl         String?
+  username        String?
+  applicationPassword String?
+  lastSync        DateTime?
+  updatedAt       DateTime @updatedAt
 }
 
 enum Role {

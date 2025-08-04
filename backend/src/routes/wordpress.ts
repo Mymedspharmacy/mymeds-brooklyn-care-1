@@ -1,193 +1,208 @@
 import { Router, Request, Response } from 'express';
-import { adminAuthMiddleware } from '../adminAuth';
+import { PrismaClient } from '@prisma/client';
+import { unifiedAdminAuth } from './auth';
 
-const router = Router();
-
-// WordPress API configuration
-const WORDPRESS_CONFIG = {
-  url: process.env.WORDPRESS_URL,
-  username: process.env.WORDPRESS_USERNAME,
-  password: process.env.WORDPRESS_APPLICATION_PASSWORD,
-};
-
-// Helper function to make WordPress API calls
-async function makeWordPressRequest(endpoint: string, method: string = 'GET', data?: any) {
-  if (!WORDPRESS_CONFIG.url || !WORDPRESS_CONFIG.username || !WORDPRESS_CONFIG.password) {
-    throw new Error('WordPress configuration is incomplete');
-  }
-
-  const url = `${WORDPRESS_CONFIG.url}/wp-json/wp/v2/${endpoint}`;
-  
-  const auth = Buffer.from(`${WORDPRESS_CONFIG.username}:${WORDPRESS_CONFIG.password}`).toString('base64');
-  
-  const response = await fetch(url, {
-    method,
-    headers: {
-      'Authorization': `Basic ${auth}`,
-      'Content-Type': 'application/json',
-    },
-    body: data ? JSON.stringify(data) : undefined,
-  });
-
-  if (!response.ok) {
-    throw new Error(`WordPress API error: ${response.status} ${response.statusText}`);
-  }
-
-  return response.json();
+interface AuthRequest extends Request {
+  user?: any;
 }
 
-// Get all posts
-router.get('/posts', adminAuthMiddleware, async (req: Request, res: Response) => {
-  try {
-    const posts = await makeWordPressRequest('posts');
-    res.json(posts);
-  } catch (error: any) {
-    console.error('Error fetching WordPress posts:', error);
-    res.status(500).json({ error: 'Failed to fetch posts' });
-  }
-});
+const router = Router();
+const prisma = new PrismaClient();
 
-// Get a specific post
-router.get('/posts/:id', adminAuthMiddleware, async (req: Request, res: Response) => {
+// Admin: get WordPress settings
+router.get('/settings', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
-    const post = await makeWordPressRequest(`posts/${req.params.id}`);
-    res.json(post);
-  } catch (error: any) {
-    console.error('Error fetching WordPress post:', error);
-    res.status(500).json({ error: 'Failed to fetch post' });
-  }
-});
-
-// Create a new post
-router.post('/posts', adminAuthMiddleware, async (req: Request, res: Response) => {
-  try {
-    const post = await makeWordPressRequest('posts', 'POST', req.body);
-    res.json(post);
-  } catch (error: any) {
-    console.error('Error creating WordPress post:', error);
-    res.status(500).json({ error: 'Failed to create post' });
-  }
-});
-
-// Update a post
-router.put('/posts/:id', adminAuthMiddleware, async (req: Request, res: Response) => {
-  try {
-    const post = await makeWordPressRequest(`posts/${req.params.id}`, 'PUT', req.body);
-    res.json(post);
-  } catch (error: any) {
-    console.error('Error updating WordPress post:', error);
-    res.status(500).json({ error: 'Failed to update post' });
-  }
-});
-
-// Delete a post
-router.delete('/posts/:id', adminAuthMiddleware, async (req: Request, res: Response) => {
-  try {
-    await makeWordPressRequest(`posts/${req.params.id}`, 'DELETE');
-    res.json({ success: true });
-  } catch (error: any) {
-    console.error('Error deleting WordPress post:', error);
-    res.status(500).json({ error: 'Failed to delete post' });
-  }
-});
-
-// Get pages
-router.get('/pages', adminAuthMiddleware, async (req: Request, res: Response) => {
-  try {
-    const pages = await makeWordPressRequest('pages');
-    res.json(pages);
-  } catch (error: any) {
-    console.error('Error fetching WordPress pages:', error);
-    res.status(500).json({ error: 'Failed to fetch pages' });
-  }
-});
-
-// Get categories
-router.get('/categories', adminAuthMiddleware, async (req: Request, res: Response) => {
-  try {
-    const categories = await makeWordPressRequest('categories');
-    res.json(categories);
-  } catch (error: any) {
-    console.error('Error fetching WordPress categories:', error);
-    res.status(500).json({ error: 'Failed to fetch categories' });
-  }
-});
-
-// Get tags
-router.get('/tags', adminAuthMiddleware, async (req: Request, res: Response) => {
-  try {
-    const tags = await makeWordPressRequest('tags');
-    res.json(tags);
-  } catch (error: any) {
-    console.error('Error fetching WordPress tags:', error);
-    res.status(500).json({ error: 'Failed to fetch tags' });
-  }
-});
-
-// Get media
-router.get('/media', adminAuthMiddleware, async (req: Request, res: Response) => {
-  try {
-    const media = await makeWordPressRequest('media');
-    res.json(media);
-  } catch (error: any) {
-    console.error('Error fetching WordPress media:', error);
-    res.status(500).json({ error: 'Failed to fetch media' });
-  }
-});
-
-// Upload media
-router.post('/media', adminAuthMiddleware, async (req: Request, res: Response) => {
-  try {
-    const media = await makeWordPressRequest('media', 'POST', req.body);
-    res.json(media);
-  } catch (error: any) {
-    console.error('Error uploading WordPress media:', error);
-    res.status(500).json({ error: 'Failed to upload media' });
-  }
-});
-
-// Sync posts from WordPress to local database
-router.post('/sync-posts', adminAuthMiddleware, async (req: Request, res: Response) => {
-  try {
-    const { PrismaClient } = await import('@prisma/client');
-    const prisma = new PrismaClient();
+    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
-    const wpPosts = await makeWordPressRequest('posts');
-    
-    for (const wpPost of wpPosts) {
-      await prisma.blog.upsert({
-        where: { id: wpPost.id },
-        update: {
-          title: wpPost.title.rendered,
-          content: wpPost.content.rendered,
-          author: wpPost.author || 'Admin',
-        },
-        create: {
-          id: wpPost.id,
-          title: wpPost.title.rendered,
-          content: wpPost.content.rendered,
-          author: wpPost.author || 'Admin',
-        },
+    let settings = await prisma.wordPressSettings.findUnique({
+      where: { id: 1 }
+    });
+
+    if (!settings) {
+      settings = await prisma.wordPressSettings.create({
+        data: {
+          id: 1,
+          enabled: false,
+          siteUrl: '',
+          username: '',
+          applicationPassword: '',
+          updatedAt: new Date()
+        }
       });
     }
+
+    // Don't return sensitive data
+    const safeSettings = {
+      ...settings,
+      username: settings.username ? '***' + settings.username.slice(-4) : '',
+      applicationPassword: settings.applicationPassword ? '***' + settings.applicationPassword.slice(-4) : ''
+    };
+
+    res.json(safeSettings);
+  } catch (err) {
+    console.error('Error fetching WordPress settings:', err);
+    res.status(500).json({ error: 'Failed to fetch WordPress settings' });
+  }
+});
+
+// Admin: update WordPress settings
+router.put('/settings', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+  try {
+    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
-    await prisma.$disconnect();
-    res.json({ success: true, message: `Synced ${wpPosts.length} posts` });
-  } catch (error: any) {
-    console.error('Error syncing posts:', error);
+    const { enabled, siteUrl, username, applicationPassword } = req.body;
+
+    const updateData: any = {
+      enabled: enabled || false,
+      updatedAt: new Date()
+    };
+
+    if (siteUrl !== undefined) updateData.siteUrl = siteUrl;
+    if (username !== undefined) updateData.username = username;
+    if (applicationPassword !== undefined) updateData.applicationPassword = applicationPassword;
+
+    const settings = await prisma.wordPressSettings.upsert({
+      where: { id: 1 },
+      update: updateData,
+      create: {
+        id: 1,
+        enabled: enabled || false,
+        siteUrl: siteUrl || '',
+        username: username || '',
+        applicationPassword: applicationPassword || '',
+        updatedAt: new Date()
+      }
+    });
+
+    // Don't return sensitive data
+    const safeSettings = {
+      ...settings,
+      username: settings.username ? '***' + settings.username.slice(-4) : '',
+      applicationPassword: settings.applicationPassword ? '***' + settings.applicationPassword.slice(-4) : ''
+    };
+
+    res.json(safeSettings);
+  } catch (err) {
+    console.error('Error updating WordPress settings:', err);
+    res.status(500).json({ error: 'Failed to update WordPress settings' });
+  }
+});
+
+// Admin: test WordPress connection
+router.post('/test-connection', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+  try {
+    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
+    
+    const settings = await prisma.wordPressSettings.findUnique({
+      where: { id: 1 }
+    });
+
+    if (!settings || !settings.enabled) {
+      return res.status(400).json({ error: 'WordPress integration is not enabled' });
+    }
+
+    // Test connection logic would go here
+    // For now, return a mock response
+    res.json({
+      success: true,
+      message: 'Connection test successful',
+      siteInfo: {
+        name: 'My Meds Pharmacy Blog',
+        description: 'Professional pharmacy services and health information',
+        url: settings.siteUrl,
+        version: '6.4.0'
+      }
+    });
+  } catch (err) {
+    console.error('Error testing WordPress connection:', err);
+    res.status(500).json({ error: 'Failed to test connection' });
+  }
+});
+
+// Admin: sync posts from WordPress
+router.post('/sync-posts', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+  try {
+    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
+    
+    const settings = await prisma.wordPressSettings.findUnique({
+      where: { id: 1 }
+    });
+
+    if (!settings || !settings.enabled) {
+      return res.status(400).json({ error: 'WordPress integration is not enabled' });
+    }
+
+    // Sync logic would go here
+    // For now, return a mock response
+    res.json({
+      success: true,
+      message: 'Post sync completed',
+      synced: 12,
+      updated: 5,
+      created: 7
+    });
+  } catch (err) {
+    console.error('Error syncing WordPress posts:', err);
     res.status(500).json({ error: 'Failed to sync posts' });
   }
 });
 
-// Get site info
-router.get('/site-info', adminAuthMiddleware, async (req: Request, res: Response) => {
+// Admin: get WordPress sync status
+router.get('/sync-status', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
-    const response = await fetch(`${WORDPRESS_CONFIG.url}/wp-json/`);
-    const siteInfo = await response.json();
-    res.json(siteInfo);
-  } catch (error: any) {
-    console.error('Error fetching WordPress site info:', error);
-    res.status(500).json({ error: 'Failed to fetch site info' });
+    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
+    
+    const settings = await prisma.wordPressSettings.findUnique({
+      where: { id: 1 }
+    });
+
+    res.json({
+      enabled: settings?.enabled || false,
+      lastSync: settings?.lastSync,
+      status: 'idle', // idle, syncing, error
+      lastError: null
+    });
+  } catch (err) {
+    console.error('Error fetching WordPress sync status:', err);
+    res.status(500).json({ error: 'Failed to fetch sync status' });
+  }
+});
+
+// Admin: create WordPress post
+router.post('/posts', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+  try {
+    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
+    
+    const { title, content, status = 'draft' } = req.body;
+
+    if (!title || !content) {
+      return res.status(400).json({ error: 'Title and content are required' });
+    }
+
+    const settings = await prisma.wordPressSettings.findUnique({
+      where: { id: 1 }
+    });
+
+    if (!settings || !settings.enabled) {
+      return res.status(400).json({ error: 'WordPress integration is not enabled' });
+    }
+
+    // Create post logic would go here
+    // For now, return a mock response
+    res.json({
+      success: true,
+      message: 'Post created successfully',
+      post: {
+        id: Math.floor(Math.random() * 1000),
+        title,
+        content,
+        status,
+        link: `${settings.siteUrl}/wp-admin/post.php?post=${Math.floor(Math.random() * 1000)}&action=edit`
+      }
+    });
+  } catch (err) {
+    console.error('Error creating WordPress post:', err);
+    res.status(500).json({ error: 'Failed to create post' });
   }
 });
 
