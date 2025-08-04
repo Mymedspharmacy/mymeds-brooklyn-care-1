@@ -36,8 +36,8 @@ export default function SpecialOffers() {
         "Insurance copays still apply",
         "Some controlled substances may have restrictions"
       ],
-      accent: "from-green-500 to-emerald-500",
-      bgGradient: "from-green-50 to-emerald-50",
+      accent: "from-brand-light to-brand",
+      bgGradient: "from-brand-light/10 to-brand/10",
       savings: "$50+ per refill",
       duration: "Ongoing",
       popularity: "Most Popular",
@@ -71,8 +71,8 @@ export default function SpecialOffers() {
         "Excludes controlled substances",
         "Delivery times may vary"
       ],
-      accent: "from-blue-500 to-cyan-500",
-      bgGradient: "from-blue-50 to-cyan-50",
+      accent: "from-brand-accent to-brand",
+      bgGradient: "from-brand-accent/10 to-brand/10",
       savings: "$15 per order",
       duration: "Ongoing",
       popularity: "Limited Time",
@@ -106,8 +106,8 @@ export default function SpecialOffers() {
         "Cannot be combined with other offers",
         "Some restrictions may apply"
       ],
-      accent: "from-purple-500 to-pink-500",
-      bgGradient: "from-purple-50 to-pink-50",
+      accent: "from-brand-light to-brand-accent",
+      bgGradient: "from-brand-light/10 to-brand-accent/10",
       savings: "15% off",
       duration: "Ongoing",
       popularity: "Exclusive",
@@ -141,8 +141,8 @@ export default function SpecialOffers() {
         "One-time use per customer",
         "Cannot be combined with other offers"
       ],
-      accent: "from-yellow-500 to-orange-500",
-      bgGradient: "from-yellow-50 to-orange-50",
+      accent: "from-brand-accent to-brand-light",
+      bgGradient: "from-brand-accent/10 to-brand-light/10",
       savings: "20% off first order",
       duration: "30 days",
       popularity: "New",
@@ -176,8 +176,8 @@ export default function SpecialOffers() {
         "Some medications excluded",
         "Insurance approval required"
       ],
-      accent: "from-red-500 to-pink-500",
-      bgGradient: "from-red-50 to-pink-50",
+      accent: "from-brand to-brand-dark",
+      bgGradient: "from-brand/10 to-brand-dark/10",
       savings: "Up to 25% off",
       duration: "Ongoing",
       popularity: "Value",
@@ -211,8 +211,8 @@ export default function SpecialOffers() {
         "Credit applied after first order",
         "Valid for 6 months"
       ],
-      accent: "from-indigo-500 to-purple-500",
-      bgGradient: "from-indigo-50 to-purple-50",
+      accent: "from-brand to-brand-light",
+      bgGradient: "from-brand/10 to-brand-light/10",
       savings: "$25 per referral",
       duration: "Ongoing",
       popularity: "Rewarding",
@@ -267,20 +267,20 @@ export default function SpecialOffers() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-brand-light/30">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-[#57bbb6]/20">
+              <div className="bg-white shadow-sm border-b border-brand-light/20">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center gap-4">
             <Button 
               variant="ghost" 
               onClick={() => navigate('/')}
-              className="flex items-center gap-2 text-[#376f6b] hover:text-[#57bbb6] transition-colors duration-300"
+                              className="flex items-center gap-2 text-brand hover:text-brand-light transition-colors duration-300"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Home
             </Button>
-            <h1 className="text-4xl font-normal text-[#376f6b]">SPECIAL OFFERS</h1>
+                            <h1 className="text-4xl font-normal text-brand">SPECIAL OFFERS</h1>
           </div>
         </div>
       </div>
@@ -288,7 +288,7 @@ export default function SpecialOffers() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] text-white px-6 py-3 rounded-full text-sm font-semibold mb-8 shadow-lg">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-light to-brand text-white px-6 py-3 rounded-full text-sm font-semibold mb-8 shadow-lg">
             <Gift className="h-5 w-5" />
             Exclusive Offers
           </div>
@@ -305,34 +305,34 @@ export default function SpecialOffers() {
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
             <Card className="text-center p-6 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 bg-white/80 backdrop-blur-sm border-0">
-              <div className="w-16 h-16 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <div className="w-16 h-16 bg-gradient-to-r from-brand-light to-brand rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <Users className="h-8 w-8 text-white" />
               </div>
-              <div className="text-3xl font-bold text-[#376f6b] mb-2">5,000+</div>
+              <div className="text-3xl font-bold text-brand mb-2">5,000+</div>
               <div className="text-gray-600 font-medium">Happy Customers</div>
             </Card>
             
             <Card className="text-center p-6 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 bg-white/80 backdrop-blur-sm border-0">
-              <div className="w-16 h-16 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <div className="w-16 h-16 bg-gradient-to-r from-brand-light to-brand rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <DollarSign className="h-8 w-8 text-white" />
               </div>
-              <div className="text-3xl font-bold text-[#376f6b] mb-2">$250K+</div>
+              <div className="text-3xl font-bold text-brand mb-2">$250K+</div>
               <div className="text-gray-600 font-medium">Total Savings</div>
             </Card>
             
             <Card className="text-center p-6 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 bg-white/80 backdrop-blur-sm border-0">
-              <div className="w-16 h-16 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <div className="w-16 h-16 bg-gradient-to-r from-brand-light to-brand rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <Award className="h-8 w-8 text-white" />
               </div>
-              <div className="text-3xl font-bold text-[#376f6b] mb-2">6</div>
+              <div className="text-3xl font-bold text-brand mb-2">6</div>
               <div className="text-gray-600 font-medium">Active Offers</div>
             </Card>
 
             <Card className="text-center p-6 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 bg-white/80 backdrop-blur-sm border-0">
-              <div className="w-16 h-16 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <div className="w-16 h-16 bg-gradient-to-r from-brand-light to-brand rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <Star className="h-8 w-8 text-white" />
               </div>
-              <div className="text-3xl font-bold text-[#376f6b] mb-2">4.9★</div>
+              <div className="text-3xl font-bold text-brand mb-2">4.9★</div>
               <div className="text-gray-600 font-medium">Customer Rating</div>
             </Card>
           </div>
@@ -400,7 +400,7 @@ export default function SpecialOffers() {
         </div>
 
         {/* CTA Section */}
-        <div className="bg-gradient-to-r from-[#376f6b] to-[#57bbb6] rounded-3xl p-8 sm:p-12 text-center text-white relative overflow-hidden">
+                  <div className="bg-gradient-to-r from-brand to-brand-light rounded-3xl p-8 sm:p-12 text-center text-white relative overflow-hidden">
           <div className="relative z-10">
             <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">
               Ready to Start Saving?
@@ -412,7 +412,7 @@ export default function SpecialOffers() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 onClick={handleCallClick}
-                className="bg-white text-[#376f6b] hover:bg-gray-100 font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+                className="bg-white text-brand hover:bg-gray-100 font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
               >
                 <Phone className="w-5 h-5 mr-2" />
                 Call (347) 312-6458
@@ -421,7 +421,7 @@ export default function SpecialOffers() {
               <Button 
                 onClick={handleEmailClick}
                 variant="outline"
-                className="border-white text-white hover:bg-white hover:text-[#376f6b] font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
+                className="border-white text-white hover:bg-white hover:text-brand font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
               >
                 <Mail className="w-5 h-5 mr-2" />
                 Email Us
@@ -430,7 +430,7 @@ export default function SpecialOffers() {
               <Button 
                 onClick={handleMapClick}
                 variant="outline"
-                className="border-white text-white hover:bg-white hover:text-[#376f6b] font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
+                className="border-white text-white hover:bg-white hover:text-brand font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
               >
                 <MapPin className="w-5 h-5 mr-2" />
                 Visit Us

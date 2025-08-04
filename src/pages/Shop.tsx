@@ -262,22 +262,22 @@ export default function Shop() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f5fefd]">
+            <div className="min-h-screen bg-brand-light/5">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-[#57bbb6]/20">
+              <div className="bg-white shadow-sm border-b border-brand-light/20">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex items-center gap-4">
               <button 
                 onClick={() => window.history.back()}
-                className="flex items-center gap-2 text-[#376f6b] hover:text-[#57bbb6] transition-colors duration-300 p-2 rounded-lg hover:bg-[#57bbb6]/10"
+                className="flex items-center gap-2 text-brand hover:text-brand-light transition-colors duration-300 p-2 rounded-lg hover:bg-brand-light/10"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
                 Back
               </button>
-              <h1 className="text-4xl font-normal text-[#376f6b]">SHOP</h1>
+                              <h1 className="text-4xl font-normal text-brand">SHOP</h1>
             </div>
           </div>
         </div>
@@ -285,19 +285,19 @@ export default function Shop() {
 
       {/* Coming Soon Section */}
       <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-        <div className="bg-white rounded-3xl shadow-2xl p-12 border border-[#57bbb6]/20">
+                    <div className="bg-white rounded-3xl shadow-2xl p-12 border border-brand-light/20">
           {/* Icon */}
-          <div className="w-24 h-24 bg-gradient-to-br from-[#376f6b] to-[#57bbb6] rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg">
+                      <div className="w-24 h-24 bg-gradient-to-br from-brand to-brand-light rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg">
             <ShoppingCart className="w-12 h-12 text-white" />
           </div>
           
           {/* Title */}
-          <h2 className="text-4xl md:text-5xl font-bold text-[#376f6b] mb-6">
+                      <h2 className="text-4xl md:text-5xl font-bold text-brand mb-6">
             Coming Soon
           </h2>
           
           {/* Subtitle */}
-          <p className="text-xl md:text-2xl text-[#57bbb6] mb-8 font-medium">
+                      <p className="text-xl md:text-2xl text-brand-light mb-8 font-medium">
             Our Online Pharmacy Shop
           </p>
           
@@ -316,7 +316,7 @@ export default function Shop() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
               </div>
-              <h3 className="font-semibold text-[#376f6b] mb-2">Wide Selection</h3>
+                              <h3 className="font-semibold text-brand mb-2">Wide Selection</h3>
               <p className="text-sm text-gray-600">Prescription medications, OTC products, and health supplies</p>
             </div>
             
@@ -326,7 +326,7 @@ export default function Shop() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="font-semibold text-[#376f6b] mb-2">Fast Delivery</h3>
+                              <h3 className="font-semibold text-brand mb-2">Fast Delivery</h3>
               <p className="text-sm text-gray-600">Same-day delivery in Brooklyn and Manhattan</p>
             </div>
             
@@ -336,13 +336,13 @@ export default function Shop() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
               </div>
-              <h3 className="font-semibold text-[#376f6b] mb-2">Expert Support</h3>
+                              <h3 className="font-semibold text-brand mb-2">Expert Support</h3>
               <p className="text-sm text-gray-600">Licensed pharmacists available for consultation</p>
             </div>
           </div>
           
           {/* Contact Info */}
-          <div className="bg-gradient-to-r from-[#376f6b] to-[#57bbb6] rounded-2xl p-8 text-white">
+          <div className="bg-gradient-to-r from-brand to-brand-light rounded-2xl p-8 text-white">
             <h3 className="text-2xl font-bold mb-4">Need Something Now?</h3>
             <p className="text-lg mb-6 opacity-90">
               Visit our physical location or call us for immediate assistance
@@ -350,7 +350,7 @@ export default function Shop() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a 
                 href="tel:3473126458"
-                className="bg-white text-[#376f6b] px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-flex items-center justify-center gap-2"
+                className="bg-white text-brand px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-flex items-center justify-center gap-2"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -378,10 +378,10 @@ export default function Shop() {
       {showCart && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end">
           <div className="bg-white w-full max-w-full sm:max-w-md h-full overflow-y-auto">
-            <div className="p-6 border-b border-[#57bbb6]/20">
+            <div className="p-6 border-b border-brand-light/20">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-normal text-[#376f6b]">Shopping Cart</h2>
-                <button onClick={() => setShowCart(false)} className="text-[#376f6b] hover:text-[#57bbb6]">
+                                  <h2 className="text-2xl font-normal text-brand">Shopping Cart</h2>
+                                  <button onClick={() => setShowCart(false)} className="text-brand hover:text-brand-light">
                   <X size={24} />
                 </button>
               </div>
@@ -390,30 +390,30 @@ export default function Shop() {
             <div className="p-6">
               {cart.length === 0 ? (
                 <div className="text-center py-12">
-                  <ShoppingCart size={48} className="mx-auto text-[#57bbb6] mb-4" />
+                  <ShoppingCart size={48} className="mx-auto text-brand-light mb-4" />
                   <p className="text-[#231f20] text-lg">Your cart is empty</p>
-                  <p className="text-[#376f6b]">Add some products to get started!</p>
+                                      <p className="text-brand">Add some products to get started!</p>
                 </div>
               ) : (
                 <>
                   <div className="space-y-4 mb-6">
                     {cart.map((item) => (
-                      <div key={item.id} className="flex gap-4 p-4 border border-[#57bbb6]/20 rounded-lg">
+                      <div key={item.id} className="flex gap-4 p-4 border border-brand-light/20 rounded-lg">
                         <img src={getProductImage(item)} alt={item.name} className="w-16 h-16 object-cover rounded" />
                         <div className="flex-1">
                           <h4 className="font-semibold text-[#231f20]">{item.name}</h4>
-                          <p className="text-[#57bbb6] font-bold">${item.price}</p>
+                                                      <p className="text-brand-light font-bold">${item.price}</p>
                           <div className="flex items-center gap-2 mt-2">
                             <button
                               onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                              className="w-8 h-8 rounded-full border border-[#57bbb6] flex items-center justify-center hover:bg-[#57bbb6] hover:text-white"
+                              className="w-8 h-8 rounded-full border border-brand-light flex items-center justify-center hover:bg-brand-light hover:text-white"
                             >
                               <Minus size={16} />
                             </button>
                             <span className="w-8 text-center font-semibold">{item.quantity}</span>
                             <button
                               onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              className="w-8 h-8 rounded-full border border-[#57bbb6] flex items-center justify-center hover:bg-[#57bbb6] hover:text-white"
+                              className="w-8 h-8 rounded-full border border-brand-light flex items-center justify-center hover:bg-brand-light hover:text-white"
                             >
                               <Plus size={16} />
                             </button>
@@ -429,10 +429,10 @@ export default function Shop() {
                     ))}
                   </div>
                   
-                  <div className="border-t border-[#57bbb6]/20 pt-4 mb-6">
+                  <div className="border-t border-brand-light/20 pt-4 mb-6">
                     <div className="flex justify-between items-center text-lg font-bold text-[#231f20]">
                       <span>Total:</span>
-                      <span className="text-[#57bbb6]">${cartTotal.toFixed(2)}</span>
+                      <span className="text-brand-light">${cartTotal.toFixed(2)}</span>
                     </div>
                   </div>
                   
@@ -441,7 +441,7 @@ export default function Shop() {
                       setShowCart(false);
                       setShowCheckout(true);
                     }}
-                    className="w-full bg-[#376f6b] text-white py-3 rounded-lg font-semibold hover:bg-[#2e8f88] transition-colors"
+                    className="w-full bg-brand text-white py-3 rounded-lg font-semibold hover:bg-brand-dark transition-colors"
                   >
                     Proceed to Checkout
                   </button>
@@ -458,8 +458,8 @@ export default function Shop() {
           <div className="bg-white rounded-2xl max-w-full sm:max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
-                <h2 className="text-3xl font-normal text-[#376f6b]">{showProductDetail.name}</h2>
-                <button onClick={() => setShowProductDetail(null)} className="text-[#376f6b] hover:text-[#57bbb6]">
+                <h2 className="text-3xl font-normal text-brand">{showProductDetail.name}</h2>
+                <button onClick={() => setShowProductDetail(null)} className="text-brand hover:text-brand-light">
                   <X size={24} />
                 </button>
               </div>
@@ -472,13 +472,13 @@ export default function Shop() {
                 <div>
                   <div className="flex items-center gap-2 mb-4">
                     {showProductDetail.categories && showProductDetail.categories.length > 0 && (
-                      <span className="bg-[#57bbb6] text-[#231f20] px-3 py-1 rounded-full font-semibold">
+                      <span className="bg-brand-light text-[#231f20] px-3 py-1 rounded-full font-semibold">
                         {showProductDetail.categories[0].name}
                       </span>
                     )}
                     <div className="flex items-center gap-1">
                       <Star size={20} className="text-yellow-400 fill-current" />
-                      <span className="font-semibold text-[#376f6b]">
+                      <span className="font-semibold text-brand">
                         {showProductDetail.average_rating || '4.5'}
                       </span>
                       <span className="text-gray-500">
@@ -487,11 +487,11 @@ export default function Shop() {
                     </div>
                   </div>
                   
-                  <div className="text-[#376f6b] text-lg mb-4" 
+                  <div className="text-brand text-lg mb-4" 
                        dangerouslySetInnerHTML={{ __html: showProductDetail.description }} />
                   
                   <div className="flex items-center gap-3 mb-6">
-                    <span className="text-3xl font-bold text-[#57bbb6]">${getProductPrice(showProductDetail)}</span>
+                    <span className="text-3xl font-bold text-brand-light">${getProductPrice(showProductDetail)}</span>
                     {getOriginalPrice(showProductDetail) && (
                       <span className="text-xl text-gray-500 line-through">${getOriginalPrice(showProductDetail)}</span>
                     )}
@@ -503,7 +503,7 @@ export default function Shop() {
                       setShowProductDetail(null);
                     }}
                     disabled={!showProductDetail.stock_status || showProductDetail.stock_status === 'outofstock'}
-                    className="w-full bg-[#376f6b] text-white py-4 rounded-lg font-semibold text-lg hover:bg-[#2e8f88] transition-colors disabled:opacity-50"
+                    className="w-full bg-brand text-white py-4 rounded-lg font-semibold text-lg hover:bg-brand-dark transition-colors disabled:opacity-50"
                   >
                     {showProductDetail.stock_status === 'outofstock' ? 'Out of Stock' : 'Add to Cart'}
                   </button>
@@ -520,8 +520,8 @@ export default function Shop() {
           <div className="bg-white rounded-2xl max-w-full sm:max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-3xl font-normal text-[#376f6b]">Checkout</h2>
-                <button onClick={() => setShowCheckout(false)} className="text-[#376f6b] hover:text-[#57bbb6]">
+                <h2 className="text-3xl font-normal text-brand">Checkout</h2>
+                <button onClick={() => setShowCheckout(false)} className="text-brand hover:text-brand-light">
                   <X size={24} />
                 </button>
               </div>
@@ -533,7 +533,7 @@ export default function Shop() {
                     placeholder="Full Name *"
                     value={order.name}
                     onChange={(e) => setOrder({ ...order, name: e.target.value })}
-                    className="w-full p-3 border-2 border-[#57bbb6] rounded-lg focus:outline-none focus:border-[#376f6b]"
+                    className="w-full p-3 border-2 border-brand-light rounded-lg focus:outline-none focus:border-brand"
                     required
                   />
                   <input
@@ -541,7 +541,7 @@ export default function Shop() {
                     placeholder="Email Address *"
                     value={order.email}
                     onChange={(e) => setOrder({ ...order, email: e.target.value })}
-                    className="w-full p-3 border-2 border-[#57bbb6] rounded-lg focus:outline-none focus:border-[#376f6b]"
+                    className="w-full p-3 border-2 border-brand-light rounded-lg focus:outline-none focus:border-brand"
                     required
                   />
                 </div>
@@ -551,7 +551,7 @@ export default function Shop() {
                   placeholder="Phone Number *"
                   value={order.phone}
                   onChange={(e) => setOrder({ ...order, phone: e.target.value })}
-                  className="w-full p-3 border-2 border-[#57bbb6] rounded-lg focus:outline-none focus:border-[#376f6b]"
+                  className="w-full p-3 border-2 border-brand-light rounded-lg focus:outline-none focus:border-brand"
                   required
                 />
                 
@@ -560,7 +560,7 @@ export default function Shop() {
                   placeholder="Street Address *"
                   value={order.address}
                   onChange={(e) => setOrder({ ...order, address: e.target.value })}
-                  className="w-full p-3 border-2 border-[#57bbb6] rounded-lg focus:outline-none focus:border-[#376f6b]"
+                  className="w-full p-3 border-2 border-brand-light rounded-lg focus:outline-none focus:border-brand"
                   required
                 />
                 
@@ -570,7 +570,7 @@ export default function Shop() {
                     placeholder="City *"
                     value={order.city}
                     onChange={(e) => setOrder({ ...order, city: e.target.value })}
-                    className="w-full p-3 border-2 border-[#57bbb6] rounded-lg focus:outline-none focus:border-[#376f6b]"
+                    className="w-full p-3 border-2 border-brand-light rounded-lg focus:outline-none focus:border-brand"
                     required
                   />
                   <input
@@ -578,7 +578,7 @@ export default function Shop() {
                     placeholder="ZIP Code *"
                     value={order.zip}
                     onChange={(e) => setOrder({ ...order, zip: e.target.value })}
-                    className="w-full p-3 border-2 border-[#57bbb6] rounded-lg focus:outline-none focus:border-[#376f6b]"
+                    className="w-full p-3 border-2 border-brand-light rounded-lg focus:outline-none focus:border-brand"
                     required
                   />
                 </div>
@@ -587,18 +587,18 @@ export default function Shop() {
                   placeholder="Additional Notes (optional)"
                   value={order.notes}
                   onChange={(e) => setOrder({ ...order, notes: e.target.value })}
-                  className="w-full p-3 border-2 border-[#57bbb6] rounded-lg focus:outline-none focus:border-[#376f6b] h-24 resize-none"
+                  className="w-full p-3 border-2 border-brand-light rounded-lg focus:outline-none focus:border-brand h-24 resize-none"
                 />
                 
-                <div className="border-t border-[#57bbb6]/20 pt-4">
+                <div className="border-t border-brand-light/20 pt-4">
                   <div className="flex justify-between items-center text-xl font-bold text-[#231f20] mb-4">
                     <span>Order Total:</span>
-                    <span className="text-[#57bbb6]">${cartTotal.toFixed(2)}</span>
+                    <span className="text-brand-light">${cartTotal.toFixed(2)}</span>
                   </div>
                   
                   <button
                     type="submit"
-                    className="w-full bg-[#376f6b] text-white py-4 rounded-lg font-semibold text-lg hover:bg-[#2e8f88] transition-colors"
+                    className="w-full bg-brand text-white py-4 rounded-lg font-semibold text-lg hover:bg-brand-dark transition-colors"
                   >
                     Place Order
                   </button>
@@ -615,8 +615,8 @@ export default function Shop() {
           <div className="bg-white rounded-2xl max-w-full sm:max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-3xl font-normal text-[#376f6b]">Payment</h2>
-                <button onClick={() => setShowPayment(false)} className="text-[#376f6b] hover:text-[#57bbb6]">
+                <h2 className="text-3xl font-normal text-brand">Payment</h2>
+                <button onClick={() => setShowPayment(false)} className="text-brand hover:text-brand-light">
                   <X size={24} />
                 </button>
               </div>
@@ -634,7 +634,7 @@ export default function Shop() {
                     <div className="border-t pt-2 mt-2">
                       <div className="flex justify-between font-semibold">
                         <span>Total:</span>
-                        <span className="text-[#57bbb6]">${cartTotal.toFixed(2)}</span>
+                        <span className="text-brand-light">${cartTotal.toFixed(2)}</span>
                       </div>
                     </div>
                   </div>
@@ -660,11 +660,11 @@ export default function Shop() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h3 className="text-2xl font-bold text-[#376f6b] mb-2">Order Placed Successfully!</h3>
+            <h3 className="text-2xl font-bold text-brand mb-2">Order Placed Successfully!</h3>
             <p className="text-[#231f20] mb-6">Thank you for your purchase. We'll contact you soon to confirm your order and arrange delivery.</p>
             <button
               onClick={() => setOrderPlaced(false)}
-              className="bg-[#376f6b] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#2e8f88] transition-colors"
+              className="bg-brand text-white px-6 py-3 rounded-lg font-semibold hover:bg-brand-dark transition-colors"
             >
               Continue Shopping
             </button>

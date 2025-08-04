@@ -11,8 +11,8 @@ export const OTCSection = () => {
       title: "Heart Health",
       description: "Comprehensive cardiovascular wellness products and monitoring solutions",
       items: ["Blood pressure monitors", "Heart-healthy supplements", "Cholesterol management", "Omega-3 supplements"],
-      accent: "from-red-500 to-pink-500",
-      bgGradient: "from-red-50 to-pink-50",
+      accent: "from-brand to-brand-dark",
+      bgGradient: "from-brand-light/10 to-brand/10",
       image: "/images/otc/heart-health.jpg"
     },
     {
@@ -20,8 +20,8 @@ export const OTCSection = () => {
       title: "Cold & Flu Relief",
       description: "Effective relief from common cold and flu symptoms for all ages",
       items: ["Pain relievers", "Cough suppressants", "Throat lozenges", "Decongestants"],
-      accent: "from-blue-500 to-cyan-500",
-      bgGradient: "from-blue-50 to-cyan-50",
+      accent: "from-brand-accent to-brand",
+      bgGradient: "from-brand-accent/10 to-brand/10",
       image: "/images/otc/cold-flu.jpg"
     },
     {
@@ -29,8 +29,8 @@ export const OTCSection = () => {
       title: "First Aid & Wound Care",
       description: "Essential supplies for minor injuries and emergency preparedness",
       items: ["Bandages & gauze", "Antiseptic wipes", "Pain relief gels", "Thermometers"],
-      accent: "from-green-500 to-emerald-500",
-      bgGradient: "from-green-50 to-emerald-50",
+      accent: "from-brand-light to-brand",
+      bgGradient: "from-brand-light/10 to-brand/10",
       image: "/images/otc/first-aid.jpg"
     },
     {
@@ -38,8 +38,8 @@ export const OTCSection = () => {
       title: "Vitamins & Supplements",
       description: "Premium nutritional support for daily wellness and vitality",
       items: ["Multivitamins", "Vitamin D", "Calcium supplements", "Probiotics"],
-      accent: "from-yellow-500 to-orange-500",
-      bgGradient: "from-yellow-50 to-orange-50",
+      accent: "from-brand-accent to-brand-light",
+      bgGradient: "from-brand-accent/10 to-brand-light/10",
       image: "/images/otc/vitamins.jpg"
     },
     {
@@ -47,8 +47,8 @@ export const OTCSection = () => {
       title: "Digestive Health",
       description: "Gentle solutions for digestive comfort and gut wellness",
       items: ["Antacids", "Anti-diarrheal", "Fiber supplements", "Probiotics"],
-      accent: "from-purple-500 to-indigo-500",
-      bgGradient: "from-purple-50 to-indigo-50",
+      accent: "from-brand-light to-brand-accent",
+      bgGradient: "from-brand-light/10 to-brand-accent/10",
       image: "/images/otc/digestive.jpg"
     },
     {
@@ -56,8 +56,8 @@ export const OTCSection = () => {
       title: "Personal Care",
       description: "Complete personal hygiene and wellness products",
       items: ["Oral care", "Skin care", "Hair care", "Feminine hygiene"],
-      accent: "from-teal-500 to-cyan-500",
-      bgGradient: "from-teal-50 to-cyan-50",
+      accent: "from-brand to-brand-light",
+      bgGradient: "from-brand/10 to-brand-light/10",
       image: "/images/otc/personal-care.jpg"
     },
     {
@@ -65,8 +65,8 @@ export const OTCSection = () => {
       title: "Eye Care",
       description: "Professional eye care products and vision support",
       items: ["Contact lens solutions", "Eye drops", "Reading glasses", "Eye vitamins"],
-      accent: "from-indigo-500 to-purple-500",
-      bgGradient: "from-indigo-50 to-purple-50",
+      accent: "from-brand to-brand-light",
+      bgGradient: "from-brand/10 to-brand-light/10",
       image: "/images/otc/eye-care.jpg"
     },
     {
@@ -74,8 +74,8 @@ export const OTCSection = () => {
       title: "Mental Wellness",
       description: "Natural supplements for cognitive health and stress relief",
       items: ["Stress relief", "Sleep aids", "Memory support", "Mood enhancers"],
-      accent: "from-violet-500 to-purple-500",
-      bgGradient: "from-violet-50 to-purple-50",
+      accent: "from-brand-light to-brand-accent",
+      bgGradient: "from-brand-light/10 to-brand-accent/10",
       image: "/images/otc/mental-wellness.jpg"
     }
   ];
@@ -93,18 +93,18 @@ export const OTCSection = () => {
   };
 
   return (
-    <section className="py-16 sm:py-20 md:py-24 bg-gradient-to-br from-gray-50 via-white to-blue-50/30">
+    <section className="py-16 sm:py-20 md:py-24 bg-gradient-to-br from-gray-50 via-white to-brand-light/30">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Enhanced Header Section */}
         <div className="text-center mb-16 sm:mb-20">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] text-white px-4 py-2 rounded-full text-sm font-semibold mb-6">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-light to-brand text-white px-4 py-2 rounded-full text-sm font-semibold mb-6">
             <Star className="h-4 w-4" />
             Health & Wellness
           </div>
           
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight mb-6">
             Over-the-Counter
-            <span className="block bg-gradient-to-r from-[#57bbb6] to-[#376f6b] bg-clip-text text-transparent">
+            <span className="block bg-gradient-to-r from-brand-light to-brand bg-clip-text text-transparent">
               Health Solutions
             </span>
           </h2>
@@ -146,7 +146,7 @@ export const OTCSection = () => {
                 </div>
 
                 {/* Category Title & Description */}
-                <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-[#376f6b] transition-colors duration-300 mb-4 text-center">
+                <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-brand transition-colors duration-300 mb-4 text-center">
                   {category.title}
                 </CardTitle>
                 
@@ -189,7 +189,7 @@ export const OTCSection = () => {
         </div>
 
         {/* Enhanced CTA Section */}
-        <div className="bg-gradient-to-r from-[#376f6b] to-[#57bbb6] rounded-3xl p-8 sm:p-12 text-center text-white relative overflow-hidden">
+        <div className="bg-gradient-to-r from-brand to-brand-light rounded-3xl p-8 sm:p-12 text-center text-white relative overflow-hidden">
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.1%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%222%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
@@ -206,7 +206,7 @@ export const OTCSection = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 onClick={() => navigate('/shop')}
-                className="bg-white text-[#376f6b] hover:bg-gray-100 font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+                className="bg-white text-brand hover:bg-gray-100 font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
               >
                 <ShoppingCart className="w-5 h-5 mr-2" />
                 Shop All Products
@@ -215,7 +215,7 @@ export const OTCSection = () => {
               <Button 
                 onClick={handleCallClick}
                 variant="outline"
-                className="border-white text-white hover:bg-white hover:text-[#376f6b] font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
+                className="border-white text-white hover:bg-white hover:text-brand font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
               >
                 <Phone className="w-5 h-5 mr-2" />
                 Call for Availability

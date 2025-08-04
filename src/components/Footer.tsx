@@ -69,9 +69,9 @@ export const Footer = () => {
                   className="cursor-pointer group"
                 >
                   <img 
-                    src="/logo.png" 
+                    src="/logocopy.png" 
                     alt="My Meds Pharmacy Logo" 
-                    className="h-16 w-auto mb-4 transition-all duration-300 ease-in-out group-hover:scale-105"
+                    className="h-auto w-auto mb-4 transition-all duration-300 ease-in-out group-hover:scale-105"
                   />
                 </div>
                 <p className="text-gray-300 leading-relaxed mb-6">
@@ -83,7 +83,7 @@ export const Footer = () => {
               <div className="flex space-x-4 mb-6">
                 <a 
                   href="#" 
-                  className="w-10 h-10 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 group"
+                  className="w-10 h-10 bg-gradient-to-r from-brand-light to-brand rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 group"
                   aria-label="Follow us on Facebook"
                   tabIndex={0}
                   onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.click()}
@@ -92,7 +92,7 @@ export const Footer = () => {
                 </a>
                 <a 
                   href="#" 
-                  className="w-10 h-10 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 group"
+                  className="w-10 h-10 bg-gradient-to-r from-brand-light to-brand rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 group"
                   aria-label="Follow us on Twitter"
                   tabIndex={0}
                   onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.click()}
@@ -101,7 +101,7 @@ export const Footer = () => {
                 </a>
                 <a 
                   href="#" 
-                  className="w-10 h-10 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 group"
+                  className="w-10 h-10 bg-gradient-to-r from-brand-light to-brand rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 group"
                   aria-label="Follow us on Instagram"
                   tabIndex={0}
                   onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.click()}
@@ -110,7 +110,7 @@ export const Footer = () => {
                 </a>
                 <a 
                   href="#" 
-                  className="w-10 h-10 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 group"
+                  className="w-10 h-10 bg-gradient-to-r from-brand-light to-brand rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 group"
                   aria-label="Follow us on LinkedIn"
                   tabIndex={0}
                   onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.click()}
@@ -122,11 +122,11 @@ export const Footer = () => {
               {/* Trust Badges */}
               <div className="flex items-center gap-4 text-sm text-gray-400">
                 <div className="flex items-center gap-1">
-                  <Shield className="h-4 w-4 text-[#57bbb6]" />
+                  <Shield className="h-4 w-4 text-brand-light" />
                   <span>Licensed</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4 text-[#57bbb6]" />
+                  <Star className="h-4 w-4 text-brand-light" />
                   <span>5-Star Rated</span>
                 </div>
               </div>
@@ -139,7 +139,7 @@ export const Footer = () => {
                 <li>
                   <a 
                     href="/" 
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group"
+                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group"
                     aria-label="Navigate to home page"
                   >
                     <ArrowRight className="h-4 w-4 mr-2 group-hover:translate-x-1 transition-transform duration-300" />
@@ -149,7 +149,7 @@ export const Footer = () => {
                 <li>
                   <button 
                     onClick={() => navigate('/services')}
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
+                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
                     aria-label="Navigate to services page"
                   >
                     <ArrowRight className="h-4 w-4 mr-2 group-hover:translate-x-1 transition-transform duration-300" />
@@ -159,7 +159,7 @@ export const Footer = () => {
                 <li>
                   <a 
                     href="/shop" 
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group"
+                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group"
                     aria-label="Navigate to shop page"
                   >
                     <ArrowRight className="h-4 w-4 mr-2 group-hover:translate-x-1 transition-transform duration-300" />
@@ -169,7 +169,7 @@ export const Footer = () => {
                 <li>
                   <button 
                     onClick={() => navigate('/special-offers')}
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
+                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
                     aria-label="View special offers"
                   >
                     <Star className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
@@ -179,7 +179,7 @@ export const Footer = () => {
                 <li>
                   <a 
                     href="/blog" 
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group"
+                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group"
                     aria-label="Navigate to health blog"
                   >
                     <ArrowRight className="h-4 w-4 mr-2 group-hover:translate-x-1 transition-transform duration-300" />
@@ -189,7 +189,7 @@ export const Footer = () => {
                 <li>
                   <a 
                     href="#about" 
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group"
+                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group"
                     aria-label="Scroll to about us section"
                   >
                     <ArrowRight className="h-4 w-4 mr-2 group-hover:translate-x-1 transition-transform duration-300" />
@@ -199,7 +199,7 @@ export const Footer = () => {
                 <li>
                   <a 
                     href="#contact" 
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group"
+                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group"
                     aria-label="Scroll to contact section"
                   >
                     <ArrowRight className="h-4 w-4 mr-2 group-hover:translate-x-1 transition-transform duration-300" />
@@ -209,7 +209,7 @@ export const Footer = () => {
                 <li>
                   <button 
                     onClick={() => navigate('/admin')}
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
+                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
                     aria-label="Access admin panel"
                   >
                     <Settings className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
@@ -226,7 +226,7 @@ export const Footer = () => {
                 <li>
                   <button 
                     onClick={() => navigate('/services?service=prescription-refills')}
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
+                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
                     aria-label="Learn about prescription refill services"
                   >
                     <Heart className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
@@ -236,7 +236,7 @@ export const Footer = () => {
                 <li>
                   <button 
                     onClick={() => navigate('/services?service=same-day-delivery')}
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
+                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
                     aria-label="Learn about same-day delivery services"
                   >
                     <Truck className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
@@ -246,7 +246,7 @@ export const Footer = () => {
                 <li>
                   <button 
                     onClick={() => navigate('/services?service=medication-management')}
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
+                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
                     aria-label="Learn about medication management services"
                   >
                     <Shield className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
@@ -256,7 +256,7 @@ export const Footer = () => {
                 <li>
                   <button 
                     onClick={() => navigate('/services?service=health-consultations')}
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
+                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
                     aria-label="Learn about health consultation services"
                   >
                     <Users className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
@@ -266,7 +266,7 @@ export const Footer = () => {
                 <li>
                   <button 
                     onClick={() => navigate('/services?service=immunizations')}
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
+                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
                     aria-label="Learn about immunization services"
                   >
                     <Stethoscope className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
@@ -276,7 +276,7 @@ export const Footer = () => {
                 <li>
                   <button 
                     onClick={() => navigate('/services?service=24-7-support')}
-                    className="text-gray-300 hover:text-[#57bbb6] transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
+                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
                     aria-label="Learn about 24/7 support services"
                   >
                     <MessageCircle className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
@@ -291,14 +291,14 @@ export const Footer = () => {
               <h3 className="text-xl font-bold mb-6 text-white">Contact Info</h3>
               <div className="space-y-4">
                 <div className="flex items-start group">
-                  <div className="w-10 h-10 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] rounded-full flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-10 h-10 bg-gradient-to-r from-brand-light to-brand rounded-full flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300">
                     <Phone className="h-5 w-5" />
                   </div>
                   <div>
                     <p className="text-gray-300 text-sm">Phone</p>
                     <button 
                       onClick={handleCallClick}
-                      className="text-white font-semibold hover:text-[#57bbb6] transition-colors duration-300"
+                      className="text-white font-semibold hover:text-brand-light transition-colors duration-300"
                       aria-label="Call us at (347) 312-6458"
                     >
                       (347) 312-6458
@@ -307,14 +307,14 @@ export const Footer = () => {
                 </div>
 
                 <div className="flex items-start group">
-                  <div className="w-10 h-10 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] rounded-full flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-10 h-10 bg-gradient-to-r from-brand-light to-brand rounded-full flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300">
                     <Mail className="h-5 w-5" />
                   </div>
                   <div>
                     <p className="text-gray-300 text-sm">Email</p>
                     <button 
                       onClick={handleEmailClick}
-                      className="text-white font-semibold hover:text-[#57bbb6] transition-colors duration-300"
+                      className="text-white font-semibold hover:text-brand-light transition-colors duration-300"
                       aria-label="Send email to info@mymedspharmacy.com"
                     >
                       info@mymedspharmacy.com
@@ -323,24 +323,24 @@ export const Footer = () => {
                 </div>
 
                 <div className="flex items-start group">
-                  <div className="w-10 h-10 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] rounded-full flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-10 h-10 bg-gradient-to-r from-brand-light to-brand rounded-full flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300">
                     <MapPin className="h-5 w-5" />
                   </div>
                   <div>
                     <p className="text-gray-300 text-sm">Location</p>
-                                         <button 
-                       onClick={handleMapClick}
-                       className="text-white font-semibold hover:text-[#57bbb6] transition-colors duration-300 flex items-center group"
-                       aria-label="Open location in maps"
-                     >
-                       J279+5V Brooklyn, NY
-                       <ExternalLink className="h-3 w-3 ml-1 group-hover:translate-x-0.5 transition-transform duration-300" />
-                     </button>
+                    <button 
+                      onClick={handleMapClick}
+                      className="text-white font-semibold hover:text-brand-light transition-colors duration-300 flex items-center group"
+                      aria-label="Open location in maps"
+                    >
+                      J279+5V Brooklyn, NY
+                      <ExternalLink className="h-3 w-3 ml-1 group-hover:translate-x-0.5 transition-transform duration-300" />
+                    </button>
                   </div>
                 </div>
 
                 <div className="flex items-start group">
-                  <div className="w-10 h-10 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] rounded-full flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-10 h-10 bg-gradient-to-r from-brand-light to-brand rounded-full flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300">
                     <Clock className="h-5 w-5" />
                   </div>
                   <div>
@@ -358,11 +358,11 @@ export const Footer = () => {
                   <input 
                     type="email" 
                     placeholder="Enter your email"
-                    className="flex-1 px-4 py-2 rounded-l-lg border-0 focus:ring-2 focus:ring-[#57bbb6] focus:outline-none text-gray-900"
+                    className="flex-1 px-4 py-2 rounded-l-lg border-0 focus:ring-2 focus:ring-brand-light focus:outline-none text-gray-900"
                     aria-label="Email address for newsletter subscription"
                   />
                   <Button 
-                    className="bg-gradient-to-r from-[#57bbb6] to-[#376f6b] hover:shadow-lg text-white px-4 py-2 rounded-r-lg transition-all duration-300 transform hover:scale-105"
+                    className="bg-gradient-to-r from-brand-light to-brand hover:shadow-lg text-white px-4 py-2 rounded-r-lg transition-all duration-300 transform hover:scale-105"
                     aria-label="Subscribe to newsletter"
                   >
                     Subscribe
@@ -382,21 +382,21 @@ export const Footer = () => {
             <div className="flex items-center gap-6 text-sm">
               <button 
                 onClick={() => navigate('/privacy-policy')}
-                className="text-gray-400 hover:text-[#57bbb6] transition-colors duration-300 cursor-pointer"
+                className="text-gray-400 hover:text-brand-light transition-colors duration-300 cursor-pointer"
                 aria-label="Read our privacy policy"
               >
                 Privacy Policy
               </button>
               <button 
                 onClick={() => navigate('/terms-of-service')}
-                className="text-gray-400 hover:text-[#57bbb6] transition-colors duration-300 cursor-pointer"
+                className="text-gray-400 hover:text-brand-light transition-colors duration-300 cursor-pointer"
                 aria-label="Read our terms of service"
               >
                 Terms of Service
               </button>
               <button 
                 onClick={() => navigate('/hipaa-notice')}
-                className="text-gray-400 hover:text-[#57bbb6] transition-colors duration-300 cursor-pointer"
+                className="text-gray-400 hover:text-brand-light transition-colors duration-300 cursor-pointer"
                 aria-label="Read our HIPAA notice"
               >
                 HIPAA Notice

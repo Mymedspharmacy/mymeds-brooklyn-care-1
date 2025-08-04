@@ -22,7 +22,7 @@ const TermsOfService = () => {
               Back
             </Button>
             <div className="flex items-center gap-3">
-              <FileText className="h-8 w-8 text-[#57bbb6]" />
+                              <FileText className="h-8 w-8 text-brand-light" />
               <h1 className="text-3xl font-bold text-gray-900">Terms of Service</h1>
             </div>
           </div>
@@ -49,7 +49,7 @@ const TermsOfService = () => {
             {/* Acceptance of Terms */}
             <section className="mb-8">
               <div className="flex items-center gap-3 mb-4">
-                <CheckCircle className="h-6 w-6 text-[#57bbb6]" />
+                <CheckCircle className="h-6 w-6 text-brand-light" />
                 <h2 className="text-2xl font-semibold text-gray-900">Acceptance of Terms</h2>
               </div>
               <div className="space-y-4 text-gray-700">
@@ -65,7 +65,7 @@ const TermsOfService = () => {
             {/* Services Description */}
             <section className="mb-8">
               <div className="flex items-center gap-3 mb-4">
-                <Scale className="h-6 w-6 text-[#57bbb6]" />
+                <Scale className="h-6 w-6 text-brand-light" />
                 <h2 className="text-2xl font-semibold text-gray-900">Services Description</h2>
               </div>
               <div className="space-y-4 text-gray-700">
@@ -85,7 +85,7 @@ const TermsOfService = () => {
             {/* User Responsibilities */}
             <section className="mb-8">
               <div className="flex items-center gap-3 mb-4">
-                <AlertTriangle className="h-6 w-6 text-[#57bbb6]" />
+                <AlertTriangle className="h-6 w-6 text-brand-light" />
                 <h2 className="text-2xl font-semibold text-gray-900">User Responsibilities</h2>
               </div>
               <div className="space-y-4 text-gray-700">
@@ -193,7 +193,7 @@ const TermsOfService = () => {
             {/* Changes to Terms */}
             <section className="mb-8">
               <div className="flex items-center gap-3 mb-4">
-                <Clock className="h-6 w-6 text-[#57bbb6]" />
+                <Clock className="h-6 w-6 text-brand-light" />
                 <h2 className="text-2xl font-semibold text-gray-900">Changes to Terms</h2>
               </div>
               <div className="space-y-4 text-gray-700">

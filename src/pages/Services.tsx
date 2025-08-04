@@ -43,8 +43,8 @@ export default function Services() {
         "We'll notify you when your prescription is ready",
         "Pick up at your convenience or request delivery"
       ],
-      accent: "from-[#57bbb6] to-[#376f6b]",
-      bgGradient: "from-[#57bbb6]/10 to-[#376f6b]/10",
+      accent: "from-brand-light to-brand",
+      bgGradient: "from-brand-light/10 to-brand/10",
       image: "/images/services/prescription-refill.jpg",
       price: "Free",
       duration: "Same day",
@@ -82,8 +82,8 @@ export default function Services() {
         "You receive tracking information",
         "Same-day delivery to your doorstep"
       ],
-      accent: "from-emerald-500 to-teal-500",
-      bgGradient: "from-emerald-50 to-teal-50",
+      accent: "from-brand-accent to-brand",
+      bgGradient: "from-brand-accent/10 to-brand/10",
       image: "/images/services/delivery-service.jpg",
       price: "Free over $25",
       duration: "Same day",
@@ -121,8 +121,8 @@ export default function Services() {
         "Our pharmacist reviews everything",
         "Receive personalized recommendations"
       ],
-      accent: "from-blue-500 to-indigo-500",
-      bgGradient: "from-blue-50 to-indigo-50",
+      accent: "from-brand to-brand-dark",
+      bgGradient: "from-brand/10 to-brand-dark/10",
       image: "/images/services/medication-review.jpg",
       price: "Free consultation",
       duration: "30-60 minutes",
@@ -160,8 +160,8 @@ export default function Services() {
         "Meet with our pharmacist",
         "Receive personalized recommendations"
       ],
-      accent: "from-purple-500 to-pink-500",
-      bgGradient: "from-purple-50 to-pink-50",
+      accent: "from-brand-light to-brand-accent",
+      bgGradient: "from-brand-light/10 to-brand-accent/10",
       image: "/images/services/health-consultation.jpg",
       price: "Free",
       duration: "30-45 minutes",
@@ -199,8 +199,8 @@ export default function Services() {
         "Receive your vaccine",
         "Get your vaccination record"
       ],
-      accent: "from-orange-500 to-red-500",
-      bgGradient: "from-orange-50 to-red-50",
+      accent: "from-brand-accent to-brand-light",
+      bgGradient: "from-brand-accent/10 to-brand-light/10",
       image: "/images/services/immunizations.jpg",
       price: "Varies by vaccine",
       duration: "15-30 minutes",
@@ -310,20 +310,20 @@ export default function Services() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-brand-light/30">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-[#57bbb6]/20">
+      <div className="bg-white shadow-sm border-b border-brand-light/20">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center gap-4">
             <Button 
               variant="ghost" 
               onClick={() => navigate('/')}
-              className="flex items-center gap-2 text-[#376f6b] hover:text-[#57bbb6] transition-colors duration-300"
+              className="flex items-center gap-2 text-brand hover:text-brand-light transition-colors duration-300"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Home
             </Button>
-            <h1 className="text-4xl font-normal text-[#376f6b]">SERVICES</h1>
+            <h1 className="text-4xl font-normal text-brand">SERVICES</h1>
           </div>
         </div>
       </div>
@@ -337,7 +337,7 @@ export default function Services() {
               {/* Background Decoration */}
               <div className={`absolute inset-0 bg-gradient-to-br ${selectedServiceData.bgGradient} rounded-3xl opacity-20 blur-3xl -z-10`}></div>
               
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] text-white px-6 py-3 rounded-full text-sm font-semibold mb-8 shadow-lg transform hover:scale-105 transition-transform duration-300">
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-light to-brand text-white px-6 py-3 rounded-full text-sm font-semibold mb-8 shadow-lg transform hover:scale-105 transition-transform duration-300">
                 <selectedServiceData.icon className="h-5 w-5" />
                 {selectedServiceData.title}
               </div>
@@ -353,43 +353,43 @@ export default function Services() {
               {/* Enhanced Service Stats with Animations */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
                 <Card className="text-center p-6 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 bg-white/80 backdrop-blur-sm border-0">
-                  <div className="w-16 h-16 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <div className="w-16 h-16 bg-gradient-to-r from-brand-light to-brand rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                     <DollarSign className="h-8 w-8 text-white" />
                   </div>
-                  <div className="text-3xl font-bold text-[#376f6b] mb-2">{selectedServiceData.price}</div>
+                  <div className="text-3xl font-bold text-brand mb-2">{selectedServiceData.price}</div>
                   <div className="text-gray-600 font-medium">Cost</div>
                 </Card>
                 
                 <Card className="text-center p-6 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 bg-white/80 backdrop-blur-sm border-0">
-                  <div className="w-16 h-16 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <div className="w-16 h-16 bg-gradient-to-r from-brand-light to-brand rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                     <ClockIcon className="h-8 w-8 text-white" />
                   </div>
-                  <div className="text-3xl font-bold text-[#376f6b] mb-2">{selectedServiceData.duration}</div>
+                  <div className="text-3xl font-bold text-brand mb-2">{selectedServiceData.duration}</div>
                   <div className="text-gray-600 font-medium">Duration</div>
                 </Card>
                 
                 <Card className="text-center p-6 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 bg-white/80 backdrop-blur-sm border-0">
-                  <div className="w-16 h-16 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <div className="w-16 h-16 bg-gradient-to-r from-brand-light to-brand rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                     <Calendar className="h-8 w-8 text-white" />
                   </div>
-                  <div className="text-3xl font-bold text-[#376f6b] mb-2">{selectedServiceData.availability}</div>
+                  <div className="text-3xl font-bold text-brand mb-2">{selectedServiceData.availability}</div>
                   <div className="text-gray-600 font-medium">Availability</div>
                 </Card>
 
                 <Card className="text-center p-6 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 bg-white/80 backdrop-blur-sm border-0">
-                  <div className="w-16 h-16 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <div className="w-16 h-16 bg-gradient-to-r from-brand-light to-brand rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                     <TrendingUp className="h-8 w-8 text-white" />
                   </div>
-                  <div className="text-3xl font-bold text-[#376f6b] mb-2">{selectedServiceData.satisfactionRate}%</div>
+                  <div className="text-3xl font-bold text-brand mb-2">{selectedServiceData.satisfactionRate}%</div>
                   <div className="text-gray-600 font-medium">Satisfaction</div>
                 </Card>
               </div>
 
               {/* Performance Metrics */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-                <Card className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-0 shadow-lg">
+                <Card className="p-6 bg-gradient-to-br from-brand-light/10 to-brand/10 border-0 shadow-lg">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
+                    <div className="w-12 h-12 bg-brand-light rounded-xl flex items-center justify-center">
                       <UsersIcon className="h-6 w-6 text-white" />
                     </div>
                     <div>
@@ -399,9 +399,9 @@ export default function Services() {
                   </div>
                 </Card>
 
-                <Card className="p-6 bg-gradient-to-br from-blue-50 to-cyan-50 border-0 shadow-lg">
+                <Card className="p-6 bg-gradient-to-br from-brand-accent/10 to-brand/10 border-0 shadow-lg">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
+                    <div className="w-12 h-12 bg-brand-accent rounded-xl flex items-center justify-center">
                       <Activity className="h-6 w-6 text-white" />
                     </div>
                     <div>
@@ -411,9 +411,9 @@ export default function Services() {
                   </div>
                 </Card>
 
-                <Card className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 border-0 shadow-lg">
+                <Card className="p-6 bg-gradient-to-br from-brand/10 to-brand-dark/10 border-0 shadow-lg">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center">
+                    <div className="w-12 h-12 bg-brand rounded-xl flex items-center justify-center">
                       <ShieldIcon className="h-6 w-6 text-white" />
                     </div>
                     <div>
@@ -431,7 +431,7 @@ export default function Services() {
               <Card className="features-section hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-white/90 backdrop-blur-sm border-0">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-3 text-2xl">
-                    <div className="w-10 h-10 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] rounded-xl flex items-center justify-center">
+                    <div className="w-10 h-10 bg-gradient-to-r from-brand-light to-brand rounded-xl flex items-center justify-center">
                       <Star className="h-5 w-5 text-white" />
                     </div>
                     What's Included
@@ -447,7 +447,7 @@ export default function Services() {
                         }`}
                         style={{ transitionDelay: `${index * 100}ms` }}
                       >
-                        <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center mr-4 mt-1 flex-shrink-0 shadow-lg">
+                        <div className="w-8 h-8 bg-gradient-to-r from-brand-light to-brand rounded-full flex items-center justify-center mr-4 mt-1 flex-shrink-0 shadow-lg">
                           <CheckCircle className="h-4 w-4 text-white" />
                         </div>
                         <span className="text-gray-700 font-medium leading-relaxed">{feature}</span>
@@ -461,7 +461,7 @@ export default function Services() {
               <Card className="benefits-section hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-white/90 backdrop-blur-sm border-0">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-3 text-2xl">
-                    <div className="w-10 h-10 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] rounded-xl flex items-center justify-center">
+                    <div className="w-10 h-10 bg-gradient-to-r from-brand-light to-brand rounded-xl flex items-center justify-center">
                       <Award className="h-5 w-5 text-white" />
                     </div>
                     Benefits
@@ -477,7 +477,7 @@ export default function Services() {
                         }`}
                         style={{ transitionDelay: `${index * 100}ms` }}
                       >
-                        <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-cyan-500 rounded-full flex items-center justify-center mr-4 mt-1 flex-shrink-0 shadow-lg">
+                        <div className="w-8 h-8 bg-gradient-to-r from-brand-accent to-brand rounded-full flex items-center justify-center mr-4 mt-1 flex-shrink-0 shadow-lg">
                           <CheckCircle className="h-4 w-4 text-white" />
                         </div>
                         <span className="text-gray-700 font-medium leading-relaxed">{benefit}</span>
@@ -492,9 +492,9 @@ export default function Services() {
             <Card className="process-section mb-16 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-white/90 backdrop-blur-sm border-0">
               <CardHeader>
                 <CardTitle className="flex items-center gap-3 text-2xl">
-                  <div className="w-10 h-10 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] rounded-xl flex items-center justify-center">
-                    <Zap className="h-5 w-5 text-white" />
-                  </div>
+                                      <div className="w-10 h-10 bg-gradient-to-r from-brand-light to-brand rounded-xl flex items-center justify-center">
+                      <Zap className="h-5 w-5 text-white" />
+                    </div>
                   How It Works
                 </CardTitle>
               </CardHeader>
@@ -509,11 +509,11 @@ export default function Services() {
                       style={{ transitionDelay: `${index * 200}ms` }}
                     >
                       <div className="relative">
-                        <div className="w-16 h-16 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] rounded-2xl flex items-center justify-center text-white font-bold text-xl mx-auto mb-6 shadow-lg group-hover:scale-110 group-hover:shadow-xl transition-all duration-300">
+                        <div className="w-16 h-16 bg-gradient-to-r from-brand-light to-brand rounded-2xl flex items-center justify-center text-white font-bold text-xl mx-auto mb-6 shadow-lg group-hover:scale-110 group-hover:shadow-xl transition-all duration-300">
                           {index + 1}
                         </div>
                         {index < selectedServiceData.process.length - 1 && (
-                          <div className="hidden lg:block absolute top-8 left-full w-full h-0.5 bg-gradient-to-r from-[#57bbb6] to-transparent transform translate-x-4"></div>
+                          <div className="hidden lg:block absolute top-8 left-full w-full h-0.5 bg-gradient-to-r from-brand-light to-transparent transform translate-x-4"></div>
                         )}
                       </div>
                       <div className="p-4 rounded-xl bg-gradient-to-r from-gray-50 to-white border border-gray-100 group-hover:shadow-lg transition-all duration-300">
@@ -533,7 +533,7 @@ export default function Services() {
                           <Button 
                             onClick={handleCallClick}
                             variant="outline"
-                            className="border-[#57bbb6] text-[#57bbb6] hover:bg-[#57bbb6] hover:text-white transition-all duration-300 transform hover:scale-105 text-sm px-4 py-2"
+                            className="border-brand-light text-brand-light hover:bg-brand-light hover:text-white transition-all duration-300 transform hover:scale-105 text-sm px-4 py-2"
                           >
                             <Phone className="w-4 h-4 mr-2" />
                             Contact Us
@@ -543,7 +543,7 @@ export default function Services() {
                           <Button 
                             onClick={handleEmailClick}
                             variant="outline"
-                            className="border-[#57bbb6] text-[#57bbb6] hover:bg-[#57bbb6] hover:text-white transition-all duration-300 transform hover:scale-105 text-sm px-4 py-2"
+                            className="border-brand-light text-brand-light hover:bg-brand-light hover:text-white transition-all duration-300 transform hover:scale-105 text-sm px-4 py-2"
                           >
                             <Mail className="w-4 h-4 mr-2" />
                             Learn More
@@ -566,7 +566,7 @@ export default function Services() {
             </Card>
 
             {/* Enhanced CTA with Interactive Elements */}
-            <Card className="bg-gradient-to-r from-[#376f6b] to-[#57bbb6] text-white relative overflow-hidden">
+            <Card className="bg-gradient-to-r from-brand to-brand-light text-white relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -skew-x-12 -translate-x-full animate-shimmer"></div>
               <CardContent className="p-12 text-center relative z-10">
                 <h3 className="text-3xl sm:text-4xl font-bold mb-6">Ready to Get Started?</h3>
@@ -577,7 +577,7 @@ export default function Services() {
                 <div className="flex flex-col sm:flex-row gap-6 justify-center">
                   <Button 
                     onClick={() => handleActionClick(selectedServiceData)}
-                    className="bg-white text-[#376f6b] hover:bg-gray-100 font-bold px-8 py-4 text-lg rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                    className="bg-white text-brand hover:bg-gray-100 font-bold px-8 py-4 text-lg rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                   >
                     <selectedServiceData.actionIcon className="w-5 h-5 mr-3" />
                     {selectedServiceData.actionButton}
@@ -585,7 +585,7 @@ export default function Services() {
                   <Button 
                     onClick={handleCallClick}
                     variant="outline"
-                    className="border-white text-white hover:bg-white hover:text-[#376f6b] font-bold px-8 py-4 text-lg rounded-xl transition-all duration-300 transform hover:scale-105"
+                    className="border-white text-white hover:bg-white hover:text-brand font-bold px-8 py-4 text-lg rounded-xl transition-all duration-300 transform hover:scale-105"
                   >
                     <Phone className="w-5 h-5 mr-3" />
                     Call Now
@@ -593,7 +593,7 @@ export default function Services() {
                   <Button 
                     onClick={handleEmailClick}
                     variant="outline"
-                    className="border-white text-white hover:bg-white hover:text-[#376f6b] font-bold px-8 py-4 text-lg rounded-xl transition-all duration-300 transform hover:scale-105"
+                    className="border-white text-white hover:bg-white hover:text-brand font-bold px-8 py-4 text-lg rounded-xl transition-all duration-300 transform hover:scale-105"
                   >
                     <Mail className="w-5 h-5 mr-3" />
                     Email Us
@@ -625,14 +625,14 @@ export default function Services() {
           <>
             {/* Header */}
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] text-white px-4 py-2 rounded-full text-sm font-semibold mb-6">
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-light to-brand text-white px-4 py-2 rounded-full text-sm font-semibold mb-6">
                 <Star className="h-4 w-4" />
                 Professional Care
               </div>
               
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight mb-6">
                 Our 
-                <span className="block bg-gradient-to-r from-[#57bbb6] to-[#376f6b] bg-clip-text text-transparent">
+                <span className="block bg-gradient-to-r from-brand-light to-brand bg-clip-text text-transparent">
                   Comprehensive Services
                 </span>
               </h2>
@@ -658,7 +658,7 @@ export default function Services() {
                     </div>
 
                     {/* Service Title & Description */}
-                    <CardTitle className="text-2xl font-bold text-gray-900 group-hover:text-[#376f6b] transition-colors duration-300 mb-4 text-center">
+                    <CardTitle className="text-2xl font-bold text-gray-900 group-hover:text-brand transition-colors duration-300 mb-4 text-center">
                       {service.title}
                     </CardTitle>
                     
@@ -669,15 +669,15 @@ export default function Services() {
                     {/* Service Stats */}
                     <div className="grid grid-cols-3 gap-4 mb-6">
                       <div className="text-center">
-                        <div className="text-sm font-bold text-[#376f6b]">{service.price}</div>
+                        <div className="text-sm font-bold text-brand">{service.price}</div>
                         <div className="text-xs text-gray-500">Cost</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-sm font-bold text-[#376f6b]">{service.duration}</div>
+                        <div className="text-sm font-bold text-brand">{service.duration}</div>
                         <div className="text-xs text-gray-500">Duration</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-sm font-bold text-[#376f6b]">{service.availability}</div>
+                        <div className="text-sm font-bold text-brand">{service.availability}</div>
                         <div className="text-xs text-gray-500">Available</div>
                       </div>
                     </div>
@@ -696,7 +696,7 @@ export default function Services() {
 
                     {/* Learn More Button */}
                     <div className="mt-6 text-center">
-                      <Badge className="bg-gradient-to-r from-[#57bbb6] to-[#376f6b] text-white hover:scale-105 transition-transform duration-300">
+                      <Badge className="bg-gradient-to-r from-brand-light to-brand text-white hover:scale-105 transition-transform duration-300">
                         Learn More
                       </Badge>
                     </div>
@@ -709,7 +709,7 @@ export default function Services() {
             </div>
 
             {/* CTA Section */}
-            <div className="bg-gradient-to-r from-[#376f6b] to-[#57bbb6] rounded-3xl p-8 sm:p-12 text-center text-white relative overflow-hidden">
+            <div className="bg-gradient-to-r from-brand to-brand-light rounded-3xl p-8 sm:p-12 text-center text-white relative overflow-hidden">
               <div className="relative z-10">
                 <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">
                   Ready to Experience Better Care?
@@ -721,7 +721,7 @@ export default function Services() {
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button 
                     onClick={handleCallClick}
-                    className="bg-white text-[#376f6b] hover:bg-gray-100 font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+                    className="bg-white text-brand hover:bg-gray-100 font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
                   >
                     <Phone className="w-5 h-5 mr-2" />
                     Call (347) 312-6458
@@ -730,7 +730,7 @@ export default function Services() {
                   <Button 
                     onClick={handleEmailClick}
                     variant="outline"
-                    className="border-white text-white hover:bg-white hover:text-[#376f6b] font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
+                    className="border-white text-white hover:bg-white hover:text-brand font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
                   >
                     <Mail className="w-5 h-5 mr-2" />
                     Email Us
@@ -739,7 +739,7 @@ export default function Services() {
                   <Button 
                     onClick={handleMapClick}
                     variant="outline"
-                    className="border-white text-white hover:bg-white hover:text-[#376f6b] font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
+                    className="border-white text-white hover:bg-white hover:text-brand font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
                   >
                     <MapPin className="w-5 h-5 mr-2" />
                     Get Directions
@@ -757,21 +757,21 @@ export default function Services() {
           <div className="flex flex-col gap-3">
             <Button
               onClick={handleCallClick}
-              className="w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110"
+              className="w-14 h-14 bg-brand-light hover:bg-brand rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110"
               title="Call Now"
             >
               <Phone className="h-6 w-6" />
             </Button>
             <Button
               onClick={handleEmailClick}
-              className="w-14 h-14 bg-blue-500 hover:bg-blue-600 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110"
+              className="w-14 h-14 bg-brand-accent hover:bg-brand rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110"
               title="Email Us"
             >
               <Mail className="h-6 w-6" />
             </Button>
             <Button
               onClick={handleMapClick}
-              className="w-14 h-14 bg-purple-500 hover:bg-purple-600 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110"
+              className="w-14 h-14 bg-brand hover:bg-brand-dark rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110"
               title="Get Directions"
             >
               <MapPin className="h-6 w-6" />

@@ -155,7 +155,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
               onLoad={() => handleImageLoad(index)}
               onError={() => handleImageError(index)}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#376f6b]/90 via-[#376f6b]/80 to-[#376f6b]/70"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-brand/90 via-brand/80 to-brand/70"></div>
             <div className="absolute inset-0 bg-black/20"></div>
           </div>
         ))}
@@ -212,7 +212,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
               <div className="space-y-4 sm:space-y-6">
                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight">
                   Your Health,
-                  <span className="block text-[#57bbb6]">Our Priority</span>
+                  <span className="block text-brand-light">Our Priority</span>
                 </h1>
                 <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 leading-relaxed max-w-2xl mx-auto lg:mx-0 px-2 sm:px-0">
                   Professional pharmaceutical care with personalized service. 
@@ -226,7 +226,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
                 <Button 
                   onClick={onRefillClick}
                   size="lg" 
-                  className="bg-[#57bbb6] hover:bg-[#4a9a94] text-white text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-[#57bbb6] group"
+                  className="bg-brand-light hover:bg-brand-accent text-white text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-brand-light group"
                 >
                   <Heart className="mr-2 sm:mr-3 h-5 w-5 sm:h-6 sm:w-6" />
                   <span className="hidden sm:inline">Refill Prescription</span>
@@ -238,7 +238,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
                   variant="outline" 
                   size="lg" 
                   onClick={() => window.location.href = '/shop'}
-                  className="text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 rounded-xl border-2 border-white/50 text-white hover:bg-white hover:text-[#376f6b] transition-all duration-300 transform hover:scale-105 backdrop-blur-sm group"
+                  className="text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 rounded-xl border-2 border-white/50 text-white hover:bg-white hover:text-brand transition-all duration-300 transform hover:scale-105 backdrop-blur-sm group"
                 >
                   <ShoppingCart className="mr-2 sm:mr-3 h-5 w-5 sm:h-6 sm:w-6" />
                   <span className="hidden sm:inline">Shop Products</span>
@@ -250,15 +250,15 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
               {/* Trust Indicators */}
               <div className="flex flex-wrap justify-center lg:justify-start gap-4 sm:gap-6 pt-4">
                 <div className="flex items-center gap-2 text-white/80">
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#57bbb6] rounded-full"></div>
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-brand-light rounded-full"></div>
                   <span className="text-xs sm:text-sm font-medium">Licensed Pharmacists</span>
                 </div>
                 <div className="flex items-center gap-2 text-white/80">
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#57bbb6] rounded-full"></div>
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-brand-light rounded-full"></div>
                   <span className="text-xs sm:text-sm font-medium">Same Day Service</span>
                 </div>
                 <div className="flex items-center gap-2 text-white/80">
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#57bbb6] rounded-full"></div>
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-brand-light rounded-full"></div>
                   <span className="text-xs sm:text-sm font-medium">Insurance Accepted</span>
                 </div>
               </div>
@@ -290,7 +290,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
                       navigate('/special-offers');
                     }}
                     size="sm"
-                    className="bg-[#57bbb6] hover:bg-[#4a9a94] text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 transform hover:scale-105"
+                    className="bg-brand-light hover:bg-brand-accent text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 transform hover:scale-105"
                   >
                     View All Offers
                   </Button>
@@ -304,7 +304,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
                 {/* Free Delivery Card */}
                 <div className="bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20 hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
                   <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="bg-[#57bbb6] p-2 sm:p-3 rounded-lg sm:rounded-xl">
+                    <div className="bg-brand-light p-2 sm:p-3 rounded-lg sm:rounded-xl">
                       <Truck className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                     </div>
                     <div>
@@ -317,7 +317,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
                 {/* Extended Hours Card */}
                 <div className="bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20 hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
                   <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="bg-[#57bbb6] p-2 sm:p-3 rounded-lg sm:rounded-xl">
+                    <div className="bg-brand-light p-2 sm:p-3 rounded-lg sm:rounded-xl">
                       <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                     </div>
                     <div>
@@ -330,7 +330,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
                 {/* Expert Care Card */}
                 <div className="bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20 hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
                   <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="bg-[#57bbb6] p-2 sm:p-3 rounded-lg sm:rounded-xl">
+                    <div className="bg-brand-light p-2 sm:p-3 rounded-lg sm:rounded-xl">
                       <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                     </div>
                     <div>
@@ -343,7 +343,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
                 {/* Transfer Service Card */}
                 <div className="bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20 hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
                   <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="bg-[#57bbb6] p-2 sm:p-3 rounded-lg sm:rounded-xl">
+                    <div className="bg-brand-light p-2 sm:p-3 rounded-lg sm:rounded-xl">
                       <ArrowRight className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                     </div>
                     <div>
@@ -358,8 +358,8 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
               <div className="bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20 text-center hover:bg-white/15 transition-all duration-300 transform hover:scale-105 cursor-pointer group" onClick={handleCallClick}>
                 <p className="text-white/80 text-xs sm:text-sm mb-2">Need immediate assistance?</p>
                 <div className="flex items-center justify-center gap-2 mb-1">
-                  <Phone className="h-4 w-4 sm:h-5 sm:w-5 text-[#57bbb6] group-hover:scale-110 transition-transform duration-300" />
-                  <p className="text-white text-lg sm:text-xl md:text-2xl font-bold group-hover:text-[#57bbb6] transition-colors duration-300">(347) 312-6458</p>
+                                     <Phone className="h-4 w-4 sm:h-5 sm:w-5 text-brand-light group-hover:scale-110 transition-transform duration-300" />
+                                     <p className="text-white text-lg sm:text-xl md:text-2xl font-bold group-hover:text-brand-light transition-colors duration-300">(347) 312-6458</p>
                 </div>
                 <p className="text-white/60 text-xs sm:text-sm group-hover:text-white/80 transition-colors duration-300">Click to call • Available 6 days a week</p>
               </div>

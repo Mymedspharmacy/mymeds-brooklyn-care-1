@@ -24,8 +24,8 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
         "Multiple pickup options",
         "Insurance coordination"
       ],
-      accent: "from-[#57bbb6] to-[#376f6b]",
-      bgGradient: "from-[#57bbb6]/10 to-[#376f6b]/10",
+      accent: "from-brand-light to-brand",
+      bgGradient: "from-brand-light/10 to-brand/10",
       image: "/images/services/prescription-refill.jpg"
     },
     {
@@ -39,8 +39,8 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
         "Real-time tracking",
         "Secure prescription handling"
       ],
-      accent: "from-emerald-500 to-teal-500",
-      bgGradient: "from-emerald-50 to-teal-50",
+      accent: "from-brand-accent to-brand",
+      bgGradient: "from-brand-accent/10 to-brand/10",
       image: "/images/services/delivery-service.jpg"
     },
     {
@@ -54,8 +54,8 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
         "Side effect monitoring",
         "Dosage optimization"
       ],
-      accent: "from-blue-500 to-indigo-500",
-      bgGradient: "from-blue-50 to-indigo-50",
+      accent: "from-brand to-brand-dark",
+      bgGradient: "from-brand/10 to-brand-dark/10",
       image: "/images/services/medication-review.jpg"
     },
     {
@@ -69,8 +69,8 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
         "Vaccination services",
         "Chronic disease management"
       ],
-      accent: "from-purple-500 to-pink-500",
-      bgGradient: "from-purple-50 to-pink-50",
+      accent: "from-brand-light to-brand-accent",
+      bgGradient: "from-brand-light/10 to-brand-accent/10",
       image: "/images/services/health-consultation.jpg"
     },
     {
@@ -84,8 +84,8 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
         "Pediatric immunizations",
         "Vaccine records management"
       ],
-      accent: "from-orange-500 to-red-500",
-      bgGradient: "from-orange-50 to-red-50",
+      accent: "from-brand-accent to-brand-light",
+      bgGradient: "from-brand-accent/10 to-brand-light/10",
       image: "/images/services/immunizations.jpg"
     },
     {
@@ -99,30 +99,30 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
         "After-hours pickup",
         "Telepharmacy services"
       ],
-      accent: "from-cyan-500 to-blue-500",
-      bgGradient: "from-cyan-50 to-blue-50",
+      accent: "from-brand to-brand-light",
+      bgGradient: "from-brand/10 to-brand-light/10",
       image: "/images/services/24-7-support.jpg"
     }
   ];
 
   return (
-    <section id="services" className="py-16 sm:py-20 md:py-24 bg-gradient-to-br from-slate-50 via-white to-blue-50/30 relative overflow-hidden">
+    <section id="services" className="py-16 sm:py-20 md:py-24 bg-gradient-to-br from-slate-50 via-white to-brand-light/30 relative overflow-hidden">
       {/* Healing Background Elements */}
-      <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-r from-blue-200/20 to-cyan-200/20 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-r from-emerald-200/20 to-teal-200/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-r from-purple-200/10 to-indigo-200/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '4s' }}></div>
+      <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-r from-brand-light/20 to-brand/20 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-r from-brand-accent/20 to-brand-dark/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-r from-brand-light/10 to-brand-accent/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '4s' }}></div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Enhanced Header Section */}
         <div className="text-center mb-16 sm:mb-20">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] text-white px-4 py-2 rounded-full text-sm font-semibold mb-6">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-light to-brand text-white px-4 py-2 rounded-full text-sm font-semibold mb-6">
             <Star className="h-4 w-4" />
             Professional Care
           </div>
           
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight mb-6">
             Our 
-            <span className="block bg-gradient-to-r from-[#57bbb6] to-[#376f6b] bg-clip-text text-transparent">
+            <span className="block bg-gradient-to-r from-brand-light to-brand bg-clip-text text-transparent">
               Comprehensive Services
             </span>
           </h2>
@@ -168,7 +168,7 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
                 </div>
 
                 {/* Service Title & Description */}
-                <CardTitle className="text-2xl font-bold text-gray-900 group-hover:text-[#376f6b] transition-colors duration-300 mb-4 text-center">
+                <CardTitle className="text-2xl font-bold text-gray-900 group-hover:text-brand transition-colors duration-300 mb-4 text-center">
                   {service.title}
                 </CardTitle>
                 
@@ -209,15 +209,15 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
             {/* Free Refills Offer */}
             <Card 
-              className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-gradient-to-br from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 cursor-pointer"
+              className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-gradient-to-br from-brand-light/10 to-brand/10 hover:from-brand-light/20 hover:to-brand/20 cursor-pointer"
               onClick={() => navigate('/special-offers')}
             >
               <CardContent className="p-8 sm:p-10">
                 <div className="flex items-center justify-between mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <div className="w-16 h-16 bg-gradient-to-br from-brand-light to-brand rounded-2xl flex items-center justify-center shadow-lg">
                     <Pill className="h-8 w-8 text-white" />
                   </div>
-                  <div className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                  <div className="bg-brand-light text-white px-3 py-1 rounded-full text-sm font-bold">
                     FREE
                   </div>
                 </div>
@@ -231,15 +231,15 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
                 
                 <div className="space-y-2 mb-6">
                   <div className="flex items-center text-sm text-gray-600">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
+                    <CheckCircle className="h-4 w-4 text-brand-light mr-2 flex-shrink-0" />
                     <span>All prescription medications included</span>
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
+                    <CheckCircle className="h-4 w-4 text-brand-light mr-2 flex-shrink-0" />
                     <span>No refill fees or service charges</span>
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
+                    <CheckCircle className="h-4 w-4 text-brand-light mr-2 flex-shrink-0" />
                     <span>Automatic refill reminders</span>
                   </div>
                 </div>
@@ -247,7 +247,7 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-500">Click to see all offers</span>
                   <Button 
-                    className="bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                    className="bg-gradient-to-r from-brand-light to-brand text-white hover:shadow-lg transition-all duration-300 transform hover:scale-105"
                     onClick={(e) => {
                       e.stopPropagation();
                       navigate('/special-offers');
@@ -262,15 +262,15 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
 
             {/* Free Shipping Offer */}
             <Card 
-              className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-gradient-to-br from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 cursor-pointer"
+              className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-gradient-to-br from-brand-accent/10 to-brand/10 hover:from-brand-accent/20 hover:to-brand/20 cursor-pointer"
               onClick={() => navigate('/special-offers')}
             >
               <CardContent className="p-8 sm:p-10">
                 <div className="flex items-center justify-between mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <div className="w-16 h-16 bg-gradient-to-br from-brand-accent to-brand rounded-2xl flex items-center justify-center shadow-lg">
                     <Truck className="h-8 w-8 text-white" />
                   </div>
-                  <div className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                  <div className="bg-brand-accent text-white px-3 py-1 rounded-full text-sm font-bold">
                     FREE
                   </div>
                 </div>
@@ -284,15 +284,15 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
                 
                 <div className="space-y-2 mb-6">
                   <div className="flex items-center text-sm text-gray-600">
-                    <CheckCircle className="h-4 w-4 text-blue-500 mr-2 flex-shrink-0" />
+                    <CheckCircle className="h-4 w-4 text-brand-accent mr-2 flex-shrink-0" />
                     <span>Free shipping on orders $50+</span>
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
-                    <CheckCircle className="h-4 w-4 text-blue-500 mr-2 flex-shrink-0" />
+                    <CheckCircle className="h-4 w-4 text-brand-accent mr-2 flex-shrink-0" />
                     <span>Fast 2-3 business day delivery</span>
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
-                    <CheckCircle className="h-4 w-4 text-blue-500 mr-2 flex-shrink-0" />
+                    <CheckCircle className="h-4 w-4 text-brand-accent mr-2 flex-shrink-0" />
                     <span>Secure packaging & tracking</span>
                   </div>
                 </div>
@@ -300,7 +300,7 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-500">Click to see all offers</span>
                   <Button 
-                    className="bg-gradient-to-r from-blue-500 to-cyan-600 text-white hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                    className="bg-gradient-to-r from-brand-accent to-brand text-white hover:shadow-lg transition-all duration-300 transform hover:scale-105"
                     onClick={(e) => {
                       e.stopPropagation();
                       navigate('/special-offers');
@@ -316,7 +316,7 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
         </div>
 
         {/* Enhanced CTA Section */}
-        <div className="bg-gradient-to-r from-[#376f6b] to-[#57bbb6] rounded-3xl p-8 sm:p-12 text-center text-white relative overflow-hidden">
+        <div className="bg-gradient-to-r from-brand to-brand-light rounded-3xl p-8 sm:p-12 text-center text-white relative overflow-hidden">
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.1%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%222%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
@@ -333,7 +333,7 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 onClick={onRefillClick}
-                className="bg-white text-[#376f6b] hover:bg-gray-100 font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+                className="bg-white text-brand hover:bg-gray-100 font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
               >
                 <Pill className="w-5 h-5 mr-2" />
                 Refill Prescription
@@ -342,7 +342,7 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
               <Button 
                 onClick={onTransferClick}
                 variant="outline"
-                className="border-white text-white hover:bg-white hover:text-[#376f6b] font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
+                className="border-white text-white hover:bg-white hover:text-brand font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
               >
                 <ArrowRight className="w-5 h-5 mr-2" />
                 Transfer Prescription
@@ -351,7 +351,7 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
               <Button 
                 onClick={() => window.location.href = '/shop'}
                 variant="outline"
-                className="border-white text-white hover:bg-white hover:text-[#376f6b] font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
+                className="border-white text-white hover:bg-white hover:text-brand font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
               >
                 <ShoppingCart className="w-5 h-5 mr-2" />
                 Shop Products

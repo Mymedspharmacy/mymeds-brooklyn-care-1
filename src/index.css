@@ -9,49 +9,49 @@ All colors MUST be HSL.
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 220 15% 15%;
+    --foreground: 0 0% 14%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 15% 15%;
+    --card-foreground: 0 0% 14%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 15% 15%;
+    --popover-foreground: 0 0% 14%;
 
-    --primary: 142 76% 36%;
+    --primary: 175 35% 32%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 142 20% 96%;
-    --secondary-foreground: 142 76% 35%;
+    --secondary: 175 35% 95%;
+    --secondary-foreground: 175 35% 32%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 142 76% 36%;
+    --accent: 175 35% 32%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 142.3 31.8% 91.4%;
-    --input: 142.3 31.8% 91.4%;
-    --ring: 142 76% 36%;
+    --border: 175 35% 90%;
+    --input: 175 35% 90%;
+    --ring: 175 35% 32%;
 
-    /* Pharmacy brand colors */
-    --pharmacy-blue: 142 76% 36%;
-    --pharmacy-blue-dark: 142 76% 20%;
-    --pharmacy-blue-light: 142 76% 95%;
-    --pharmacy-green: 142 76% 36%;
+    /* Pharmacy brand colors - Updated to match your palette */
+    --pharmacy-blue: 175 35% 32%;
+    --pharmacy-blue-dark: 175 35% 25%;
+    --pharmacy-blue-light: 175 35% 95%;
+    --pharmacy-green: 175 35% 32%;
     --pharmacy-red: 0 84% 60%;
     --pharmacy-purple: 271 76% 53%;
-    --pharmacy-gray: 220 15% 55%;
+    --pharmacy-gray: 0 0% 14%;
 
-    /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(142 76% 95%), hsl(142 76% 95%));
-    --gradient-primary: linear-gradient(135deg, hsl(142 76% 36%), hsl(142 76% 35%));
+    /* Gradients - Updated to match your palette */
+    --gradient-hero: linear-gradient(135deg, hsl(175 35% 95%), hsl(175 35% 95%));
+    --gradient-primary: linear-gradient(135deg, hsl(175 35% 32%), hsl(175 35% 28%));
 
-    /* Shadows */
-    --shadow-elegant: 0 10px 30px -10px hsl(142 76% 36% / 0.2);
-    --shadow-card: 0 4px 20px -4px hsl(142 76% 36% / 0.1);
+    /* Shadows - Updated to match your palette */
+    --shadow-elegant: 0 10px 30px -10px hsl(175 35% 32% / 0.2);
+    --shadow-card: 0 4px 20px -4px hsl(175 35% 32% / 0.1);
 
     --radius: 0.5rem;
 
