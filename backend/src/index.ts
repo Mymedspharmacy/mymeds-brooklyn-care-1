@@ -37,6 +37,10 @@ console.log('PORT:', process.env.PORT || 4000);
 console.log('DATABASE_URL:', process.env.DATABASE_URL ? '***configured***' : '***not configured***');
 
 const app = express();
+
+// Trust proxy for Railway deployment
+app.set('trust proxy', 1);
+
 const prisma = new PrismaClient();
 
 // Test database connection on startup
