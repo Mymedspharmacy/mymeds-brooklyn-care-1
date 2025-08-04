@@ -4,7 +4,7 @@ import {
   ShoppingCart, Users, Star, Settings, 
   CheckCircle, XCircle, Search, Calendar, 
   TrendingUp, LogOut, Bell, Link, 
-  Pill, RefreshCw, MessageSquare
+  Pill, RefreshCw, MessageSquare, MapPin
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,7 @@ import railwayAuth from '../lib/railwayAuth';
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', icon: TrendingUp },
   { id: 'orders', label: 'Orders', icon: ShoppingCart },
+  { id: 'delivery-map', label: 'Delivery Map', icon: MapPin },
   { id: 'refills', label: 'Refill Requests', icon: Pill },
   { id: 'transfers', label: 'Transfer Requests', icon: RefreshCw },
   { id: 'contacts', label: 'Contact Requests', icon: MessageSquare },
@@ -34,6 +35,21 @@ export default function Admin() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showToast, setShowToast] = useState({ show: false, message: '', type: 'success' });
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [showContactDialog, setShowContactDialog] = useState(false);
+  const [showNotificationDialog, setShowNotificationDialog] = useState(false);
+  const [selectedContact, setSelectedContact] = useState<any>(null);
+  const [selectedNotification, setSelectedNotification] = useState<any>(null);
+  const [deliveryOrders, setDeliveryOrders] = useState<any[]>([]);
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [showOrderDetails, setShowOrderDetails] = useState(false);
+  const [wooCommerceStatus, setWooCommerceStatus] = useState<any>(null);
+  const [wordPressStatus, setWordPressStatus] = useState<any>(null);
+  const [settings, setSettings] = useState({
+    siteName: 'MyMeds Pharmacy',
+    contactEmail: 'contact@mymedspharmacy.com',
+    contactPhone: '(555) 123-4567',
+    businessHours: 'Mon-Fri: 9AM-6PM, Sat: 9AM-4PM'
+  });
 
   // Data states
   const [orders, setOrders] = useState([]);
@@ -71,8 +87,10 @@ export default function Admin() {
     try {
       await Promise.all([
         fetchOrders(), fetchRefillRequests(), fetchTransferRequests(),
-        fetchContacts(), fetchNotifications()
+        fetchContacts(), fetchNotifications(), fetchIntegrationStatus(), fetchSettings()
       ]);
+      // Generate delivery orders after fetching orders
+      setTimeout(() => generateDeliveryOrders(), 100);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     }
@@ -147,6 +165,37 @@ export default function Admin() {
     }
   }
 
+  async function fetchIntegrationStatus() {
+    try {
+      // Fetch WooCommerce status
+      const wooResponse = await api.get('/woocommerce/settings');
+      setWooCommerceStatus(wooResponse.data);
+    } catch (error) {
+      console.error('Error fetching WooCommerce status:', error);
+      setWooCommerceStatus({ enabled: false });
+    }
+
+    try {
+      // Fetch WordPress status
+      const wpResponse = await api.get('/wordpress/settings');
+      setWordPressStatus(wpResponse.data);
+    } catch (error) {
+      console.error('Error fetching WordPress status:', error);
+      setWordPressStatus({ enabled: false });
+    }
+  }
+
+  async function fetchSettings() {
+    try {
+      const response = await api.get('/settings');
+      if (response.data) {
+        setSettings(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+    }
+  }
+
   async function logout() {
     try {
       await railwayAuth.logout();
@@ -160,6 +209,182 @@ export default function Admin() {
   function showToastMessage(message: string, type: 'success' | 'error' = 'success') {
     setShowToast({ show: true, message, type });
     setTimeout(() => setShowToast({ show: false, message: '', type: 'success' }), 3000);
+  }
+
+  // Action button handlers
+  async function handleViewContact(contact: any) {
+    setSelectedContact(contact);
+    setShowContactDialog(true);
+  }
+
+  async function handleViewNotification(notification: any) {
+    setSelectedNotification(notification);
+    setShowNotificationDialog(true);
+  }
+
+  async function handleTestWooCommerceConnection() {
+    try {
+      showToastMessage('Testing WooCommerce connection...', 'success');
+      const response = await api.get('/woocommerce/test-connection');
+      if (response.data.success) {
+        showToastMessage('WooCommerce connection successful', 'success');
+      } else {
+        showToastMessage('WooCommerce connection failed', 'error');
+      }
+    } catch (error) {
+      console.error('WooCommerce connection test error:', error);
+      showToastMessage('Failed to test WooCommerce connection', 'error');
+    }
+  }
+
+  async function handleSyncWooCommerceProducts() {
+    try {
+      showToastMessage('Syncing WooCommerce products...', 'success');
+      const response = await api.post('/woocommerce/sync-products');
+      if (response.data.success) {
+        showToastMessage(`Synced ${response.data.count} products successfully`, 'success');
+      } else {
+        showToastMessage('Failed to sync WooCommerce products', 'error');
+      }
+    } catch (error) {
+      console.error('WooCommerce sync error:', error);
+      showToastMessage('Failed to sync WooCommerce products', 'error');
+    }
+  }
+
+  async function handleTestWordPressConnection() {
+    try {
+      showToastMessage('Testing WordPress connection...', 'success');
+      const response = await api.get('/wordpress/test-connection');
+      if (response.data.success) {
+        showToastMessage('WordPress connection successful', 'success');
+      } else {
+        showToastMessage('WordPress connection failed', 'error');
+      }
+    } catch (error) {
+      console.error('WordPress connection test error:', error);
+      showToastMessage('Failed to test WordPress connection', 'error');
+    }
+  }
+
+  async function handleSyncWordPressPosts() {
+    try {
+      showToastMessage('Syncing WordPress posts...', 'success');
+      const response = await api.post('/wordpress/sync-posts');
+      if (response.data.success) {
+        showToastMessage(`Synced ${response.data.count} posts successfully`, 'success');
+      } else {
+        showToastMessage('Failed to sync WordPress posts', 'error');
+      }
+    } catch (error) {
+      console.error('WordPress sync error:', error);
+      showToastMessage('Failed to sync WordPress posts', 'error');
+    }
+  }
+
+  async function handleSaveSettings() {
+    try {
+      showToastMessage('Saving settings...', 'success');
+      
+      const response = await api.put('/settings', settings);
+      if (response.data.success) {
+        showToastMessage('Settings saved successfully', 'success');
+        // Refresh settings after save
+        await fetchSettings();
+      } else {
+        showToastMessage('Failed to save settings', 'error');
+      }
+    } catch (error) {
+      console.error('Settings save error:', error);
+      showToastMessage('Failed to save settings', 'error');
+    }
+  }
+
+  // Delivery Map Functions
+  function generateDeliveryOrders() {
+    // Filter orders that are eligible for delivery (pending or approved)
+    const deliveryOrders = orders
+      .filter((order: any) => order.status === 'pending' || order.status === 'approved')
+      .map((order: any) => ({
+        ...order,
+        // Use actual delivery address from order or default
+        deliveryAddress: order.deliveryAddress || order.user?.address || 'Address not provided',
+        // Generate coordinates based on order ID for consistent positioning
+        coordinates: generateCoordinatesFromOrderId(order.id),
+        // Calculate estimated delivery based on order creation time
+        estimatedDelivery: calculateEstimatedDelivery(order.createdAt),
+        // Use actual delivery notes or default
+        deliveryNotes: order.deliveryNotes || 'Standard delivery'
+      }));
+    
+    setDeliveryOrders(deliveryOrders);
+  }
+
+  function generateCoordinatesFromOrderId(orderId: number) {
+    // Generate consistent coordinates based on order ID
+    // This ensures the same order always appears in the same location
+    const baseLat = 40.6782; // Brooklyn center latitude
+    const baseLng = -73.9442; // Brooklyn center longitude
+    
+    // Use order ID to create deterministic but varied positions
+    const latVariation = ((orderId * 7) % 100) / 1000 - 0.05; // ±0.05 degrees
+    const lngVariation = ((orderId * 11) % 100) / 1000 - 0.05; // ±0.05 degrees
+    
+    return {
+      lat: baseLat + latVariation,
+      lng: baseLng + lngVariation
+    };
+  }
+
+  function calculateEstimatedDelivery(createdAt: string) {
+    const orderTime = new Date(createdAt);
+    const now = new Date();
+    const timeDiff = now.getTime() - orderTime.getTime();
+    
+    // If order is older than 4 hours, set ETA to 1 hour from now
+    if (timeDiff > 4 * 60 * 60 * 1000) {
+      const eta = new Date(now.getTime() + 60 * 60 * 1000);
+      return eta.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: true 
+      });
+    }
+    
+    // Otherwise, set ETA to 2-4 hours from order time
+    const hoursToAdd = 2 + (Math.floor(Math.random() * 3)); // 2-4 hours
+    const eta = new Date(orderTime.getTime() + hoursToAdd * 60 * 60 * 1000);
+    return eta.toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: true 
+    });
+  }
+
+  function handleOrderClick(order: any) {
+    setSelectedOrder(order);
+    setShowOrderDetails(true);
+  }
+
+  async function updateOrderDeliveryStatus(orderId: number, status: string) {
+    try {
+      // Update the order status via API
+      await updateOrderStatus(orderId, status);
+      
+      // Update local delivery orders state
+      setDeliveryOrders(prev => 
+        prev.map(order => 
+          order.id === orderId 
+            ? { ...order, status } 
+            : order
+        )
+      );
+      
+      showToastMessage(`Order #${orderId} status updated to ${status}`, 'success');
+    } catch (error) {
+      console.error('Error updating delivery status:', error);
+      showToastMessage('Failed to update order status', 'error');
+    }
   }
 
   async function updateOrderStatus(id: number, status: string) {
@@ -286,7 +511,7 @@ export default function Admin() {
         <Tabs value={tab} onValueChange={setTab} className="space-y-6">
           {/* Tab Navigation */}
           <div className="border-b border-gray-200">
-            <TabsList className="grid w-full grid-cols-8 h-auto bg-transparent">
+            <TabsList className="grid w-full grid-cols-9 h-auto bg-transparent">
               {TABS.map((tabItem) => (
                 <TabsTrigger
                   key={tabItem.id}
@@ -453,16 +678,22 @@ export default function Admin() {
                                   size="sm"
                                   onClick={() => updateOrderStatus(order.id, 'completed')}
                                   disabled={order.status === 'completed'}
+                                  className="text-green-600 hover:text-green-700"
+                                  title="Mark as Completed"
                                 >
                                   <CheckCircle className="h-4 w-4" />
+                                  <span className="ml-1 hidden sm:inline">Complete</span>
                                 </Button>
                                 <Button
                                   variant="outline"
                                   size="sm"
                                   onClick={() => updateOrderStatus(order.id, 'cancelled')}
                                   disabled={order.status === 'cancelled'}
+                                  className="text-red-600 hover:text-red-700"
+                                  title="Cancel Order"
                                 >
                                   <XCircle className="h-4 w-4" />
+                                  <span className="ml-1 hidden sm:inline">Cancel</span>
                                 </Button>
                               </div>
                             </TableCell>
@@ -470,6 +701,183 @@ export default function Admin() {
                         ))}
                     </TableBody>
                   </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Delivery Map Tab */}
+          <TabsContent value="delivery-map" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <MapPin className="h-5 w-5" />
+                  <span>Delivery Map</span>
+                </CardTitle>
+                <p className="text-sm text-gray-600">
+                  View and manage delivery orders on an interactive map
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  {/* Map Controls */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                        {deliveryOrders.length} Active Deliveries
+                      </Badge>
+                      <Badge variant="outline" className="bg-green-50 text-green-700">
+                        {deliveryOrders.filter((o: any) => o.status === 'approved').length} Approved
+                      </Badge>
+                      <Badge variant="outline" className="bg-yellow-50 text-yellow-700">
+                        {deliveryOrders.filter((o: any) => o.status === 'pending').length} Pending
+                      </Badge>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => generateDeliveryOrders()}
+                    >
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      Refresh Map
+                    </Button>
+                  </div>
+
+                  {/* Interactive Map */}
+                  <div className="relative">
+                    <div className="bg-gray-100 rounded-lg p-4 min-h-[500px] relative overflow-hidden">
+                      {/* Map Background */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-green-50 opacity-50"></div>
+                      
+                      {/* Map Grid Lines */}
+                      <div className="absolute inset-0 opacity-20">
+                        <div className="grid grid-cols-10 grid-rows-10 h-full">
+                          {Array.from({ length: 100 }).map((_, i) => (
+                            <div key={i} className="border border-gray-300"></div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Delivery Pins */}
+                      {deliveryOrders.map((order: any, index: number) => (
+                        <div
+                          key={order.id}
+                          className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-full"
+                          style={{
+                            left: `${20 + (index * 8) % 80}%`,
+                            top: `${30 + (index * 6) % 60}%`,
+                          }}
+                          onClick={() => handleOrderClick(order)}
+                        >
+                          {/* Pin */}
+                          <div className="relative">
+                            <div className={`w-6 h-6 rounded-full border-2 border-white shadow-lg flex items-center justify-center ${
+                              order.status === 'approved' ? 'bg-green-500' : 'bg-yellow-500'
+                            }`}>
+                              <MapPin className="w-4 h-4 text-white" />
+                            </div>
+                            
+                            {/* Order Info Tooltip */}
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 bg-white rounded-lg shadow-lg border p-3 opacity-0 hover:opacity-100 transition-opacity duration-200 z-10">
+                              <div className="text-xs">
+                                <div className="font-semibold text-gray-900">Order #{order.id}</div>
+                                <div className="text-gray-600">{order.user?.name || 'Customer'}</div>
+                                <div className="text-gray-600">{formatCurrency(order.total)}</div>
+                                <div className="text-gray-600">ETA: {order.estimatedDelivery}</div>
+                                <div className="mt-1">
+                                  {getStatusBadge(order.status)}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Map Legend */}
+                      <div className="absolute bottom-4 left-4 bg-white rounded-lg shadow-lg p-3">
+                        <div className="text-sm font-semibold mb-2">Legend</div>
+                        <div className="space-y-1">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-4 h-4 bg-green-500 rounded-full"></div>
+                            <span className="text-xs">Approved Orders</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <div className="w-4 h-4 bg-yellow-500 rounded-full"></div>
+                            <span className="text-xs">Pending Orders</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Map Title */}
+                      <div className="absolute top-4 left-4 bg-white rounded-lg shadow-lg px-3 py-2">
+                        <div className="text-sm font-semibold text-gray-900">Brooklyn Delivery Area</div>
+                        <div className="text-xs text-gray-600">MyMeds Pharmacy Delivery Zone</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Delivery Orders List */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Pending Deliveries</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {deliveryOrders
+                            .filter((order: any) => order.status === 'pending')
+                            .slice(0, 5)
+                            .map((order: any) => (
+                              <div 
+                                key={order.id} 
+                                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                                onClick={() => handleOrderClick(order)}
+                              >
+                                <div>
+                                  <div className="font-medium">Order #{order.id}</div>
+                                  <div className="text-sm text-gray-600">{order.user?.name || 'Customer'}</div>
+                                  <div className="text-sm text-gray-500">{order.deliveryAddress}</div>
+                                </div>
+                                <div className="text-right">
+                                  <div className="text-sm font-medium">{formatCurrency(order.total)}</div>
+                                  <div className="text-xs text-gray-500">ETA: {order.estimatedDelivery}</div>
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Approved Deliveries</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {deliveryOrders
+                            .filter((order: any) => order.status === 'approved')
+                            .slice(0, 5)
+                            .map((order: any) => (
+                              <div 
+                                key={order.id} 
+                                className="flex items-center justify-between p-3 bg-green-50 rounded-lg cursor-pointer hover:bg-green-100 transition-colors"
+                                onClick={() => handleOrderClick(order)}
+                              >
+                                <div>
+                                  <div className="font-medium">Order #{order.id}</div>
+                                  <div className="text-sm text-gray-600">{order.user?.name || 'Customer'}</div>
+                                  <div className="text-sm text-gray-500">{order.deliveryAddress}</div>
+                                </div>
+                                <div className="text-right">
+                                  <div className="text-sm font-medium">{formatCurrency(order.total)}</div>
+                                  <div className="text-xs text-gray-500">ETA: {order.estimatedDelivery}</div>
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -512,16 +920,22 @@ export default function Admin() {
                               size="sm"
                               onClick={() => updateRefillStatus(refill.id, 'approved')}
                               disabled={refill.status === 'approved'}
+                              className="text-blue-600 hover:text-blue-700"
+                              title="Approve Refill"
                             >
                               <CheckCircle className="h-4 w-4" />
+                              <span className="ml-1 hidden sm:inline">Approve</span>
                             </Button>
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => updateRefillStatus(refill.id, 'completed')}
                               disabled={refill.status === 'completed'}
+                              className="text-green-600 hover:text-green-700"
+                              title="Mark as Completed"
                             >
                               <CheckCircle className="h-4 w-4" />
+                              <span className="ml-1 hidden sm:inline">Complete</span>
                             </Button>
                           </div>
                         </TableCell>
@@ -575,16 +989,22 @@ export default function Admin() {
                               size="sm"
                               onClick={() => updateTransferStatus(transfer.id, 'approved')}
                               disabled={transfer.status === 'approved'}
+                              className="text-blue-600 hover:text-blue-700"
+                              title="Approve Transfer"
                             >
                               <CheckCircle className="h-4 w-4" />
+                              <span className="ml-1 hidden sm:inline">Approve</span>
                             </Button>
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => updateTransferStatus(transfer.id, 'completed')}
                               disabled={transfer.status === 'completed'}
+                              className="text-green-600 hover:text-green-700"
+                              title="Mark as Completed"
                             >
                               <CheckCircle className="h-4 w-4" />
+                              <span className="ml-1 hidden sm:inline">Complete</span>
                             </Button>
                           </div>
                         </TableCell>
@@ -629,7 +1049,11 @@ export default function Admin() {
                         </TableCell>
                         <TableCell>{formatDate(contact.createdAt)}</TableCell>
                         <TableCell>
-                          <Button variant="outline" size="sm">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleViewContact(contact)}
+                          >
                             View
                           </Button>
                         </TableCell>
@@ -684,7 +1108,11 @@ export default function Admin() {
                                 <CheckCircle className="h-4 w-4" />
                               </Button>
                             )}
-                            <Button variant="outline" size="sm">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleViewNotification(notification)}
+                            >
                               View
                             </Button>
                           </div>
@@ -710,24 +1138,36 @@ export default function Admin() {
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">Status</span>
-                    <Badge className="bg-red-100 text-red-800">Disconnected</Badge>
+                    <Badge className={wooCommerceStatus?.enabled ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
+                      {wooCommerceStatus?.enabled ? "Connected" : "Disconnected"}
+                    </Badge>
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">Store URL</span>
-                      <span className="text-sm font-medium">Not configured</span>
+                      <span className="text-sm font-medium">{wooCommerceStatus?.storeUrl || "Not configured"}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">Last Sync</span>
-                      <span className="text-sm font-medium">Never</span>
+                      <span className="text-sm font-medium">
+                        {wooCommerceStatus?.lastSync ? formatDate(wooCommerceStatus.lastSync) : "Never"}
+                      </span>
                     </div>
                   </div>
                   <div className="flex space-x-2">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={handleTestWooCommerceConnection}
+                    >
                       <Link className="h-4 w-4 mr-2" />
                       Test Connection
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={handleSyncWooCommerceProducts}
+                    >
                       <RefreshCw className="h-4 w-4 mr-2" />
                       Sync Products
                     </Button>
@@ -745,24 +1185,36 @@ export default function Admin() {
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">Status</span>
-                    <Badge className="bg-red-100 text-red-800">Disconnected</Badge>
+                    <Badge className={wordPressStatus?.enabled ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
+                      {wordPressStatus?.enabled ? "Connected" : "Disconnected"}
+                    </Badge>
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">Site URL</span>
-                      <span className="text-sm font-medium">Not configured</span>
+                      <span className="text-sm font-medium">{wordPressStatus?.siteUrl || "Not configured"}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">Last Sync</span>
-                      <span className="text-sm font-medium">Never</span>
+                      <span className="text-sm font-medium">
+                        {wordPressStatus?.lastSync ? formatDate(wordPressStatus.lastSync) : "Never"}
+                      </span>
                     </div>
                   </div>
                   <div className="flex space-x-2">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={handleTestWordPressConnection}
+                    >
                       <Link className="h-4 w-4 mr-2" />
                       Test Connection
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={handleSyncWordPressPosts}
+                    >
                       <RefreshCw className="h-4 w-4 mr-2" />
                       Sync Posts
                     </Button>
@@ -783,22 +1235,34 @@ export default function Admin() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-medium">Site Name</label>
-                      <Input defaultValue="MyMeds Pharmacy" />
+                      <Input 
+                        value={settings.siteName}
+                        onChange={(e) => setSettings(prev => ({ ...prev, siteName: e.target.value }))}
+                      />
                     </div>
                     <div>
                       <label className="text-sm font-medium">Contact Email</label>
-                      <Input defaultValue="contact@mymedspharmacy.com" />
+                      <Input 
+                        value={settings.contactEmail}
+                        onChange={(e) => setSettings(prev => ({ ...prev, contactEmail: e.target.value }))}
+                      />
                     </div>
                     <div>
                       <label className="text-sm font-medium">Contact Phone</label>
-                      <Input defaultValue="(555) 123-4567" />
+                      <Input 
+                        value={settings.contactPhone}
+                        onChange={(e) => setSettings(prev => ({ ...prev, contactPhone: e.target.value }))}
+                      />
                     </div>
                     <div>
                       <label className="text-sm font-medium">Business Hours</label>
-                      <Input defaultValue="Mon-Fri: 9AM-6PM, Sat: 9AM-4PM" />
+                      <Input 
+                        value={settings.businessHours}
+                        onChange={(e) => setSettings(prev => ({ ...prev, businessHours: e.target.value }))}
+                      />
                     </div>
                   </div>
-                  <Button>Save Settings</Button>
+                  <Button onClick={handleSaveSettings}>Save Settings</Button>
                 </div>
               </CardContent>
             </Card>
@@ -824,9 +1288,229 @@ export default function Admin() {
         </DialogContent>
       </Dialog>
 
+      {/* Contact Details Dialog */}
+      <Dialog open={showContactDialog} onOpenChange={setShowContactDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Contact Form Details</DialogTitle>
+          </DialogHeader>
+          {selectedContact && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Name</label>
+                  <p className="text-sm text-gray-900">{selectedContact.name}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Email</label>
+                  <p className="text-sm text-gray-900">{selectedContact.email}</p>
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Message</label>
+                <p className="text-sm text-gray-900 mt-1 whitespace-pre-wrap">{selectedContact.message}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Submitted</label>
+                <p className="text-sm text-gray-900">{formatDate(selectedContact.createdAt)}</p>
+              </div>
+            </div>
+          )}
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setShowContactDialog(false)}>
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Notification Details Dialog */}
+      <Dialog open={showNotificationDialog} onOpenChange={setShowNotificationDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Notification Details</DialogTitle>
+          </DialogHeader>
+          {selectedNotification && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Type</label>
+                  <Badge variant="outline">{selectedNotification.type}</Badge>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Status</label>
+                  <Badge className={selectedNotification.read ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                    {selectedNotification.read ? 'Read' : 'Unread'}
+                  </Badge>
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Title</label>
+                <p className="text-sm text-gray-900">{selectedNotification.title}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Message</label>
+                <p className="text-sm text-gray-900 mt-1 whitespace-pre-wrap">{selectedNotification.message}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Created</label>
+                <p className="text-sm text-gray-900">{formatDate(selectedNotification.createdAt)}</p>
+              </div>
+            </div>
+          )}
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setShowNotificationDialog(false)}>
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Order Details Dialog */}
+      <Dialog open={showOrderDetails} onOpenChange={setShowOrderDetails}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2">
+              <MapPin className="h-5 w-5" />
+              <span>Delivery Order Details</span>
+            </DialogTitle>
+          </DialogHeader>
+          {selectedOrder && (
+            <div className="space-y-6">
+              {/* Order Header */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Order ID</label>
+                  <p className="text-lg font-semibold text-gray-900">#{selectedOrder.id}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Status</label>
+                  <div className="mt-1">{getStatusBadge(selectedOrder.status)}</div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Total Amount</label>
+                  <p className="text-lg font-semibold text-gray-900">{formatCurrency(selectedOrder.total)}</p>
+                </div>
+              </div>
+
+              {/* Customer Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Customer Information</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Name</label>
+                      <p className="text-sm text-gray-900">{selectedOrder.user?.name || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Email</label>
+                      <p className="text-sm text-gray-900">{selectedOrder.user?.email || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Phone</label>
+                      <p className="text-sm text-gray-900">{selectedOrder.user?.phone || 'N/A'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Delivery Information</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Delivery Address</label>
+                      <p className="text-sm text-gray-900">{selectedOrder.deliveryAddress}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Estimated Delivery</label>
+                      <p className="text-sm text-gray-900">{selectedOrder.estimatedDelivery}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Delivery Notes</label>
+                      <p className="text-sm text-gray-900">{selectedOrder.deliveryNotes}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Order Items */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Order Items</h3>
+                <div className="border rounded-lg overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Item</TableHead>
+                        <TableHead>Quantity</TableHead>
+                        <TableHead>Price</TableHead>
+                        <TableHead>Total</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {selectedOrder.items?.map((item: any, index: number) => (
+                        <TableRow key={index}>
+                          <TableCell>{item.name || 'Product'}</TableCell>
+                          <TableCell>{item.quantity || 1}</TableCell>
+                          <TableCell>{formatCurrency(item.price || 0)}</TableCell>
+                          <TableCell>{formatCurrency((item.price || 0) * (item.quantity || 1))}</TableCell>
+                        </TableRow>
+                      )) || (
+                        <TableRow>
+                          <TableCell colSpan={4} className="text-center text-gray-500">
+                            No items available
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-between pt-4 border-t">
+                <div className="text-sm text-gray-600">
+                  <p>Order Date: {formatDate(selectedOrder.createdAt)}</p>
+                  <p>Last Updated: {formatDate(selectedOrder.updatedAt || selectedOrder.createdAt)}</p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  {selectedOrder.status === 'pending' && (
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        updateOrderDeliveryStatus(selectedOrder.id, 'approved');
+                        setShowOrderDetails(false);
+                      }}
+                      className="text-blue-600 hover:text-blue-700"
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Approve Delivery
+                    </Button>
+                  )}
+                  {selectedOrder.status === 'approved' && (
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        updateOrderDeliveryStatus(selectedOrder.id, 'completed');
+                        setShowOrderDetails(false);
+                      }}
+                      className="text-green-600 hover:text-green-700"
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Mark as Delivered
+                    </Button>
+                  )}
+                  <Button variant="outline" onClick={() => setShowOrderDetails(false)}>
+                    Close
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Toast Notification */}
       {showToast.show && (
-        <div className={`fixed bottom-4 right-4 p-4 rounded-md shadow-lg ${
+        <div className={`fixed bottom-4 right-4 p-4 rounded-md shadow-lg z-50 ${
           showToast.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
         }`}>
           {showToast.message}
