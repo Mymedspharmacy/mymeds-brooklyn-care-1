@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
-import unifiedAdminAuth  from './auth';
+import { unifiedAdminAuth } from './auth';
 
 interface AuthRequest extends Request {
   user?: any;

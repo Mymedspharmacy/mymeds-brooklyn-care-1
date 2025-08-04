@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 import multer from 'multer';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import  unifiedAdminAuth  from './auth';
+import { unifiedAdminAuth } from './auth';
 
 interface AuthRequest extends Request {
   user?: any;

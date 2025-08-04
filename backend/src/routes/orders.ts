@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
-import unifiedAdminAuth from './auth';
+import { unifiedAdminAuth } from './auth';
 
 
 interface AuthRequest extends Request {
