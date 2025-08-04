@@ -4,7 +4,8 @@ import {
   ShoppingCart, Users, Star, Settings, 
   CheckCircle, XCircle, Search, Calendar, 
   TrendingUp, LogOut, Bell, Link, 
-  Pill, RefreshCw, MessageSquare, MapPin
+  Pill, RefreshCw, MessageSquare, MapPin,
+  Edit, Trash2, Eye
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -48,6 +49,10 @@ export default function Admin() {
   const [showTransferDetails, setShowTransferDetails] = useState(false);
   const [wooCommerceStatus, setWooCommerceStatus] = useState<any>(null);
   const [wordPressStatus, setWordPressStatus] = useState<any>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteItem, setDeleteItem] = useState<{ type: string; id: number; name: string } | null>(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editingItem, setEditingItem] = useState<{ type: string; data: any } | null>(null);
   const [settings, setSettings] = useState({
     siteName: 'MyMeds Pharmacy',
     contactEmail: 'contact@mymedspharmacy.com',
@@ -443,6 +448,218 @@ export default function Admin() {
     }
   }
 
+  // CRUD Operations for Orders
+  async function deleteOrder(id: number) {
+    try {
+      await api.delete(`/orders/${id}`);
+      showToastMessage('Order deleted successfully');
+      fetchOrders();
+      generateDeliveryOrders(); // Refresh delivery map
+    } catch (error) {
+      console.error('Error deleting order:', error);
+      showToastMessage('Failed to delete order', 'error');
+    }
+  }
+
+  async function updateOrder(id: number, orderData: any) {
+    try {
+      await api.put(`/orders/${id}`, orderData);
+      showToastMessage('Order updated successfully');
+      fetchOrders();
+      generateDeliveryOrders(); // Refresh delivery map
+    } catch (error) {
+      console.error('Error updating order:', error);
+      showToastMessage('Failed to update order', 'error');
+    }
+  }
+
+  // CRUD Operations for Refill Requests
+  async function deleteRefillRequest(id: number) {
+    try {
+      await api.delete(`/refill-requests/${id}`);
+      showToastMessage('Refill request deleted successfully');
+      fetchRefillRequests();
+    } catch (error) {
+      console.error('Error deleting refill request:', error);
+      showToastMessage('Failed to delete refill request', 'error');
+    }
+  }
+
+  async function updateRefillRequest(id: number, refillData: any) {
+    try {
+      await api.put(`/refill-requests/${id}`, refillData);
+      showToastMessage('Refill request updated successfully');
+      fetchRefillRequests();
+    } catch (error) {
+      console.error('Error updating refill request:', error);
+      showToastMessage('Failed to update refill request', 'error');
+    }
+  }
+
+  // CRUD Operations for Transfer Requests
+  async function deleteTransferRequest(id: number) {
+    try {
+      await api.delete(`/transfer-requests/${id}`);
+      showToastMessage('Transfer request deleted successfully');
+      fetchTransferRequests();
+    } catch (error) {
+      console.error('Error deleting transfer request:', error);
+      showToastMessage('Failed to delete transfer request', 'error');
+    }
+  }
+
+  async function updateTransferRequest(id: number, transferData: any) {
+    try {
+      await api.put(`/transfer-requests/${id}`, transferData);
+      showToastMessage('Transfer request updated successfully');
+      fetchTransferRequests();
+    } catch (error) {
+      console.error('Error updating transfer request:', error);
+      showToastMessage('Failed to update transfer request', 'error');
+    }
+  }
+
+  // CRUD Operations for Contact Forms
+  async function deleteContact(id: number) {
+    try {
+      await api.delete(`/contact/${id}`);
+      showToastMessage('Contact form deleted successfully');
+      fetchContacts();
+    } catch (error) {
+      console.error('Error deleting contact form:', error);
+      showToastMessage('Failed to delete contact form', 'error');
+    }
+  }
+
+  async function updateContact(id: number, contactData: any) {
+    try {
+      await api.put(`/contact/${id}`, contactData);
+      showToastMessage('Contact form updated successfully');
+      fetchContacts();
+    } catch (error) {
+      console.error('Error updating contact form:', error);
+      showToastMessage('Failed to update contact form', 'error');
+    }
+  }
+
+  async function markContactAsRead(id: number) {
+    try {
+      await api.put(`/contact/${id}/read`);
+      showToastMessage('Contact marked as read');
+      fetchContacts();
+    } catch (error) {
+      console.error('Error marking contact as read:', error);
+      showToastMessage('Failed to mark contact as read', 'error');
+    }
+  }
+
+  // CRUD Operations for Notifications
+  async function deleteNotification(id: number) {
+    try {
+      await api.delete(`/notifications/${id}`);
+      showToastMessage('Notification deleted successfully');
+      fetchNotifications();
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      showToastMessage('Failed to delete notification', 'error');
+    }
+  }
+
+  async function updateNotification(id: number, notificationData: any) {
+    try {
+      await api.put(`/notifications/${id}`, notificationData);
+      showToastMessage('Notification updated successfully');
+      fetchNotifications();
+    } catch (error) {
+      console.error('Error updating notification:', error);
+      showToastMessage('Failed to update notification', 'error');
+    }
+  }
+
+  async function markAllNotificationsAsRead() {
+    try {
+      await api.put('/notifications/mark-all-read');
+      showToastMessage('All notifications marked as read');
+      fetchNotifications();
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+      showToastMessage('Failed to mark all notifications as read', 'error');
+    }
+  }
+
+  // Helper functions for delete and edit operations
+  function handleDeleteClick(type: string, id: number, name: string) {
+    setDeleteItem({ type, id, name });
+    setShowDeleteConfirm(true);
+  }
+
+  function handleEditClick(type: string, data: any) {
+    setEditingItem({ type, data });
+    setShowEditDialog(true);
+  }
+
+  async function confirmDelete() {
+    if (!deleteItem) return;
+
+    try {
+      switch (deleteItem.type) {
+        case 'order':
+          await deleteOrder(deleteItem.id);
+          break;
+        case 'refill':
+          await deleteRefillRequest(deleteItem.id);
+          break;
+        case 'transfer':
+          await deleteTransferRequest(deleteItem.id);
+          break;
+        case 'contact':
+          await deleteContact(deleteItem.id);
+          break;
+        case 'notification':
+          await deleteNotification(deleteItem.id);
+          break;
+        default:
+          showToastMessage('Unknown item type', 'error');
+      }
+    } catch (error) {
+      console.error('Error in confirmDelete:', error);
+    } finally {
+      setShowDeleteConfirm(false);
+      setDeleteItem(null);
+    }
+  }
+
+  async function handleEditSave(updatedData: any) {
+    if (!editingItem) return;
+
+    try {
+      switch (editingItem.type) {
+        case 'order':
+          await updateOrder(editingItem.data.id, updatedData);
+          break;
+        case 'refill':
+          await updateRefillRequest(editingItem.data.id, updatedData);
+          break;
+        case 'transfer':
+          await updateTransferRequest(editingItem.data.id, updatedData);
+          break;
+        case 'contact':
+          await updateContact(editingItem.data.id, updatedData);
+          break;
+        case 'notification':
+          await updateNotification(editingItem.data.id, updatedData);
+          break;
+        default:
+          showToastMessage('Unknown item type', 'error');
+      }
+    } catch (error) {
+      console.error('Error in handleEditSave:', error);
+    } finally {
+      setShowEditDialog(false);
+      setEditingItem(null);
+    }
+  }
+
   function getStatusBadge(status: string) {
     const statusColors: { [key: string]: string } = {
       pending: 'bg-yellow-100 text-yellow-800',
@@ -719,6 +936,32 @@ export default function Admin() {
                                   <XCircle className="h-4 w-4" />
                                   <span className="ml-1 hidden sm:inline">Cancel</span>
                                 </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleEditClick('order', order);
+                                  }}
+                                  className="text-blue-600 hover:text-blue-700"
+                                  title="Edit Order"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                  <span className="ml-1 hidden sm:inline">Edit</span>
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteClick('order', order.id, `Order #${order.id}`);
+                                  }}
+                                  className="text-red-600 hover:text-red-700"
+                                  title="Delete Order"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                  <span className="ml-1 hidden sm:inline">Delete</span>
+                                </Button>
                               </div>
                             </TableCell>
                           </TableRow>
@@ -974,6 +1217,32 @@ export default function Admin() {
                               <CheckCircle className="h-4 w-4" />
                               <span className="ml-1 hidden sm:inline">Complete</span>
                             </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditClick('refill', refill);
+                              }}
+                              className="text-blue-600 hover:text-blue-700"
+                              title="Edit Refill Request"
+                            >
+                              <Edit className="h-4 w-4" />
+                              <span className="ml-1 hidden sm:inline">Edit</span>
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteClick('refill', refill.id, `Refill #${refill.id}`);
+                              }}
+                              className="text-red-600 hover:text-red-700"
+                              title="Delete Refill Request"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              <span className="ml-1 hidden sm:inline">Delete</span>
+                            </Button>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -1053,6 +1322,32 @@ export default function Admin() {
                               <CheckCircle className="h-4 w-4" />
                               <span className="ml-1 hidden sm:inline">Complete</span>
                             </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditClick('transfer', transfer);
+                              }}
+                              className="text-blue-600 hover:text-blue-700"
+                              title="Edit Transfer Request"
+                            >
+                              <Edit className="h-4 w-4" />
+                              <span className="ml-1 hidden sm:inline">Edit</span>
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteClick('transfer', transfer.id, `Transfer #${transfer.id}`);
+                              }}
+                              className="text-red-600 hover:text-red-700"
+                              title="Delete Transfer Request"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              <span className="ml-1 hidden sm:inline">Delete</span>
+                            </Button>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -1096,13 +1391,47 @@ export default function Admin() {
                         </TableCell>
                         <TableCell>{formatDate(contact.createdAt)}</TableCell>
                         <TableCell>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => handleViewContact(contact)}
-                          >
-                            View
-                          </Button>
+                          <div className="flex items-center space-x-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleViewContact(contact)}
+                            >
+                              <Eye className="h-4 w-4" />
+                              <span className="ml-1 hidden sm:inline">View</span>
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEditClick('contact', contact)}
+                              className="text-blue-600 hover:text-blue-700"
+                              title="Edit Contact"
+                            >
+                              <Edit className="h-4 w-4" />
+                              <span className="ml-1 hidden sm:inline">Edit</span>
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => markContactAsRead(contact.id)}
+                              disabled={contact.notified}
+                              className="text-green-600 hover:text-green-700"
+                              title="Mark as Read"
+                            >
+                              <CheckCircle className="h-4 w-4" />
+                              <span className="ml-1 hidden sm:inline">Read</span>
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDeleteClick('contact', contact.id, `Contact #${contact.id}`)}
+                              className="text-red-600 hover:text-red-700"
+                              title="Delete Contact"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              <span className="ml-1 hidden sm:inline">Delete</span>
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -1116,7 +1445,18 @@ export default function Admin() {
           <TabsContent value="notifications" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>System Notifications</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle>System Notifications</CardTitle>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={markAllNotificationsAsRead}
+                    className="text-green-600 hover:text-green-700"
+                  >
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Mark All as Read
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 <Table>
@@ -1151,8 +1491,11 @@ export default function Admin() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => markNotificationRead(notification.id)}
+                                className="text-green-600 hover:text-green-700"
+                                title="Mark as Read"
                               >
                                 <CheckCircle className="h-4 w-4" />
+                                <span className="ml-1 hidden sm:inline">Read</span>
                               </Button>
                             )}
                             <Button 
@@ -1160,7 +1503,28 @@ export default function Admin() {
                               size="sm"
                               onClick={() => handleViewNotification(notification)}
                             >
-                              View
+                              <Eye className="h-4 w-4" />
+                              <span className="ml-1 hidden sm:inline">View</span>
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEditClick('notification', notification)}
+                              className="text-blue-600 hover:text-blue-700"
+                              title="Edit Notification"
+                            >
+                              <Edit className="h-4 w-4" />
+                              <span className="ml-1 hidden sm:inline">Edit</span>
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDeleteClick('notification', notification.id, `Notification #${notification.id}`)}
+                              className="text-red-600 hover:text-red-700"
+                              title="Delete Notification"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              <span className="ml-1 hidden sm:inline">Delete</span>
                             </Button>
                           </div>
                         </TableCell>
@@ -1816,6 +2180,348 @@ export default function Admin() {
                     Close
                   </Button>
                 </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2">
+              <Trash2 className="h-5 w-5 text-red-500" />
+              <span>Confirm Delete</span>
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-gray-600">
+              Are you sure you want to delete <strong>{deleteItem?.name}</strong>? This action cannot be undone.
+            </p>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>
+                Cancel
+              </Button>
+              <Button 
+                variant="destructive" 
+                onClick={confirmDelete}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2">
+              <Edit className="h-5 w-5" />
+              <span>Edit {editingItem?.type}</span>
+            </DialogTitle>
+          </DialogHeader>
+          {editingItem && (
+            <div className="space-y-4">
+              {editingItem.type === 'order' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Status</label>
+                      <select 
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand"
+                        defaultValue={editingItem.data.status}
+                        onChange={(e) => {
+                          const updatedData = { ...editingItem.data, status: e.target.value };
+                          setEditingItem({ ...editingItem, data: updatedData });
+                        }}
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Total Amount</label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        defaultValue={editingItem.data.total}
+                        onChange={(e) => {
+                          const updatedData = { ...editingItem.data, total: parseFloat(e.target.value) };
+                          setEditingItem({ ...editingItem, data: updatedData });
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Delivery Address</label>
+                    <Input
+                      defaultValue={editingItem.data.deliveryAddress}
+                      onChange={(e) => {
+                        const updatedData = { ...editingItem.data, deliveryAddress: e.target.value };
+                        setEditingItem({ ...editingItem, data: updatedData });
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {editingItem.type === 'refill' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Status</label>
+                      <select 
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand"
+                        defaultValue={editingItem.data.status}
+                        onChange={(e) => {
+                          const updatedData = { ...editingItem.data, status: e.target.value };
+                          setEditingItem({ ...editingItem, data: updatedData });
+                        }}
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="completed">Completed</option>
+                        <option value="rejected">Rejected</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Urgency</label>
+                      <select 
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand"
+                        defaultValue={editingItem.data.urgency}
+                        onChange={(e) => {
+                          const updatedData = { ...editingItem.data, urgency: e.target.value };
+                          setEditingItem({ ...editingItem, data: updatedData });
+                        }}
+                      >
+                        <option value="low">Low</option>
+                        <option value="normal">Normal</option>
+                        <option value="high">High</option>
+                        <option value="urgent">Urgent</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Medication</label>
+                    <Input
+                      defaultValue={editingItem.data.medication}
+                      onChange={(e) => {
+                        const updatedData = { ...editingItem.data, medication: e.target.value };
+                        setEditingItem({ ...editingItem, data: updatedData });
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Dosage</label>
+                    <Input
+                      defaultValue={editingItem.data.dosage}
+                      onChange={(e) => {
+                        const updatedData = { ...editingItem.data, dosage: e.target.value };
+                        setEditingItem({ ...editingItem, data: updatedData });
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Notes</label>
+                    <textarea
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand"
+                      rows={3}
+                      defaultValue={editingItem.data.notes}
+                      onChange={(e) => {
+                        const updatedData = { ...editingItem.data, notes: e.target.value };
+                        setEditingItem({ ...editingItem, data: updatedData });
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {editingItem.type === 'transfer' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Status</label>
+                      <select 
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand"
+                        defaultValue={editingItem.data.status}
+                        onChange={(e) => {
+                          const updatedData = { ...editingItem.data, status: e.target.value };
+                          setEditingItem({ ...editingItem, data: updatedData });
+                        }}
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="completed">Completed</option>
+                        <option value="rejected">Rejected</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Current Pharmacy</label>
+                      <Input
+                        defaultValue={editingItem.data.currentPharmacy}
+                        onChange={(e) => {
+                          const updatedData = { ...editingItem.data, currentPharmacy: e.target.value };
+                          setEditingItem({ ...editingItem, data: updatedData });
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Medications</label>
+                    <textarea
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand"
+                      rows={3}
+                      defaultValue={Array.isArray(editingItem.data.medications) ? editingItem.data.medications.join(', ') : editingItem.data.medications}
+                      onChange={(e) => {
+                        const updatedData = { ...editingItem.data, medications: e.target.value };
+                        setEditingItem({ ...editingItem, data: updatedData });
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Reason</label>
+                    <Input
+                      defaultValue={editingItem.data.reason}
+                      onChange={(e) => {
+                        const updatedData = { ...editingItem.data, reason: e.target.value };
+                        setEditingItem({ ...editingItem, data: updatedData });
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Notes</label>
+                    <textarea
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand"
+                      rows={3}
+                      defaultValue={editingItem.data.notes}
+                      onChange={(e) => {
+                        const updatedData = { ...editingItem.data, notes: e.target.value };
+                        setEditingItem({ ...editingItem, data: updatedData });
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {editingItem.type === 'contact' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Name</label>
+                      <Input
+                        defaultValue={editingItem.data.name}
+                        onChange={(e) => {
+                          const updatedData = { ...editingItem.data, name: e.target.value };
+                          setEditingItem({ ...editingItem, data: updatedData });
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Email</label>
+                      <Input
+                        type="email"
+                        defaultValue={editingItem.data.email}
+                        onChange={(e) => {
+                          const updatedData = { ...editingItem.data, email: e.target.value };
+                          setEditingItem({ ...editingItem, data: updatedData });
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Message</label>
+                    <textarea
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand"
+                      rows={4}
+                      defaultValue={editingItem.data.message}
+                      onChange={(e) => {
+                        const updatedData = { ...editingItem.data, message: e.target.value };
+                        setEditingItem({ ...editingItem, data: updatedData });
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {editingItem.type === 'notification' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Type</label>
+                      <select 
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand"
+                        defaultValue={editingItem.data.type}
+                        onChange={(e) => {
+                          const updatedData = { ...editingItem.data, type: e.target.value };
+                          setEditingItem({ ...editingItem, data: updatedData });
+                        }}
+                      >
+                        <option value="order">Order</option>
+                        <option value="prescription">Prescription</option>
+                        <option value="appointment">Appointment</option>
+                        <option value="contact">Contact</option>
+                        <option value="refill">Refill</option>
+                        <option value="transfer">Transfer</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Read Status</label>
+                      <select 
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand"
+                        defaultValue={editingItem.data.read ? 'read' : 'unread'}
+                        onChange={(e) => {
+                          const updatedData = { ...editingItem.data, read: e.target.value === 'read' };
+                          setEditingItem({ ...editingItem, data: updatedData });
+                        }}
+                      >
+                        <option value="unread">Unread</option>
+                        <option value="read">Read</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Title</label>
+                    <Input
+                      defaultValue={editingItem.data.title}
+                      onChange={(e) => {
+                        const updatedData = { ...editingItem.data, title: e.target.value };
+                        setEditingItem({ ...editingItem, data: updatedData });
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Message</label>
+                    <textarea
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand focus:ring-brand"
+                      rows={4}
+                      defaultValue={editingItem.data.message}
+                      onChange={(e) => {
+                        const updatedData = { ...editingItem.data, message: e.target.value };
+                        setEditingItem({ ...editingItem, data: updatedData });
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-end space-x-2 pt-4 border-t">
+                <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={() => handleEditSave(editingItem.data)}
+                  className="bg-brand hover:bg-brand-dark"
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Save Changes
+                </Button>
               </div>
             </div>
           )}
