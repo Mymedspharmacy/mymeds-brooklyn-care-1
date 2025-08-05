@@ -106,13 +106,28 @@ router.post('/test-connection', unifiedAdminAuth, async (req: AuthRequest, res: 
       return res.status(400).json({ error: 'WooCommerce integration is not enabled' });
     }
 
-    // TODO: Implement actual WooCommerce API connection test
-    // This would involve making API calls to WooCommerce REST API
-    // to verify credentials and connection
+    // ✅ IMPLEMENTED: WooCommerce connection test
+    const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/products?per_page=1`, {
+      headers: {
+        'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`WooCommerce API error: ${response.status}`);
+    }
+
+    const products = await response.json();
     
-    res.status(501).json({ 
-      error: 'WooCommerce connection test not yet implemented',
-      message: 'This feature requires WooCommerce REST API integration'
+    res.json({
+      success: true,
+      message: 'Connection test successful',
+      storeInfo: {
+        name: 'WooCommerce Store',
+        url: settings.storeUrl,
+        productsCount: products.length > 0 ? 'Connected' : 'No products found'
+      }
     });
   } catch (err) {
     console.error('Error testing WooCommerce connection:', err);
@@ -133,13 +148,83 @@ router.post('/sync-products', unifiedAdminAuth, async (req: AuthRequest, res: Re
       return res.status(400).json({ error: 'WooCommerce integration is not enabled' });
     }
 
-    // TODO: Implement actual WooCommerce API integration
-    // This would involve making API calls to WooCommerce REST API
-    // to fetch and sync products
+    // ✅ IMPLEMENTED: WooCommerce products sync
+    const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/products?per_page=100`, {
+      headers: {
+        'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`WooCommerce API error: ${response.status}`);
+    }
+
+    const products = await response.json();
     
-    res.status(501).json({ 
-      error: 'WooCommerce product sync not yet implemented',
-      message: 'This feature requires WooCommerce REST API integration'
+    // Sync products to local database
+    for (const product of products) {
+      // First, ensure category exists
+      let categoryId = 1; // Default category
+      if (product.categories && product.categories.length > 0) {
+        const categoryName = product.categories[0].name;
+        const category = await prisma.category.upsert({
+          where: { name: categoryName },
+          update: {},
+          create: { name: categoryName }
+        });
+        categoryId = category.id;
+      }
+
+      // Create or update product
+      const localProduct = await prisma.product.upsert({
+        where: { id: product.id },
+        update: {
+          name: product.name,
+          description: product.description,
+          price: parseFloat(product.price),
+          stock: product.stock_quantity || 0,
+          categoryId: categoryId
+        },
+        create: {
+          id: product.id,
+          name: product.name,
+          description: product.description,
+          price: parseFloat(product.price),
+          stock: product.stock_quantity || 0,
+          categoryId: categoryId
+        }
+      });
+
+      // Handle product images
+      if (product.images && product.images.length > 0) {
+        // Clear existing images
+        await prisma.productImage.deleteMany({
+          where: { productId: localProduct.id }
+        });
+
+        // Add new images
+        for (const image of product.images) {
+          await prisma.productImage.create({
+            data: {
+              url: image.src,
+              productId: localProduct.id
+            }
+          });
+        }
+      }
+    }
+
+    // Update last sync time
+    await prisma.wooCommerceSettings.update({
+      where: { id: 1 },
+      data: { lastSync: new Date() }
+    });
+
+    res.json({
+      success: true,
+      message: `Successfully synced ${products.length} products`,
+      synced: products.length
     });
   } catch (err) {
     console.error('Error syncing WooCommerce products:', err);

@@ -101,16 +101,28 @@ router.post('/test-connection', unifiedAdminAuth, async (req: AuthRequest, res: 
       return res.status(400).json({ error: 'WordPress integration is not enabled' });
     }
 
-    // Test connection logic would go here
-    // For now, return a mock response
+    // ✅ IMPLEMENTED: WordPress REST API connection test
+    const response = await fetch(`${settings.siteUrl}/wp-json/wp/v2/`, {
+      headers: {
+        'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`WordPress API error: ${response.status}`);
+    }
+
+    const siteInfo = await response.json();
+    
     res.json({
       success: true,
       message: 'Connection test successful',
       siteInfo: {
-        name: 'My Meds Pharmacy Blog',
-        description: 'Professional pharmacy services and health information',
+        name: siteInfo.name || 'WordPress Site',
+        description: siteInfo.description || '',
         url: settings.siteUrl,
-        version: '6.4.0'
+        version: siteInfo.version || 'Unknown'
       }
     });
   } catch (err) {
@@ -132,13 +144,50 @@ router.post('/sync-posts', unifiedAdminAuth, async (req: AuthRequest, res: Respo
       return res.status(400).json({ error: 'WordPress integration is not enabled' });
     }
 
-    // TODO: Implement actual WordPress API integration
-    // This would involve making API calls to WordPress REST API
-    // to fetch and sync posts
+    // ✅ IMPLEMENTED: WordPress posts sync
+    const response = await fetch(`${settings.siteUrl}/wp-json/wp/v2/posts?per_page=100`, {
+      headers: {
+        'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`WordPress API error: ${response.status}`);
+    }
+
+    const posts = await response.json();
     
-    res.status(501).json({ 
-      error: 'WordPress sync functionality not yet implemented',
-      message: 'This feature requires WordPress REST API integration'
+    // Sync posts to local database using existing Blog model
+    for (const post of posts) {
+      await prisma.blog.upsert({
+        where: { id: post.id },
+        update: {
+          title: post.title.rendered,
+          content: post.content.rendered,
+          author: post.author || 'WordPress Admin',
+          createdAt: new Date(post.date)
+        },
+        create: {
+          id: post.id,
+          title: post.title.rendered,
+          content: post.content.rendered,
+          author: post.author || 'WordPress Admin',
+          createdAt: new Date(post.date)
+        }
+      });
+    }
+
+    // Update last sync time
+    await prisma.wordPressSettings.update({
+      where: { id: 1 },
+      data: { lastSync: new Date() }
+    });
+
+    res.json({
+      success: true,
+      message: `Successfully synced ${posts.length} posts`,
+      synced: posts.length
     });
   } catch (err) {
     console.error('Error syncing WordPress posts:', err);
@@ -186,13 +235,36 @@ router.post('/posts', unifiedAdminAuth, async (req: AuthRequest, res: Response) 
       return res.status(400).json({ error: 'WordPress integration is not enabled' });
     }
 
-    // TODO: Implement actual WordPress API integration
-    // This would involve making API calls to WordPress REST API
-    // to create posts
+    // ✅ IMPLEMENTED: Create WordPress post
+    const response = await fetch(`${settings.siteUrl}/wp-json/wp/v2/posts`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        title,
+        content,
+        status,
+        excerpt: content.substring(0, 150) + '...'
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`WordPress API error: ${response.status}`);
+    }
+
+    const newPost = await response.json();
     
-    res.status(501).json({ 
-      error: 'WordPress post creation not yet implemented',
-      message: 'This feature requires WordPress REST API integration'
+    res.json({
+      success: true,
+      message: 'Post created successfully',
+      post: {
+        id: newPost.id,
+        title: newPost.title.rendered,
+        status: newPost.status,
+        link: newPost.link
+      }
     });
   } catch (err) {
     console.error('Error creating WordPress post:', err);

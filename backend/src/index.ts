@@ -5,6 +5,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { PrismaClient } from '@prisma/client';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 import authRoutes from './routes/auth';
 import userRoutes from './routes/users';
 import productRoutes from './routes/products';
@@ -25,6 +27,7 @@ import wordpressRoutes from './routes/wordpress';
 import refillRequestRoutes from './routes/refillRequests';
 import transferRequestRoutes from './routes/transferRequests';
 import notificationRoutes from './routes/notifications';
+import analyticsRoutes from './routes/analytics';
 // @ts-ignore
 import hpp from 'hpp';
 import mongoSanitize from 'express-mongo-sanitize';
@@ -40,6 +43,37 @@ const app = express();
 
 // Trust proxy for Railway deployment
 app.set('trust proxy', 1);
+
+// ✅ IMPLEMENTED: WebSocket server setup
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    methods: ["GET", "POST"]
+  }
+});
+
+// Socket connection handling
+io.on('connection', (socket) => {
+  console.log('Client connected:', socket.id);
+  
+  socket.on('join-admin', () => {
+    socket.join('admin-room');
+    console.log('Admin joined admin room');
+  });
+  
+  socket.on('join-user', (userId) => {
+    socket.join(`user-${userId}`);
+    console.log(`User ${userId} joined user room`);
+  });
+  
+  socket.on('disconnect', () => {
+    console.log('Client disconnected:', socket.id);
+  });
+});
+
+// Export io for use in other files
+export { io };
 
 const prisma = new PrismaClient();
 
@@ -197,6 +231,7 @@ app.use('/api/settings', generalLimiter, settingsRoutes);
 app.use('/api/refill-requests', generalLimiter, refillRequestRoutes);
 app.use('/api/transfer-requests', generalLimiter, transferRequestRoutes);
 app.use('/api/notifications', generalLimiter, notificationRoutes);
+app.use('/api/analytics', generalLimiter, analyticsRoutes);
 
 // Notification endpoints
 app.get('/api/notifications', adminAuthMiddleware, async (req: Request, res: Response) => {
@@ -257,7 +292,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 });
 
 const PORT = process.env.PORT || 4000;
-const server = app.listen(PORT, async () => {
+const server = httpServer.listen(PORT, async () => {
   console.log(`Backend server running on port ${PORT}`);
   console.log(`Health check available at: http://localhost:${PORT}/api/health`);
   
