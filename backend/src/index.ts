@@ -167,7 +167,7 @@ app.use(morgan('combined'));
 // Enhanced Rate Limiting
 const authLimiter = rateLimit({ 
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // 5 attempts per 15 minutes
+  max: 20, // 20 attempts per 15 minutes (increased from 5)
   message: { error: 'Too many login attempts, please try again later' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -176,7 +176,7 @@ const authLimiter = rateLimit({
 
 const contactLimiter = rateLimit({ 
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // 10 contact form submissions per 15 minutes
+  max: 50, // 50 contact form submissions per 15 minutes (increased from 10)
   message: { error: 'Too many contact form submissions, please try again later' },
   standardHeaders: true,
   legacyHeaders: false
@@ -184,11 +184,33 @@ const contactLimiter = rateLimit({
 
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // 100 requests per 15 minutes
+  max: 1000, // 1000 requests per 15 minutes (increased from 100)
   message: { error: 'Too many requests, please try again later' },
   standardHeaders: true,
   legacyHeaders: false
 });
+
+// Development rate limiter (more permissive for development)
+const devLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5000, // 5000 requests per 15 minutes for development
+  message: { error: 'Too many requests, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// No rate limiting for development (if DISABLE_RATE_LIMIT is set)
+const noLimiter = (req: Request, res: Response, next: NextFunction) => {
+  next();
+};
+
+// Log rate limiting configuration
+console.log('Rate limiting configuration:');
+console.log('- Environment:', process.env.NODE_ENV || 'development');
+console.log('- Disable rate limit:', process.env.DISABLE_RATE_LIMIT === 'true' ? 'YES' : 'NO');
+console.log('- Auth limit:', process.env.DISABLE_RATE_LIMIT === 'true' ? 'DISABLED' : '20 requests/15min');
+console.log('- General limit:', process.env.DISABLE_RATE_LIMIT === 'true' ? 'DISABLED' : 
+  (process.env.NODE_ENV === 'production' ? '1000 requests/15min' : '5000 requests/15min'));
 
 // Health check
 app.get('/api/health', async (req: Request, res: Response) => {
@@ -214,24 +236,31 @@ app.get('/api/health/db', async (req: Request, res: Response) => {
 });
 
 // API routes with enhanced security
-app.use('/api/auth', authLimiter, authRoutes);
+// Use different rate limiters based on environment
+const currentLimiter = process.env.DISABLE_RATE_LIMIT === 'true' ? noLimiter : 
+  (process.env.NODE_ENV === 'production' ? generalLimiter : devLimiter);
+
+const currentAuthLimiter = process.env.DISABLE_RATE_LIMIT === 'true' ? noLimiter : authLimiter;
+const currentContactLimiter = process.env.DISABLE_RATE_LIMIT === 'true' ? noLimiter : contactLimiter;
+
+app.use('/api/auth', currentAuthLimiter, authRoutes);
 app.use('/api/admin', adminRoutes); // Admin routes with built-in security
-app.use('/api/woocommerce', generalLimiter, woocommerceRoutes); // WooCommerce integration
-app.use('/api/wordpress', generalLimiter, wordpressRoutes); // WordPress integration
-app.use('/api/users', generalLimiter, userRoutes);
-app.use('/api/products', generalLimiter, productRoutes);
-app.use('/api/orders', generalLimiter, orderRoutes);
-app.use('/api/prescriptions', generalLimiter, prescriptionRoutes);
-app.use('/api/appointments', generalLimiter, appointmentRoutes);
-app.use('/api/blogs', generalLimiter, blogRoutes);
-app.use('/api/contact', contactLimiter, contactRoutes);
-app.use('/api/payments', generalLimiter, paymentsRoutes);
-app.use('/api/reviews', generalLimiter, reviewsRoutes);
-app.use('/api/settings', generalLimiter, settingsRoutes);
-app.use('/api/refill-requests', generalLimiter, refillRequestRoutes);
-app.use('/api/transfer-requests', generalLimiter, transferRequestRoutes);
-app.use('/api/notifications', generalLimiter, notificationRoutes);
-app.use('/api/analytics', generalLimiter, analyticsRoutes);
+app.use('/api/woocommerce', currentLimiter, woocommerceRoutes); // WooCommerce integration
+app.use('/api/wordpress', currentLimiter, wordpressRoutes); // WordPress integration
+app.use('/api/users', currentLimiter, userRoutes);
+app.use('/api/products', currentLimiter, productRoutes);
+app.use('/api/orders', currentLimiter, orderRoutes);
+app.use('/api/prescriptions', currentLimiter, prescriptionRoutes);
+app.use('/api/appointments', currentLimiter, appointmentRoutes);
+app.use('/api/blogs', currentLimiter, blogRoutes);
+app.use('/api/contact', currentContactLimiter, contactRoutes);
+app.use('/api/payments', currentLimiter, paymentsRoutes);
+app.use('/api/reviews', currentLimiter, reviewsRoutes);
+app.use('/api/settings', currentLimiter, settingsRoutes);
+app.use('/api/refill-requests', currentLimiter, refillRequestRoutes);
+app.use('/api/transfer-requests', currentLimiter, transferRequestRoutes);
+app.use('/api/notifications', currentLimiter, notificationRoutes);
+app.use('/api/analytics', currentLimiter, analyticsRoutes);
 
 // Notification endpoints
 app.get('/api/notifications', adminAuthMiddleware, async (req: Request, res: Response) => {

@@ -48,7 +48,12 @@ async function createNotification(data: {
 
 // ✅ IMPLEMENTED: System notification triggers
 export async function triggerSystemNotification(event: string, data: any) {
-  const notifications = {
+  const notifications: Record<string, {
+    type: string;
+    title: string;
+    message: string;
+    adminOnly: boolean;
+  }> = {
     'new-order': {
       type: 'ORDER',
       title: 'New Order Received',

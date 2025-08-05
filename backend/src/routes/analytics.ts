@@ -205,8 +205,10 @@ router.get('/products', unifiedAdminAuth, async (req: AuthRequest, res: Response
     // ✅ IMPLEMENTED: Product analytics
     const topSellingProducts = await prisma.orderItem.groupBy({
       by: ['productId'],
-      _sum: { quantity: true },
-      _sum: { price: true },
+      _sum: { 
+        quantity: true,
+        price: true 
+      },
       orderBy: { _sum: { quantity: 'desc' } },
       take: 10
     });
