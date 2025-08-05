@@ -1026,18 +1026,20 @@ export default function Admin() {
         <Tabs value={tab} onValueChange={setTab} className="space-y-6">
           {/* Tab Navigation */}
           <div className="border-b border-gray-200">
-            <TabsList className="grid w-full grid-cols-13 h-auto bg-transparent">
-              {TABS.map((tabItem) => (
-                <TabsTrigger
-                  key={tabItem.id}
-                  value={tabItem.id}
-                  className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md data-[state=active]:bg-brand data-[state=active]:text-white"
-                >
-                  <tabItem.icon className="h-3 w-3 sm:h-4 sm:w-4" />
-                  <span className="hidden sm:inline">{tabItem.label}</span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
+            <div className="overflow-x-auto">
+              <TabsList className="flex w-full h-auto bg-transparent min-w-max">
+                {TABS.map((tabItem) => (
+                  <TabsTrigger
+                    key={tabItem.id}
+                    value={tabItem.id}
+                    className="flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md data-[state=active]:bg-brand data-[state=active]:text-white whitespace-nowrap flex-shrink-0"
+                  >
+                    <tabItem.icon className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden sm:inline">{tabItem.label}</span>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </div>
           </div>
 
           {/* Dashboard Tab */}
