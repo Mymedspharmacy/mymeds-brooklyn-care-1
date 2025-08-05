@@ -186,16 +186,22 @@ export async function ensureAdminUser() {
       // Update existing admin user with new credentials if environment variables changed
       const hashedPassword = await bcrypt.hash(ADMIN_CONFIG.ADMIN_PASSWORD, 12);
       
-      await prisma.user.update({
-        where: { id: adminUser.id },
-        data: {
-          email: ADMIN_CONFIG.ADMIN_EMAIL,
-          password: hashedPassword,
-          name: ADMIN_CONFIG.ADMIN_NAME
-        }
-      });
+      try {
+        await prisma.user.update({
+          where: { id: adminUser.id },
+          data: {
+            password: hashedPassword,
+            name: ADMIN_CONFIG.ADMIN_NAME
+            // Don't update email to avoid conflicts
+          }
+        });
 
-      console.log('✅ Admin user updated with new credentials');
+        console.log('✅ Admin user updated with new credentials');
+      } catch (updateError: any) {
+        // If update fails, just log it and continue
+        console.log('⚠️  Could not update admin user credentials, but admin user exists');
+        console.log(`   Existing admin email: ${adminUser.email}`);
+      }
     }
 
     return adminUser;
@@ -206,6 +212,14 @@ export async function ensureAdminUser() {
       console.log('   This is expected when running locally without Railway database.');
       return null;
     }
+    
+    // Handle unique constraint errors gracefully
+    if (error.code === 'P2002') {
+      console.log('⚠️  Admin user already exists with different email');
+      console.log('   Admin user setup will be skipped.');
+      return null;
+    }
+    
     console.error('❌ Error ensuring admin user:', error);
     throw error;
   }
