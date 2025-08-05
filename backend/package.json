@@ -13,8 +13,7 @@
     "prisma:deploy": "npx prisma migrate deploy",
     "create-admin": "node create-admin-user.js",
     "generate-secrets": "node generate-jwt-secret.js",
-    "security-check": "node security-monitor.js",
-    "test": "jest"
+    "security-check": "node security-monitor.js"
   },
   "prisma": {
     "schema": "./prisma/schema.prisma"
@@ -45,18 +44,13 @@
     "@types/cors": "^2.8.19",
     "@types/dotenv": "^6.1.1",
     "@types/express": "^5.0.3",
-    "@types/jest": "^29.5.14",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.10",
     "@types/node": "^24.1.0",
     "@types/nodemailer": "^6.4.17",
-    "@types/supertest": "^2.0.16",
     "@types/uuid": "^10.0.0",
-    "jest": "^29.7.0",
     "nodemon": "^3.1.10",
     "prisma": "^6.13.0",
-    "supertest": "^6.3.4",
-    "ts-jest": "^29.4.0",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.4.4"

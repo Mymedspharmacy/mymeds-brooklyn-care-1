@@ -132,14 +132,13 @@ router.post('/sync-posts', unifiedAdminAuth, async (req: AuthRequest, res: Respo
       return res.status(400).json({ error: 'WordPress integration is not enabled' });
     }
 
-    // Sync logic would go here
-    // For now, return a mock response
-    res.json({
-      success: true,
-      message: 'Post sync completed',
-      synced: 12,
-      updated: 5,
-      created: 7
+    // TODO: Implement actual WordPress API integration
+    // This would involve making API calls to WordPress REST API
+    // to fetch and sync posts
+    
+    res.status(501).json({ 
+      error: 'WordPress sync functionality not yet implemented',
+      message: 'This feature requires WordPress REST API integration'
     });
   } catch (err) {
     console.error('Error syncing WordPress posts:', err);
@@ -187,18 +186,13 @@ router.post('/posts', unifiedAdminAuth, async (req: AuthRequest, res: Response) 
       return res.status(400).json({ error: 'WordPress integration is not enabled' });
     }
 
-    // Create post logic would go here
-    // For now, return a mock response
-    res.json({
-      success: true,
-      message: 'Post created successfully',
-      post: {
-        id: Math.floor(Math.random() * 1000),
-        title,
-        content,
-        status,
-        link: `${settings.siteUrl}/wp-admin/post.php?post=${Math.floor(Math.random() * 1000)}&action=edit`
-      }
+    // TODO: Implement actual WordPress API integration
+    // This would involve making API calls to WordPress REST API
+    // to create posts
+    
+    res.status(501).json({ 
+      error: 'WordPress post creation not yet implemented',
+      message: 'This feature requires WordPress REST API integration'
     });
   } catch (err) {
     console.error('Error creating WordPress post:', err);

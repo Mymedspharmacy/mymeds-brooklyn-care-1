@@ -106,16 +106,13 @@ router.post('/test-connection', unifiedAdminAuth, async (req: AuthRequest, res: 
       return res.status(400).json({ error: 'WooCommerce integration is not enabled' });
     }
 
-    // Test connection logic would go here
-    // For now, return a mock response
-    res.json({
-      success: true,
-      message: 'Connection test successful',
-      storeInfo: {
-        name: 'Test Store',
-        version: '8.0.0',
-        currency: 'USD'
-      }
+    // TODO: Implement actual WooCommerce API connection test
+    // This would involve making API calls to WooCommerce REST API
+    // to verify credentials and connection
+    
+    res.status(501).json({ 
+      error: 'WooCommerce connection test not yet implemented',
+      message: 'This feature requires WooCommerce REST API integration'
     });
   } catch (err) {
     console.error('Error testing WooCommerce connection:', err);
@@ -136,14 +133,13 @@ router.post('/sync-products', unifiedAdminAuth, async (req: AuthRequest, res: Re
       return res.status(400).json({ error: 'WooCommerce integration is not enabled' });
     }
 
-    // Sync logic would go here
-    // For now, return a mock response
-    res.json({
-      success: true,
-      message: 'Product sync completed',
-      synced: 25,
-      updated: 10,
-      created: 15
+    // TODO: Implement actual WooCommerce API integration
+    // This would involve making API calls to WooCommerce REST API
+    // to fetch and sync products
+    
+    res.status(501).json({ 
+      error: 'WooCommerce product sync not yet implemented',
+      message: 'This feature requires WooCommerce REST API integration'
     });
   } catch (err) {
     console.error('Error syncing WooCommerce products:', err);

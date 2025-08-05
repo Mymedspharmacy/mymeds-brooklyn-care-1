@@ -16,75 +16,56 @@ export const Testimonials = () => {
   });
   const [hoveredRating, setHoveredRating] = useState(0);
 
-  // Sample testimonials for production - replace with real data
-  const [testimonials, setTestimonials] = useState([
-    {
-      id: 1,
-      name: "Sarah Johnson",
-      location: "Brooklyn, NY",
-      rating: 5,
-      text: "My Meds Pharmacy has been a lifesaver! Their prescription delivery service is incredibly convenient, and the staff is always so caring and professional. They really go above and beyond to ensure I get the best care possible.",
-      date: "2024-01-15",
-      avatar: "SJ"
-    },
-    {
-      id: 2,
-      name: "Michael Chen",
-      location: "Manhattan, NY",
-      rating: 5,
-      text: "The medication management service here is outstanding. They helped me organize all my prescriptions and set up automatic refills. The pharmacists are knowledgeable and always available to answer my questions.",
-      date: "2024-01-10",
-      avatar: "MC"
-    },
-    {
-      id: 3,
-      name: "Emily Rodriguez",
-      location: "Queens, NY",
-      rating: 5,
-      text: "I transferred my prescriptions here and the process was seamless. The team handled everything professionally and I was set up in no time. Their 24/7 consultation service gives me peace of mind.",
-      date: "2024-01-08",
-      avatar: "ER"
-    },
-    {
-      id: 4,
-      name: "David Thompson",
-      location: "Brooklyn, NY",
-      rating: 5,
-      text: "The insurance coordination service saved me hundreds of dollars! They found the best coverage options and handled all the paperwork. I couldn't be happier with their service.",
-      date: "2024-01-05",
-      avatar: "DT"
-    },
-    {
-      id: 5,
-      name: "Lisa Park",
-      location: "Manhattan, NY",
-      rating: 5,
-      text: "As a senior citizen, I really appreciate their personalized care approach. They take the time to explain my medications and always check in on my health. Truly exceptional service!",
-      date: "2024-01-03",
-      avatar: "LP"
-    },
-    {
-      id: 6,
-      name: "Robert Williams",
-      location: "Brooklyn, NY",
-      rating: 5,
-      text: "The same-day delivery service is incredible! I never have to worry about running out of medication. The staff is friendly and the service is reliable. Highly recommend!",
-      date: "2024-01-01",
-      avatar: "RW"
-    }
-  ]);
+  // Production testimonials - will be loaded from API
+  const [testimonials, setTestimonials] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleAddReview = () => {
+  // Load testimonials from API
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        // TODO: Replace with actual API call
+        // const response = await fetch('/api/testimonials');
+        // const data = await response.json();
+        // setTestimonials(data);
+        
+        // For now, show empty state
+        setTestimonials([]);
+      } catch (error) {
+        console.error('Error fetching testimonials:', error);
+        setTestimonials([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTestimonials();
+  }, []);
+
+  const handleAddReview = async () => {
     if (newReview.name && newReview.text) {
-      const review = {
-        id: Date.now(),
-        ...newReview,
-        date: new Date().toISOString().split('T')[0],
-        avatar: newReview.name.split(' ').map(n => n[0]).join('').toUpperCase()
-      };
-      setTestimonials(prev => [review, ...prev]);
-      setNewReview({ name: "", location: "", rating: 5, text: "" });
-      setShowReviewForm(false);
+      try {
+        // TODO: Replace with actual API call
+        // const response = await fetch('/api/testimonials', {
+        //   method: 'POST',
+        //   headers: { 'Content-Type': 'application/json' },
+        //   body: JSON.stringify(newReview)
+        // });
+        // const data = await response.json();
+        
+        // For now, add to local state
+        const review = {
+          id: Date.now(),
+          ...newReview,
+          date: new Date().toISOString().split('T')[0],
+          avatar: newReview.name.split(' ').map(n => n[0]).join('').toUpperCase()
+        };
+        setTestimonials(prev => [review, ...prev]);
+        setNewReview({ name: "", location: "", rating: 5, text: "" });
+        setShowReviewForm(false);
+      } catch (error) {
+        console.error('Error adding review:', error);
+      }
     }
   };
 

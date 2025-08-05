@@ -5,7 +5,9 @@ import {
   CheckCircle, XCircle, Search, Calendar, 
   TrendingUp, LogOut, Bell, Link, 
   Pill, RefreshCw, MessageSquare, MapPin,
-  Edit, Trash2, Eye
+  Edit, Trash2, Eye, Download, Filter,
+  BarChart3, PieChart, LineChart, Activity,
+  Package
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,17 +17,28 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import api from '../lib/api';
 import railwayAuth from '../lib/railwayAuth';
+import { AnalyticsDashboard } from '../components/analytics/AnalyticsDashboard';
+import { EnhancedNotifications } from '../components/notifications/EnhancedNotifications';
+import { ExportManager } from '../components/export/ExportManager';
+import { InventoryManager } from '../components/inventory/InventoryManager';
+import { CustomerCRM } from '../components/crm/CustomerCRM';
+import { AdvancedScheduling } from '../components/scheduling/AdvancedScheduling';
 
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', icon: TrendingUp },
+  { id: 'analytics', label: 'Analytics', icon: BarChart3 },
   { id: 'orders', label: 'Orders', icon: ShoppingCart },
   { id: 'delivery-map', label: 'Delivery Map', icon: MapPin },
   { id: 'refills', label: 'Refill Requests', icon: Pill },
   { id: 'transfers', label: 'Transfer Requests', icon: RefreshCw },
   { id: 'contacts', label: 'Contact Requests', icon: MessageSquare },
   { id: 'notifications', label: 'Notifications', icon: Bell },
+  { id: 'inventory', label: 'Inventory', icon: ShoppingCart },
+  { id: 'crm', label: 'CRM', icon: Users },
+  { id: 'scheduling', label: 'Scheduling', icon: Calendar },
   { id: 'integration', label: 'Integration', icon: Link },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
@@ -64,12 +77,37 @@ export default function Admin() {
     businessHours: 'Mon-Fri: 9AM-6PM, Sat: 9AM-4PM'
   });
 
+  // Analytics and Export states
+  const [analyticsData, setAnalyticsData] = useState({
+    orders: [],
+    revenue: [],
+    customers: [],
+    products: [],
+    monthlyStats: [],
+    topProducts: [],
+    customerSegments: []
+  });
+  const [analyticsTimeRange, setAnalyticsTimeRange] = useState('30d');
+  const [isExporting, setIsExporting] = useState(false);
+  const [notificationFilters, setNotificationFilters] = useState({
+    priority: 'all',
+    type: 'all',
+    read: 'all',
+    search: ''
+  });
+
   // Data states
   const [orders, setOrders] = useState([]);
   const [refillRequests, setRefillRequests] = useState([]);
   const [transferRequests, setTransferRequests] = useState([]);
   const [contacts, setContacts] = useState([]);
   const [notifications, setNotifications] = useState([]);
+
+  // Phase 2 Data states
+  const [products, setProducts] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [appointments, setAppointments] = useState([]);
 
   // Statistics
   const [stats, setStats] = useState({
@@ -102,8 +140,15 @@ export default function Admin() {
         fetchOrders(), fetchRefillRequests(), fetchTransferRequests(),
         fetchContacts(), fetchNotifications(), fetchIntegrationStatus(), fetchSettings()
       ]);
-      // Generate delivery orders after fetching orders
-      setTimeout(() => generateDeliveryOrders(), 100);
+      // Remove dummy data generation calls
+      // setTimeout(() => generateDeliveryOrders(), 100);
+      // generateAnalyticsData();
+      
+      // Remove Phase 2 dummy data generation
+      // generateProducts();
+      // generateSuppliers();
+      // generateCustomers();
+      // generateAppointments();
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     }
@@ -209,6 +254,104 @@ export default function Admin() {
     }
   }
 
+  // Delivery Map Functions
+  function generateDeliveryOrders() {
+    // Filter orders that are eligible for delivery (pending or approved)
+    const deliveryOrders = orders
+      .filter((order: any) => order.status === 'pending' || order.status === 'approved')
+      .map((order: any) => ({
+        ...order,
+        // Use actual delivery address from order or default
+        deliveryAddress: order.deliveryAddress || order.user?.address || 'Address not provided',
+        // Use actual coordinates if available, otherwise show as pending
+        coordinates: order.coordinates || null,
+        // Use actual delivery time if available
+        estimatedDelivery: order.estimatedDelivery || 'To be determined',
+        // Use actual delivery notes or default
+        deliveryNotes: order.deliveryNotes || 'Standard delivery'
+      }));
+    
+    setDeliveryOrders(deliveryOrders);
+  }
+
+  function handleOrderClick(order: any) {
+    setSelectedOrder(order);
+    setShowOrderDetails(true);
+  }
+
+  function handleRefillClick(refill: any) {
+    setSelectedRefill(refill);
+    setShowRefillDetails(true);
+  }
+
+  function handleTransferClick(transfer: any) {
+    setSelectedTransfer(transfer);
+    setShowTransferDetails(true);
+  }
+
+  async function updateOrderDeliveryStatus(orderId: number, status: string) {
+    try {
+      // Update the order status via API
+      await updateOrderStatus(orderId, status);
+      
+      // Update local delivery orders state
+      setDeliveryOrders(prev => 
+        prev.map(order => 
+          order.id === orderId 
+            ? { ...order, status } 
+            : order
+        )
+      );
+      
+      showToastMessage(`Order #${orderId} status updated to ${status}`, 'success');
+    } catch (error) {
+      console.error('Error updating delivery status:', error);
+      showToastMessage('Failed to update order status', 'error');
+    }
+  }
+
+  async function updateOrderStatus(id: number, status: string) {
+    try {
+      await api.put(`/orders/${id}`, { status });
+      showToastMessage('Order status updated successfully');
+      fetchOrders();
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      showToastMessage('Failed to update order status', 'error');
+    }
+  }
+
+  async function updateRefillStatus(id: number, status: string) {
+    try {
+      await api.put(`/refill-requests/${id}`, { status });
+      showToastMessage('Refill request status updated successfully');
+      fetchRefillRequests();
+    } catch (error) {
+      console.error('Error updating refill status:', error);
+      showToastMessage('Failed to update refill status', 'error');
+    }
+  }
+
+  async function updateTransferStatus(id: number, status: string) {
+    try {
+      await api.put(`/transfer-requests/${id}`, { status });
+      showToastMessage('Transfer request status updated successfully');
+      fetchTransferRequests();
+    } catch (error) {
+      console.error('Error updating transfer status:', error);
+      showToastMessage('Failed to update transfer status', 'error');
+    }
+  }
+
+  async function markNotificationRead(id: number) {
+    try {
+      await api.put(`/notifications/${id}/read`);
+      fetchNotifications();
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
+  }
+
   async function logout() {
     try {
       await railwayAuth.logout();
@@ -310,145 +453,6 @@ export default function Admin() {
     } catch (error) {
       console.error('Settings save error:', error);
       showToastMessage('Failed to save settings', 'error');
-    }
-  }
-
-  // Delivery Map Functions
-  function generateDeliveryOrders() {
-    // Filter orders that are eligible for delivery (pending or approved)
-    const deliveryOrders = orders
-      .filter((order: any) => order.status === 'pending' || order.status === 'approved')
-      .map((order: any) => ({
-        ...order,
-        // Use actual delivery address from order or default
-        deliveryAddress: order.deliveryAddress || order.user?.address || 'Address not provided',
-        // Generate coordinates based on order ID for consistent positioning
-        coordinates: generateCoordinatesFromOrderId(order.id),
-        // Calculate estimated delivery based on order creation time
-        estimatedDelivery: calculateEstimatedDelivery(order.createdAt),
-        // Use actual delivery notes or default
-        deliveryNotes: order.deliveryNotes || 'Standard delivery'
-      }));
-    
-    setDeliveryOrders(deliveryOrders);
-  }
-
-  function generateCoordinatesFromOrderId(orderId: number) {
-    // Generate consistent coordinates based on order ID
-    // This ensures the same order always appears in the same location
-    const baseLat = 40.6782; // Brooklyn center latitude
-    const baseLng = -73.9442; // Brooklyn center longitude
-    
-    // Use order ID to create deterministic but varied positions
-    const latVariation = ((orderId * 7) % 100) / 1000 - 0.05; // ±0.05 degrees
-    const lngVariation = ((orderId * 11) % 100) / 1000 - 0.05; // ±0.05 degrees
-    
-    return {
-      lat: baseLat + latVariation,
-      lng: baseLng + lngVariation
-    };
-  }
-
-  function calculateEstimatedDelivery(createdAt: string) {
-    const orderTime = new Date(createdAt);
-    const now = new Date();
-    const timeDiff = now.getTime() - orderTime.getTime();
-    
-    // If order is older than 4 hours, set ETA to 1 hour from now
-    if (timeDiff > 4 * 60 * 60 * 1000) {
-      const eta = new Date(now.getTime() + 60 * 60 * 1000);
-      return eta.toLocaleTimeString('en-US', { 
-        hour: '2-digit', 
-        minute: '2-digit',
-        hour12: true 
-      });
-    }
-    
-    // Otherwise, set ETA to 2-4 hours from order time
-    const hoursToAdd = 2 + (Math.floor(Math.random() * 3)); // 2-4 hours
-    const eta = new Date(orderTime.getTime() + hoursToAdd * 60 * 60 * 1000);
-    return eta.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: true 
-    });
-  }
-
-  function handleOrderClick(order: any) {
-    setSelectedOrder(order);
-    setShowOrderDetails(true);
-  }
-
-  function handleRefillClick(refill: any) {
-    setSelectedRefill(refill);
-    setShowRefillDetails(true);
-  }
-
-  function handleTransferClick(transfer: any) {
-    setSelectedTransfer(transfer);
-    setShowTransferDetails(true);
-  }
-
-  async function updateOrderDeliveryStatus(orderId: number, status: string) {
-    try {
-      // Update the order status via API
-      await updateOrderStatus(orderId, status);
-      
-      // Update local delivery orders state
-      setDeliveryOrders(prev => 
-        prev.map(order => 
-          order.id === orderId 
-            ? { ...order, status } 
-            : order
-        )
-      );
-      
-      showToastMessage(`Order #${orderId} status updated to ${status}`, 'success');
-    } catch (error) {
-      console.error('Error updating delivery status:', error);
-      showToastMessage('Failed to update order status', 'error');
-    }
-  }
-
-  async function updateOrderStatus(id: number, status: string) {
-    try {
-      await api.put(`/orders/${id}`, { status });
-      showToastMessage('Order status updated successfully');
-      fetchOrders();
-    } catch (error) {
-      console.error('Error updating order status:', error);
-      showToastMessage('Failed to update order status', 'error');
-    }
-  }
-
-  async function updateRefillStatus(id: number, status: string) {
-    try {
-      await api.put(`/refill-requests/${id}`, { status });
-      showToastMessage('Refill request status updated successfully');
-      fetchRefillRequests();
-    } catch (error) {
-      console.error('Error updating refill status:', error);
-      showToastMessage('Failed to update refill status', 'error');
-    }
-  }
-
-  async function updateTransferStatus(id: number, status: string) {
-    try {
-      await api.put(`/transfer-requests/${id}`, { status });
-      showToastMessage('Transfer request status updated successfully');
-      fetchTransferRequests();
-    } catch (error) {
-      console.error('Error updating transfer status:', error);
-      showToastMessage('Failed to update transfer status', 'error');
-    }
-  }
-
-  async function markNotificationRead(id: number) {
-    try {
-      await api.put(`/notifications/${id}/read`);
-      fetchNotifications();
-    } catch (error) {
-      console.error('Error marking notification as read:', error);
     }
   }
 
@@ -591,6 +595,48 @@ export default function Admin() {
     }
   }
 
+  // Enhanced notification functions
+  async function acknowledgeNotification(id: number) {
+    try {
+      await api.put(`/notifications/${id}/acknowledge`);
+      showToastMessage('Notification acknowledged');
+      fetchNotifications();
+    } catch (error) {
+      console.error('Error acknowledging notification:', error);
+      showToastMessage('Failed to acknowledge notification', 'error');
+    }
+  }
+
+  // Export functionality
+  async function handleExport(options: any) {
+    setIsExporting(true);
+    try {
+      // Implement real export functionality
+      const response = await api.post('/export', {
+        type: options.dataType,
+        format: options.format,
+        fields: options.fields
+      });
+      
+      if (response.data.downloadUrl) {
+        // Download the actual exported file
+        const a = document.createElement('a');
+        a.href = response.data.downloadUrl;
+        a.download = `export_${new Date().toISOString().split('T')[0]}.${options.format}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+      
+      showToastMessage('Data exported successfully');
+    } catch (error) {
+      console.error('Export error:', error);
+      showToastMessage('Export failed', 'error');
+    } finally {
+      setIsExporting(false);
+    }
+  }
+
   // Bulk Operations for Orders
   async function bulkDeleteOrders() {
     if (selectedOrders.length === 0) {
@@ -712,6 +758,175 @@ export default function Admin() {
     }
   }
 
+  // Phase 2 Handler Functions
+  async function handleUpdateProduct(id: number, data: any) {
+    try {
+      const response = await api.put(`/products/${id}`, data);
+      if (response.data.success) {
+        showToastMessage('Product updated successfully');
+        // Refresh products from API
+        // await fetchProducts();
+      }
+    } catch (error) {
+      console.error('Error updating product:', error);
+      showToastMessage('Error updating product', 'error');
+    }
+  }
+
+  async function handleDeleteProduct(id: number) {
+    try {
+      const response = await api.delete(`/products/${id}`);
+      if (response.data.success) {
+        showToastMessage('Product deleted successfully');
+        // Refresh products from API
+        // await fetchProducts();
+      }
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      showToastMessage('Error deleting product', 'error');
+    }
+  }
+
+  async function handleAddProduct(data: any) {
+    try {
+      const response = await api.post('/products', data);
+      if (response.data.success) {
+        showToastMessage('Product added successfully');
+        // Refresh products from API
+        // await fetchProducts();
+      }
+    } catch (error) {
+      console.error('Error adding product:', error);
+      showToastMessage('Error adding product', 'error');
+    }
+  }
+
+  async function handleUpdateSupplier(id: number, data: any) {
+    try {
+      const response = await api.put(`/suppliers/${id}`, data);
+      if (response.data.success) {
+        showToastMessage('Supplier updated successfully');
+        // Refresh suppliers from API
+        // await fetchSuppliers();
+      }
+    } catch (error) {
+      console.error('Error updating supplier:', error);
+      showToastMessage('Error updating supplier', 'error');
+    }
+  }
+
+  async function handleDeleteSupplier(id: number) {
+    try {
+      const response = await api.delete(`/suppliers/${id}`);
+      if (response.data.success) {
+        showToastMessage('Supplier deleted successfully');
+        // Refresh suppliers from API
+        // await fetchSuppliers();
+      }
+    } catch (error) {
+      console.error('Error deleting supplier:', error);
+      showToastMessage('Error deleting supplier', 'error');
+    }
+  }
+
+  async function handleAddSupplier(data: any) {
+    try {
+      const response = await api.post('/suppliers', data);
+      if (response.data.success) {
+        showToastMessage('Supplier added successfully');
+        // Refresh suppliers from API
+        // await fetchSuppliers();
+      }
+    } catch (error) {
+      console.error('Error adding supplier:', error);
+      showToastMessage('Error adding supplier', 'error');
+    }
+  }
+
+  async function handleUpdateCustomer(id: number, data: any) {
+    try {
+      const response = await api.put(`/customers/${id}`, data);
+      if (response.data.success) {
+        showToastMessage('Customer updated successfully');
+        // Refresh customers from API
+        // await fetchCustomers();
+      }
+    } catch (error) {
+      console.error('Error updating customer:', error);
+      showToastMessage('Error updating customer', 'error');
+    }
+  }
+
+  async function handleDeleteCustomer(id: number) {
+    try {
+      const response = await api.delete(`/customers/${id}`);
+      if (response.data.success) {
+        showToastMessage('Customer deleted successfully');
+        // Refresh customers from API
+        // await fetchCustomers();
+      }
+    } catch (error) {
+      console.error('Error deleting customer:', error);
+      showToastMessage('Error deleting customer', 'error');
+    }
+  }
+
+  async function handleAddCustomer(data: any) {
+    try {
+      const response = await api.post('/customers', data);
+      if (response.data.success) {
+        showToastMessage('Customer added successfully');
+        // Refresh customers from API
+        // await fetchCustomers();
+      }
+    } catch (error) {
+      console.error('Error adding customer:', error);
+      showToastMessage('Error adding customer', 'error');
+    }
+  }
+
+  async function handleUpdateAppointment(id: number, data: any) {
+    try {
+      const response = await api.put(`/appointments/${id}`, data);
+      if (response.data.success) {
+        showToastMessage('Appointment updated successfully');
+        // Refresh appointments from API
+        // await fetchAppointments();
+      }
+    } catch (error) {
+      console.error('Error updating appointment:', error);
+      showToastMessage('Error updating appointment', 'error');
+    }
+  }
+
+  async function handleDeleteAppointment(id: number) {
+    try {
+      const response = await api.delete(`/appointments/${id}`);
+      if (response.data.success) {
+        showToastMessage('Appointment deleted successfully');
+        // Refresh appointments from API
+        // await fetchAppointments();
+      }
+    } catch (error) {
+      console.error('Error deleting appointment:', error);
+      showToastMessage('Error deleting appointment', 'error');
+    }
+  }
+
+  async function handleAddAppointment(data: any) {
+    try {
+      const response = await api.post('/appointments', data);
+      if (response.data.success) {
+        showToastMessage('Appointment added successfully');
+        // Refresh appointments from API
+        // await fetchAppointments();
+      }
+    } catch (error) {
+      console.error('Error adding appointment:', error);
+      showToastMessage('Error adding appointment', 'error');
+    }
+  }
+
   function getStatusBadge(status: string) {
     const statusColors: { [key: string]: string } = {
       pending: 'bg-yellow-100 text-yellow-800',
@@ -761,18 +976,35 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Toast Notification */}
+      {showToast.show && (
+        <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 ${
+          showToast.type === 'success' 
+            ? 'bg-green-500 text-white' 
+            : 'bg-red-500 text-white'
+        }`}>
+          <div className="flex items-center space-x-2">
+            {showToast.type === 'success' ? (
+              <CheckCircle className="h-5 w-5" />
+            ) : (
+              <XCircle className="h-5 w-5" />
+            )}
+            <span>{showToast.message}</span>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <h1 className="text-xl font-semibold text-gray-900">MyMeds Pharmacy Admin</h1>
+              <h1 className="text-lg sm:text-xl font-semibold text-gray-900">MyMeds Pharmacy Admin</h1>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <div className="relative">
                 <Button variant="outline" size="sm" className="relative">
-                  <Bell className="h-4 w-4 mr-2" />
-                  Notifications
+                  <Bell className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Notifications</span>
                   {stats.unreadNotifications > 0 && (
                     <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-red-500 text-white text-xs">
                       {stats.unreadNotifications}
@@ -781,8 +1013,8 @@ export default function Admin() {
                 </Button>
               </div>
               <Button variant="outline" size="sm" onClick={() => setShowLogoutConfirm(true)}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
+                <LogOut className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Logout</span>
               </Button>
             </div>
           </div>
@@ -794,14 +1026,14 @@ export default function Admin() {
         <Tabs value={tab} onValueChange={setTab} className="space-y-6">
           {/* Tab Navigation */}
           <div className="border-b border-gray-200">
-            <TabsList className="grid w-full grid-cols-9 h-auto bg-transparent">
+            <TabsList className="grid w-full grid-cols-13 h-auto bg-transparent">
               {TABS.map((tabItem) => (
                 <TabsTrigger
                   key={tabItem.id}
                   value={tabItem.id}
-                  className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md data-[state=active]:bg-brand data-[state=active]:text-white"
+                  className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md data-[state=active]:bg-brand data-[state=active]:text-white"
                 >
-                  <tabItem.icon className="h-4 w-4" />
+                  <tabItem.icon className="h-3 w-3 sm:h-4 sm:w-4" />
                   <span className="hidden sm:inline">{tabItem.label}</span>
                 </TabsTrigger>
               ))}
@@ -915,6 +1147,15 @@ export default function Admin() {
             </div>
           </TabsContent>
 
+          {/* Analytics Tab */}
+          <TabsContent value="analytics" className="space-y-6">
+            <AnalyticsDashboard
+              data={analyticsData}
+              timeRange={analyticsTimeRange}
+              onTimeRangeChange={setAnalyticsTimeRange}
+            />
+          </TabsContent>
+
           {/* Orders Tab */}
           <TabsContent value="orders" className="space-y-6">
             <Card>
@@ -922,6 +1163,12 @@ export default function Admin() {
                 <div className="flex items-center justify-between">
                   <CardTitle>Order Management</CardTitle>
                   <div className="flex items-center space-x-2">
+                    <ExportManager
+                      dataType="orders"
+                      availableFields={['id', 'total', 'status', 'createdAt', 'user.name', 'user.email', 'user.phone', 'items']}
+                      onExport={handleExport}
+                      isExporting={isExporting}
+                    />
                     {selectedOrders.length > 0 && (
                       <Badge variant="outline" className="bg-blue-50 text-blue-700">
                         {selectedOrders.length} selected
@@ -1579,97 +1826,48 @@ export default function Admin() {
 
           {/* Notifications Tab */}
           <TabsContent value="notifications" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>System Notifications</CardTitle>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={markAllNotificationsAsRead}
-                    className="text-green-600 hover:text-green-700"
-                  >
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Mark All as Read
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Message</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {notifications.map((notification: any) => (
-                      <TableRow key={notification.id}>
-                        <TableCell>
-                          <Badge variant="outline">{notification.type}</Badge>
-                        </TableCell>
-                        <TableCell>{notification.title}</TableCell>
-                        <TableCell>
-                          <div className="max-w-xs truncate">{notification.message}</div>
-                        </TableCell>
-                        <TableCell>
-                          {getStatusBadge(notification.read ? 'read' : 'unread')}
-                        </TableCell>
-                        <TableCell>{formatDate(notification.createdAt)}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center space-x-2">
-                            {!notification.read && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => markNotificationRead(notification.id)}
-                                className="text-green-600 hover:text-green-700"
-                                title="Mark as Read"
-                              >
-                                <CheckCircle className="h-4 w-4" />
-                                <span className="ml-1 hidden sm:inline">Read</span>
-                              </Button>
-                            )}
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => handleViewNotification(notification)}
-                            >
-                              <Eye className="h-4 w-4" />
-                              <span className="ml-1 hidden sm:inline">View</span>
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleEditClick('notification', notification)}
-                              className="text-blue-600 hover:text-blue-700"
-                              title="Edit Notification"
-                            >
-                              <Edit className="h-4 w-4" />
-                              <span className="ml-1 hidden sm:inline">Edit</span>
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleDeleteClick('notification', notification.id, `Notification #${notification.id}`)}
-                              className="text-red-600 hover:text-red-700"
-                              title="Delete Notification"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                              <span className="ml-1 hidden sm:inline">Delete</span>
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+            <EnhancedNotifications
+              notifications={notifications}
+              onMarkRead={markNotificationRead}
+              onMarkAllRead={markAllNotificationsAsRead}
+              onDelete={deleteNotification}
+              onAcknowledge={acknowledgeNotification}
+              onFilterChange={setNotificationFilters}
+            />
+          </TabsContent>
+
+          {/* Inventory Tab */}
+          <TabsContent value="inventory" className="space-y-6">
+            <InventoryManager
+              products={products}
+              suppliers={suppliers}
+              onUpdateProduct={handleUpdateProduct}
+              onDeleteProduct={handleDeleteProduct}
+              onAddProduct={handleAddProduct}
+              onUpdateSupplier={handleUpdateSupplier}
+              onDeleteSupplier={handleDeleteSupplier}
+              onAddSupplier={handleAddSupplier}
+            />
+          </TabsContent>
+
+          {/* CRM Tab */}
+          <TabsContent value="crm" className="space-y-6">
+            <CustomerCRM
+              customers={customers}
+              onUpdateCustomer={handleUpdateCustomer}
+              onDeleteCustomer={handleDeleteCustomer}
+              onAddCustomer={handleAddCustomer}
+            />
+          </TabsContent>
+
+          {/* Scheduling Tab */}
+          <TabsContent value="scheduling" className="space-y-6">
+            <AdvancedScheduling
+              appointments={appointments}
+              onUpdateAppointment={handleUpdateAppointment}
+              onDeleteAppointment={handleDeleteAppointment}
+              onAddAppointment={handleAddAppointment}
+            />
           </TabsContent>
 
           {/* Integration Tab */}
