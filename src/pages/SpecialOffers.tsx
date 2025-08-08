@@ -13,12 +13,11 @@ export default function SpecialOffers() {
     {
       id: 'free-refills',
       icon: Pill,
-      title: "Free Prescription Refills",
-      description: "Enjoy complimentary refills on all your prescriptions with no hidden fees",
-      longDescription: "Our free prescription refill program is designed to make managing your medications as affordable as possible. We believe that quality healthcare shouldn't come with unexpected costs.",
+      title: "Prescription Refills",
+      description: "Fast & Easy Refills, Right When You Need Them",
+      longDescription: "Our  prescription refill program is designed to make managing your medications as affordable as possible. We believe that quality healthcare shouldn't come with unexpected costs.",
       features: [
         "All prescription medications included",
-        "No refill fees or service charges",
         "Automatic refill reminders",
         "Priority processing",
         "Insurance coordination included",
@@ -87,7 +86,7 @@ export default function SpecialOffers() {
       description: "Special pricing and services for our valued senior customers",
       longDescription: "We honor our senior community with exclusive discounts and personalized services. Our senior program includes special pricing, priority service, and dedicated support.",
       features: [
-        "15% discount on all prescriptions",
+        "10% discount on all prescriptions",
         "Priority prescription processing",
         "Free medication reviews",
         "Dedicated senior care specialist",
@@ -95,7 +94,7 @@ export default function SpecialOffers() {
         "Family consultation services"
       ],
       benefits: [
-        "Save 15% on all medications",
+        "Save 10% on all medications",
         "Priority customer service",
         "Personalized care attention",
         "Family support services"
@@ -108,7 +107,7 @@ export default function SpecialOffers() {
       ],
       accent: "from-brand-light to-brand-accent",
       bgGradient: "from-brand-light/10 to-brand-accent/10",
-      savings: "15% off",
+      savings: "10% off",
       duration: "Ongoing",
       popularity: "Exclusive",
       actionButton: "Book Consultation",
@@ -123,15 +122,14 @@ export default function SpecialOffers() {
       longDescription: "Welcome to our pharmacy family! New customers receive exclusive benefits including free consultation, special pricing, and personalized care from day one.",
       features: [
         "Free initial consultation",
-        "20% off first prescription",
+        "10% off first prescription",
         "Free health screening",
         "Personalized care plan",
         "Priority customer service",
         "Family member discounts"
       ],
       benefits: [
-        "Save 20% on first prescription",
-        "Free health consultation",
+        "Save 10% on first prescription",
         "Personalized care plan",
         "Family member benefits"
       ],
@@ -165,7 +163,7 @@ export default function SpecialOffers() {
         "Family package options"
       ],
       benefits: [
-        "Save up to 25% on bulk orders",
+        "Save up to 20% on bulk orders",
         "Convenient 90-day supplies",
         "Free storage solutions",
         "Automatic refill management"
@@ -178,7 +176,7 @@ export default function SpecialOffers() {
       ],
       accent: "from-brand to-brand-dark",
       bgGradient: "from-brand/10 to-brand-dark/10",
-      savings: "Up to 25% off",
+      savings: "Up to 20% off",
       duration: "Ongoing",
       popularity: "Value",
       actionButton: "Refill Prescription",
