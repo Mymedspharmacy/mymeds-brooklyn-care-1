@@ -29,11 +29,15 @@ import transferRequestRoutes from './routes/transferRequests';
 import notificationRoutes from './routes/notifications';
 import analyticsRoutes from './routes/analytics';
 import patientRoutes from './routes/patient';
+import monitoringRoutes from './routes/monitoring';
+import openfdaRoutes from './routes/openfda';
 // @ts-ignore
 import hpp from 'hpp';
 import mongoSanitize from 'express-mongo-sanitize';
 // @ts-ignore
 import xss from 'xss-clean';
+import statusMonitor from 'express-status-monitor';
+import logger from './utils/logger';
 
 console.log('Starting MyMeds backend...');
 console.log('NODE_ENV:', process.env.NODE_ENV);
@@ -45,12 +49,25 @@ const app = express();
 // Trust proxy for Railway deployment
 app.set('trust proxy', 1);
 
+// Define allowed origins for CORS
+const allowedOrigins = [
+  'http://localhost:8080',
+  'http://localhost:8081',
+  'http://192.168.18.56:8080',
+  'http://192.168.18.56:8081',
+  'https://www.mymedspharmacyinc.com',
+  'http://localhost:5173', // Vite dev server
+  'http://localhost:3000',  // Common dev port
+  'http://localhost:3001'   // Additional dev port
+];
+
 // ✅ IMPLEMENTED: WebSocket server setup
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
-    methods: ["GET", "POST"]
+    origin: allowedOrigins,
+    methods: ["GET", "POST"],
+    credentials: true
   }
 });
 
@@ -130,16 +147,6 @@ app.use(hpp()); // Prevent HTTP Parameter Pollution
 app.use(xss()); // Prevent XSS attacks
 app.use(mongoSanitize()); // Prevent NoSQL injection
 
-const allowedOrigins = [
-  'http://localhost:8080',
-  'http://localhost:8081',
-  'http://192.168.18.56:8080',
-  'http://192.168.18.56:8081',
-  'https://www.mymedspharmacyinc.com',
-  'http://localhost:5173', // Vite dev server
-  'http://localhost:3000'  // Common dev port
-];
-
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
@@ -164,6 +171,41 @@ app.use(cors({
 app.options('*', cors()); // Handles preflight requests
 app.use(express.json({ limit: '2mb' }));
 app.use(morgan('combined'));
+
+// Status monitoring
+app.use(statusMonitor({
+  title: 'MyMeds Pharmacy Status',
+  path: '/status',
+  spans: [{
+    interval: 1,
+    retention: 60
+  }, {
+    interval: 5,
+    retention: 60
+  }, {
+    interval: 15,
+    retention: 60
+  }]
+}));
+
+// Enhanced logging middleware
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const start = Date.now();
+  
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    logger.info('HTTP Request', {
+      method: req.method,
+      url: req.url,
+      status: res.statusCode,
+      duration,
+      userAgent: req.get('User-Agent'),
+      ip: req.ip
+    });
+  });
+  
+  next();
+});
 
 // Enhanced Rate Limiting
 const authLimiter = rateLimit({ 
@@ -213,26 +255,98 @@ console.log('- Auth limit:', process.env.DISABLE_RATE_LIMIT === 'true' ? 'DISABL
 console.log('- General limit:', process.env.DISABLE_RATE_LIMIT === 'true' ? 'DISABLED' : 
   (process.env.NODE_ENV === 'production' ? '1000 requests/15min' : '5000 requests/15min'));
 
-// Health check
+// Enhanced Health Check
 app.get('/api/health', async (req: Request, res: Response) => {
+  const startTime = Date.now();
+  const healthStatus: {
+    status: string;
+    timestamp: string;
+    uptime: number;
+    environment: string | undefined;
+    version: string;
+    checks: {
+      database: string;
+      memory: string;
+      disk: string;
+    };
+    responseTime?: number;
+  } = {
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV,
+    version: process.env.npm_package_version || '1.0.0',
+    checks: {
+      database: 'unknown',
+      memory: 'unknown',
+      disk: 'unknown'
+    }
+  };
+
   try {
-    // Basic health check - just return OK if server is running 
-    res.json({ status: 'ok', message: 'MyMeds backend is running!' });
-  } catch (err) {
-    console.error('Health check failed:', err);
-    res.status(500).json({ status: 'error', message: 'Server error' });
+    // Database health check
+    await prisma.$queryRaw`SELECT 1`;
+    healthStatus.checks.database = 'healthy';
+  } catch (error) {
+    healthStatus.checks.database = 'unhealthy';
+    healthStatus.status = 'degraded';
   }
+
+  // Memory usage check
+  const memUsage = process.memoryUsage();
+  const memUsageMB = {
+    rss: Math.round(memUsage.rss / 1024 / 1024),
+    heapTotal: Math.round(memUsage.heapTotal / 1024 / 1024),
+    heapUsed: Math.round(memUsage.heapUsed / 1024 / 1024),
+    external: Math.round(memUsage.external / 1024 / 1024)
+  };
+
+  if (memUsageMB.heapUsed > 500) { // 500MB threshold
+    healthStatus.checks.memory = 'warning';
+  } else {
+    healthStatus.checks.memory = 'healthy';
+  }
+
+  healthStatus.responseTime = Date.now() - startTime;
+  
+  const statusCode = healthStatus.status === 'healthy' ? 200 : 503;
+  res.status(statusCode).json(healthStatus);
 });
 
-// Database health check (separate endpoint)
+// Detailed Database Health Check
 app.get('/api/health/db', async (req: Request, res: Response) => {
   try {
-    // Try a simple DB query
-    await prisma.user.findFirst();
-    res.json({ status: 'ok', message: 'Database connection is working!' });
-  } catch (err) {
-    console.error('DB health check failed:', err);
-    res.status(500).json({ status: 'error', message: 'Database connection failed' });
+    const startTime = Date.now();
+    
+    // Test database connection
+    await prisma.$connect();
+    
+    // Check table counts
+    const [users, orders, prescriptions] = await Promise.all([
+      prisma.user.count(),
+      prisma.order.count(),
+      prisma.prescription.count()
+    ]);
+    
+    const dbStatus = {
+      status: 'healthy',
+      connection: 'connected',
+      responseTime: Date.now() - startTime,
+      tableCounts: {
+        users,
+        orders,
+        prescriptions
+      },
+      timestamp: new Date().toISOString()
+    };
+    
+    res.json(dbStatus);
+  } catch (error) {
+    res.status(503).json({
+      status: 'unhealthy',
+      error: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString()
+    });
   }
 });
 
@@ -263,6 +377,8 @@ app.use('/api/transfer-requests', currentLimiter, transferRequestRoutes);
 app.use('/api/notifications', currentLimiter, notificationRoutes);
 app.use('/api/analytics', currentLimiter, analyticsRoutes);
 app.use('/api/patient', currentLimiter, patientRoutes);
+app.use('/api/monitoring', currentLimiter, monitoringRoutes);
+app.use('/api/openfda', currentLimiter, openfdaRoutes);
 
 // Notification endpoints
 app.get('/api/notifications', adminAuthMiddleware, async (req: Request, res: Response) => {
@@ -318,8 +434,24 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 // Global error handler
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error(err);
-  res.status(500).json({ error: 'Internal server error' });
+  logger.error('Unhandled Error', {
+    error: err.message,
+    stack: err.stack,
+    url: req.url,
+    method: req.method,
+    ip: req.ip,
+    userAgent: req.get('User-Agent')
+  });
+  
+  // Don't expose internal errors in production
+  const errorMessage = process.env.NODE_ENV === 'production' 
+    ? 'Internal server error' 
+    : err.message;
+    
+  res.status(500).json({ 
+    error: errorMessage,
+    timestamp: new Date().toISOString()
+  });
 });
 
 const PORT = process.env.PORT || 4000;

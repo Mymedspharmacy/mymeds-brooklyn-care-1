@@ -12,7 +12,16 @@ interface AuthRequest extends Request {
 
 const router = Router();
 const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || 'changeme';
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  console.error('❌ JWT_SECRET environment variable is not set!');
+  console.error('Please set a strong JWT_SECRET in your environment variables.');
+  process.exit(1);
+}
+
+// TypeScript assertion - we know JWT_SECRET is defined after the check above
+const JWT_SECRET_ASSERTED = JWT_SECRET as string;
 
 // Email transporter setup
 const emailRecipient = process.env.CONTACT_RECEIVER || process.env.EMAIL_USER;
@@ -56,7 +65,7 @@ function auth(req: AuthRequest, res: Response, next: NextFunction) {
   if (!header) return res.status(401).json({ error: 'No token provided' });
   try {
     const token = header.split(' ')[1];
-    const payload = jwt.verify(token, JWT_SECRET);
+    const payload = jwt.verify(token, JWT_SECRET_ASSERTED);
     if (typeof payload === 'object' && 'userId' in payload) {
       req.user = payload;
       next();

@@ -1,7 +1,9 @@
 import { Router, Request, Response } from 'express';
 import Stripe from 'stripe';
+import { PrismaClient } from '@prisma/client';
 
 const router = Router();
+const prisma = new PrismaClient();
 
 // Initialize Stripe only if API key is provided
 let stripe: Stripe | null = null;
@@ -58,11 +60,16 @@ router.post('/confirm-payment', async (req: Request, res: Response) => {
     if (paymentIntent.status === 'succeeded') {
       // ✅ IMPLEMENTED: Update order status in database
       if (orderId) {
-        // Note: You'll need to import PrismaClient here
-        // await prisma.order.update({
-        //   where: { id: orderId },
-        //   data: { status: 'PAID' }
-        // });
+        try {
+          await prisma.order.update({
+            where: { id: Number(orderId) },
+            data: { status: 'PAID' }
+          });
+          console.log(`✅ Order ${orderId} marked as paid`);
+        } catch (dbError) {
+          console.error('Failed to update order status:', dbError);
+          // Don't fail the payment confirmation if DB update fails
+        }
       }
 
       res.json({

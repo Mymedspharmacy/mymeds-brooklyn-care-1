@@ -122,7 +122,18 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
       }`}>
         <div className="container mx-auto px-4 py-3 sm:py-2 flex items-center justify-between gap-4 relative">
           
-          {/* Left: Mobile Menu Icon */}
+          {/* Left: Logo - Mobile Responsive */}
+          <div className="flex-1 flex justify-start lg:justify-start">
+            <div onClick={() => navigate('/')} className="cursor-pointer group">
+              <img
+                src="/logo.png"
+                alt="My Meds Pharmacy Logo"
+                className="h-8 w-auto sm:h-12 md:h-16 lg:h-20 xl:h-24 2xl:h-28 object-contain transition-all duration-300 ease-in-out group-hover:scale-105 drop-shadow-sm"
+              />
+            </div>
+          </div>
+
+          {/* Right: Mobile Menu Icon */}
           <div className="lg:hidden relative z-[9999]">
             <button
               className="mobile-menu-button flex items-center justify-center p-3 rounded-lg text-brand hover:bg-brand-light/10 focus:outline-none focus:ring-2 focus:ring-brand-light transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-md"
@@ -131,17 +142,6 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
-          </div>
-
-          {/* Center: Logo - Perfectly centered on mobile */}
-          <div className="flex-1 flex justify-center lg:justify-start">
-            <div onClick={() => navigate('/')} className="cursor-pointer group">
-              <img
-                src="/logo.png"
-                alt="My Meds Pharmacy Logo"
-                className="h-auto w-auto sm:h-20 md:h-24 lg:h-28 xl:h-32 2xl:h-36 object-contain transition-all duration-300 ease-in-out group-hover:scale-105 drop-shadow-sm"
-              />
-            </div>
           </div>
 
           {/* Enhanced Navigation - Desktop Only */}
@@ -276,51 +276,59 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
           </div>
         </div>
 
-        {/* Mobile Dropdown Menu */}
-        <div className={`mobile-menu lg:hidden absolute top-full left-0 right-0 bg-white shadow-xl border-b border-gray-200 transform transition-all duration-300 ease-in-out z-50 ${
+        {/* Mobile Dropdown Menu - Enhanced Responsive */}
+        <div className={`mobile-menu lg:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-md shadow-2xl border-b border-gray-200/50 transform transition-all duration-300 ease-in-out z-50 max-h-[80vh] overflow-y-auto ${
           isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
         }`}>
           <div className="container mx-auto px-4 py-6">
-            {/* Navigation Links */}
-            <div className="grid grid-cols-1 gap-2 mb-6">
-              <a href="/" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-3 px-4 rounded-lg hover:bg-brand-light/10 transition-all duration-300 border border-transparent hover:border-brand-light/20">
+            {/* Navigation Links - Enhanced Mobile Styling */}
+            <div className="grid grid-cols-1 gap-3 mb-6">
+              <a href="/" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-4 px-4 rounded-xl hover:bg-gradient-to-r hover:from-brand-light/10 hover:to-brand/10 transition-all duration-300 border border-transparent hover:border-brand-light/20 shadow-sm hover:shadow-md">
+                <span className="w-2 h-2 bg-brand rounded-full mr-3"></span>
                 Home
               </a>
-              <a href="#services" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-3 px-4 rounded-lg hover:bg-brand-light/10 transition-all duration-300 border border-transparent hover:border-brand-light/20">
+              <a href="#services" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-4 px-4 rounded-xl hover:bg-gradient-to-r hover:from-brand-light/10 hover:to-brand/10 transition-all duration-300 border border-transparent hover:border-brand-light/20 shadow-sm hover:shadow-md">
+                <span className="w-2 h-2 bg-brand rounded-full mr-3"></span>
                 Services
               </a>
-              <a href="/shop" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-3 px-4 rounded-lg hover:bg-brand-light/10 transition-all duration-300 border border-transparent hover:border-brand-light/20">
+              <a href="/shop" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-4 px-4 rounded-xl hover:bg-gradient-to-r hover:from-brand-light/10 hover:to-brand/10 transition-all duration-300 border border-transparent hover:border-brand-light/20 shadow-sm hover:shadow-md">
+                <span className="w-2 h-2 bg-brand rounded-full mr-3"></span>
                 Shop
               </a>
-              <a href="/patient-resources" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-3 px-4 rounded-lg hover:bg-brand-light/10 transition-all duration-300 border border-transparent hover:border-brand-light/20">
+              <a href="/patient-resources" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-4 px-4 rounded-xl hover:bg-gradient-to-r hover:from-brand-light/10 hover:to-brand/10 transition-all duration-300 border border-transparent hover:border-brand-light/20 shadow-sm hover:shadow-md">
+                <span className="w-2 h-2 bg-brand rounded-full mr-3"></span>
                 Patient Resources
               </a>
-              <a href="/patient-portal" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-3 px-4 rounded-lg hover:bg-brand-light/10 transition-all duration-300 border border-transparent hover:border-brand-light/20">
+              <a href="/patient-portal" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-4 px-4 rounded-xl hover:bg-gradient-to-r hover:from-brand-light/10 hover:to-brand/10 transition-all duration-300 border border-transparent hover:border-brand-light/20 shadow-sm hover:shadow-md">
+                <span className="w-2 h-2 bg-brand rounded-full mr-3"></span>
                 Patient Portal
               </a>
-              <a href="/blog" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-3 px-4 rounded-lg hover:bg-brand-light/10 transition-all duration-300 border border-transparent hover:border-brand-light/20">
+              <a href="/blog" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-4 px-4 rounded-xl hover:bg-gradient-to-r hover:from-brand-light/10 hover:to-brand/10 transition-all duration-300 border border-transparent hover:border-brand-light/20 shadow-sm hover:shadow-md">
+                <span className="w-2 h-2 bg-brand rounded-full mr-3"></span>
                 Blogs
               </a>
-              <a href="#about" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-3 px-4 rounded-lg hover:bg-brand-light/10 transition-all duration-300 border border-transparent hover:border-brand-light/20">
+              <a href="#about" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-4 px-4 rounded-xl hover:bg-gradient-to-r hover:from-brand-light/10 hover:to-brand/10 transition-all duration-300 border border-transparent hover:border-brand-light/20 shadow-sm hover:shadow-md">
+                <span className="w-2 h-2 bg-brand rounded-full mr-3"></span>
                 About
               </a>
-              <a href="#contact" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-3 px-4 rounded-lg hover:bg-brand-light/10 transition-all duration-300 border border-transparent hover:border-brand-light/20">
+              <a href="#contact" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-4 px-4 rounded-xl hover:bg-gradient-to-r hover:from-brand-light/10 hover:to-brand/10 transition-all duration-300 border border-transparent hover:border-brand-light/20 shadow-sm hover:shadow-md">
+                <span className="w-2 h-2 bg-brand rounded-full mr-3"></span>
                 Contact
               </a>
             </div>
             
-            {/* Mobile CTA Buttons */}
-            <div className="grid grid-cols-1 gap-3">
+            {/* Mobile CTA Buttons - Enhanced */}
+            <div className="grid grid-cols-1 gap-4">
               <Button 
                 onClick={() => {
                   onRefillClick();
                   setIsMenuOpen(false);
                 }}
-                className="bg-gradient-to-r from-brand-light to-brand-accent text-white font-bold px-5 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 border border-brand-light/20 hover:border-brand-accent/30 group text-sm"
+                className="bg-gradient-to-r from-brand-light to-brand-accent text-white font-bold px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-brand-light/20 hover:border-brand-accent/30 group text-base"
               >
-                <Pill className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform" />
+                <Pill className="w-5 h-5 mr-3 group-hover:rotate-12 transition-transform" />
                 Refill Prescription
-                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-0.5 transition-transform" />
               </Button>
               
               <Button 
@@ -328,11 +336,11 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
                   onTransferClick();
                   setIsMenuOpen(false);
                 }}
-                className="bg-gradient-to-r from-brand to-brand-dark text-white font-bold px-5 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 border border-brand/20 hover:border-brand-dark/30 group text-sm"
+                className="bg-gradient-to-r from-brand to-brand-dark text-white font-bold px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-brand/20 hover:border-brand-dark/30 group text-base"
               >
-                <ArrowRight className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform" />
+                <ArrowRight className="w-5 h-5 mr-3 group-hover:rotate-12 transition-transform" />
                 Transfer Prescription
-                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-0.5 transition-transform" />
               </Button>
               
               <Button 
@@ -340,11 +348,11 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
                   window.location.href = '/shop';
                   setIsMenuOpen(false);
                 }}
-                className="bg-gradient-to-r from-brand-accent to-brand text-white font-bold px-5 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 border border-brand-accent/20 hover:border-brand/30 group text-sm"
+                className="bg-gradient-to-r from-brand-accent to-brand text-white font-bold px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-brand-accent/20 hover:border-brand/30 group text-base"
               >
-                <ShoppingCart className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform" />
+                <ShoppingCart className="w-5 h-5 mr-3 group-hover:rotate-12 transition-transform" />
                 Shop Products
-                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-0.5 transition-transform" />
               </Button>
               
               <Button 
@@ -352,11 +360,11 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
                   window.location.href = '/patient-portal';
                   setIsMenuOpen(false);
                 }}
-                className="bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold px-5 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 border border-purple-500/20 hover:border-purple-600/30 group text-sm"
+                className="bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-purple-500/20 hover:border-purple-600/30 group text-base"
               >
-                <User className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform" />
+                <User className="w-5 h-5 mr-3 group-hover:rotate-12 transition-transform" />
                 Patient Portal
-                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-0.5 transition-transform" />
               </Button>
               
               <Button 
@@ -365,9 +373,9 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
                   setIsMenuOpen(false);
                 }}
                 variant="outline"
-                className="bg-white text-brand font-semibold px-5 py-3 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105 border border-brand/30 hover:bg-brand hover:text-white group text-sm"
+                className="bg-white/90 backdrop-blur-sm text-brand font-semibold px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-brand/30 hover:bg-brand hover:text-white group text-base"
               >
-                <Phone className="w-4 h-4 mr-2 group-hover:animate-pulse" />
+                <Phone className="w-5 h-5 mr-3 group-hover:animate-pulse" />
                 Call Now
               </Button>
             </div>

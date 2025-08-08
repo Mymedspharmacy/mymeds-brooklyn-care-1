@@ -13,7 +13,13 @@ interface AuthRequest extends Request {
 
 const router = Router();
 const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || 'changeme';
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  console.error('❌ JWT_SECRET environment variable is not set!');
+  console.error('Please set a strong JWT_SECRET in your environment variables.');
+  process.exit(1);
+}
 
 // Supabase is no longer used - migrated to Railway
 // const supabase = createClient(
@@ -28,7 +34,7 @@ function auth(req: AuthRequest, res: Response, next: NextFunction) {
   if (!header) return res.status(401).json({ error: 'No token' });
   try {
     const token = header.split(' ')[1];
-    const payload = jwt.verify(token, JWT_SECRET);
+    const payload = jwt.verify(token, JWT_SECRET as string);
     if (typeof payload === 'object' && 'userId' in payload) {
       req.user = payload;
       next();

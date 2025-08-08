@@ -63,24 +63,35 @@ router.post('/admin-reset-request', async (req, res) => {
     }
     // Generate reset token (JWT, expires in 30 min)
     const resetToken = jwt.sign({ userId: user.id, email: user.email, role: user.role }, JWT_SECRET_ASSERTED, { expiresIn: '30m' });
-    // Send email (placeholder logic)
+    // Production email sending with proper error handling
     const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/admin-reset?token=${resetToken}`;
-    // TODO: Replace with real email sending
+    
+    if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+      console.error('❌ SMTP configuration missing. Email sending disabled.');
+      return res.status(503).json({ error: 'Email service not configured' });
+    }
+
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.example.com',
+      host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT) || 587,
-      secure: false,
+      secure: process.env.SMTP_SECURE === 'true',
       auth: {
-        user: process.env.SMTP_USER || 'user',
-        pass: process.env.SMTP_PASS || 'pass',
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
       },
     });
-    await transporter.sendMail({
-      from: process.env.SMTP_FROM || 'noreply@mymeds.com',
-      to: user.email,
-      subject: 'Admin Password Reset',
-      html: `<p>You requested a password reset for your admin account.</p><p><a href="${resetUrl}">Click here to reset your password</a></p><p>This link will expire in 30 minutes.</p>`
-    });
+
+    try {
+      await transporter.sendMail({
+        from: process.env.SMTP_FROM || 'noreply@mymeds.com',
+        to: user.email,
+        subject: 'Admin Password Reset',
+        html: `<p>You requested a password reset for your admin account.</p><p><a href="${resetUrl}">Click here to reset your password</a></p><p>This link will expire in 30 minutes.</p>`
+      });
+    } catch (emailError) {
+      console.error('Email sending failed:', emailError);
+      return res.status(500).json({ error: 'Failed to send reset email' });
+    }
     res.json({ success: true });
   } catch (err) {
     console.error('Admin reset request error:', err);

@@ -27,6 +27,7 @@ import { ExportManager } from '../components/export/ExportManager';
 import { InventoryManager } from '../components/inventory/InventoryManager';
 import { CustomerCRM } from '../components/crm/CustomerCRM';
 import { AdvancedScheduling } from '../components/scheduling/AdvancedScheduling';
+import MedicineSearch from '../components/MedicineSearch';
 import { useNotifications } from '@/hooks/useNotifications';
 
 const TABS = [
@@ -121,6 +122,7 @@ export default function Admin() {
   });
 
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [showMedicineSearch, setShowMedicineSearch] = useState(false);
 
   // ✅ ADDED: Use notifications hook with sound control
   const { notifications: realTimeNotifications, isConnected } = useNotifications(soundEnabled);
@@ -1000,20 +1002,48 @@ export default function Admin() {
           </div>
         </div>
       )}
-      {/* Header */}
+      {/* Header - Mobile Responsive */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-lg sm:text-xl font-semibold text-gray-900">MyMeds Pharmacy Admin</h1>
+            {/* Left: Logo and Title */}
+            <div className="flex items-center space-x-3">
+              <div className="flex-shrink-0">
+                <img
+                  src="/logo.png"
+                  alt="MyMeds Pharmacy Logo"
+                  className="h-8 w-auto sm:h-10 md:h-12 object-contain"
+                />
+              </div>
+              <div className="hidden sm:block">
+                <h1 className="text-lg sm:text-xl font-semibold text-gray-900">MyMeds Pharmacy Admin</h1>
+              </div>
+              <div className="sm:hidden">
+                <h1 className="text-base font-semibold text-gray-900">Admin</h1>
+              </div>
             </div>
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              {/* ✅ ADDED: Notification Sound Toggle */}
+
+            {/* Right: Action Buttons - Mobile Responsive */}
+            <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-4">
+              {/* Medicine Search Button - Responsive */}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setShowMedicineSearch(true)}
+                title="Search medicines using OpenFDA"
+                className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 p-2 sm:px-3"
+              >
+                <Pill className="h-4 w-4" />
+                <span className="hidden lg:inline ml-2">Medicine Search</span>
+              </Button>
+              
+              {/* Notification Sound Toggle - Responsive */}
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={() => setSoundEnabled(!soundEnabled)}
                 title={soundEnabled ? "Disable notification sound" : "Enable notification sound"}
+                className="p-2 sm:px-3"
               >
                 {soundEnabled ? (
                   <Volume2 className="h-4 w-4" />
@@ -1022,7 +1052,7 @@ export default function Admin() {
                 )}
               </Button>
               
-              {/* ✅ ADDED: Test Notification Button */}
+              {/* Test Notification Button - Responsive */}
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -1036,14 +1066,16 @@ export default function Admin() {
                   showToastMessage('Test notification sound played!', 'success');
                 }}
                 title="Test notification sound"
+                className="p-2 sm:px-3"
               >
-                🔊
+                <span className="text-sm">🔊</span>
               </Button>
               
+              {/* Notifications Button - Responsive */}
               <div className="relative">
-                <Button variant="outline" size="sm" className="relative">
-                  <Bell className="h-4 w-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Notifications</span>
+                <Button variant="outline" size="sm" className="relative p-2 sm:px-3">
+                  <Bell className="h-4 w-4" />
+                  <span className="hidden lg:inline ml-2">Notifications</span>
                   {stats.unreadNotifications > 0 && (
                     <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-red-500 text-white text-xs">
                       {stats.unreadNotifications}
@@ -1051,9 +1083,16 @@ export default function Admin() {
                   )}
                 </Button>
               </div>
-              <Button variant="outline" size="sm" onClick={() => setShowLogoutConfirm(true)}>
-                <LogOut className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Logout</span>
+
+              {/* Logout Button - Responsive */}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setShowLogoutConfirm(true)}
+                className="p-2 sm:px-3"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="hidden lg:inline ml-2">Logout</span>
               </Button>
             </div>
           </div>
@@ -2953,6 +2992,12 @@ export default function Admin() {
           {showToast.message}
         </div>
       )}
+
+      {/* Medicine Search Component */}
+      <MedicineSearch 
+        isOpen={showMedicineSearch} 
+        onClose={() => setShowMedicineSearch(false)} 
+      />
     </div>
   );
 } 
