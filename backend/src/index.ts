@@ -28,6 +28,7 @@ import refillRequestRoutes from './routes/refillRequests';
 import transferRequestRoutes from './routes/transferRequests';
 import notificationRoutes from './routes/notifications';
 import analyticsRoutes from './routes/analytics';
+import patientRoutes from './routes/patient';
 // @ts-ignore
 import hpp from 'hpp';
 import mongoSanitize from 'express-mongo-sanitize';
@@ -261,6 +262,7 @@ app.use('/api/refill-requests', currentLimiter, refillRequestRoutes);
 app.use('/api/transfer-requests', currentLimiter, transferRequestRoutes);
 app.use('/api/notifications', currentLimiter, notificationRoutes);
 app.use('/api/analytics', currentLimiter, analyticsRoutes);
+app.use('/api/patient', currentLimiter, patientRoutes);
 
 // Notification endpoints
 app.get('/api/notifications', adminAuthMiddleware, async (req: Request, res: Response) => {

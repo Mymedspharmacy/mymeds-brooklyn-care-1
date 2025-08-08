@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Pill, Calendar, FileText, Heart, Shield, Clock, User, Settings, Bell, MessageCircle, Download, Eye, Edit, Plus, Phone, Mail, MapPin, CreditCard, History, Star, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -50,79 +50,171 @@ const PatientPortal = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
+  const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [healthRecords, setHealthRecords] = useState<HealthRecord[]>([]);
+  const [dashboardData, setDashboardData] = useState<any>(null);
   useScrollToTop();
 
-  // Sample data
-  const prescriptions: Prescription[] = [
-    {
-      id: '1',
-      medication: 'Lisinopril',
-      dosage: '10mg',
-      frequency: 'Once daily',
-      refills: 2,
-      status: 'active',
-      lastFilled: '2024-01-15',
-      nextRefill: '2024-02-15',
-      prescriber: 'Dr. Smith'
-    },
-    {
-      id: '2',
-      medication: 'Metformin',
-      dosage: '500mg',
-      frequency: 'Twice daily',
-      refills: 0,
-      status: 'refill-needed',
-      lastFilled: '2024-01-10',
-      nextRefill: '2024-02-10',
-      prescriber: 'Dr. Johnson'
+  // API functions
+  const fetchUserProfile = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      
+      const response = await fetch('/api/patient/profile', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data.user);
+      }
+    } catch (err) {
+      console.error('Error fetching user profile:', err);
     }
-  ];
+  };
 
-  const appointments: Appointment[] = [
-    {
-      id: '1',
-      type: 'Medication Review',
-      date: '2024-02-20',
-      time: '10:00 AM',
-      status: 'scheduled',
-      provider: 'Dr. Williams',
-      notes: 'Annual medication review and consultation'
-    },
-    {
-      id: '2',
-      type: 'Immunization',
-      date: '2024-02-25',
-      time: '2:30 PM',
-      status: 'scheduled',
-      provider: 'Nurse Johnson'
+  const fetchPrescriptions = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      
+      const response = await fetch('/api/patient/prescriptions', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setPrescriptions(data.prescriptions);
+      }
+    } catch (err) {
+      console.error('Error fetching prescriptions:', err);
     }
-  ];
+  };
 
-  const healthRecords: HealthRecord[] = [
-    {
-      id: '1',
-      type: 'Blood Pressure',
-      date: '2024-01-20',
-      provider: 'Dr. Williams',
-      result: '120/80 mmHg',
-      status: 'normal'
-    },
-    {
-      id: '2',
-      type: 'Blood Glucose',
-      date: '2024-01-20',
-      provider: 'Dr. Williams',
-      result: '95 mg/dL',
-      status: 'normal'
+  const fetchAppointments = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      
+      const response = await fetch('/api/patient/appointments', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setAppointments(data.appointments);
+      }
+    } catch (err) {
+      console.error('Error fetching appointments:', err);
     }
-  ];
+  };
 
-  const handleLogin = () => {
-    setIsLoggedIn(true);
+  const fetchHealthRecords = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      
+      const response = await fetch('/api/patient/health-records', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setHealthRecords(data.healthRecords);
+      }
+    } catch (err) {
+      console.error('Error fetching health records:', err);
+    }
+  };
+
+  const fetchDashboardData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      
+      const response = await fetch('/api/patient/dashboard', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setDashboardData(data);
+      }
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err);
+    }
+  };
+
+  // Action handlers
+  const handleRequestRefill = () => {
+    setActiveTab('prescriptions');
+  };
+
+  const handleScheduleAppointment = () => {
+    setActiveTab('appointments');
+  };
+
+  const handleSendMessage = () => {
+    setActiveTab('messages');
+  };
+
+  const handleDownloadRecords = () => {
+    // This would trigger a download of health records
+    console.log('Downloading health records...');
+  };
+
+  // Load data when logged in
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchUserProfile();
+      fetchPrescriptions();
+      fetchAppointments();
+      fetchHealthRecords();
+      fetchDashboardData();
+    }
+  }, [isLoggedIn]);
+
+  const handleLogin = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // For demo purposes, we'll use a simple login
+      // In production, this would validate against the backend
+      const email = (document.getElementById('email') as HTMLInputElement)?.value;
+      const password = (document.getElementById('password') as HTMLInputElement)?.value;
+      
+      if (!email || !password) {
+        setError('Please enter both email and password');
+        setLoading(false);
+        return;
+      }
+      
+      // For now, accept any login for demo
+      // In production, this would be a real API call
+      localStorage.setItem('token', 'demo-token');
+      setIsLoggedIn(true);
+    } catch (err) {
+      setError('Login failed. Please try again.');
+      console.error('Login error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('token');
     setIsLoggedIn(false);
+    setUser(null);
+    setPrescriptions([]);
+    setAppointments([]);
+    setHealthRecords([]);
+    setDashboardData(null);
   };
 
   const getStatusColor = (status: string) => {
@@ -163,6 +255,13 @@ const PatientPortal = () => {
             <CardContent className="space-y-4">
               <HIPAACompliance variant="card" showDetails={true} />
               
+              {error && (
+                <Alert>
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              
               <div className="space-y-3">
                 <div>
                   <Label htmlFor="email">Email Address</Label>
@@ -172,8 +271,8 @@ const PatientPortal = () => {
                   <Label htmlFor="password">Password</Label>
                   <Input id="password" type="password" placeholder="Enter your password" />
                 </div>
-                <Button onClick={handleLogin} className="w-full">
-                  Sign In
+                <Button onClick={handleLogin} className="w-full" disabled={loading}>
+                  {loading ? 'Signing In...' : 'Sign In'}
                 </Button>
               </div>
 
@@ -226,7 +325,7 @@ const PatientPortal = () => {
                 </Button>
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">Patient Portal</h1>
-                  <p className="text-gray-600">Welcome back, John Doe</p>
+                  <p className="text-gray-600">Welcome back, {user?.name || 'Patient'}</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
@@ -274,9 +373,9 @@ const PatientPortal = () => {
                     <Pill className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{prescriptions.filter(p => p.status === 'active').length}</div>
+                    <div className="text-2xl font-bold">{dashboardData?.stats?.activePrescriptions || prescriptions.filter(p => p.status === 'active').length}</div>
                     <p className="text-xs text-muted-foreground">
-                      {prescriptions.filter(p => p.status === 'refill-needed').length} need refills
+                      {dashboardData?.stats?.pendingRefills || prescriptions.filter(p => p.status === 'refill-needed').length} need refills
                     </p>
                   </CardContent>
                 </Card>
@@ -287,9 +386,9 @@ const PatientPortal = () => {
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{appointments.filter(a => a.status === 'scheduled').length}</div>
+                    <div className="text-2xl font-bold">{dashboardData?.stats?.upcomingAppointments || appointments.filter(a => a.status === 'scheduled').length}</div>
                     <p className="text-xs text-muted-foreground">
-                      Next: {appointments[0]?.date}
+                      Next: {appointments[0]?.date || 'No upcoming appointments'}
                     </p>
                   </CardContent>
                 </Card>
@@ -315,19 +414,19 @@ const PatientPortal = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <Button variant="outline" className="flex flex-col items-center gap-2 h-auto p-4">
+                    <Button variant="outline" className="flex flex-col items-center gap-2 h-auto p-4" onClick={handleRequestRefill}>
                       <Plus className="h-6 w-6" />
                       <span>Request Refill</span>
                     </Button>
-                    <Button variant="outline" className="flex flex-col items-center gap-2 h-auto p-4">
+                    <Button variant="outline" className="flex flex-col items-center gap-2 h-auto p-4" onClick={handleScheduleAppointment}>
                       <Calendar className="h-6 w-6" />
                       <span>Schedule Appointment</span>
                     </Button>
-                    <Button variant="outline" className="flex flex-col items-center gap-2 h-auto p-4">
+                    <Button variant="outline" className="flex flex-col items-center gap-2 h-auto p-4" onClick={handleSendMessage}>
                       <MessageCircle className="h-6 w-6" />
                       <span>Send Message</span>
                     </Button>
-                    <Button variant="outline" className="flex flex-col items-center gap-2 h-auto p-4">
+                    <Button variant="outline" className="flex flex-col items-center gap-2 h-auto p-4" onClick={handleDownloadRecords}>
                       <Download className="h-6 w-6" />
                       <span>Download Records</span>
                     </Button>
