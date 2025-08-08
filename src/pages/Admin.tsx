@@ -7,7 +7,8 @@ import {
   Pill, RefreshCw, MessageSquare, MapPin,
   Edit, Trash2, Eye, Download, Filter,
   BarChart3, PieChart, LineChart, Activity,
-  Package
+  Package,
+  Volume2, VolumeX
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,7 @@ import { ExportManager } from '../components/export/ExportManager';
 import { InventoryManager } from '../components/inventory/InventoryManager';
 import { CustomerCRM } from '../components/crm/CustomerCRM';
 import { AdvancedScheduling } from '../components/scheduling/AdvancedScheduling';
+import { useNotifications } from '@/hooks/useNotifications';
 
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', icon: TrendingUp },
@@ -117,6 +119,11 @@ export default function Admin() {
     totalContacts: 0, unreadContacts: 0,
     unreadNotifications: 0
   });
+
+  const [soundEnabled, setSoundEnabled] = useState(true);
+
+  // ✅ ADDED: Use notifications hook with sound control
+  const { notifications: realTimeNotifications, isConnected } = useNotifications(soundEnabled);
 
   useEffect(() => {
     if (!railwayAuth.isAuthenticated()) {
@@ -1001,6 +1008,38 @@ export default function Admin() {
               <h1 className="text-lg sm:text-xl font-semibold text-gray-900">MyMeds Pharmacy Admin</h1>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
+              {/* ✅ ADDED: Notification Sound Toggle */}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setSoundEnabled(!soundEnabled)}
+                title={soundEnabled ? "Disable notification sound" : "Enable notification sound"}
+              >
+                {soundEnabled ? (
+                  <Volume2 className="h-4 w-4" />
+                ) : (
+                  <VolumeX className="h-4 w-4" />
+                )}
+              </Button>
+              
+              {/* ✅ ADDED: Test Notification Button */}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => {
+                  // Test notification sound
+                  const audio = new Audio('/notification.mp3');
+                  audio.volume = 0.5;
+                  audio.play().catch(err => console.log('Test sound failed:', err));
+                  
+                  // Show test toast
+                  showToastMessage('Test notification sound played!', 'success');
+                }}
+                title="Test notification sound"
+              >
+                🔊
+              </Button>
+              
               <div className="relative">
                 <Button variant="outline" size="sm" className="relative">
                   <Bell className="h-4 w-4 sm:mr-2" />

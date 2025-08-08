@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -12,13 +12,20 @@ export interface Notification {
   createdAt: string;
 }
 
-export function useNotifications() {
+export function useNotifications(soundEnabled: boolean = true) {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const { toast } = useToast();
+  
+  // ✅ ADDED: Audio reference for notification sound
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
+    // ✅ ADDED: Initialize audio element for notification sound
+    audioRef.current = new Audio('/notification.mp3');
+    audioRef.current.volume = 0.5; // Set volume to 50%
+    
     const newSocket = io(process.env.REACT_APP_BACKEND_URL || 'http://localhost:3001');
     
     newSocket.on('connect', () => {
@@ -35,6 +42,13 @@ export function useNotifications() {
     newSocket.on('new-notification', (notification: Notification) => {
       setNotifications(prev => [notification, ...prev]);
       
+      // ✅ ADDED: Play notification sound only if enabled
+      if (soundEnabled && audioRef.current) {
+        audioRef.current.play().catch(err => {
+          console.log('Could not play notification sound:', err);
+        });
+      }
+      
       // Show toast notification
       toast({
         title: notification.title,
@@ -49,7 +63,7 @@ export function useNotifications() {
     return () => {
       newSocket.close();
     };
-  }, [toast]);
+  }, [toast, soundEnabled]); // ✅ ADDED: soundEnabled to dependency array
 
   const joinUserRoom = (userId: number) => {
     if (socket) {
