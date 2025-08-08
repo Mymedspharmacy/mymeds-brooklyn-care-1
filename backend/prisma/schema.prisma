@@ -21,6 +21,54 @@ model User {
   reviews       Review[]
   refillRequests RefillRequest[]
   transferRequests TransferRequest[]
+  patientProfile PatientProfile?
+}
+
+model PatientProfile {
+  id                          Int      @id @default(autoincrement())
+  userId                      Int      @unique
+  firstName                   String
+  lastName                    String
+  dateOfBirth                 DateTime
+  phone                       String
+  ssn                         String   // Encrypted SSN
+  address                     String
+  city                        String
+  state                       String
+  zipCode                     String
+  emergencyContactName        String
+  emergencyContactPhone       String
+  emergencyContactRelationship String
+  insuranceProvider           String
+  insuranceGroupNumber        String
+  insuranceMemberId           String
+  primaryCarePhysician        String
+  physicianPhone              String
+  allergies                   String?
+  currentMedications          String?
+  medicalConditions           String?
+  governmentIdType            String
+  governmentIdNumber          String
+  governmentIdFile            String?  // File path
+  proofOfAddressFile          String?  // File path
+  insuranceCardFile           String?  // File path
+  verificationStatus          String   @default("PENDING") // PENDING, VERIFIED, REJECTED
+  identityVerified            Boolean  @default(false)
+  addressVerified             Boolean  @default(false)
+  insuranceVerified           Boolean  @default(false)
+  termsAccepted               Boolean  @default(false)
+  privacyPolicyAccepted       Boolean  @default(false)
+  hipaaConsent                Boolean  @default(false)
+  medicalAuthorization        Boolean  @default(false)
+  financialResponsibility     Boolean  @default(false)
+  securityQuestions           String?  // JSON string
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+  user                        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([verificationStatus])
+  @@index([identityVerified])
+  @@index([createdAt])
 }
 
 model Category {
@@ -191,7 +239,7 @@ model Settings {
 
 model Notification {
   id        Int      @id @default(autoincrement())
-  type      String   // order, prescription, appointment, contact, refill, transfer
+  type      String   // order, prescription, appointment, contact, refill, transfer, patient_verification
   title     String
   message   String
   read      Boolean  @default(false)

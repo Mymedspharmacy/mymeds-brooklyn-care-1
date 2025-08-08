@@ -25,6 +25,7 @@ const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const HIPAANotice = lazy(() => import("./pages/HIPAANotice"));
 const PatientResources = lazy(() => import("./pages/PatientResources"));
 const PatientPortal = lazy(() => import("./pages/PatientPortal"));
+const PatientAccountCreation = lazy(() => import("./pages/PatientAccountCreation"));
 const MedicationInteractionChecker = lazy(() => import("./components/MedicationInteractionChecker"));
 
 // Loading component
@@ -79,6 +80,7 @@ const App = () => (
                 <Route path="/hipaa-notice" element={<HIPAANotice />} />
                 <Route path="/patient-resources" element={<PatientResources />} />
                 <Route path="/patient-portal" element={<PatientPortal />} />
+                <Route path="/patient-account-creation" element={<PatientAccountCreation />} />
                 <Route path="/medication-interaction-checker" element={<MedicationInteractionChecker />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />

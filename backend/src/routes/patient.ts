@@ -2,6 +2,8 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
+import bcrypt from 'bcrypt';
+import multer from 'multer';
 import { unifiedAdminAuth } from './auth';
 
 interface AuthRequest extends Request {
@@ -24,6 +26,31 @@ const emailTransporter = nodemailer.createTransport({
   }
 });
 
+// File upload configuration
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/patient-documents/');
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + '-' + file.originalname);
+  }
+});
+
+const upload = multer({ 
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'application/pdf') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only JPEG, PNG, and PDF files are allowed'));
+    }
+  }
+});
+
 function auth(req: AuthRequest, res: Response, next: NextFunction) {
   const header = req.headers.authorization;
   if (!header) return res.status(401).json({ error: 'No token provided' });
@@ -40,6 +67,236 @@ function auth(req: AuthRequest, res: Response, next: NextFunction) {
     res.status(401).json({ error: 'Invalid token' });
   }
 }
+
+// POST /api/patient/register - Create new patient account with strict verification
+router.post('/register', upload.fields([
+  { name: 'governmentIdFile', maxCount: 1 },
+  { name: 'proofOfAddressFile', maxCount: 1 },
+  { name: 'insuranceCardFile', maxCount: 1 }
+]), async (req: Request, res: Response) => {
+  try {
+    const {
+      firstName, lastName, dateOfBirth, email, phone, ssn,
+      address, city, state, zipCode,
+      emergencyContactName, emergencyContactPhone, emergencyContactRelationship,
+      insuranceProvider, insuranceGroupNumber, insuranceMemberId,
+      primaryCarePhysician, physicianPhone, allergies, currentMedications, medicalConditions,
+      governmentIdType, governmentIdNumber,
+      termsAccepted, privacyPolicyAccepted, hipaaConsent, medicalAuthorization, financialResponsibility,
+      password, securityQuestions
+    } = req.body;
+
+    // Validate required fields
+    if (!firstName || !lastName || !dateOfBirth || !email || !phone || !ssn) {
+      return res.status(400).json({ error: 'All personal information fields are required' });
+    }
+
+    if (!address || !city || !state || !zipCode) {
+      return res.status(400).json({ error: 'All address fields are required' });
+    }
+
+    if (!emergencyContactName || !emergencyContactPhone) {
+      return res.status(400).json({ error: 'Emergency contact information is required' });
+    }
+
+    if (!insuranceProvider || !insuranceGroupNumber || !insuranceMemberId) {
+      return res.status(400).json({ error: 'All insurance information fields are required' });
+    }
+
+    if (!primaryCarePhysician || !physicianPhone) {
+      return res.status(400).json({ error: 'Primary care physician information is required' });
+    }
+
+    if (!governmentIdType || !governmentIdNumber) {
+      return res.status(400).json({ error: 'Government ID information is required' });
+    }
+
+    if (!termsAccepted || !privacyPolicyAccepted || !hipaaConsent || !medicalAuthorization || !financialResponsibility) {
+      return res.status(400).json({ error: 'All legal agreements must be accepted' });
+    }
+
+    if (!password || password.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters long' });
+    }
+
+    // Validate file uploads
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    if (!files.governmentIdFile || !files.proofOfAddressFile) {
+      return res.status(400).json({ error: 'Government ID and proof of address documents are required' });
+    }
+
+    // Check if email already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email }
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ error: 'An account with this email already exists' });
+    }
+
+    // Validate SSN format (basic validation)
+    const ssnRegex = /^\d{3}-?\d{2}-?\d{4}$/;
+    if (!ssnRegex.test(ssn)) {
+      return res.status(400).json({ error: 'Invalid SSN format' });
+    }
+
+    // Validate phone number format
+    const phoneRegex = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+    if (!phoneRegex.test(phone)) {
+      return res.status(400).json({ error: 'Invalid phone number format' });
+    }
+
+    // Validate ZIP code format
+    const zipRegex = /^\d{5}(-\d{4})?$/;
+    if (!zipRegex.test(zipCode)) {
+      return res.status(400).json({ error: 'Invalid ZIP code format' });
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    // Parse security questions
+    const parsedSecurityQuestions = typeof securityQuestions === 'string' 
+      ? JSON.parse(securityQuestions) 
+      : securityQuestions;
+
+    // Create patient account with pending verification status
+    const patient = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        name: `${firstName} ${lastName}`,
+        role: 'CUSTOMER',
+        // Store additional patient information in a separate table or as JSON
+        // For now, we'll create a patient profile record
+      }
+    });
+
+    // Create patient profile with verification status
+    const patientProfile = await prisma.patientProfile.create({
+      data: {
+        userId: patient.id,
+        firstName,
+        lastName,
+        dateOfBirth: new Date(dateOfBirth),
+        phone,
+        ssn: ssn.replace(/-/g, ''), // Store SSN without dashes
+        address,
+        city,
+        state,
+        zipCode,
+        emergencyContactName,
+        emergencyContactPhone,
+        emergencyContactRelationship,
+        insuranceProvider,
+        insuranceGroupNumber,
+        insuranceMemberId,
+        primaryCarePhysician,
+        physicianPhone,
+        allergies: allergies || 'None',
+        currentMedications: currentMedications || 'None',
+        medicalConditions: medicalConditions || 'None',
+        governmentIdType,
+        governmentIdNumber,
+        governmentIdFile: files.governmentIdFile[0].filename,
+        proofOfAddressFile: files.proofOfAddressFile[0].filename,
+        insuranceCardFile: files.insuranceCardFile?.[0]?.filename || null,
+        verificationStatus: 'PENDING',
+        identityVerified: false,
+        addressVerified: false,
+        insuranceVerified: false,
+        termsAccepted: true,
+        privacyPolicyAccepted: true,
+        hipaaConsent: true,
+        medicalAuthorization: true,
+        financialResponsibility: true,
+        securityQuestions: JSON.stringify(parsedSecurityQuestions),
+        createdAt: new Date()
+      }
+    });
+
+    // Create notification for admin verification
+    await prisma.notification.create({
+      data: {
+        type: 'patient_verification',
+        title: 'New Patient Account Requires Verification',
+        message: `Patient ${firstName} ${lastName} (${email}) has submitted account creation request`,
+        data: JSON.stringify({ 
+          patientId: patient.id, 
+          profileId: patientProfile.id,
+          documents: {
+            governmentId: files.governmentIdFile[0].filename,
+            proofOfAddress: files.proofOfAddressFile[0].filename,
+            insuranceCard: files.insuranceCardFile?.[0]?.filename || null
+          }
+        })
+      }
+    });
+
+    // Send verification email to patient
+    try {
+      await emailTransporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: 'Patient Account Creation - Verification Required',
+        html: `
+          <h2>Welcome to My Meds Pharmacy!</h2>
+          <p>Dear ${firstName} ${lastName},</p>
+          <p>Thank you for creating your patient account. Your application has been received and is currently under review.</p>
+          <p><strong>What happens next:</strong></p>
+          <ul>
+            <li>Our verification team will review your submitted documents</li>
+            <li>We will verify your identity and address information</li>
+            <li>We will contact your insurance provider to verify coverage</li>
+            <li>You will receive an email notification once verification is complete</li>
+          </ul>
+          <p><strong>Verification typically takes 24-48 hours.</strong></p>
+          <p>If you have any questions, please contact us at (347) 312-6458.</p>
+          <p>Best regards,<br>My Meds Pharmacy Team</p>
+        `
+      });
+    } catch (emailError) {
+      console.error('Failed to send verification email:', emailError);
+    }
+
+    // Send notification email to admin
+    try {
+      if (emailRecipient) {
+        await emailTransporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: emailRecipient,
+          subject: 'New Patient Account Requires Verification',
+          html: `
+            <h2>New Patient Account Verification Required</h2>
+            <p><strong>Patient:</strong> ${firstName} ${lastName}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Phone:</strong> ${phone}</p>
+            <p><strong>Documents Submitted:</strong></p>
+            <ul>
+              <li>Government ID: ${files.governmentIdFile[0].filename}</li>
+              <li>Proof of Address: ${files.proofOfAddressFile[0].filename}</li>
+              ${files.insuranceCardFile?.[0] ? `<li>Insurance Card: ${files.insuranceCardFile[0].filename}</li>` : ''}
+            </ul>
+            <p>Please review the submitted documents and verify the patient's information.</p>
+          `
+        });
+      }
+    } catch (adminEmailError) {
+      console.error('Failed to send admin notification email:', adminEmailError);
+    }
+
+    res.status(201).json({
+      success: true,
+      message: 'Patient account created successfully. Verification is pending.',
+      patientId: patient.id,
+      verificationStatus: 'PENDING'
+    });
+
+  } catch (err) {
+    console.error('Error creating patient account:', err);
+    res.status(500).json({ error: 'Failed to create patient account' });
+  }
+});
 
 // GET /api/patient/profile - Get patient profile
 router.get('/profile', auth, async (req: AuthRequest, res: Response) => {
