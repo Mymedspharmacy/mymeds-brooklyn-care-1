@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from "react";
-import { Menu, X, Phone, Pill, ArrowRight, Calendar, ShoppingCart } from "lucide-react";
+import { Menu, X, Phone, Pill, ArrowRight, Calendar, ShoppingCart, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface HeaderProps {
@@ -190,6 +190,16 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
                 </li>
                 <li>
                   <a 
+                    href="/patient-portal" 
+                    className="text-brand font-semibold text-sm xl:text-base hover:text-brand-light transition-all duration-300 relative group px-4 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-brand-light/10 hover:to-brand/10 whitespace-nowrap hover:shadow-md hover:scale-105 transform"
+                  >
+                    Patient Portal
+                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-light to-brand transition-all duration-300 group-hover:w-full rounded-full opacity-0 group-hover:opacity-100"></span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-brand-light/20 to-brand/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </a>
+                </li>
+                <li>
+                  <a 
                     href="#about" 
                     className="text-brand font-semibold text-sm xl:text-base hover:text-brand-light transition-all duration-300 relative group px-4 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-brand-light/10 hover:to-brand/10 whitespace-nowrap hover:shadow-md hover:scale-105 transform"
                   >
@@ -241,6 +251,16 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
             >
               <ShoppingCart className="w-3 h-3 xl:w-4 xl:h-4 mr-1.5 group-hover:rotate-12 transition-transform" />
               Shop
+              <ArrowRight className="w-3 h-3 xl:w-4 xl:h-4 ml-1.5 group-hover:translate-x-0.5 transition-transform" />
+            </Button>
+            
+            {/* Patient Portal Button - Enhanced */}
+            <Button 
+              onClick={() => window.location.href = '/patient-portal'}
+              className="bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold px-3 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-purple-500/20 hover:border-purple-600/30 group text-xs xl:text-sm"
+            >
+              <User className="w-3 h-3 xl:w-4 xl:h-4 mr-1.5 group-hover:rotate-12 transition-transform" />
+              Patient Portal
               <ArrowRight className="w-3 h-3 xl:w-4 xl:h-4 ml-1.5 group-hover:translate-x-0.5 transition-transform" />
             </Button>
             
@@ -324,6 +344,18 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
               >
                 <ShoppingCart className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform" />
                 Shop Products
+                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-0.5 transition-transform" />
+              </Button>
+              
+              <Button 
+                onClick={() => {
+                  window.location.href = '/patient-portal';
+                  setIsMenuOpen(false);
+                }}
+                className="bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold px-5 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 border border-purple-500/20 hover:border-purple-600/30 group text-sm"
+              >
+                <User className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform" />
+                Patient Portal
                 <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-0.5 transition-transform" />
               </Button>
               

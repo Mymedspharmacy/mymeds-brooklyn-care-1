@@ -14,7 +14,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'changeme';
 
 // Email transporter setup
 const emailRecipient = process.env.CONTACT_RECEIVER || process.env.EMAIL_USER;
-const emailTransporter = nodemailer.createTransporter({
+const emailTransporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.office365.com',
   port: Number(process.env.SMTP_PORT) || 587,
   secure: false,
