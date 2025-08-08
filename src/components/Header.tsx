@@ -272,6 +272,12 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
               <a href="/shop" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-3 px-4 rounded-lg hover:bg-brand-light/10 transition-all duration-300 border border-transparent hover:border-brand-light/20">
                 Shop
               </a>
+              <a href="/patient-resources" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-3 px-4 rounded-lg hover:bg-brand-light/10 transition-all duration-300 border border-transparent hover:border-brand-light/20">
+                Patient Resources
+              </a>
+              <a href="/patient-portal" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-3 px-4 rounded-lg hover:bg-brand-light/10 transition-all duration-300 border border-transparent hover:border-brand-light/20">
+                Patient Portal
+              </a>
               <a href="/blog" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-3 px-4 rounded-lg hover:bg-brand-light/10 transition-all duration-300 border border-transparent hover:border-brand-light/20">
                 Blogs
               </a>

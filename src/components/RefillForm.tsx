@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { HIPAAFormBanner } from "@/components/HIPAACompliance";
 import api from '../lib/api';
 
 interface RefillFormProps {
@@ -179,8 +180,9 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
             </div>
           </CardHeader>
 
-          <CardContent className="p-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
+                  <CardContent className="p-6">
+          <HIPAAFormBanner />
+          <form onSubmit={handleSubmit} className="space-y-6">
               {/* Step 1: Patient Information */}
               {currentStep === 1 && (
                 <div className="space-y-6">
