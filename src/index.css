@@ -120,3 +120,10 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Solid divider utility for consistent section separation */
+@layer utilities {
+  .divider-y { @apply border-t border-b border-gray-200; }
+  .divider-x { @apply border-l border-r border-gray-200; }
+  .divider { @apply border border-gray-200; }
+}

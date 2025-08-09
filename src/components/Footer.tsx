@@ -139,7 +139,7 @@ export const Footer = () => {
             </div>
 
             {/* Quick Links */}
-            <div className="lg:pl-8">
+            <div className="lg:pl-8 lg:border-l lg:border-white/30">
               <h3 className="text-sm font-bold uppercase tracking-wider mb-6 text-white/90">Quick Links</h3>
               <ul className="space-y-3">
                 {quickLinks.map((item, idx) => (
@@ -188,7 +188,7 @@ export const Footer = () => {
             </div>
 
             {/* Services */}
-            <div className="lg:pl-8">
+            <div className="lg:pl-8 lg:border-l lg:border-white/30">
               <h3 className="text-sm font-bold uppercase tracking-wider mb-6 text-white/90">Our Services</h3>
               <ul className="space-y-3">
                 {servicesLinks.map((s, idx) => (
@@ -208,7 +208,7 @@ export const Footer = () => {
             </div>
 
             {/* Contact Info */}
-            <div className="lg:pl-8">
+            <div className="lg:pl-8 lg:pr-8 lg:border-l lg:border-white/20">
               <h3 className="text-sm font-bold uppercase tracking-wider mb-6 text-white/90">Contact Info</h3>
               <div className="space-y-4">
                 <div className="grid grid-cols-[36px,1fr] gap-3 items-center group">
@@ -280,18 +280,18 @@ J279+5V Brooklyn, NY
                       // intentionally silent; backend may not be wired in all envs
                     }
                   }}
-                  className="flex"
+                  className="flex items-stretch"
                 >
                   <input 
                     name="email"
                     type="email" 
                     placeholder="Enter your email"
-                    className="flex-1 px-4 py-2 rounded-l-lg border-0 focus:ring-2 focus:ring-brand-light focus:outline-none text-gray-900"
+                    className="flex-1 px-4 py-2 rounded-l-lg border border-white/20 focus:ring-2 focus:ring-brand-light focus:outline-none text-gray-900 bg-white"
                     aria-label="Email address for newsletter subscription"
                   />
                   <Button 
                     type="submit"
-                    className="bg-gradient-to-r from-brand-light to-brand hover:shadow-lg text-white px-4 py-2 rounded-r-lg transition-all duration-300 transform hover:scale-105"
+                    className="bg-gradient-to-r from-brand-light to-brand hover:shadow-lg text-white px-4 py-2 rounded-r-lg transition-all duration-300 transform hover:scale-105 border border-white/20"
                     aria-label="Subscribe to newsletter"
                   >
                     Subscribe
@@ -304,7 +304,7 @@ J279+5V Brooklyn, NY
             </div>
 
             {/* Business Hours - Separate Column */}
-            <div className="lg:pl-8 min-w-[320px]">
+            <div className="lg:pl-10 lg:border-l lg:border-white/20 min-w-[320px]">
               <h3 className="text-sm font-bold uppercase tracking-wider mb-6 text-white/90">Business Hours</h3>
               <div className="grid grid-cols-[88px,1fr] gap-x-4 text-white/90 font-semibold text-sm leading-6">
                 <span className="text-gray-300 self-start">Pharmacy</span>

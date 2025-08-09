@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from "react";
-import { Menu, X, Phone, Pill, ArrowRight, Calendar, ShoppingCart, User } from "lucide-react";
+import { Menu, X, Phone, Pill, ArrowRight, ShoppingCart, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface HeaderProps {
@@ -93,26 +93,19 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
 
   return (
     <>
-      {/* Top Bar - Premium Design */}
-      <div className="bg-gradient-to-r from-brand via-brand-accent to-brand-light text-white py-2.5 px-4 shadow-md">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-          <div className="flex justify-center sm:justify-start items-center gap-2.5">
-            <div className="bg-white/20 backdrop-blur-sm rounded-full p-1.5">
-              <Calendar className="h-4 w-4 text-white" />
-            </div>
-            <span className="text-xs sm:text-sm font-medium text-center sm:text-left">
-              Book your consultation today for personalized care
-            </span>
-          </div>
-          <div className="flex justify-center sm:justify-end">
-            <Button
-              onClick={onAppointmentClick}
-              className="bg-white/95 backdrop-blur-sm text-brand hover:bg-white font-semibold px-4 py-1.5 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105 text-xs sm:text-sm border border-white/20"
-            >
-              <Calendar className="w-3 h-3 mr-1.5" />
-              BOOK CONSULTATION
-            </Button>
-          </div>
+      {/* Top Bar - Compact CTA */}
+      <div className="bg-brand text-white py-2 px-4 shadow-md">
+        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2">
+          <p className="text-xs sm:text-sm font-semibold whitespace-nowrap text-center">
+            Protect your health, book your consultation now
+          </p>
+          <Button
+            onClick={onAppointmentClick}
+            variant="outline"
+            className="bg-white text-brand hover:bg-white/90 border border-white/20 px-3 py-1 h-auto text-xs font-bold rounded-full shadow-sm"
+          >
+            BOOK NOW
+          </Button>
         </div>
       </div>
 
@@ -176,16 +169,7 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
                     <div className="absolute inset-0 bg-gradient-to-r from-brand-light/20 to-brand/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </a>
                 </li>
-                <li>
-                  <a 
-                    href="/shop" 
-                    className="text-brand font-semibold text-sm xl:text-base hover:text-brand-light transition-all duration-300 relative group px-4 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-brand-light/10 hover:to-brand/10 whitespace-nowrap hover:shadow-md hover:scale-105 transform"
-                  >
-                    Shop
-                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-light to-brand transition-all duration-300 group-hover:w-full rounded-full opacity-0 group-hover:opacity-100"></span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-brand-light/20 to-brand/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </a>
-                </li>
+                
                 <li>
                   <a 
                     href="/blog" 
@@ -196,16 +180,7 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
                     <div className="absolute inset-0 bg-gradient-to-r from-brand-light/20 to-brand/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </a>
                 </li>
-                <li>
-                  <a 
-                    href="/patient-portal" 
-                    className="text-brand font-semibold text-sm xl:text-base hover:text-brand-light transition-all duration-300 relative group px-4 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-brand-light/10 hover:to-brand/10 whitespace-nowrap hover:shadow-md hover:scale-105 transform"
-                  >
-                    Patient Portal
-                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-light to-brand transition-all duration-300 group-hover:w-full rounded-full opacity-0 group-hover:opacity-100"></span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-brand-light/20 to-brand/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </a>
-                </li>
+                
                 <li>
                   <a 
                     href="#about" 
@@ -299,18 +274,11 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
                 <span className="w-2 h-2 bg-brand rounded-full mr-3"></span>
                 Services
               </a>
-              <a href="/shop" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-4 px-4 rounded-xl hover:bg-gradient-to-r hover:from-brand-light/10 hover:to-brand/10 transition-all duration-300 border border-transparent hover:border-brand-light/20 shadow-sm hover:shadow-md">
-                <span className="w-2 h-2 bg-brand rounded-full mr-3"></span>
-                Shop
-              </a>
               <a href="/patient-resources" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-4 px-4 rounded-xl hover:bg-gradient-to-r hover:from-brand-light/10 hover:to-brand/10 transition-all duration-300 border border-transparent hover:border-brand-light/20 shadow-sm hover:shadow-md">
                 <span className="w-2 h-2 bg-brand rounded-full mr-3"></span>
                 Patient Resources
               </a>
-              <a href="/patient-portal" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-4 px-4 rounded-xl hover:bg-gradient-to-r hover:from-brand-light/10 hover:to-brand/10 transition-all duration-300 border border-transparent hover:border-brand-light/20 shadow-sm hover:shadow-md">
-                <span className="w-2 h-2 bg-brand rounded-full mr-3"></span>
-                Patient Portal
-              </a>
+              
               <a href="/blog" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-4 px-4 rounded-xl hover:bg-gradient-to-r hover:from-brand-light/10 hover:to-brand/10 transition-all duration-300 border border-transparent hover:border-brand-light/20 shadow-sm hover:shadow-md">
                 <span className="w-2 h-2 bg-brand rounded-full mr-3"></span>
                 Blogs
