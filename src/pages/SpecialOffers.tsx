@@ -11,7 +11,7 @@ export default function SpecialOffers() {
 
   const specialOffers = [
     {
-      id: 'free-refills',
+      id: 'prescription-refills',
       icon: Pill,
       title: "Prescription Refills",
       description: "Fast & Easy Refills, Right When You Need Them",
@@ -121,11 +121,9 @@ export default function SpecialOffers() {
       description: "Special offers and services for first-time customers",
       longDescription: "Welcome to our pharmacy family! New customers receive exclusive benefits including free consultation, special pricing, and personalized care from day one.",
       features: [
-        "Free initial consultation",
         "10% off first prescription",
-        "Free health screening",
-        "Personalized care plan",
         "Priority customer service",
+        "Personalized care plan",
         "Family member discounts"
       ],
       benefits: [
@@ -157,7 +155,7 @@ export default function SpecialOffers() {
       features: [
         "Up to 25% off bulk orders",
         "90-day supply options",
-        "Free storage containers",
+        "Storage containers",
         "Automatic refill scheduling",
         "Priority processing",
         "Family package options"
@@ -165,7 +163,7 @@ export default function SpecialOffers() {
       benefits: [
         "Save up to 20% on bulk orders",
         "Convenient 90-day supplies",
-        "Free storage solutions",
+        "Storage solutions",
         "Automatic refill management"
       ],
       terms: [
@@ -297,7 +295,7 @@ export default function SpecialOffers() {
           
           <p className="text-xl sm:text-2xl text-gray-600 max-w-4xl mx-auto font-medium leading-relaxed mb-12">
             Discover our exclusive offers designed to make your healthcare journey more affordable and convenient. 
-            From free refills to senior discounts, we have something for everyone.
+            From prescription refills to senior discounts, we have something for everyone.
           </p>
 
           {/* Stats */}

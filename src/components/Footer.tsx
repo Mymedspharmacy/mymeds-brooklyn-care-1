@@ -1,4 +1,5 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { useState } from 'react';
 import { 
   Phone, 
   Mail, 
@@ -21,9 +22,11 @@ import {
   MessageCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import api from "@/lib/api";
 
 export const Footer = () => {
   const navigate = useNavigate();
+  const [isSubscribed, setIsSubscribed] = useState(false);
   
   const handleCallClick = () => {
     const phoneNumber = '3473126458';
@@ -47,11 +50,36 @@ export const Footer = () => {
 
   const currentYear = new Date().getFullYear();
 
+  // Config-driven data (does not change behavior)
+  const socialLinks = [
+    { icon: Facebook, url: "https://facebook.com/mymedspharmacy", label: "Facebook" },
+    { icon: Twitter, url: "https://twitter.com/mymedspharmacy", label: "Twitter" },
+    { icon: Instagram, url: "https://instagram.com/mymedspharmacy", label: "Instagram" },
+    { icon: Linkedin, url: "https://linkedin.com/company/mymedspharmacy", label: "LinkedIn" }
+  ];
+
+  const quickLinks = [
+    { to: '/', label: 'Home', icon: ArrowRight },
+    { to: '/services', label: 'Services', icon: ArrowRight },
+    { to: '/shop', label: 'Shop', icon: ArrowRight },
+    { to: '/special-offers', label: 'Special Offers', icon: Star },
+    { to: '/blog', label: 'Health Blog', icon: ArrowRight },
+  ];
+
+  const servicesLinks = [
+    { to: '/services?service=prescription-refills', label: 'Prescription Refills', icon: Heart },
+    { to: '/services?service=same-day-delivery', label: 'Same-Day Delivery', icon: Truck },
+    { to: '/services?service=medication-management', label: 'Medication Management', icon: Shield },
+    { to: '/services?service=health-consultations', label: 'Health Consultations', icon: Users },
+    { to: '/services?service=immunizations', label: 'Immunizations', icon: Stethoscope },
+    { to: '/services?service=24-7-support', label: '24/7 Support', icon: MessageCircle },
+  ];
+
   return (
     <footer className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden">
       {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0" style={{
+      <div className="absolute inset-0 opacity-5" aria-hidden="true">
+        <div className="absolute inset-0" aria-hidden="true" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
         }}></div>
       </div>
@@ -59,7 +87,7 @@ export const Footer = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Main Footer Content */}
         <div className="py-16 sm:py-20">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
             
             {/* Company Info */}
             <div className="lg:col-span-1">
@@ -81,42 +109,20 @@ export const Footer = () => {
               
               {/* Social Media */}
               <div className="flex space-x-4 mb-6">
-                <a 
-                  href="#" 
-                  className="w-10 h-10 bg-gradient-to-r from-brand-light to-brand rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 group"
-                  aria-label="Follow us on Facebook"
-                  tabIndex={0}
-                  onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.click()}
-                >
-                  <Facebook className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
-                </a>
-                <a 
-                  href="#" 
-                  className="w-10 h-10 bg-gradient-to-r from-brand-light to-brand rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 group"
-                  aria-label="Follow us on Twitter"
-                  tabIndex={0}
-                  onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.click()}
-                >
-                  <Twitter className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
-                </a>
-                <a 
-                  href="#" 
-                  className="w-10 h-10 bg-gradient-to-r from-brand-light to-brand rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 group"
-                  aria-label="Follow us on Instagram"
-                  tabIndex={0}
-                  onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.click()}
-                >
-                  <Instagram className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
-                </a>
-                <a 
-                  href="#" 
-                  className="w-10 h-10 bg-gradient-to-r from-brand-light to-brand rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 group"
-                  aria-label="Follow us on LinkedIn"
-                  tabIndex={0}
-                  onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.click()}
-                >
-                  <Linkedin className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
-                </a>
+                {socialLinks.map((s, idx) => (
+                  <a
+                    key={idx}
+                    href={s.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 bg-gradient-to-r from-brand-light to-brand rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 group"
+                    aria-label={`Follow us on ${s.label}`}
+                    tabIndex={0}
+                    onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.click()}
+                  >
+                    <s.icon className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
+                  </a>
+                ))}
               </div>
 
               {/* Trust Badges */}
@@ -133,59 +139,21 @@ export const Footer = () => {
             </div>
 
             {/* Quick Links */}
-            <div>
-              <h3 className="text-xl font-bold mb-6 text-white">Quick Links</h3>
+            <div className="lg:pl-8">
+              <h3 className="text-sm font-bold uppercase tracking-wider mb-6 text-white/90">Quick Links</h3>
               <ul className="space-y-3">
-                <li>
-                  <a 
-                    href="/" 
-                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group"
-                    aria-label="Navigate to home page"
-                  >
-                    <ArrowRight className="h-4 w-4 mr-2 group-hover:translate-x-1 transition-transform duration-300" />
-                    Home
-                  </a>
-                </li>
-                <li>
-                  <button 
-                    onClick={() => navigate('/services')}
-                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
-                    aria-label="Navigate to services page"
-                  >
-                    <ArrowRight className="h-4 w-4 mr-2 group-hover:translate-x-1 transition-transform duration-300" />
-                    Services
-                  </button>
-                </li>
-                <li>
-                  <a 
-                    href="/shop" 
-                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group"
-                    aria-label="Navigate to shop page"
-                  >
-                    <ArrowRight className="h-4 w-4 mr-2 group-hover:translate-x-1 transition-transform duration-300" />
-                    Shop
-                  </a>
-                </li>
-                <li>
-                  <button 
-                    onClick={() => navigate('/special-offers')}
-                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
-                    aria-label="View special offers"
-                  >
-                    <Star className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
-                    Special Offers
-                  </button>
-                </li>
-                <li>
-                  <a 
-                    href="/blog" 
-                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group"
-                    aria-label="Navigate to health blog"
-                  >
-                    <ArrowRight className="h-4 w-4 mr-2 group-hover:translate-x-1 transition-transform duration-300" />
-                    Health Blog
-                  </a>
-                </li>
+                {quickLinks.map((item, idx) => (
+                  <li key={idx}>
+                    <Link 
+                      to={item.to}
+                      className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group"
+                      aria-label={`Navigate to ${item.label.toLowerCase()}`}
+                    >
+                      <item.icon className="h-4 w-4 mr-2 group-hover:translate-x-1 transition-transform duration-300" />
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
                 <li>
                   <a 
                     href="#about" 
@@ -207,98 +175,51 @@ export const Footer = () => {
                   </a>
                 </li>
                 <li>
-                  <button 
-                    onClick={() => navigate('/admin')}
-                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
+                  <Link 
+                    to="/admin"
+                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group"
                     aria-label="Access admin panel"
                   >
                     <Settings className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
                     Admin Panel
-                  </button>
+                  </Link>
                 </li>
               </ul>
             </div>
 
             {/* Services */}
-            <div>
-              <h3 className="text-xl font-bold mb-6 text-white">Our Services</h3>
+            <div className="lg:pl-8">
+              <h3 className="text-sm font-bold uppercase tracking-wider mb-6 text-white/90">Our Services</h3>
               <ul className="space-y-3">
-                <li>
-                  <button 
-                    onClick={() => navigate('/services?service=prescription-refills')}
-                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
-                    aria-label="Learn about prescription refill services"
-                  >
-                    <Heart className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
-                    Prescription Refills
-                  </button>
-                </li>
-                <li>
-                  <button 
-                    onClick={() => navigate('/services?service=same-day-delivery')}
-                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
-                    aria-label="Learn about same-day delivery services"
-                  >
-                    <Truck className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
-                    Same-Day Delivery
-                  </button>
-                </li>
-                <li>
-                  <button 
-                    onClick={() => navigate('/services?service=medication-management')}
-                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
-                    aria-label="Learn about medication management services"
-                  >
-                    <Shield className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
-                    Medication Management
-                  </button>
-                </li>
-                <li>
-                  <button 
-                    onClick={() => navigate('/services?service=health-consultations')}
-                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
-                    aria-label="Learn about health consultation services"
-                  >
-                    <Users className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
-                    Health Consultations
-                  </button>
-                </li>
-                <li>
-                  <button 
-                    onClick={() => navigate('/services?service=immunizations')}
-                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
-                    aria-label="Learn about immunization services"
-                  >
-                    <Stethoscope className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
-                    Immunizations
-                  </button>
-                </li>
-                <li>
-                  <button 
-                    onClick={() => navigate('/services?service=24-7-support')}
-                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group cursor-pointer w-full text-left"
-                    aria-label="Learn about 24/7 support services"
-                  >
-                    <MessageCircle className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
-                    24/7 Support
-                  </button>
-                </li>
+                {servicesLinks.map((s, idx) => (
+                  <li key={idx}>
+                    <Link
+                      to={s.to}
+                      className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group"
+                      aria-label={`Learn about ${s.label.toLowerCase()}`}
+                    >
+                      <s.icon className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
+                      {s.label}
+                    </Link>
+                  </li>
+                ))}
               </ul>
+
             </div>
 
             {/* Contact Info */}
-            <div>
-              <h3 className="text-xl font-bold mb-6 text-white">Contact Info</h3>
+            <div className="lg:pl-8">
+              <h3 className="text-sm font-bold uppercase tracking-wider mb-6 text-white/90">Contact Info</h3>
               <div className="space-y-4">
-                <div className="flex items-start group">
-                  <div className="w-10 h-10 bg-gradient-to-r from-brand-light to-brand rounded-full flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300">
+                <div className="grid grid-cols-[36px,1fr] gap-3 items-center group">
+                  <div className="w-9 h-9 shrink-0 bg-gradient-to-r from-brand-light to-brand rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     <Phone className="h-5 w-5" />
                   </div>
-                  <div>
+                  <div className="leading-6 space-y-0.5">
                     <p className="text-gray-300 text-sm">Phone</p>
                     <button 
                       onClick={handleCallClick}
-                      className="text-white font-semibold hover:text-brand-light transition-colors duration-300"
+                      className="text-white font-semibold hover:text-brand-light transition-colors duration-300 whitespace-nowrap"
                       aria-label="Call us at (347) 312-6458"
                     >
                       (347) 312-6458
@@ -306,68 +227,96 @@ export const Footer = () => {
                   </div>
                 </div>
 
-                <div className="flex items-start group">
-                  <div className="w-10 h-10 bg-gradient-to-r from-brand-light to-brand rounded-full flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300">
+                <div className="grid grid-cols-[36px,1fr] gap-3 items-center group">
+                  <div className="w-9 h-9 shrink-0 bg-gradient-to-r from-brand-light to-brand rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     <Mail className="h-5 w-5" />
                   </div>
-                  <div>
+                  <div className="leading-6 space-y-0.5">
                     <p className="text-gray-300 text-sm">Email</p>
                     <button 
                       onClick={handleEmailClick}
-                      className="text-white font-semibold hover:text-brand-light transition-colors duration-300"
-                      aria-label="Send email to info@mymedspharmacy.com"
+                      className="text-white font-semibold hover:text-brand-light transition-colors duration-300 whitespace-nowrap"
+                      aria-label="Send email to mymedspharmacy@outlook.com"
                     >
                       info@mymedspharmacy.com
                     </button>
                   </div>
                 </div>
 
-                <div className="flex items-start group">
-                  <div className="w-10 h-10 bg-gradient-to-r from-brand-light to-brand rounded-full flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300">
+                <div className="grid grid-cols-[36px,1fr] gap-3 items-center group">
+                  <div className="w-9 h-9 shrink-0 bg-gradient-to-r from-brand-light to-brand rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     <MapPin className="h-5 w-5" />
                   </div>
-                  <div>
+                  <div className="leading-6 space-y-0.5">
                     <p className="text-gray-300 text-sm">Location</p>
                     <button 
                       onClick={handleMapClick}
                       className="text-white font-semibold hover:text-brand-light transition-colors duration-300 flex items-center group"
                       aria-label="Open location in maps"
                     >
-                      J279+5V Brooklyn, NY
+J279+5V Brooklyn, NY
                       <ExternalLink className="h-3 w-3 ml-1 group-hover:translate-x-0.5 transition-transform duration-300" />
                     </button>
                   </div>
                 </div>
 
-                <div className="flex items-start group">
-                  <div className="w-10 h-10 bg-gradient-to-r from-brand-light to-brand rounded-full flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300">
-                    <Clock className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-gray-300 text-sm">Hours</p>
-                    <p className="text-white font-semibold">Mon-Fri: 8AM-8PM</p>
-                    <p className="text-white font-semibold">Sat-Sun: 9AM-6PM</p>
-                  </div>
-                </div>
+                {/* Hours moved under Services column */}
               </div>
 
               {/* Newsletter Signup */}
               <div className="mt-8">
-                <h4 className="text-lg font-semibold mb-3 text-white">Stay Updated</h4>
-                <div className="flex">
+                <h4 className="text-xs font-semibold uppercase tracking-wider mb-3 text-white/90">Stay Updated</h4>
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.currentTarget as HTMLFormElement);
+                    const email = String(formData.get('email') || '').trim();
+                    if (!email || !email.includes('@')) return;
+                    try {
+                      await api.post('/newsletter/subscribe', { email });
+                      (e.currentTarget as HTMLFormElement).reset();
+                      setIsSubscribed(true);
+                    } catch (_) {
+                      // intentionally silent; backend may not be wired in all envs
+                    }
+                  }}
+                  className="flex"
+                >
                   <input 
+                    name="email"
                     type="email" 
                     placeholder="Enter your email"
                     className="flex-1 px-4 py-2 rounded-l-lg border-0 focus:ring-2 focus:ring-brand-light focus:outline-none text-gray-900"
                     aria-label="Email address for newsletter subscription"
                   />
                   <Button 
+                    type="submit"
                     className="bg-gradient-to-r from-brand-light to-brand hover:shadow-lg text-white px-4 py-2 rounded-r-lg transition-all duration-300 transform hover:scale-105"
                     aria-label="Subscribe to newsletter"
                   >
                     Subscribe
                   </Button>
-                </div>
+                </form>
+                <p role="status" aria-live="polite" className={`mt-2 text-sm ${isSubscribed ? 'text-green-300' : 'text-transparent'}`}>
+                  You’re subscribed! We’ll be in touch.
+                </p>
+              </div>
+            </div>
+
+            {/* Business Hours - Separate Column */}
+            <div className="lg:pl-8 min-w-[320px]">
+              <h3 className="text-sm font-bold uppercase tracking-wider mb-6 text-white/90">Business Hours</h3>
+              <div className="grid grid-cols-[88px,1fr] gap-x-4 text-white/90 font-semibold text-sm leading-6">
+                <span className="text-gray-300 self-start">Pharmacy</span>
+                <span className="md:whitespace-nowrap">Mon-Fri 10:00 AM - 6:00 PM</span>
+                <span className="text-gray-300"></span>
+                <span className="md:whitespace-nowrap">Saturday 10:00 AM - 4:00 PM</span>
+                <span className="text-gray-300 pt-2 self-start">Store</span>
+                <span className="pt-2 md:whitespace-nowrap">Mon-Fri 9:00 AM - 7:00 PM</span>
+                <span className="text-gray-300"></span>
+                <span className="md:whitespace-nowrap">Saturday 10:00 AM - 4:00 PM</span>
+                <span className="text-gray-300"></span>
+                <span className="md:whitespace-nowrap">Sunday Closed</span>
               </div>
             </div>
           </div>
@@ -380,27 +329,27 @@ export const Footer = () => {
               © {currentYear} My Meds Pharmacy. All rights reserved.
             </div>
             <div className="flex items-center gap-6 text-sm">
-              <button 
-                onClick={() => navigate('/privacy-policy')}
-                className="text-gray-400 hover:text-brand-light transition-colors duration-300 cursor-pointer"
+              <Link 
+                to="/privacy-policy"
+                className="text-gray-400 hover:text-brand-light transition-colors duration-300"
                 aria-label="Read our privacy policy"
               >
                 Privacy Policy
-              </button>
-              <button 
-                onClick={() => navigate('/terms-of-service')}
-                className="text-gray-400 hover:text-brand-light transition-colors duration-300 cursor-pointer"
+              </Link>
+              <Link 
+                to="/terms-of-service"
+                className="text-gray-400 hover:text-brand-light transition-colors duration-300"
                 aria-label="Read our terms of service"
               >
                 Terms of Service
-              </button>
-              <button 
-                onClick={() => navigate('/hipaa-notice')}
-                className="text-gray-400 hover:text-brand-light transition-colors duration-300 cursor-pointer"
+              </Link>
+              <Link 
+                to="/hipaa-notice"
+                className="text-gray-400 hover:text-brand-light transition-colors duration-300"
                 aria-label="Read our HIPAA notice"
               >
                 HIPAA Notice
-              </button>
+              </Link>
             </div>
           </div>
         </div>

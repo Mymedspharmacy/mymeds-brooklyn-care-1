@@ -133,8 +133,16 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
             </div>
           </div>
 
-          {/* Right: Mobile Menu Icon */}
-          <div className="lg:hidden relative z-[9999]">
+          {/* Right: Mobile Actions (Clickable phone number + Menu) */}
+          <div className="lg:hidden relative z-[9999] flex items-center gap-3">
+            <a
+              href="tel:3473126458"
+              className="flex items-center gap-2 text-brand font-bold whitespace-nowrap"
+              aria-label="Call (347) 312-6458"
+            >
+              <Phone className="h-5 w-5" />
+              <span className="text-sm">(347) 312-6458</span>
+            </a>
             <button
               className="mobile-menu-button flex items-center justify-center p-3 rounded-lg text-brand hover:bg-brand-light/10 focus:outline-none focus:ring-2 focus:ring-brand-light transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-md"
               onClick={() => setIsMenuOpen(v => !v)}

@@ -197,7 +197,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
       {/* Content */}
       <div className="relative z-10 container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
+          <div className="grid grid-cols-1 gap-8 sm:gap-12 lg:gap-16 items-center">
             
             {/* Left Column - Main Content */}
             <div className="text-center lg:text-left space-y-6 sm:space-y-8">
@@ -263,9 +263,9 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
                 </div>
               </div>
 
-              {/* Special Offers Banner */}
+              {/* Special Offers Banner - removed across all devices */}
               <div 
-                className="bg-white/15 backdrop-blur-md rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/30 mt-6 sm:mt-8 cursor-pointer hover:bg-white/20 transition-all duration-300 transform hover:scale-105"
+                className="hidden"
                 onClick={() => navigate('/special-offers')}
               >
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -276,7 +276,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
                     <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 text-sm">
                       <div className="flex items-center gap-2 text-white/90">
                         <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                        <span>Free Prescription Refills</span>
+                        <span>Prescription Refill</span>
                       </div>
                       <div className="flex items-center gap-2 text-white/90">
                         <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
@@ -298,8 +298,8 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
               </div>
             </div>
 
-            {/* Right Column - Feature Cards */}
-            <div className="space-y-4 sm:space-y-6">
+            {/* Right Column - Feature Cards (removed across all devices) */}
+            <div className="hidden">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 {/* Free Delivery Card */}
                 <div className="bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20 hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
@@ -354,8 +354,8 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
                 </div>
               </div>
 
-              {/* Phone Number Display */}
-              <div className="bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20 text-center hover:bg-white/15 transition-all duration-300 transform hover:scale-105 cursor-pointer group" onClick={handleCallClick}>
+              {/* Phone Number Display - hidden on mobile (moved to header) */}
+              <div className="hidden sm:block bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20 text-center hover:bg-white/15 transition-all duration-300 transform hover:scale-105 cursor-pointer group" onClick={handleCallClick}>
                 <p className="text-white/80 text-xs sm:text-sm mb-2">Need immediate assistance?</p>
                 <div className="flex items-center justify-center gap-2 mb-1">
                                      <Phone className="h-4 w-4 sm:h-5 sm:w-5 text-brand-light group-hover:scale-110 transition-transform duration-300" />
@@ -368,8 +368,8 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
         </div>
       </div>
 
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-16 sm:bottom-20 left-1/2 transform -translate-x-1/2 z-10">
+      {/* Scroll Indicator - removed across all devices */}
+      <div className="hidden">
         <div className="flex flex-col items-center text-white/60 animate-bounce">
           <span className="text-xs sm:text-sm mb-2">Scroll to explore</span>
           <div className="w-5 h-8 sm:w-6 sm:h-10 border-2 border-white/30 rounded-full flex justify-center">

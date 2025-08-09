@@ -343,32 +343,8 @@ Phone: (347) 312-6458`;
                 </CardContent>
               </Card>
 
-              {/* Hours Card */}
-              <Card className="hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 border-0 bg-white/80 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-brand to-brand-dark rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Clock className="h-6 w-6 text-white" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h4 className="font-semibold text-gray-900 text-lg mb-2">Business Hours</h4>
-                      <div className="text-gray-600 space-y-2">
-                        <div>
-                          <p className="font-medium">Pharmacy:</p>
-                          <p>Mon-Fri: 10:00 AM - 6:00 PM</p>
-                          <p>Saturday: 10:00 AM - 4:00 PM</p>
-                        </div>
-                        <div>
-                          <p className="font-medium">Store:</p>
-                          <p>Mon-Fri: 9:00 AM - 7:00 PM</p>
-                          <p>Saturday: 10:00 AM - 4:00 PM</p>
-                          <p>Sunday: Closed</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+               {/* Hours Card moved to footer */}
+               <div className="hidden"></div>
             </div>
           </div>
 

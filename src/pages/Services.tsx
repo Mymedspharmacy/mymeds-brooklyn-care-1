@@ -20,7 +20,7 @@ export default function Services() {
     {
       id: 'prescription-refills',
       icon: Pill,
-      title: "Prescription Refills",
+      title: "Prescription Refill",
       description: "Quick and convenient prescription refills with automatic reminders and notifications",
       longDescription: "Our prescription refill service is designed to make managing your medications as simple and stress-free as possible. We offer same-day refills for most medications, automatic refill reminders, and multiple pickup options to fit your busy lifestyle.",
       features: [
@@ -46,7 +46,7 @@ export default function Services() {
       accent: "from-brand-light to-brand",
       bgGradient: "from-brand-light/10 to-brand/10",
       image: "/images/services/prescription-refill.jpg",
-      price: "Free",
+      price: "$$",
       duration: "Same day",
       availability: "24/7",
       satisfactionRate: 98,

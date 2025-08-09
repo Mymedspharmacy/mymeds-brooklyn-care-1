@@ -218,15 +218,15 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
                     <Pill className="h-8 w-8 text-white" />
                   </div>
                   <div className="bg-brand-light text-white px-3 py-1 rounded-full text-sm font-bold">
-                    FREE
+                    REFILL
                   </div>
                 </div>
                 
                 <h4 className="text-2xl font-bold text-gray-900 mb-3">
-                  Free Prescription Refills
+                  Prescription Refill
                 </h4>
                 <p className="text-gray-600 mb-6 leading-relaxed">
-                  Enjoy complimentary refills on all your prescriptions. No hidden fees, no surprises - just quality care at no extra cost.
+                  Quick and convenient prescription refill service with transparent pricing and trusted care.
                 </p>
                 
                 <div className="space-y-2 mb-6">
@@ -234,10 +234,7 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
                     <CheckCircle className="h-4 w-4 text-brand-light mr-2 flex-shrink-0" />
                     <span>All prescription medications included</span>
                   </div>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <CheckCircle className="h-4 w-4 text-brand-light mr-2 flex-shrink-0" />
-                    <span>No refill fees or service charges</span>
-                  </div>
+                  
                   <div className="flex items-center text-sm text-gray-600">
                     <CheckCircle className="h-4 w-4 text-brand-light mr-2 flex-shrink-0" />
                     <span>Automatic refill reminders</span>
