@@ -409,7 +409,7 @@ export default function MedicineSearch({ isOpen, onClose }: MedicineSearchProps)
                 </Tabs>
               </ScrollArea>
             )}
-          </Dialog>
+          </DialogContent>
         </Dialog>
       </DialogContent>
     </Dialog>
