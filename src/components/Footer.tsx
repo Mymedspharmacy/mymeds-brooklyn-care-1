@@ -77,6 +77,7 @@ export const Footer = () => {
   ];
 
   return (
+    
     <footer className="bg-white text-gray-800 relative overflow-hidden border-t border-gray-200">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-3" aria-hidden="true">

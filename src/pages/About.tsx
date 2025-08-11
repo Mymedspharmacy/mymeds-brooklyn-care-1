@@ -1,23 +1,38 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useScrollToTop } from '@/hooks/useScrollToTop';
-import { ArrowLeft, Award, Heart, Clock, Star, ArrowRight, CheckCircle, Shield, Truck, MessageCircle, MapPin, Phone, Mail, Calendar, TrendingUp, Building2, GraduationCap, Globe, Target, Zap, BookOpen, Activity, Shield as ShieldIcon } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { RefillForm } from "@/components/RefillForm";
+import { AppointmentForm } from "@/components/AppointmentForm";
+import { TransferForm } from "@/components/TransferForm";
 import { Map } from "@/components/Map";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Phone, Mail, MapPin, Shield, Users, Stethoscope, Heart, Award, Clock, Star, CheckCircle, ArrowRight, Globe, Building2, Zap, Target } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useFormHandlers } from "@/hooks/useFormHandlers";
+import logo from "@/assets/logo.png";
 
 export default function About() {
   const navigate = useNavigate();
+  const {
+    showRefillForm,
+    showAppointmentForm,
+    showTransferForm,
+    onRefillClick,
+    onAppointmentClick,
+    onTransferClick,
+    closeRefillForm,
+    closeAppointmentForm,
+    closeTransferForm
+  } = useFormHandlers();
   const [animatedStats, setAnimatedStats] = useState({ experience: 0, patients: 0, satisfaction: 0, community: 0 });
   const [showValues, setShowValues] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
 
   // Scroll to top when component mounts
-  useScrollToTop([]);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // Animate stats on component mount
   useEffect(() => {
@@ -154,9 +169,9 @@ export default function About() {
   return (
     <div className="min-h-screen bg-[#D5C6BC]">
       <Header 
-        onRefillClick={() => navigate('/')}
-        onAppointmentClick={() => navigate('/')}
-        onTransferClick={() => navigate('/')}
+        onRefillClick={onRefillClick}
+        onAppointmentClick={onAppointmentClick}
+        onTransferClick={onTransferClick}
       />
       
       <div className="pt-20">
@@ -293,6 +308,11 @@ export default function About() {
       </div>
 
       <Footer />
+      
+      {/* Forms */}
+      <RefillForm isOpen={showRefillForm} onClose={closeRefillForm} />
+      <AppointmentForm isOpen={showAppointmentForm} onClose={closeAppointmentForm} />
+      <TransferForm isOpen={showTransferForm} onClose={closeTransferForm} />
     </div>
   );
 }

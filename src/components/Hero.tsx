@@ -377,6 +377,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
           </div>
         </div>
       </div>
+      <div className="h-1 bg-[#57bbb6] shadow-[0_0_20px_rgba(55,111,107,0.6)]"></div>
     </section>
   );
 };

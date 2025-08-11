@@ -240,7 +240,7 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
         </div>
 
         {/* Glowing Teal Border */}
-        <div className="h-1 bg-[#376F6B] shadow-[0_0_20px_rgba(55,111,107,0.6)]"></div>
+        <div className="h-1 bg-[#57bbb6] shadow-[0_0_20px_rgba(55,111,107,0.6)]"></div>
 
         {/* Mobile Dropdown Menu */}
         <div className={`mobile-menu lg:hidden absolute top-full left-0 right-0 bg-white shadow-lg transform transition-all duration-300 ease-in-out z-50 ${

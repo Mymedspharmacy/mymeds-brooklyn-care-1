@@ -7,6 +7,10 @@ import { Search, Calendar, User, Clock, ArrowRight, Tag, Eye, Heart, Share2, Boo
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { wordPressAPI } from "@/lib/wordpress";
+import { useFormHandlers } from "@/hooks/useFormHandlers";
+import { RefillForm } from "@/components/RefillForm";
+import { AppointmentForm } from "@/components/AppointmentForm";
+import { TransferForm } from "@/components/TransferForm";
 
 interface WordPressPost {
   id: number;
@@ -83,6 +87,18 @@ const fallbackCategories: WordPressCategory[] = [
 ];
 
 export default function Blog() {
+  const {
+    showRefillForm,
+    showAppointmentForm,
+    showTransferForm,
+    onRefillClick,
+    onAppointmentClick,
+    onTransferClick,
+    closeRefillForm,
+    closeAppointmentForm,
+    closeTransferForm
+  } = useFormHandlers();
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [posts, setPosts] = useState<WordPressPost[]>([]);
@@ -167,9 +183,9 @@ export default function Blog() {
     return (
       <div className="min-h-screen bg-[#D5C6BC]">
         <Header 
-          onRefillClick={() => window.location.href = '/'}
-          onAppointmentClick={() => window.location.href = '/'}
-          onTransferClick={() => window.location.href = '/'}
+          onRefillClick={onRefillClick}
+          onAppointmentClick={onAppointmentClick}
+          onTransferClick={onTransferClick}
         />
         <div className="pt-20 flex items-center justify-center min-h-screen">
           <div className="text-center">
@@ -184,9 +200,9 @@ export default function Blog() {
   return (
     <div className="min-h-screen bg-[#D5C6BC]">
       <Header 
-        onRefillClick={() => window.location.href = '/'}
-        onAppointmentClick={() => window.location.href = '/'}
-        onTransferClick={() => window.location.href = '/'}
+        onRefillClick={onRefillClick}
+        onAppointmentClick={onAppointmentClick}
+        onTransferClick={onTransferClick}
       />
       
       <div className="pt-20">
@@ -488,6 +504,11 @@ export default function Blog() {
       </div>
 
       <Footer />
+      
+      {/* Forms */}
+      <RefillForm isOpen={showRefillForm} onClose={closeRefillForm} />
+      <AppointmentForm isOpen={showAppointmentForm} onClose={closeAppointmentForm} />
+      <TransferForm isOpen={showTransferForm} onClose={closeTransferForm} />
     </div>
   );
 } 
