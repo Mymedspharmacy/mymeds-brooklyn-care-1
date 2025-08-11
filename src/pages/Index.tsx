@@ -2,7 +2,6 @@ import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
 import { Services } from "@/components/Services";
 import { Testimonials } from "@/components/Testimonials";
-import { FeaturedProducts } from "@/components/FeaturedProducts";
 import { Map } from "@/components/Map";
 import { Footer } from "@/components/Footer";
 import { RefillForm } from "@/components/RefillForm";
@@ -52,7 +51,6 @@ const Index = () => {
         onTransferClick={() => setShowTransferForm(true)}
         onAppointmentClick={() => setShowAppointmentForm(true)} 
       />
-      <FeaturedProducts />
       <OTCSection />
       <Testimonials />
       

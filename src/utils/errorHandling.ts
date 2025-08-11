@@ -1,3 +1,5 @@
+import { isProd } from '@/lib/env';
+
 // Global error handling utilities
 
 // Handle unhandled promise rejections
@@ -10,31 +12,30 @@ export function setupGlobalErrorHandling() {
     event.preventDefault();
     
     // Log to external service in production
-    if (process.env.NODE_ENV === 'production') {
+    if (isProd) {
       // You can send this to your error reporting service
       console.error('Unhandled Promise Rejection:', {
         reason: event.reason,
+        promise: event.promise,
         stack: event.reason?.stack,
-        url: window.location.href,
-        userAgent: navigator.userAgent
+        timestamp: new Date().toISOString()
       });
     }
   });
 
   // Handle unhandled errors
   window.addEventListener('error', (event) => {
-    console.error('Unhandled error:', event.error);
+    console.error('Unhandled Error:', event.error);
     
     // Log to external service in production
-    if (process.env.NODE_ENV === 'production') {
+    if (isProd) {
       console.error('Unhandled Error:', {
         message: event.message,
         filename: event.filename,
         lineno: event.lineno,
         colno: event.colno,
         error: event.error,
-        url: window.location.href,
-        userAgent: navigator.userAgent
+        timestamp: new Date().toISOString()
       });
     }
   });

@@ -1,4 +1,5 @@
 import { useEffect, useCallback, useRef } from 'react';
+import { isDev } from '@/lib/env';
 
 // Performance monitoring hook
 export const usePerformance = (componentName: string) => {
@@ -12,7 +13,7 @@ export const usePerformance = (componentName: string) => {
     return () => {
       if (startTime.current) {
         const renderTime = performance.now() - startTime.current;
-        if (process.env.NODE_ENV === 'development') {
+        if (isDev) {
           console.log(`${componentName} render #${renderCount.current} took ${renderTime.toFixed(2)}ms`);
         }
       }
@@ -22,7 +23,7 @@ export const usePerformance = (componentName: string) => {
   return {
     renderCount: renderCount.current,
     logPerformance: useCallback((action: string, data?: any) => {
-      if (process.env.NODE_ENV === 'development') {
+      if (isDev) {
         console.log(`[${componentName}] ${action}`, data);
       }
     }, [componentName])
@@ -98,7 +99,7 @@ export const useIntersectionObserver = (
 // Memory usage monitoring (development only)
 export const useMemoryMonitor = (componentName: string) => {
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development' && 'memory' in performance) {
+    if (isDev && 'memory' in performance) {
       const memory = (performance as any).memory;
       console.log(`[${componentName}] Memory usage:`, {
         used: `${Math.round(memory.usedJSHeapSize / 1048576)} MB`,
@@ -107,4 +108,4 @@ export const useMemoryMonitor = (componentName: string) => {
       });
     }
   });
-}; 
+};

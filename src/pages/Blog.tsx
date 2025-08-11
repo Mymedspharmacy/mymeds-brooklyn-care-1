@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Search, Calendar, User, Clock, ArrowRight, Tag, Eye, Heart, Share2, BookOpen, TrendingUp, Shield, Leaf, Brain, Heart as HeartIcon, Loader2 } from "lucide-react";
+import { Search, Calendar, User, Clock, ArrowRight, Tag, Eye, Heart, Share2, BookOpen, TrendingUp, Shield, Leaf, Brain, Heart as HeartIcon, Loader2, AlertCircle } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { wordPressAPI } from "@/lib/wordpress";
@@ -31,12 +31,64 @@ interface WordPressCategory {
   description: string;
 }
 
+// Fallback sample posts when WordPress is not available
+const fallbackPosts: WordPressPost[] = [
+  {
+    id: 1,
+    title: { rendered: "Understanding Your Prescription Medications" },
+    content: { rendered: "Learn about the importance of understanding your prescription medications, including dosage, side effects, and interactions..." },
+    excerpt: { rendered: "Essential guide to understanding your prescription medications for better health outcomes." },
+    author: 1,
+    date: new Date().toISOString(),
+    modified: new Date().toISOString(),
+    categories: [1],
+    tags: [],
+    _embedded: {
+      author: [{ name: "Pharmacy Team" }]
+    }
+  },
+  {
+    id: 2,
+    title: { rendered: "Seasonal Health Tips for Spring" },
+    content: { rendered: "Spring brings new health challenges and opportunities. Discover how to stay healthy during allergy season..." },
+    excerpt: { rendered: "Stay healthy this spring with our expert tips for managing seasonal allergies and wellness." },
+    author: 1,
+    date: new Date().toISOString(),
+    modified: new Date().toISOString(),
+    categories: [2],
+    tags: [],
+    _embedded: {
+      author: [{ name: "Pharmacy Team" }]
+    }
+  },
+  {
+    id: 3,
+    title: { rendered: "The Importance of Medication Adherence" },
+    content: { rendered: "Taking your medications as prescribed is crucial for treatment success. Learn strategies to improve adherence..." },
+    excerpt: { rendered: "Why following your medication schedule is essential for your health and recovery." },
+    author: 1,
+    date: new Date().toISOString(),
+    modified: new Date().toISOString(),
+    categories: [1],
+    tags: [],
+    _embedded: {
+      author: [{ name: "Pharmacy Team" }]
+    }
+  }
+];
+
+const fallbackCategories: WordPressCategory[] = [
+  { id: 1, name: "Medication Safety", count: 2, description: "Tips for safe medication use" },
+  { id: 2, name: "Seasonal Health", count: 1, description: "Health advice for different seasons" }
+];
+
 export default function Blog() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [posts, setPosts] = useState<WordPressPost[]>([]);
   const [categories, setCategories] = useState<WordPressCategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [featuredPosts, setFeaturedPosts] = useState<WordPressPost[]>([]);
   const [recentPosts, setRecentPosts] = useState<WordPressPost[]>([]);
 
@@ -45,6 +97,18 @@ export default function Blog() {
     const fetchPosts = async () => {
       try {
         setLoading(true);
+        setError(null);
+        
+        // Check if WordPress API is configured
+        if (!import.meta.env.VITE_WORDPRESS_URL) {
+          console.warn('WordPress API not configured, using fallback content');
+          setPosts(fallbackPosts);
+          setCategories(fallbackCategories);
+          setFeaturedPosts(fallbackPosts.slice(0, 2));
+          setRecentPosts(fallbackPosts);
+          return;
+        }
+
         const [postsData, categoriesData, featuredData] = await Promise.all([
           wordPressAPI.getPosts({ per_page: 100 }),
           wordPressAPI.getCategories(),
@@ -57,10 +121,12 @@ export default function Blog() {
         setRecentPosts(postsData.slice(0, 6));
       } catch (error) {
         console.error('Error fetching posts:', error);
-        setPosts([]);
-        setCategories([]);
-        setFeaturedPosts([]);
-        setRecentPosts([]);
+        setError('Unable to load blog posts at this time. Please try again later.');
+        // Use fallback content on error
+        setPosts(fallbackPosts);
+        setCategories(fallbackCategories);
+        setFeaturedPosts(fallbackPosts.slice(0, 2));
+        setRecentPosts(fallbackPosts);
       } finally {
         setLoading(false);
       }
@@ -124,6 +190,22 @@ export default function Blog() {
       />
       
       <div className="pt-20">
+        {/* Error Banner */}
+        {error && (
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <AlertCircle className="h-5 w-5 text-yellow-400" />
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-yellow-700">
+                  {error}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Hero Section */}
         <section className="py-16 sm:py-20 md:py-24 bg-[#57BBB6] text-white relative overflow-hidden">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">

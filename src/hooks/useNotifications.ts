@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useToast } from '@/hooks/use-toast';
+import { getBackendUrl } from '@/lib/env';
 
 export interface Notification {
   id: number;
@@ -26,7 +27,7 @@ export function useNotifications(soundEnabled: boolean = true) {
     audioRef.current = new Audio('/notification.mp3');
     audioRef.current.volume = 0.5; // Set volume to 50%
     
-    const newSocket = io(process.env.REACT_APP_BACKEND_URL || 'http://localhost:3001');
+    const newSocket = io(getBackendUrl());
     
     newSocket.on('connect', () => {
       console.log('Connected to notifications');
