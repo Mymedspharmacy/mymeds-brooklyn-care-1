@@ -246,18 +246,7 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
         <div className={`mobile-menu lg:hidden absolute top-full left-0 right-0 bg-white shadow-lg transform transition-all duration-300 ease-in-out z-50 ${
           isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
         }`}>
-          <div className="container mx-auto px-4 py-6">
-            {/* Mobile Logo Header */}
-            <div className="flex justify-center mb-6">
-              <div onClick={() => { navigate('/'); setIsMenuOpen(false); }} className="cursor-pointer group">
-                <img
-                  src={logo}
-                  alt="My Meds Pharmacy Logo"
-                  className="h-20 w-auto object-contain transition-all duration-300 group-hover:scale-105 drop-shadow-lg"
-                />
-              </div>
-            </div>
-            
+          <div className="container mx-auto px-4 py-4">
             {/* Navigation Links */}
             <div className="space-y-3 mb-6">
               <button onClick={() => { navigate('/'); setIsMenuOpen(false); }} className="block text-base font-medium text-[#376F6B] hover:text-[#D5C6BC] py-2 transition-colors text-left w-full">
