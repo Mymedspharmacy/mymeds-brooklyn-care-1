@@ -154,7 +154,7 @@ const PatientResources = () => {
         keywords="patient resources, health calculators, medication guides, health education, pharmaceutical information, medication safety, health articles"
       />
       
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-brand-light/30">
+      <div className="min-h-screen bg-[#D5C6BC]">
         {/* Header */}
         <div className="bg-white shadow-sm border-b border-brand-light/20">
           <div className="max-w-7xl mx-auto px-4 py-8">

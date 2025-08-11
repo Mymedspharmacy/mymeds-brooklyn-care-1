@@ -17,6 +17,8 @@ const Shop = lazy(() => import("./pages/Shop"));
 const Services = lazy(() => import("./pages/Services"));
 const SpecialOffers = lazy(() => import("./pages/SpecialOffers"));
 const Blog = lazy(() => import("./pages/Blog"));
+const About = lazy(() => import("./pages/About"));
+const Contact = lazy(() => import("./pages/Contact"));
 const Admin = lazy(() => import("./pages/Admin"));
 const AdminSignIn = lazy(() => import("./pages/AdminSignIn"));
 const AdminReset = lazy(() => import("./pages/AdminReset"));
@@ -26,11 +28,12 @@ const HIPAANotice = lazy(() => import("./pages/HIPAANotice"));
 const PatientResources = lazy(() => import("./pages/PatientResources"));
 const PatientPortal = lazy(() => import("./pages/PatientPortal"));
 const PatientAccountCreation = lazy(() => import("./pages/PatientAccountCreation"));
+const ProductView = lazy(() => import("./pages/ProductView"));
 const MedicationInteractionChecker = lazy(() => import("./components/MedicationInteractionChecker"));
 
 // Loading component
 const PageLoader = () => (
-  <div className="min-h-screen bg-[#f5fefd] flex items-center justify-center">
+  <div className="min-h-screen bg-[#D5C6BC] flex items-center justify-center">
     <div className="space-y-4 w-full max-w-md">
       <Skeleton className="h-8 w-3/4 mx-auto" />
       <Skeleton className="h-4 w-full" />
@@ -69,9 +72,12 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/shop" element={<Shop />} />
+                <Route path="/product/:productId" element={<ProductView />} />
                 <Route path="/services" element={<Services />} />
                 <Route path="/special-offers" element={<SpecialOffers />} />
                 <Route path="/blog" element={<Blog />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/admin-signin" element={<AdminSignIn />} />
                 <Route path="/admin-reset" element={<AdminReset />} />

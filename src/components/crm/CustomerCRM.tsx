@@ -606,7 +606,7 @@ export function CustomerCRM({
               <Button variant="outline" onClick={() => setShowAddCustomer(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleAddCustomer} className="bg-brand hover:bg-brand-dark">
+              <Button onClick={handleAddCustomer} className="bg-[#376F6B] hover:bg-[#57BBB6]">
                 Add Customer
               </Button>
             </div>

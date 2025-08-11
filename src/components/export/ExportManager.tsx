@@ -158,7 +158,7 @@ export function ExportManager({
                       key={format}
                       className={`p-3 border rounded-lg cursor-pointer transition-all ${
                         exportOptions.format === format
-                          ? 'border-brand bg-brand/5 text-brand'
+                          ? 'border-[#376F6B] bg-[#376F6B]/5 text-[#376F6B]'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                       onClick={() => setExportOptions(prev => ({ ...prev, format: format as any }))}
@@ -182,7 +182,7 @@ export function ExportManager({
                     key={range}
                     className={`p-3 border rounded-lg cursor-pointer transition-all ${
                       exportOptions.dateRange === range
-                        ? 'border-brand bg-brand/5 text-brand'
+                        ? 'border-[#376F6B] bg-[#376F6B]/5 text-[#376F6B]'
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                     onClick={() => setExportOptions(prev => ({ ...prev, dateRange: range as any }))}
@@ -203,7 +203,7 @@ export function ExportManager({
                         ...prev, 
                         customStartDate: e.target.value 
                       }))}
-                      className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand"
+                      className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#376F6B]"
                     />
                   </div>
                   <div>
@@ -215,7 +215,7 @@ export function ExportManager({
                         ...prev, 
                         customEndDate: e.target.value 
                       }))}
-                      className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand"
+                      className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#376F6B]"
                     />
                   </div>
                 </div>
@@ -251,7 +251,7 @@ export function ExportManager({
                     <Checkbox
                       checked={exportOptions.selectedFields.includes(field)}
                       onCheckedChange={() => handleFieldToggle(field)}
-                      className="data-[state=checked]:bg-brand"
+                      className="data-[state=checked]:bg-[#376F6B]"
                     />
                     <span className="text-sm text-gray-700 capitalize">
                       {field.replace(/([A-Z])/g, ' $1').toLowerCase()}
@@ -266,25 +266,25 @@ export function ExportManager({
               <h3 className="font-medium text-gray-900 mb-3">Export Options</h3>
               <div className="space-y-3">
                 <div className="flex items-center space-x-2">
-                  <Checkbox
-                    checked={exportOptions.includeHeaders}
-                    onCheckedChange={(checked) => setExportOptions(prev => ({ 
-                      ...prev, 
-                      includeHeaders: checked as boolean 
-                    }))}
-                    className="data-[state=checked]:bg-brand"
-                  />
+                                      <Checkbox
+                      checked={exportOptions.includeHeaders}
+                      onCheckedChange={(checked) => setExportOptions(prev => ({ 
+                        ...prev, 
+                        includeHeaders: checked as boolean 
+                      }))}
+                      className="data-[state=checked]:bg-[#376F6B]"
+                    />
                   <span className="text-sm text-gray-700">Include column headers</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Checkbox
-                    checked={exportOptions.compression}
-                    onCheckedChange={(checked) => setExportOptions(prev => ({ 
-                      ...prev, 
-                      compression: checked as boolean 
-                    }))}
-                    className="data-[state=checked]:bg-brand"
-                  />
+                                      <Checkbox
+                      checked={exportOptions.compression}
+                      onCheckedChange={(checked) => setExportOptions(prev => ({ 
+                        ...prev, 
+                        compression: checked as boolean 
+                      }))}
+                      className="data-[state=checked]:bg-[#376F6B]"
+                    />
                   <span className="text-sm text-gray-700">Compress file (ZIP)</span>
                 </div>
               </div>
@@ -321,7 +321,7 @@ export function ExportManager({
               <Button
                 onClick={handleExport}
                 disabled={isExporting || exportOptions.selectedFields.length === 0}
-                className="bg-brand hover:bg-brand-dark"
+                className="bg-[#376F6B] hover:bg-[#57BBB6]"
               >
                 {isExporting ? (
                   <>

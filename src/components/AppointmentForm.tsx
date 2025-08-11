@@ -165,11 +165,12 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
         description: "We'll contact you within 24 hours to confirm your appointment." 
       });
       onClose();
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to submit appointment request');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to submit appointment request';
+      setError(errorMessage);
       toast({ 
         title: 'Error', 
-        description: error, 
+        description: errorMessage, 
         variant: 'destructive' 
       });
     } finally {
@@ -187,27 +188,32 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
         if (!value.trim()) return 'Last name is required';
         if (value.trim().length < 2) return 'Last name must be at least 2 characters';
         return '';
-      case 'phone':
+      case 'phone': {
         if (!value.trim()) return 'Phone number is required';
-        const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-        if (!phoneRegex.test(value.replace(/[\s\-\(\)]/g, ''))) {
+        const phoneRegex = /^[+]?[1-9][\d]{0,15}$/;
+        if (!phoneRegex.test(value.replace(/[\s\-()]/g, ''))) {
           return 'Please enter a valid phone number';
         }
         return '';
-      case 'email':
+      }
+      case 'email': {
         if (!value.trim()) return 'Email address is required';
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(value)) return 'Please enter a valid email address';
         return '';
-      case 'service':
+      }
+      case 'service': {
         if (!value) return 'Please select a service';
         return '';
-      case 'preferredDate':
+      }
+      case 'preferredDate': {
         if (!value) return 'Please select a preferred date';
         return '';
-      case 'preferredTime':
+      }
+      case 'preferredTime': {
         if (!value) return 'Please select a preferred time';
         return '';
+      }
       default:
         return '';
     }
@@ -254,9 +260,9 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
-      <Card className="bg-white rounded-2xl shadow-2xl max-w-full sm:max-w-4xl w-full max-h-[95vh] overflow-y-auto border-0">
+              <Card className="bg-[#D5C6BC] rounded-2xl shadow-2xl max-w-full sm:max-w-4xl w-full max-h-[95vh] overflow-y-auto border-0">
         {/* Enhanced Header */}
-        <CardHeader className="relative rounded-t-2xl bg-gradient-to-r from-[#376f6b] to-[#57bbb6] text-white p-6 border-0">
+                  <CardHeader className="relative rounded-t-2xl bg-[#376F6B] text-white p-6 border-0">
           <Button
             variant="ghost"
             size="sm"
@@ -313,8 +319,8 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
             {currentStep === 1 && (
               <div className="space-y-6">
                 <div className="text-center mb-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Choose Your Service</h3>
-                  <p className="text-gray-600">Select the service you'd like to schedule</p>
+                  <h3 className="text-xl font-bold text-[#376F6B] mb-2">Choose Your Service</h3>
+                  <p className="text-[#376F6B]">Select the service you'd like to schedule</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -323,8 +329,8 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
                       key={service.id}
                       className={`group relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
                         formData.service === service.id
-                          ? 'border-[#57bbb6] bg-gradient-to-r from-[#57bbb6]/10 to-[#376f6b]/10 shadow-lg'
-                          : 'border-gray-200 hover:border-[#57bbb6]/50 hover:shadow-md'
+                          ? 'border-[#376F6B] bg-[#376F6B]/10 shadow-lg'
+                          : 'border-[#376F6B]/20 hover:border-[#376F6B]/50 hover:shadow-md'
                       }`}
                       onClick={() => setFormData(prev => ({ ...prev, service: service.id }))}
                     >
@@ -332,14 +338,14 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
                         <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
                           formData.service === service.id
                             ? 'bg-gradient-to-r from-[#57bbb6] to-[#376f6b] text-white'
-                            : 'bg-gray-100 text-gray-600 group-hover:bg-[#57bbb6]/10'
+                            : 'bg-[#57BBB6]/10 text-[#57BBB6] group-hover:bg-[#57bbb6]/10'
                         }`}>
                           <service.icon className="h-5 w-5" />
                         </div>
                         <div className="flex-1">
-                          <h4 className="font-semibold text-gray-900 mb-1">{service.name}</h4>
-                          <p className="text-sm text-gray-600 mb-2">{service.description}</p>
-                          <div className="flex items-center gap-2 text-xs text-gray-500">
+                          <h4 className="font-semibold text-[#376F6B] mb-1">{service.name}</h4>
+                          <p className="text-sm text-[#57BBB6] mb-2">{service.description}</p>
+                          <div className="flex items-center gap-2 text-xs text-[#57BBB6]">
                             <Clock4 className="h-3 w-3" />
                             <span>{service.duration}</span>
                           </div>
@@ -371,14 +377,14 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
             {currentStep === 2 && (
               <div className="space-y-6">
                 <div className="text-center mb-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Select Date & Time</h3>
-                  <p className="text-gray-600">Choose a convenient time during our business hours</p>
+                  <h3 className="text-xl font-bold text-[#376F6B] mb-2">Select Date & Time</h3>
+                  <p className="text-[#57BBB6]">Choose a convenient time during our business hours</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Date Selection */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-3">
+                    <label className="block text-sm font-semibold text-[#376F6B] mb-3">
                       <Calendar className="inline h-4 w-4 mr-2" />
                       Preferred Date
                     </label>
@@ -389,7 +395,7 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
                       onChange={(e) => handleDateChange(e.target.value)}
                       min={new Date().toISOString().split('T')[0]}
                       max={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
-                      className="w-full border-2 border-gray-200 focus:border-[#57bbb6] focus:ring-[#57bbb6]"
+                      className="w-full border-2 border-[#57BBB6]/20 focus:border-[#57bbb6] focus:ring-[#57bbb6]"
                     />
                     
                                          {selectedDate && !isValidDate(selectedDate) && (
@@ -402,7 +408,7 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
 
                   {/* Time Selection */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-3">
+                    <label className="block text-sm font-semibold text-[#376F6B] mb-3">
                       <Clock className="inline h-4 w-4 mr-2" />
                       Preferred Time
                     </label>
@@ -411,7 +417,7 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
                        value={formData.preferredTime}
                        onChange={handleChange}
                        disabled={!selectedDate}
-                       className="w-full px-3 py-2 border-2 border-gray-200 rounded-md focus:border-[#57bbb6] focus:ring-[#57bbb6] disabled:bg-gray-100"
+                       className="w-full px-3 py-2 border-2 border-[#57BBB6]/20 rounded-md focus:border-[#57bbb6] focus:ring-[#57bbb6] disabled:bg-[#57BBB6]/10"
                      >
                        <option value="">Select a time</option>
                        {timeSlots.map((time, index) => (
@@ -422,12 +428,12 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
                 </div>
 
                                  {/* Available Times Info */}
-                 <div className="bg-gradient-to-r from-gray-50 to-blue-50 border border-gray-200 rounded-lg p-4">
-                   <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                 <div className="bg-gradient-to-r from-[#57BBB6]/5 to-[#57BBB6]/10 border border-[#57BBB6]/20 rounded-lg p-4">
+                   <h4 className="font-semibold text-[#376F6B] mb-3 flex items-center gap-2">
                      <Clock4 className="h-4 w-4" />
                      Available Appointment Times
                    </h4>
-                   <div className="text-sm text-gray-600">
+                   <div className="text-sm text-[#57BBB6]">
                      <p className="mb-2">We offer appointments Monday through Friday, 9:00 AM to 6:00 PM.</p>
                      <p>Weekends and holidays are not available for appointments.</p>
                    </div>
@@ -444,8 +450,8 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
                          })()}
                        </div>
                        <div>
-                         <h4 className="font-semibold text-gray-900">{getSelectedService()!.name}</h4>
-                         <p className="text-sm text-gray-600">{getSelectedService()!.description}</p>
+                         <h4 className="font-semibold text-[#376F6B]">{getSelectedService()!.name}</h4>
+                         <p className="text-sm text-[#57BBB6]">{getSelectedService()!.description}</p>
                        </div>
                      </div>
                    </div>
@@ -457,13 +463,13 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
             {currentStep === 3 && (
               <div className="space-y-6">
                 <div className="text-center mb-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Contact Information</h3>
-                  <p className="text-gray-600">Please provide your details so we can confirm your appointment</p>
+                  <h3 className="text-xl font-bold text-[#376F6B] mb-2">Contact Information</h3>
+                  <p className="text-[#57BBB6]">Please provide your details so we can confirm your appointment</p>
                 </div>
 
                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                    <div>
-                     <label className="block text-sm font-semibold text-gray-900 mb-2">
+                     <label className="block text-sm font-semibold text-[#376F6B] mb-2">
                        <User className="inline h-4 w-4 mr-2" />
                        First Name <span className="text-red-500">*</span>
                      </label>
@@ -475,7 +481,7 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
                        onChange={handleChange}
                        onBlur={handleBlur}
                        className={`border-2 focus:border-[#57bbb6] focus:ring-[#57bbb6] ${
-                         errors.firstName ? 'border-red-300' : 'border-gray-200'
+                         errors.firstName ? 'border-red-300' : 'border-[#57BBB6]/20'
                        }`}
                        placeholder="Enter your first name"
                      />
@@ -487,7 +493,7 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
                      )}
                    </div>
                    <div>
-                     <label className="block text-sm font-semibold text-gray-900 mb-2">
+                     <label className="block text-sm font-semibold text-[#376F6B] mb-2">
                        Last Name <span className="text-red-500">*</span>
                      </label>
                      <Input
@@ -498,7 +504,7 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
                        onChange={handleChange}
                        onBlur={handleBlur}
                        className={`border-2 focus:border-[#57bbb6] focus:ring-[#57bbb6] ${
-                         errors.lastName ? 'border-red-300' : 'border-gray-200'
+                         errors.lastName ? 'border-red-300' : 'border-[#57BBB6]/20'
                        }`}
                        placeholder="Enter your last name"
                      />
@@ -513,7 +519,7 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
 
                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                    <div>
-                     <label className="block text-sm font-semibold text-gray-900 mb-2">
+                     <label className="block text-sm font-semibold text-[#376F6B] mb-2">
                        <Phone className="inline h-4 w-4 mr-2" />
                        Phone Number <span className="text-red-500">*</span>
                      </label>
@@ -525,7 +531,7 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
                        onChange={handleChange}
                        onBlur={handleBlur}
                        className={`border-2 focus:border-[#57bbb6] focus:ring-[#57bbb6] ${
-                         errors.phone ? 'border-red-300' : 'border-gray-200'
+                         errors.phone ? 'border-red-300' : 'border-[#57BBB6]/20'
                        }`}
                        placeholder="(555) 123-4567"
                      />
@@ -537,7 +543,7 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
                      )}
                    </div>
                    <div>
-                     <label className="block text-sm font-semibold text-gray-900 mb-2">
+                     <label className="block text-sm font-semibold text-[#376F6B] mb-2">
                        <Mail className="inline h-4 w-4 mr-2" />
                        Email Address <span className="text-red-500">*</span>
                      </label>
@@ -549,7 +555,7 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
                        onChange={handleChange}
                        onBlur={handleBlur}
                        className={`border-2 focus:border-[#57bbb6] focus:ring-[#57bbb6] ${
-                         errors.email ? 'border-red-300' : 'border-gray-200'
+                         errors.email ? 'border-red-300' : 'border-[#57BBB6]/20'
                        }`}
                        placeholder="your.email@example.com"
                      />
@@ -563,39 +569,39 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
                  </div>
 
                                  <div>
-                   <label className="block text-sm font-semibold text-gray-900 mb-2">
+                   <label className="block text-sm font-semibold text-[#376F6B] mb-2">
                      <MessageSquare className="inline h-4 w-4 mr-2" />
-                     Additional Notes <span className="text-gray-500 text-xs">(Optional)</span>
+                     Additional Notes <span className="text-[#57BBB6] text-xs">(Optional)</span>
                    </label>
                    <Textarea
                      name="notes"
                      rows={4}
                      value={formData.notes}
                      onChange={handleChange}
-                     className="border-2 border-gray-200 focus:border-[#57bbb6] focus:ring-[#57bbb6]"
+                     className="border-2 border-[#57BBB6]/20 focus:border-[#57bbb6] focus:ring-[#57bbb6]"
                      placeholder="Any specific concerns, questions, or special requests..."
                    />
                  </div>
 
                 {/* Appointment Summary */}
                 <div className="bg-gradient-to-r from-[#57bbb6]/10 to-[#376f6b]/10 border border-[#57bbb6]/20 rounded-lg p-4">
-                  <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                  <h4 className="font-semibold text-[#376F6B] mb-3 flex items-center gap-2">
                     <CheckCircle className="h-4 w-4" />
                     Appointment Summary
                   </h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Service:</span>
+                      <span className="text-[#57BBB6]">Service:</span>
                       <span className="font-medium">{getSelectedService()?.name}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Date:</span>
+                      <span className="text-[#57BBB6]">Date:</span>
                       <span className="font-medium">
                         {formData.preferredDate ? new Date(formData.preferredDate).toLocaleDateString() : 'Not selected'}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Time:</span>
+                      <span className="text-[#57BBB6]">Time:</span>
                       <span className="font-medium">{formData.preferredTime || 'Not selected'}</span>
                     </div>
                   </div>
@@ -621,13 +627,13 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
             )}
 
             {/* Navigation Buttons */}
-            <div className="flex gap-4 pt-4 border-t border-gray-200">
+            <div className="flex gap-4 pt-4 border-t border-[#57BBB6]/20">
               {currentStep > 1 && (
                 <Button
                   type="button"
                   variant="outline"
                   onClick={prevStep}
-                  className="flex-1 border-2 border-gray-200 hover:border-[#57bbb6] hover:text-[#57bbb6]"
+                  className="flex-1 border-2 border-[#57BBB6]/20 hover:border-[#57bbb6] hover:text-[#57bbb6]"
                 >
                   Previous
                 </Button>

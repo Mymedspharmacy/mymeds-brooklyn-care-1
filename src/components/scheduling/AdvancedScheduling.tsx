@@ -482,7 +482,7 @@ export function AdvancedScheduling({
               <Button variant="outline" onClick={() => setShowAddAppointment(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleAddAppointment} className="bg-brand hover:bg-brand-dark">
+              <Button onClick={handleAddAppointment} className="bg-[#376F6B] hover:bg-[#57BBB6]">
                 Add Appointment
               </Button>
             </div>

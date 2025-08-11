@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
+import logo from "@/assets/logo.png";
 
 export const Footer = () => {
   const navigate = useNavigate();
@@ -76,11 +77,11 @@ export const Footer = () => {
   ];
 
   return (
-    <footer className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden">
+    <footer className="bg-white text-gray-800 relative overflow-hidden border-t border-gray-200">
       {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5" aria-hidden="true">
+      <div className="absolute inset-0 opacity-3" aria-hidden="true">
         <div className="absolute inset-0" aria-hidden="true" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
         }}></div>
       </div>
 
@@ -97,13 +98,13 @@ export const Footer = () => {
                   className="cursor-pointer group"
                 >
                   <img 
-                    src="/logocopy.png" 
+                    src={logo} 
                     alt="My Meds Pharmacy Logo" 
-                    className="h-auto w-auto mb-4 transition-all duration-300 ease-in-out group-hover:scale-105"
+                    className="h-16 w-auto sm:h-20 md:h-24 lg:h-auto transition-all duration-300 ease-in-out group-hover:scale-105"
                   />
                 </div>
-                <p className="text-gray-300 leading-relaxed mb-6">
-                  Your trusted partner in health and wellness. We provide exceptional pharmaceutical care with personalized attention and expert guidance.
+                <p className="text-[#57BBB6] leading-relaxed mb-6">
+                  Your trusted partner in health and wellness. We're committed to providing exceptional pharmaceutical care and personalized service to our community.
                 </p>
               </div>
               
@@ -115,38 +116,38 @@ export const Footer = () => {
                     href={s.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-10 h-10 bg-gradient-to-r from-brand-light to-brand rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 group"
+                    className="w-10 h-10 bg-gradient-to-r from-[#57BBB6] to-[#376F6B] rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 group"
                     aria-label={`Follow us on ${s.label}`}
                     tabIndex={0}
                     onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.click()}
                   >
-                    <s.icon className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
+                    <s.icon className="h-5 w-5 text-white group-hover:rotate-12 transition-transform duration-300" />
                   </a>
                 ))}
               </div>
 
               {/* Trust Badges */}
-              <div className="flex items-center gap-4 text-sm text-gray-400">
+              <div className="flex items-center gap-4 text-sm text-[#57BBB6]">
                 <div className="flex items-center gap-1">
-                  <Shield className="h-4 w-4 text-brand-light" />
+                  <Shield className="h-4 w-4 text-[#57BBB6]" />
                   <span>Licensed</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4 text-brand-light" />
+                  <Star className="h-4 w-4 text-[#57BBB6]" />
                   <span>5-Star Rated</span>
                 </div>
               </div>
             </div>
 
             {/* Quick Links */}
-            <div className="lg:pl-8 lg:border-l lg:border-white/30">
-              <h3 className="text-sm font-bold uppercase tracking-wider mb-6 text-white/90">Quick Links</h3>
+            <div className="lg:pl-8 lg:border-l lg:border-[#57BBB6]/20">
+              <h3 className="text-sm font-bold uppercase tracking-wider mb-6 text-[#57BBB6]">Quick Links</h3>
               <ul className="space-y-3">
                 {quickLinks.map((item, idx) => (
                   <li key={idx}>
                     <Link 
                       to={item.to}
-                      className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group"
+                      className="text-gray-600 hover:text-[#57BBB6] transition-colors duration-300 flex items-center group"
                       aria-label={`Navigate to ${item.label.toLowerCase()}`}
                     >
                       <item.icon className="h-4 w-4 mr-2 group-hover:translate-x-1 transition-transform duration-300" />
@@ -157,7 +158,7 @@ export const Footer = () => {
                 <li>
                   <a 
                     href="#about" 
-                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group"
+                    className="text-gray-600 hover:text-[#57BBB6] transition-colors duration-300 flex items-center group"
                     aria-label="Scroll to about us section"
                   >
                     <ArrowRight className="h-4 w-4 mr-2 group-hover:translate-x-1 transition-transform duration-300" />
@@ -167,7 +168,7 @@ export const Footer = () => {
                 <li>
                   <a 
                     href="#contact" 
-                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group"
+                    className="text-gray-600 hover:text-[#57BBB6] transition-colors duration-300 flex items-center group"
                     aria-label="Scroll to contact section"
                   >
                     <ArrowRight className="h-4 w-4 mr-2 group-hover:translate-x-1 transition-transform duration-300" />
@@ -177,7 +178,7 @@ export const Footer = () => {
                 <li>
                   <Link 
                     to="/admin"
-                    className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group"
+                    className="text-gray-600 hover:text-[#57BBB6] transition-colors duration-300 flex items-center group"
                     aria-label="Access admin panel"
                   >
                     <Settings className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
@@ -188,14 +189,14 @@ export const Footer = () => {
             </div>
 
             {/* Services */}
-            <div className="lg:pl-8 lg:border-l lg:border-white/30">
-              <h3 className="text-sm font-bold uppercase tracking-wider mb-6 text-white/90">Our Services</h3>
+            <div className="lg:pl-8 lg:border-l lg:border-[#57BBB6]/20">
+              <h3 className="text-sm font-bold uppercase tracking-wider mb-6 text-[#57BBB6]">Our Services</h3>
               <ul className="space-y-3">
                 {servicesLinks.map((s, idx) => (
                   <li key={idx}>
                     <Link
                       to={s.to}
-                      className="text-gray-300 hover:text-brand-light transition-colors duration-300 flex items-center group"
+                      className="text-gray-600 hover:text-[#57BBB6] transition-colors duration-300 flex items-center group"
                       aria-label={`Learn about ${s.label.toLowerCase()}`}
                     >
                       <s.icon className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
@@ -208,18 +209,18 @@ export const Footer = () => {
             </div>
 
             {/* Contact Info */}
-            <div className="lg:pl-8 lg:pr-8 lg:border-l lg:border-white/20">
-              <h3 className="text-sm font-bold uppercase tracking-wider mb-6 text-white/90">Contact Info</h3>
+            <div className="lg:pl-8 lg:pr-8 lg:border-l lg:border-[#57BBB6]/20">
+              <h3 className="text-sm font-bold uppercase tracking-wider mb-6 text-[#57BBB6]">Contact Info</h3>
               <div className="space-y-4">
                 <div className="grid grid-cols-[36px,1fr] gap-3 items-center group">
-                  <div className="w-9 h-9 shrink-0 bg-gradient-to-r from-brand-light to-brand rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <Phone className="h-5 w-5" />
+                  <div className="w-9 h-9 shrink-0 bg-gradient-to-r from-[#57BBB6] to-[#376F6B] rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <Phone className="h-5 w-5 text-white" />
                   </div>
                   <div className="leading-6 space-y-0.5">
-                    <p className="text-gray-300 text-sm">Phone</p>
+                    <p className="text-[#57BBB6] text-sm">Phone</p>
                     <button 
                       onClick={handleCallClick}
-                      className="text-white font-semibold hover:text-brand-light transition-colors duration-300 whitespace-nowrap"
+                      className="text-gray-800 font-semibold hover:text-[#57BBB6] transition-colors duration-300 whitespace-nowrap"
                       aria-label="Call us at (347) 312-6458"
                     >
                       (347) 312-6458
@@ -228,14 +229,14 @@ export const Footer = () => {
                 </div>
 
                 <div className="grid grid-cols-[36px,1fr] gap-3 items-center group">
-                  <div className="w-9 h-9 shrink-0 bg-gradient-to-r from-brand-light to-brand rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <Mail className="h-5 w-5" />
+                  <div className="w-9 h-9 shrink-0 bg-gradient-to-r from-[#57BBB6] to-[#376F6B] rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <Mail className="h-5 w-5 text-white" />
                   </div>
                   <div className="leading-6 space-y-0.5">
-                    <p className="text-gray-300 text-sm">Email</p>
+                    <p className="text-[#57BBB6] text-sm">Email</p>
                     <button 
                       onClick={handleEmailClick}
-                      className="text-white font-semibold hover:text-brand-light transition-colors duration-300 whitespace-nowrap"
+                      className="text-gray-800 font-semibold hover:text-[#57BBB6] transition-colors duration-300 whitespace-nowrap no-underline"
                       aria-label="Send email to mymedspharmacy@outlook.com"
                     >
                       info@mymedspharmacy.com
@@ -244,17 +245,17 @@ export const Footer = () => {
                 </div>
 
                 <div className="grid grid-cols-[36px,1fr] gap-3 items-center group">
-                  <div className="w-9 h-9 shrink-0 bg-gradient-to-r from-brand-light to-brand rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <MapPin className="h-5 w-5" />
+                  <div className="w-9 h-9 shrink-0 bg-gradient-to-r from-[#57BBB6] to-[#376F6B] rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <MapPin className="h-5 w-5 text-white" />
                   </div>
                   <div className="leading-6 space-y-0.5">
-                    <p className="text-gray-300 text-sm">Location</p>
+                    <p className="text-[#57BBB6] text-sm">Location</p>
                     <button 
                       onClick={handleMapClick}
-                      className="text-white font-semibold hover:text-brand-light transition-colors duration-300 flex items-center group"
+                      className="text-gray-800 font-semibold hover:text-[#57BBB6] transition-colors duration-300 flex items-center group"
                       aria-label="Open location in maps"
                     >
-J279+5V Brooklyn, NY
+                      J279+5V Brooklyn, NY
                       <ExternalLink className="h-3 w-3 ml-1 group-hover:translate-x-0.5 transition-transform duration-300" />
                     </button>
                   </div>
@@ -262,10 +263,27 @@ J279+5V Brooklyn, NY
 
                 {/* Hours moved under Services column */}
               </div>
+            </div>
 
-              {/* Newsletter Signup */}
-              <div className="mt-8">
-                <h4 className="text-xs font-semibold uppercase tracking-wider mb-3 text-white/90">Stay Updated</h4>
+            {/* Business Hours - Separate Column */}
+            <div className="lg:pl-10 lg:border-l lg:border-[#57BBB6]/20 min-w-[320px]">
+              <h3 className="text-sm font-bold uppercase tracking-wider mb-6 text-[#57BBB6]">Business Hours</h3>
+              <div className="grid grid-cols-[88px,1fr] gap-x-4 text-[#57BBB6] font-semibold text-sm leading-6 mb-8">
+                <span className="text-[#57BBB6] self-start">Pharmacy</span>
+                <span className="md:whitespace-nowrap">Mon-Fri 10:00 AM - 6:00 PM</span>
+                <span className="text-[#57BBB6]"></span>
+                <span className="md:whitespace-nowrap">Saturday 10:00 AM - 4:00 PM</span>
+                <span className="text-[#57BBB6] pt-2 self-start">Store</span>
+                <span className="pt-2 md:whitespace-nowrap">Mon-Fri 9:00 AM - 7:00 PM</span>
+                <span className="text-[#57BBB6]"></span>
+                <span className="md:whitespace-nowrap">Saturday 10:00 AM - 4:00 PM</span>
+                <span className="text-[#57BBB6]"></span>
+                <span className="md:whitespace-nowrap">Sunday Closed</span>
+              </div>
+
+              {/* Newsletter Signup - Moved here */}
+              <div className="pt-6 border-t border-[#57BBB6]/20">
+                <h4 className="text-xs font-semibold uppercase tracking-wider mb-3 text-[#57BBB6]">Stay Updated</h4>
                 <form
                   onSubmit={async (e) => {
                     e.preventDefault();
@@ -286,66 +304,49 @@ J279+5V Brooklyn, NY
                     name="email"
                     type="email" 
                     placeholder="Enter your email"
-                    className="flex-1 px-4 py-2 rounded-l-lg border border-white/20 focus:ring-2 focus:ring-brand-light focus:outline-none text-gray-900 bg-white"
+                    className="flex-1 px-4 py-2 rounded-l-lg border border-gray-300 focus:ring-2 focus:ring-[#57BBB6] focus:outline-none text-gray-900 bg-white placeholder-gray-500"
                     aria-label="Email address for newsletter subscription"
                   />
                   <Button 
                     type="submit"
-                    className="bg-gradient-to-r from-brand-light to-brand hover:shadow-lg text-white px-4 py-2 rounded-r-lg transition-all duration-300 transform hover:scale-105 border border-white/20"
+                    className="bg-gradient-to-r from-[#57BBB6] to-[#376F6B] hover:from-[#376F6B] hover:to-[#57BBB6] hover:shadow-lg text-white px-6 py-2 rounded-r-lg transition-all duration-300 transform hover:scale-105 border-0 font-semibold"
                     aria-label="Subscribe to newsletter"
                   >
                     Subscribe
                   </Button>
                 </form>
-                <p role="status" aria-live="polite" className={`mt-2 text-sm ${isSubscribed ? 'text-green-300' : 'text-transparent'}`}>
-                  You’re subscribed! We’ll be in touch.
+                <p role="status" aria-live="polite" className={`mt-2 text-sm ${isSubscribed ? 'text-green-600' : 'text-transparent'}`}>
+                  You're subscribed! We'll be in touch.
                 </p>
-              </div>
-            </div>
-
-            {/* Business Hours - Separate Column */}
-            <div className="lg:pl-10 lg:border-l lg:border-white/20 min-w-[320px]">
-              <h3 className="text-sm font-bold uppercase tracking-wider mb-6 text-white/90">Business Hours</h3>
-              <div className="grid grid-cols-[88px,1fr] gap-x-4 text-white/90 font-semibold text-sm leading-6">
-                <span className="text-gray-300 self-start">Pharmacy</span>
-                <span className="md:whitespace-nowrap">Mon-Fri 10:00 AM - 6:00 PM</span>
-                <span className="text-gray-300"></span>
-                <span className="md:whitespace-nowrap">Saturday 10:00 AM - 4:00 PM</span>
-                <span className="text-gray-300 pt-2 self-start">Store</span>
-                <span className="pt-2 md:whitespace-nowrap">Mon-Fri 9:00 AM - 7:00 PM</span>
-                <span className="text-gray-300"></span>
-                <span className="md:whitespace-nowrap">Saturday 10:00 AM - 4:00 PM</span>
-                <span className="text-gray-300"></span>
-                <span className="md:whitespace-nowrap">Sunday Closed</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-gray-700 py-6">
+        <div className="border-t border-[#57BBB6]/20 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="text-gray-400 text-sm">
+            <div className="text-[#57BBB6] text-sm">
               © {currentYear} My Meds Pharmacy. All rights reserved.
             </div>
             <div className="flex items-center gap-6 text-sm">
               <Link 
                 to="/privacy-policy"
-                className="text-gray-400 hover:text-brand-light transition-colors duration-300"
+                className="text-[#57BBB6] hover:text-[#57BBB6] transition-colors duration-300"
                 aria-label="Read our privacy policy"
               >
                 Privacy Policy
               </Link>
               <Link 
                 to="/terms-of-service"
-                className="text-gray-400 hover:text-brand-light transition-colors duration-300"
+                className="text-[#57BBB6] hover:text-[#57BBB6] transition-colors duration-300"
                 aria-label="Read our terms of service"
               >
                 Terms of Service
               </Link>
               <Link 
                 to="/hipaa-notice"
-                className="text-gray-400 hover:text-brand-light transition-colors duration-300"
+                className="text-[#57BBB6] hover:text-[#57BBB6] transition-colors duration-300"
                 aria-label="Read our HIPAA notice"
               >
                 HIPAA Notice

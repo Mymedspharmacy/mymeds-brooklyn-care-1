@@ -71,9 +71,10 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
       setPrescriptionFile(null);
       toast({ title: 'Refill Request Submitted!', description: "We'll process your prescription refill and contact you when it's ready." });
       onClose();
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to submit refill request');
-      toast({ title: 'Error', description: error, variant: 'destructive' });
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to submit refill request';
+      setError(errorMessage);
+      toast({ title: 'Error', description: errorMessage, variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -125,7 +126,7 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-300">
-      <div className="bg-white rounded-2xl max-w-full sm:max-w-2xl w-full max-h-screen overflow-y-auto shadow-2xl animate-in slide-in-from-bottom-4 duration-300 scale-in-95">
+              <div className="bg-[#D5C6BC] rounded-2xl max-w-full sm:max-w-2xl w-full max-h-screen overflow-y-auto shadow-2xl animate-in slide-in-from-bottom-4 duration-300 scale-in-95">
         <Card className="border-0 shadow-none">
           {/* Enhanced Header */}
           <CardHeader className="relative rounded-t-2xl bg-gradient-to-r from-[#376f6b] to-[#57bbb6] text-white p-6">
@@ -187,8 +188,8 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
               {currentStep === 1 && (
                 <div className="space-y-6">
                   <div className="flex items-center space-x-2 mb-4">
-                    <User className="h-5 w-5 text-[#57bbb6]" />
-                    <h3 className="text-lg font-semibold text-gray-900">Patient Information</h3>
+                                         <User className="h-5 w-5 text-[#376F6B]" />
+                     <h3 className="text-lg font-semibold text-gray-900">Patient Information</h3>
                   </div>
                   
                   <div className="grid md:grid-cols-2 gap-4">
@@ -204,9 +205,9 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
                           value={formData.firstName}
                           onChange={handleChange}
                           placeholder="Enter your first name"
-                          className="pl-10 border-gray-200 focus:border-[#57bbb6] focus:ring-[#57bbb6] transition-all duration-300 group-hover:border-[#57bbb6]/50 group-hover:shadow-md"
+                                                     className="pl-10 border-gray-200 focus:border-[#376F6B] focus:ring-[#376F6B] transition-all duration-300 group-hover:border-[#376F6B]/50 group-hover:shadow-md"
                         />
-                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 group-hover:text-[#57bbb6] transition-colors duration-300" />
+                                                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 group-hover:text-[#376F6B] transition-colors duration-300" />
                       </div>
                     </div>
                     <div className="space-y-2">
@@ -214,15 +215,15 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
                         Last Name *
                       </label>
                       <div className="relative">
-                        <Input
-                          name="lastName"
-                          type="text"
-                          required
-                          value={formData.lastName}
-                          onChange={handleChange}
-                          placeholder="Enter your last name"
-                          className="pl-10 border-gray-200 focus:border-[#57bbb6] focus:ring-[#57bbb6]"
-                        />
+                                                 <Input
+                           name="lastName"
+                           type="text"
+                           required
+                           value={formData.lastName}
+                           onChange={handleChange}
+                           placeholder="Enter your last name"
+                           className="pl-10 border-gray-200 focus:border-[#376F6B] focus:ring-[#376F6B]"
+                         />
                         <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       </div>
                     </div>
@@ -234,15 +235,15 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
                         Phone Number *
                       </label>
                       <div className="relative">
-                        <Input
-                          name="phone"
-                          type="tel"
-                          required
-                          value={formData.phone}
-                          onChange={handleChange}
-                          placeholder="(347) 312-6458"
-                          className="pl-10 border-gray-200 focus:border-[#57bbb6] focus:ring-[#57bbb6]"
-                        />
+                                                 <Input
+                           name="phone"
+                           type="tel"
+                           required
+                           value={formData.phone}
+                           onChange={handleChange}
+                           placeholder="(347) 312-6458"
+                           className="pl-10 border-gray-200 focus:border-[#376F6B] focus:ring-[#376F6B]"
+                         />
                         <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       </div>
                     </div>
@@ -251,14 +252,14 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
                         Email Address
                       </label>
                       <div className="relative">
-                        <Input
-                          name="email"
-                          type="email"
-                          value={formData.email}
-                          onChange={handleChange}
-                          placeholder="your@email.com"
-                          className="pl-10 border-gray-200 focus:border-[#57bbb6] focus:ring-[#57bbb6]"
-                        />
+                                                 <Input
+                           name="email"
+                           type="email"
+                           value={formData.email}
+                           onChange={handleChange}
+                           placeholder="your@email.com"
+                           className="pl-10 border-gray-200 focus:ring-[#376F6B]"
+                         />
                         <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       </div>
                     </div>
@@ -268,7 +269,7 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
                     <Button 
                       type="button" 
                       onClick={nextStep}
-                      className="bg-gradient-to-r from-[#57bbb6] to-[#376f6b] hover:shadow-lg text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105"
+                                             className="bg-[#376F6B] hover:bg-[#2A5A56] hover:shadow-lg text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105"
                     >
                       Next Step
                       <ArrowRight className="h-4 w-4 ml-2" />
@@ -281,8 +282,8 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
               {currentStep === 2 && (
                 <div className="space-y-6">
                   <div className="flex items-center space-x-2 mb-4">
-                    <Pill className="h-5 w-5 text-[#57bbb6]" />
-                    <h3 className="text-lg font-semibold text-gray-900">Prescription Information</h3>
+                                         <Pill className="h-5 w-5 text-[#376F6B]" />
+                     <h3 className="text-lg font-semibold text-gray-900">Prescription Information</h3>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-4">
@@ -355,14 +356,14 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
                       type="button" 
                       onClick={prevStep}
                       variant="outline"
-                      className="border-gray-200 hover:border-[#57bbb6] hover:text-[#57bbb6] transition-all duration-300 transform hover:scale-105 hover:shadow-md"
+                                             className="border-gray-200 hover:border-[#376F6B] hover:text-[#376F6B] transition-all duration-300 transform hover:scale-105 hover:shadow-md"
                     >
                       Previous
                     </Button>
                     <Button 
                       type="button" 
                       onClick={nextStep}
-                      className="bg-gradient-to-r from-[#57bbb6] to-[#376f6b] hover:shadow-lg text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl group"
+                                             className="bg-[#376F6B] hover:bg-[#2A5A56] hover:shadow-lg text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl group"
                     >
                       Next Step
                       <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
@@ -375,8 +376,8 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
               {currentStep === 3 && (
                 <div className="space-y-6">
                   <div className="flex items-center space-x-2 mb-4">
-                    <Upload className="h-5 w-5 text-[#57bbb6]" />
-                    <h3 className="text-lg font-semibold text-gray-900">Upload Prescription & Submit</h3>
+                                         <Upload className="h-5 w-5 text-[#376F6B]" />
+                     <h3 className="text-lg font-semibold text-gray-900">Upload Prescription & Submit</h3>
                   </div>
 
                   {/* File Upload Area */}
@@ -386,20 +387,20 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
                     </label>
                     <div
                       className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-500 transform hover:scale-[1.02] ${
-                        dragActive 
-                          ? 'border-[#57bbb6] bg-[#57bbb6]/5 scale-105 shadow-lg' 
-                          : prescriptionFile 
-                            ? 'border-green-500 bg-green-50 shadow-md' 
-                            : 'border-gray-300 hover:border-[#57bbb6] hover:bg-gray-50 hover:shadow-md'
+                                                 dragActive 
+                           ? 'border-[#376F6B] bg-[#376F6B]/5 scale-105 shadow-lg' 
+                           : prescriptionFile 
+                             ? 'border-green-500 bg-green-50 shadow-md' 
+                             : 'border-gray-300 hover:border-[#376F6B] hover:bg-gray-50 hover:shadow-md'
                       }`}
                       onDragEnter={handleDrag}
                       onDragLeave={handleDrag}
                       onDragOver={handleDrag}
                       onDrop={handleDrop}
                     >
-                      <Upload className={`h-12 w-12 mx-auto mb-4 transition-all duration-300 ${
-                        prescriptionFile ? 'text-green-500 animate-bounce' : 'text-gray-400 group-hover:text-[#57bbb6]'
-                      }`} />
+                                               <Upload className={`h-12 w-12 mx-auto mb-4 transition-all duration-300 ${
+                           prescriptionFile ? 'text-green-500 animate-bounce' : 'text-gray-400 group-hover:text-[#376F6B]'
+                         }`} />
                       
                       {prescriptionFile ? (
                         <div className="space-y-2">
@@ -413,9 +414,9 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
                         <div className="space-y-2">
                           <p className="text-gray-600">
                             Drag and drop your prescription here, or{' '}
-                            <label htmlFor="prescriptionFile" className="text-[#57bbb6] hover:text-[#376f6b] cursor-pointer font-medium">
-                              browse files
-                            </label>
+                                                         <label htmlFor="prescriptionFile" className="text-[#376F6B] hover:text-[#2A5A56] cursor-pointer font-medium">
+                               browse files
+                             </label>
                           </p>
                           <p className="text-xs text-gray-500">
                             Supports: JPG, PNG, PDF (Max 10MB)
@@ -463,14 +464,14 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
                       type="button" 
                       onClick={prevStep}
                       variant="outline"
-                      className="border-gray-200 hover:border-[#57bbb6] hover:text-[#57bbb6]"
+                                             className="border-gray-200 hover:border-[#376F6B] hover:text-[#376F6B]"
                     >
                       Previous
                     </Button>
                     <Button 
                       type="submit" 
                       disabled={loading || !prescriptionFile}
-                      className="bg-gradient-to-r from-[#57bbb6] to-[#376f6b] hover:shadow-lg text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl disabled:opacity-50 disabled:transform-none group"
+                                             className="bg-[#376F6B] hover:bg-[#2A5A56] hover:shadow-lg text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl disabled:opacity-50 disabled:transform-none group"
                     >
                       {loading ? (
                         <div className="flex items-center">

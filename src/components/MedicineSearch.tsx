@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Search, X, Pill, Info, AlertTriangle, Loader2, MessageSquare } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -65,6 +65,30 @@ export default function MedicineSearch({ isOpen, onClose }: MedicineSearchProps)
   const [showDetails, setShowDetails] = useState(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  const performSearch = useCallback(async () => {
+    if (searchQuery.length < 2) return;
+
+    setIsSearching(true);
+    setError(null);
+
+    try {
+      const response = await api.get(`/openfda/search?query=${encodeURIComponent(searchQuery)}&limit=10`);
+      
+      if (response.data.success) {
+        setSearchResults(response.data.data.results || []);
+      } else {
+        setError('Failed to search drugs');
+      }
+    } catch (err: unknown) {
+      console.error('Medicine search error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to search drugs';
+      setError(errorMessage);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  }, [searchQuery]);
+
   // Debounced search
   useEffect(() => {
     if (searchQuery.length < 2) {
@@ -86,30 +110,7 @@ export default function MedicineSearch({ isOpen, onClose }: MedicineSearchProps)
         clearTimeout(searchTimeoutRef.current);
       }
     };
-  }, [searchQuery]);
-
-  const performSearch = async () => {
-    if (searchQuery.length < 2) return;
-
-    setIsSearching(true);
-    setError(null);
-
-    try {
-      const response = await api.get(`/openfda/search?query=${encodeURIComponent(searchQuery)}&limit=10`);
-      
-      if (response.data.success) {
-        setSearchResults(response.data.data.results || []);
-      } else {
-        setError('Failed to search drugs');
-      }
-    } catch (err: any) {
-      console.error('Medicine search error:', err);
-      setError(err.response?.data?.message || 'Failed to search drugs');
-      setSearchResults([]);
-    } finally {
-      setIsSearching(false);
-    }
-  };
+  }, [searchQuery, performSearch]);
 
   const handleDrugSelect = async (drug: DrugSearchResult) => {
     setSelectedDrug(drug);

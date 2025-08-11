@@ -77,9 +77,10 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
       setPrescriptionFile(null);
       toast({ title: 'Transfer Request Submitted!', description: "We'll process your prescription transfer within 24 hours and notify you when it's ready." });
       onClose();
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to submit transfer request');
-      toast({ title: 'Error', description: error, variant: 'destructive' });
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to submit transfer request';
+      setError(errorMessage);
+      toast({ title: 'Error', description: errorMessage, variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -131,7 +132,7 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-300">
-      <div className="bg-white rounded-2xl max-w-full sm:max-w-4xl w-full max-h-screen overflow-y-auto shadow-2xl animate-in slide-in-from-bottom-4 duration-300 scale-in-95">
+              <div className="bg-[#D5C6BC] rounded-2xl max-w-full sm:max-w-4xl w-full max-h-screen overflow-y-auto shadow-2xl animate-in slide-in-from-bottom-4 duration-300 scale-in-95">
         <Card className="border-0 shadow-none">
           {/* Enhanced Header */}
           <CardHeader className="relative rounded-t-2xl bg-gradient-to-r from-[#376f6b] to-[#57bbb6] text-white p-6">
@@ -196,12 +197,12 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
                   </div>
                   <span className="text-sm text-gray-600 mt-2 group-hover:text-gray-700 transition-colors duration-300">Current Pharmacy</span>
                 </div>
-                <ArrowRight className="h-6 w-6 text-[#57bbb6] animate-pulse" />
+                                 <ArrowRight className="h-6 w-6 text-[#376F6B] animate-pulse" />
                 <div className="flex flex-col items-center group">
-                  <div className="w-12 h-12 bg-gradient-to-r from-[#57bbb6] to-[#376f6b] rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg">
-                    <div className="text-white font-bold text-sm">MM</div>
-                  </div>
-                  <span className="text-sm text-[#57bbb6] mt-2 font-medium group-hover:text-[#376f6b] transition-colors duration-300">My Meds Pharmacy</span>
+                                     <div className="w-12 h-12 bg-[#376F6B] rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg">
+                     <div className="text-white font-bold text-sm">MM</div>
+                   </div>
+                   <span className="text-sm text-[#376F6B] mt-2 font-medium group-hover:text-[#2A5A56] transition-colors duration-300">My Meds Pharmacy</span>
                 </div>
               </div>
             </div>
@@ -211,8 +212,8 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
               {currentStep === 1 && (
                 <div className="space-y-6">
                   <div className="flex items-center space-x-2 mb-4">
-                    <User className="h-5 w-5 text-[#57bbb6]" />
-                    <h3 className="text-lg font-semibold text-gray-900">Patient Information</h3>
+                                         <User className="h-5 w-5 text-[#376F6B]" />
+                     <h3 className="text-lg font-semibold text-gray-900">Patient Information</h3>
                   </div>
                   
                   <div className="grid md:grid-cols-2 gap-4">
@@ -221,15 +222,15 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
                         First Name *
                       </label>
                       <div className="relative">
-                        <Input
-                          name="firstName"
-                          type="text"
-                          required
-                          value={formData.firstName}
-                          onChange={handleChange}
-                          placeholder="Enter your first name"
-                          className="pl-10 border-gray-200 focus:border-[#57bbb6] focus:ring-[#57bbb6]"
-                        />
+                                                 <Input
+                           name="firstName"
+                           type="text"
+                           required
+                           value={formData.firstName}
+                           onChange={handleChange}
+                           placeholder="Enter your first name"
+                           className="pl-10 border-gray-200 focus:border-[#376F6B] focus:ring-[#376F6B]"
+                         />
                         <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       </div>
                     </div>
@@ -238,15 +239,15 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
                         Last Name *
                       </label>
                       <div className="relative">
-                        <Input
-                          name="lastName"
-                          type="text"
-                          required
-                          value={formData.lastName}
-                          onChange={handleChange}
-                          placeholder="Enter your last name"
-                          className="pl-10 border-gray-200 focus:border-[#57bbb6] focus:ring-[#57bbb6]"
-                        />
+                                                 <Input
+                           name="lastName"
+                           type="text"
+                           required
+                           value={formData.lastName}
+                           onChange={handleChange}
+                           placeholder="Enter your last name"
+                           className="pl-10 border-gray-200 focus:border-[#376F6B] focus:ring-[#376F6B]"
+                         />
                         <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       </div>
                     </div>
@@ -258,14 +259,14 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
                         Date of Birth *
                       </label>
                       <div className="relative">
-                        <Input
-                          name="dateOfBirth"
-                          type="date"
-                          required
-                          value={formData.dateOfBirth}
-                          onChange={handleChange}
-                          className="pl-10 border-gray-200 focus:border-[#57bbb6] focus:ring-[#57bbb6]"
-                        />
+                                                 <Input
+                           name="dateOfBirth"
+                           type="date"
+                           required
+                           value={formData.dateOfBirth}
+                           onChange={handleChange}
+                           className="pl-10 border-gray-200 focus:border-[#376F6B] focus:ring-[#376F6B]"
+                         />
                         <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       </div>
                     </div>
@@ -274,15 +275,15 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
                         Phone Number *
                       </label>
                       <div className="relative">
-                        <Input
-                          name="phone"
-                          type="tel"
-                          required
-                          value={formData.phone}
-                          onChange={handleChange}
-                          placeholder="(347) 312-6458"
-                          className="pl-10 border-gray-200 focus:border-[#57bbb6] focus:ring-[#57bbb6]"
-                        />
+                                                 <Input
+                           name="phone"
+                           type="tel"
+                           required
+                           value={formData.phone}
+                           onChange={handleChange}
+                           placeholder="(347) 312-6458"
+                           className="pl-10 border-gray-200 focus:border-[#376F6B] focus:ring-[#376F6B]"
+                         />
                         <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       </div>
                     </div>
@@ -293,28 +294,28 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
                       Email Address (Optional)
                     </label>
                     <div className="relative">
-                      <Input
-                        name="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        placeholder="your@email.com"
-                        className="pl-10 border-gray-200 focus:border-[#57bbb6] focus:ring-[#57bbb6]"
-                      />
+                                             <Input
+                         name="email"
+                         type="email"
+                         value={formData.email}
+                         onChange={handleChange}
+                         placeholder="your@email.com"
+                         className="pl-10 border-gray-200 focus:border-[#376F6B] focus:ring-[#376F6B]"
+                       />
                       <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     </div>
                   </div>
 
-                  <div className="flex justify-end">
-                    <Button 
-                      type="button" 
-                      onClick={nextStep}
-                      className="bg-gradient-to-r from-[#57bbb6] to-[#376f6b] hover:shadow-lg text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105"
-                    >
-                      Next Step
-                      <ArrowRight className="h-4 w-4 ml-2" />
-                    </Button>
-                  </div>
+                                     <div className="flex justify-end">
+                     <Button 
+                       type="button" 
+                       onClick={nextStep}
+                       className="bg-[#376F6B] hover:bg-[#2A5A56] hover:shadow-lg text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105"
+                     >
+                       Next Step
+                       <ArrowRight className="h-4 w-4 ml-2" />
+                     </Button>
+                   </div>
                 </div>
               )}
 
@@ -322,8 +323,8 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
               {currentStep === 2 && (
                 <div className="space-y-6">
                   <div className="flex items-center space-x-2 mb-4">
-                    <Building2 className="h-5 w-5 text-[#57bbb6]" />
-                    <h3 className="text-lg font-semibold text-gray-900">Current Pharmacy Information</h3>
+                                         <Building2 className="h-5 w-5 text-[#376F6B]" />
+                     <h3 className="text-lg font-semibold text-gray-900">Current Pharmacy Information</h3>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-4">
@@ -332,15 +333,15 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
                         Pharmacy Name *
                       </label>
                       <div className="relative">
-                        <Input
-                          name="currentPharmacy"
-                          type="text"
-                          required
-                          value={formData.currentPharmacy}
-                          onChange={handleChange}
-                          placeholder="Name of current pharmacy"
-                          className="pl-10 border-gray-200 focus:border-[#57bbb6] focus:ring-[#57bbb6]"
-                        />
+                                                 <Input
+                           name="currentPharmacy"
+                           type="text"
+                           required
+                           value={formData.currentPharmacy}
+                           onChange={handleChange}
+                           placeholder="Name of current pharmacy"
+                           className="pl-10 border-gray-200 focus:border-[#376F6B] focus:ring-[#376F6B]"
+                         />
                         <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       </div>
                     </div>
@@ -349,15 +350,15 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
                         Pharmacy Phone *
                       </label>
                       <div className="relative">
-                        <Input
-                          name="currentPharmacyPhone"
-                          type="tel"
-                          required
-                          value={formData.currentPharmacyPhone}
-                          onChange={handleChange}
-                          placeholder="Pharmacy phone number"
-                          className="pl-10 border-gray-200 focus:border-[#57bbb6] focus:ring-[#57bbb6]"
-                        />
+                                                 <Input
+                           name="currentPharmacyPhone"
+                           type="tel"
+                           required
+                           value={formData.currentPharmacyPhone}
+                           onChange={handleChange}
+                           placeholder="Pharmacy phone number"
+                           className="pl-10 border-gray-200 focus:border-[#376F6B] focus:ring-[#376F6B]"
+                         />
                         <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       </div>
                     </div>
@@ -367,15 +368,15 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
                     <label className="block text-sm font-medium text-gray-700">
                       Pharmacy Address *
                     </label>
-                    <Input
-                      name="currentPharmacyAddress"
-                      type="text"
-                      required
-                      value={formData.currentPharmacyAddress}
-                      onChange={handleChange}
-                      placeholder="Full address of current pharmacy"
-                      className="border-gray-200 focus:border-[#57bbb6] focus:ring-[#57bbb6]"
-                    />
+                                         <Input
+                       name="currentPharmacyAddress"
+                       type="text"
+                       required
+                       value={formData.currentPharmacyAddress}
+                       onChange={handleChange}
+                       placeholder="Full address of current pharmacy"
+                       className="border-gray-200 focus:border-[#376F6B] focus:ring-[#376F6B]"
+                     />
                   </div>
 
                   <div className="flex justify-between">
@@ -383,14 +384,14 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
                       type="button" 
                       onClick={prevStep}
                       variant="outline"
-                      className="border-gray-200 hover:border-[#57bbb6] hover:text-[#57bbb6]"
+                      className="border-gray-200 hover:border-[#376F6B] hover:text-[#376F6B]"
                     >
                       Previous
                     </Button>
                     <Button 
                       type="button" 
                       onClick={nextStep}
-                      className="bg-gradient-to-r from-[#57bbb6] to-[#376f6b] hover:shadow-lg text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105"
+                      className="bg-[#376F6B] hover:bg-[#2A5A56] hover:shadow-lg text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105"
                     >
                       Next Step
                       <ArrowRight className="h-4 w-4 ml-2" />
@@ -403,8 +404,8 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
               {currentStep === 3 && (
                 <div className="space-y-6">
                   <div className="flex items-center space-x-2 mb-4">
-                    <Pill className="h-5 w-5 text-[#57bbb6]" />
-                    <h3 className="text-lg font-semibold text-gray-900">Prescription Information</h3>
+                                         <Pill className="h-5 w-5 text-[#376F6B]" />
+                     <h3 className="text-lg font-semibold text-gray-900">Prescription Information</h3>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-4">
@@ -413,15 +414,15 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
                         Medication Name *
                       </label>
                       <div className="relative">
-                        <Input
-                          name="medication"
-                          type="text"
-                          required
-                          value={formData.medication}
-                          onChange={handleChange}
-                          placeholder="e.g., Lisinopril 10mg"
-                          className="pl-10 border-gray-200 focus:border-[#57bbb6] focus:ring-[#57bbb6]"
-                        />
+                                                 <Input
+                           name="medication"
+                           type="text"
+                           required
+                           value={formData.medication}
+                           onChange={handleChange}
+                           placeholder="e.g., Lisinopril 10mg"
+                           className="pl-10 border-gray-200 focus:border-[#376F6B] focus:ring-[#376F6B]"
+                         />
                         <Pill className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       </div>
                     </div>
@@ -430,14 +431,14 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
                         Prescription Number
                       </label>
                       <div className="relative">
-                        <Input
-                          name="prescriptionNumber"
-                          type="text"
-                          value={formData.prescriptionNumber}
-                          onChange={handleChange}
-                          placeholder="Rx# (if available)"
-                          className="pl-10 border-gray-200 focus:border-[#57bbb6] focus:ring-[#57bbb6]"
-                        />
+                                                 <Input
+                           name="prescriptionNumber"
+                           type="text"
+                           value={formData.prescriptionNumber}
+                           onChange={handleChange}
+                           placeholder="Rx# (if available)"
+                           className="pl-10 border-gray-200 focus:border-[#376F6B] focus:ring-[#376F6B]"
+                         />
                         <FileText className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       </div>
                     </div>
@@ -447,29 +448,29 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
                     <label className="block text-sm font-medium text-gray-700">
                       Prescribing Doctor *
                     </label>
-                    <Input
-                      name="prescribingDoctor"
-                      type="text"
-                      required
-                      value={formData.prescribingDoctor}
-                      onChange={handleChange}
-                      placeholder="Doctor's name"
-                      className="border-gray-200 focus:border-[#57bbb6] focus:ring-[#57bbb6]"
-                    />
+                                         <Input
+                       name="prescribingDoctor"
+                       type="text"
+                       required
+                       value={formData.prescribingDoctor}
+                       onChange={handleChange}
+                       placeholder="Doctor's name"
+                       className="border-gray-200 focus:border-[#376F6B] focus:ring-[#376F6B]"
+                     />
                   </div>
 
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">
                       Additional Notes
                     </label>
-                    <Textarea
-                      name="notes"
-                      rows={3}
-                      value={formData.notes}
-                      onChange={handleChange}
-                      placeholder="Any specific instructions or multiple medications to transfer..."
-                      className="border-gray-200 focus:border-[#57bbb6] focus:ring-[#57bbb6]"
-                    />
+                                         <Textarea
+                       name="notes"
+                       rows={3}
+                       value={formData.notes}
+                       onChange={handleChange}
+                       placeholder="Any specific instructions or multiple medications to transfer..."
+                       className="border-gray-200 focus:border-[#376F6B] focus:ring-[#376F6B]"
+                     />
                   </div>
 
                   <div className="flex justify-between">
@@ -477,14 +478,14 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
                       type="button" 
                       onClick={prevStep}
                       variant="outline"
-                      className="border-gray-200 hover:border-[#57bbb6] hover:text-[#57bbb6]"
+                      className="border-gray-200 hover:border-[#376F6B] hover:text-[#376F6B]"
                     >
                       Previous
                     </Button>
                     <Button 
                       type="button" 
                       onClick={nextStep}
-                      className="bg-gradient-to-r from-[#57bbb6] to-[#376f6b] hover:shadow-lg text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105"
+                      className="bg-[#376F6B] hover:bg-[#2A5A56] hover:shadow-lg text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105"
                     >
                       Next Step
                       <ArrowRight className="h-4 w-4 ml-2" />
@@ -497,8 +498,8 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
               {currentStep === 4 && (
                 <div className="space-y-6">
                   <div className="flex items-center space-x-2 mb-4">
-                    <Shield className="h-5 w-5 text-[#57bbb6]" />
-                    <h3 className="text-lg font-semibold text-gray-900">Insurance & Submit</h3>
+                                         <Shield className="h-5 w-5 text-[#376F6B]" />
+                     <h3 className="text-lg font-semibold text-gray-900">Insurance & Submit</h3>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-4">
@@ -507,14 +508,14 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
                         Insurance Provider
                       </label>
                       <div className="relative">
-                        <Input
-                          name="insuranceProvider"
-                          type="text"
-                          value={formData.insuranceProvider}
-                          onChange={handleChange}
-                          placeholder="e.g., Blue Cross Blue Shield"
-                          className="pl-10 border-gray-200 focus:border-[#57bbb6] focus:ring-[#57bbb6]"
-                        />
+                                                 <Input
+                           name="insuranceProvider"
+                           type="text"
+                           value={formData.insuranceProvider}
+                           onChange={handleChange}
+                           placeholder="e.g., Blue Cross Blue Shield"
+                           className="pl-10 border-gray-200 focus:border-[#376F6B] focus:ring-[#376F6B]"
+                         />
                         <CreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       </div>
                     </div>
@@ -522,14 +523,14 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
                       <label className="block text-sm font-medium text-gray-700">
                         Member ID
                       </label>
-                      <Input
-                        name="insuranceMemberID"
-                        type="text"
-                        value={formData.insuranceMemberID}
-                        onChange={handleChange}
-                        placeholder="Insurance member ID"
-                        className="border-gray-200 focus:border-[#57bbb6] focus:ring-[#57bbb6]"
-                      />
+                                             <Input
+                         name="insuranceMemberID"
+                         type="text"
+                         value={formData.insuranceMemberID}
+                         onChange={handleChange}
+                         placeholder="Insurance member ID"
+                         className="border-gray-200 focus:border-[#376F6B] focus:ring-[#376F6B]"
+                       />
                     </div>
                   </div>
 
@@ -539,13 +540,13 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
                       Upload Prescription *
                     </label>
                     <div
-                      className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 ${
-                        dragActive 
-                          ? 'border-[#57bbb6] bg-[#57bbb6]/5' 
-                          : prescriptionFile 
-                            ? 'border-green-500 bg-green-50' 
-                            : 'border-gray-300 hover:border-[#57bbb6] hover:bg-gray-50'
-                      }`}
+                                             className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 ${
+                         dragActive 
+                           ? 'border-[#376F6B] bg-[#376F6B]/5' 
+                           : prescriptionFile 
+                             ? 'border-green-500 bg-green-50' 
+                             : 'border-gray-300 hover:border-[#376F6B] hover:bg-gray-50'
+                       }`}
                       onDragEnter={handleDrag}
                       onDragLeave={handleDrag}
                       onDragOver={handleDrag}
@@ -567,9 +568,9 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
                         <div className="space-y-2">
                           <p className="text-gray-600">
                             Drag and drop your prescription here, or{' '}
-                            <label htmlFor="prescriptionFile" className="text-[#57bbb6] hover:text-[#376f6b] cursor-pointer font-medium">
-                              browse files
-                            </label>
+                                                         <label htmlFor="prescriptionFile" className="text-[#376F6B] hover:text-[#2A5A56] cursor-pointer font-medium">
+                               browse files
+                             </label>
                           </p>
                           <p className="text-xs text-gray-500">
                             Supports: JPG, PNG, PDF (Max 10MB)
@@ -624,7 +625,7 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
                     <Button 
                       type="submit" 
                       disabled={loading || !prescriptionFile}
-                      className="bg-gradient-to-r from-[#57bbb6] to-[#376f6b] hover:shadow-lg text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+                                             className="bg-[#376F6B] hover:bg-[#2A5A56] hover:shadow-lg text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
                     >
                       {loading ? (
                         <div className="flex items-center">

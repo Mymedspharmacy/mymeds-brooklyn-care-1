@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import railwayAuth from '../lib/railwayAuth';
-import logo from '../assets/logo.png';
+
 import { Eye, EyeOff, Loader2, ArrowLeft, Lock, Mail, X } from 'lucide-react';
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 
 export default function AdminSignIn() {
   const [username, setUsername] = useState('');
@@ -81,8 +83,15 @@ export default function AdminSignIn() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#e6f7f6] via-[#f5fefd] to-[#d2f1ef] p-4">
-      <div className={`transition-all duration-700 ease-out transform ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
+    <div className="min-h-screen bg-[#D5C6BC]">
+      <Header 
+        onRefillClick={() => navigate('/', { state: { openRefillForm: true } })}
+        onAppointmentClick={() => navigate('/', { state: { openAppointmentForm: true } })}
+        onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
+      />
+      
+      <div className="pt-20 flex items-center justify-center p-4">
+        <div className={`transition-all duration-700 ease-out transform ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
         <form
           className="bg-white/95 backdrop-blur-sm p-6 sm:p-8 rounded-2xl shadow-2xl w-full max-w-sm flex flex-col items-center border border-[#e0f2f1]"
           onSubmit={handleSubmit}
@@ -100,7 +109,7 @@ export default function AdminSignIn() {
           {/* Logo and Title */}
           <div className="flex flex-col items-center mb-6">
             <div className="relative">
-              <img src={logo} alt="Pharmacy Logo" className="w-20 sm:w-24 md:w-28 h-auto mb-4 shadow-lg"/>
+              <img src="/logo.png" alt="My Meds Pharmacy Logo" className="w-20 sm:w-24 md:w-28 h-auto mb-4 shadow-lg"/>
               <div className="absolute -top-1 -right-1 w-6 h-6 bg-[#57bbb6] rounded-full flex items-center justify-center">
                 <Lock size={12} className="text-white" />
               </div>
@@ -272,6 +281,9 @@ export default function AdminSignIn() {
           animation: shake 0.5s ease-in-out;
         }
       `}</style>
+      </div>
+
+      <Footer />
     </div>
   );
 } 

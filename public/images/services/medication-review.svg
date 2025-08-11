@@ -1,0 +1,9 @@
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="300" fill="#f8fafc"/>
+  <rect x="50" y="50" width="300" height="200" rx="20" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="2"/>
+  <circle cx="200" cy="120" r="40" fill="#8b5cf6"/>
+  <path d="M 180 120 L 190 130 L 220 100" stroke="#ffffff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="150" y="160" width="100" height="8" rx="4" fill="#64748b"/>
+  <rect x="150" y="175" width="80" height="8" rx="4" fill="#64748b"/>
+  <text x="200" y="250" text-anchor="middle" fill="#64748b" font-family="Arial" font-size="16">Medication Review</text>
+</svg>

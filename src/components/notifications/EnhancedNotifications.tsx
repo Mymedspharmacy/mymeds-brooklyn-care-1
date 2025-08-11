@@ -11,6 +11,7 @@ import {
   Filter, Search, Eye, EyeOff, Trash2, CheckSquare,
   Clock, Star, MessageSquare, ShoppingCart, Pill, RefreshCw
 } from 'lucide-react';
+import React from 'react';
 
 interface Notification {
   id: number;
@@ -247,7 +248,7 @@ export function EnhancedNotifications({
             <Checkbox
               checked={selectAll}
               onCheckedChange={handleSelectAll}
-              className="data-[state=checked]:bg-brand"
+                                    className="data-[state=checked]:bg-[#376F6B]"
             />
             <span className="text-sm text-gray-600">Select All</span>
           </div>
@@ -301,7 +302,7 @@ export function EnhancedNotifications({
                   <Checkbox
                     checked={selectedNotifications.includes(notification.id)}
                     onCheckedChange={() => handleNotificationSelection(notification.id)}
-                    className="mt-1 data-[state=checked]:bg-brand"
+                    className="mt-1 data-[state=checked]:bg-[#376F6B]"
                   />
                   <div className="flex-1">
                     <div className="flex items-start justify-between">
@@ -401,7 +402,9 @@ export function EnhancedNotifications({
           <DialogHeader>
             <DialogTitle className="flex items-center space-x-2">
               {showDetails && TYPE_ICONS[showDetails.type] && (
-                <showDetails.type className={`h-5 w-5 ${TYPE_COLORS[showDetails.type]}`} />
+                React.createElement(TYPE_ICONS[showDetails.type], { 
+                  className: `h-5 w-5 ${TYPE_COLORS[showDetails.type]}` 
+                })
               )}
               <span>Notification Details</span>
             </DialogTitle>

@@ -8,7 +8,7 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 60 9% 98%; /* beige background */
     --foreground: 0 0% 14%;
 
     --card: 0 0% 100%;
@@ -117,7 +117,7 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-brand-beige text-foreground;
   }
 }
 
@@ -126,4 +126,7 @@ All colors MUST be HSL.
   .divider-y { @apply border-t border-b border-gray-200; }
   .divider-x { @apply border-l border-r border-gray-200; }
   .divider { @apply border border-gray-200; }
+  
+  /* Custom beige background utility */
+  .bg-beige { background-color: #f5f5dc; }
 }

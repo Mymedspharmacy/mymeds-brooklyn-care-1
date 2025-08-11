@@ -34,6 +34,8 @@ import {
   Info
 } from 'lucide-react';
 import { HIPAAFormBanner } from '@/components/HIPAACompliance';
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import api from '@/lib/api';
 
 interface AccountCreationData {
@@ -100,35 +102,18 @@ interface AccountCreationData {
   };
 }
 
-const securityQuestions = [
-  "What was the name of your first pet?",
-  "In what city were you born?",
-  "What was your mother's maiden name?",
-  "What was the make of your first car?",
-  "What was the name of your first school?",
-  "What is your favorite book?",
-  "What was your childhood nickname?",
-  "What is the name of the street you grew up on?"
-];
-
-const states = [
-  "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
-  "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
-  "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
-  "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
-  "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
-];
-
 export default function PatientAccountCreation() {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
+  
+  // Helper function to render the current step icon
+  const renderStepIcon = () => {
+    const IconComponent = steps[currentStep - 1].icon;
+    return <IconComponent className="h-6 w-6" />;
+  };
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [verificationProgress, setVerificationProgress] = useState(0);
-  
   const [formData, setFormData] = useState<AccountCreationData>({
     firstName: '',
     lastName: '',
@@ -176,6 +161,17 @@ export default function PatientAccountCreation() {
     }
   });
 
+  const securityQuestions = [
+    "What was the name of your first pet?",
+    "In what city were you born?",
+    "What was your mother's maiden name?",
+    "What was the name of your first school?",
+    "What was your favorite food as a child?",
+    "What was the make of your first car?",
+    "What was the name of the street you grew up on?",
+    "What was your favorite subject in school?"
+  ];
+
   const updateFormData = (field: keyof AccountCreationData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -183,372 +179,372 @@ export default function PatientAccountCreation() {
   const updateSecurityQuestion = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
-      securityQuestions: {
-        ...prev.securityQuestions,
-        [field]: value
-      }
+      securityQuestions: { ...prev.securityQuestions, [field]: value }
     }));
   };
 
   const handleFileUpload = (field: keyof AccountCreationData, file: File) => {
-    // Validate file type and size
-    const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
-    const maxSize = 5 * 1024 * 1024; // 5MB
-
-    if (!allowedTypes.includes(file.type)) {
-      setError('Please upload only JPEG, PNG, or PDF files');
+    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+      alert('File size must be less than 10MB');
       return;
     }
-
-    if (file.size > maxSize) {
-      setError('File size must be less than 5MB');
-      return;
-    }
-
     updateFormData(field, file);
-    setError('');
   };
 
   const validateStep = (step: number): boolean => {
     switch (step) {
-      case 1: // Personal Information
-        return !!(formData.firstName && formData.lastName && formData.dateOfBirth && 
-                 formData.email && formData.phone && formData.ssn);
-      
-      case 2: // Address & Emergency Contact
-        return !!(formData.address && formData.city && formData.state && formData.zipCode &&
-                 formData.emergencyContactName && formData.emergencyContactPhone);
-      
-      case 3: // Insurance & Medical
-        return !!(formData.insuranceProvider && formData.insuranceGroupNumber && 
-                 formData.insuranceMemberId && formData.primaryCarePhysician);
-      
-      case 4: // Legal Documentation
-        return !!(formData.governmentIdType && formData.governmentIdNumber && 
-                 formData.governmentIdFile && formData.proofOfAddressFile);
-      
-      case 5: // Legal Agreements
-        return !!(formData.termsAccepted && formData.privacyPolicyAccepted && 
-                 formData.hipaaConsent && formData.medicalAuthorization && 
-                 formData.financialResponsibility);
-      
-      case 6: // Security Setup
-        return !!(formData.password && formData.confirmPassword && 
-                 formData.password === formData.confirmPassword &&
-                 formData.password.length >= 8 &&
-                 formData.securityQuestions.answer1 && 
-                 formData.securityQuestions.answer2 && 
-                 formData.securityQuestions.answer3);
-      
+      case 1:
+        return Boolean(formData.firstName) && Boolean(formData.lastName) && Boolean(formData.dateOfBirth) && 
+               Boolean(formData.email) && Boolean(formData.phone) && Boolean(formData.ssn);
+      case 2:
+        return Boolean(formData.address) && Boolean(formData.city) && Boolean(formData.state) && Boolean(formData.zipCode) &&
+               Boolean(formData.emergencyContactName) && Boolean(formData.emergencyContactPhone) && 
+               Boolean(formData.emergencyContactRelationship);
+      case 3:
+        return Boolean(formData.insuranceProvider) && Boolean(formData.insuranceGroupNumber) && 
+               Boolean(formData.insuranceMemberId);
+      case 4:
+        return Boolean(formData.primaryCarePhysician) && Boolean(formData.physicianPhone);
+      case 5:
+        return Boolean(formData.governmentIdType) && Boolean(formData.governmentIdNumber) && 
+               Boolean(formData.governmentIdFile) && Boolean(formData.proofOfAddressFile) && 
+               Boolean(formData.insuranceCardFile);
+      case 6:
+        return Boolean(formData.password) && Boolean(formData.confirmPassword) && 
+               formData.password === formData.confirmPassword &&
+               Boolean(formData.securityQuestions.question1) && Boolean(formData.securityQuestions.answer1) &&
+               Boolean(formData.securityQuestions.question2) && Boolean(formData.securityQuestions.answer2) &&
+               Boolean(formData.securityQuestions.question3) && Boolean(formData.securityQuestions.answer3) &&
+               formData.termsAccepted && formData.privacyPolicyAccepted && 
+               formData.hipaaConsent && formData.medicalAuthorization && 
+               formData.financialResponsibility;
       default:
         return false;
     }
   };
 
   const handleSubmit = async () => {
-    if (!validateStep(currentStep)) {
-      setError('Please complete all required fields');
-      return;
-    }
-
     if (currentStep < 6) {
       setCurrentStep(currentStep + 1);
-      setError('');
       return;
     }
 
-    // Final submission
     setLoading(true);
-    setError('');
-
     try {
-      // Create FormData for file uploads
-      const submitData = new FormData();
+      const formDataToSend = new FormData();
       
-      // Add all form data
-      Object.keys(formData).forEach(key => {
+      // Append all form data
+      Object.entries(formData).forEach(([key, value]) => {
         if (key === 'securityQuestions') {
-          submitData.append(key, JSON.stringify(formData.securityQuestions));
-        } else if (key.includes('File') && formData[key as keyof AccountCreationData]) {
-          submitData.append(key, formData[key as keyof AccountCreationData] as File);
-        } else if (key !== 'governmentIdFile' && key !== 'proofOfAddressFile' && key !== 'insuranceCardFile') {
-          submitData.append(key, String(formData[key as keyof AccountCreationData]));
+          formDataToSend.append(key, JSON.stringify(value));
+        } else if (value instanceof File) {
+          formDataToSend.append(key, value);
+        } else if (typeof value === 'boolean') {
+          formDataToSend.append(key, value.toString());
+        } else {
+          formDataToSend.append(key, value);
         }
       });
 
-      // Submit to backend
-      const response = await api.post('/patient/register', submitData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-
-      setSuccess('Account created successfully! You will receive verification email shortly.');
+      const response = await api.post('/patient/account-creation', formDataToSend);
       
-      // Redirect to patient portal after 3 seconds
-      setTimeout(() => {
+      if (response.status === 200) {
+        alert('Account creation request submitted successfully! Our team will review your information within 24-48 hours.');
         navigate('/patient-portal');
-      }, 3000);
-
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to create account. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error creating account:', error);
+      alert('There was an error creating your account. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   const steps = [
-    { number: 1, title: 'Personal Information', icon: User },
-    { number: 2, title: 'Address & Emergency', icon: MapPin },
-    { number: 3, title: 'Insurance & Medical', icon: FileText },
-    { number: 4, title: 'Identity Verification', icon: Shield },
-    { number: 5, title: 'Legal Agreements', icon: FileCheck },
-    { number: 6, title: 'Security Setup', icon: Lock }
+    { title: 'Personal Information', icon: User },
+    { title: 'Address & Emergency Contact', icon: MapPin },
+    { title: 'Insurance Information', icon: CreditCard },
+    { title: 'Medical Information', icon: FileText },
+    { title: 'Documentation', icon: FileCheck },
+    { title: 'Security & Agreements', icon: Shield }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-brand-light/30 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Patient Account</h1>
-          <p className="text-gray-600">Complete the registration process to access your secure patient portal</p>
-        </div>
+    <div className="min-h-screen bg-[#D5C6BC]">
+      <Header 
+        onRefillClick={() => navigate('/', { state: { openRefillForm: true } })}
+        onAppointmentClick={() => navigate('/', { state: { openAppointmentForm: true } })}
+        onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
+      />
+      
+      <div className="pt-20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-4xl mx-auto">
+            {/* Header */}
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center gap-2 bg-[#57BBB6] text-white px-6 py-3 rounded-full text-sm font-semibold mb-6 shadow-lg">
+                <User className="h-5 w-5" />
+                Patient Account Creation
+              </div>
+              
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#376F6B] mb-4">
+                Create Your Patient Account
+              </h1>
+              
+              <p className="text-lg sm:text-xl text-[#376F6B] max-w-3xl mx-auto">
+                Join our pharmacy family and get access to personalized care, prescription management, 
+                and exclusive health services. Your information is protected and secure.
+              </p>
+            </div>
 
-        <HIPAAFormBanner />
-
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
-              Account Creation Progress
-            </CardTitle>
-            <CardDescription>
-              Step {currentStep} of 6: {steps[currentStep - 1]?.title}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between mb-4">
-              {steps.map((step, index) => (
-                <div key={step.number} className="flex items-center">
-                  <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
-                    step.number <= currentStep 
-                      ? 'bg-brand text-white border-brand' 
-                      : 'bg-gray-100 text-gray-400 border-gray-300'
-                  }`}>
-                    {step.number < currentStep ? (
-                      <CheckCircle className="h-5 w-5" />
-                    ) : (
-                      <step.icon className="h-5 w-5" />
+            {/* Progress Bar */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-4">
+                {steps.map((step, index) => (
+                  <div key={index} className="flex items-center">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold ${
+                      index + 1 <= currentStep 
+                        ? 'bg-[#57BBB6] text-white' 
+                        : 'bg-gray-200 text-gray-600'
+                    }`}>
+                      {index + 1 < currentStep ? (
+                        <CheckCircle className="h-5 w-5" />
+                      ) : (
+                        <step.icon className="h-5 w-5" />
+                      )}
+                    </div>
+                    {index < steps.length - 1 && (
+                      <div className={`w-16 h-1 mx-2 ${
+                        index + 1 < currentStep ? 'bg-[#57BBB6]' : 'bg-gray-200'
+                      }`} />
                     )}
                   </div>
-                  {index < steps.length - 1 && (
-                    <div className={`w-16 h-0.5 mx-2 ${
-                      step.number < currentStep ? 'bg-brand' : 'bg-gray-300'
-                    }`} />
-                  )}
-                </div>
-              ))}
+                ))}
+              </div>
+              
+              <Progress value={(currentStep / steps.length) * 100} className="h-2" />
+              <p className="text-center text-sm text-gray-600 mt-2">
+                Step {currentStep} of {steps.length}: {steps[currentStep - 1].title}
+              </p>
             </div>
-            <Progress value={(currentStep / 6) * 100} className="w-full" />
-          </CardContent>
-        </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{steps[currentStep - 1]?.title}</CardTitle>
-            <CardDescription>
-              {currentStep === 1 && "Please provide your basic personal information"}
-              {currentStep === 2 && "Enter your address and emergency contact details"}
-              {currentStep === 3 && "Provide insurance and medical information"}
-              {currentStep === 4 && "Upload required documents for identity verification"}
-              {currentStep === 5 && "Review and accept legal agreements"}
-              {currentStep === 6 && "Set up your account security"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {error && (
-              <Alert className="mb-6">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
+            {/* HIPAA Banner */}
+            <div className="mb-8">
+              <HIPAAFormBanner />
+            </div>
 
-            {success && (
-              <Alert className="mb-6">
-                <CheckCircle className="h-4 w-4" />
-                <AlertDescription>{success}</AlertDescription>
-              </Alert>
-            )}
+            {/* Main Form */}
+            <Card className="border-0 shadow-xl">
+              <CardHeader>
+                <CardTitle className="text-2xl font-bold text-[#376F6B] flex items-center gap-3">
+                  {renderStepIcon()}
+                  {steps[currentStep - 1].title}
+                </CardTitle>
+                <CardDescription>
+                  {currentStep === 1 && "Please provide your basic personal information to get started."}
+                  {currentStep === 2 && "Tell us where you live and who to contact in case of emergency."}
+                  {currentStep === 3 && "Help us work with your insurance provider for the best coverage."}
+                  {currentStep === 4 && "Share your medical information so we can provide better care."}
+                  {currentStep === 5 && "Upload required documents to verify your identity and insurance."}
+                  {currentStep === 6 && "Set up your account security and review legal agreements."}
+                </CardDescription>
+              </CardHeader>
 
-            <div className="space-y-6">
-              {currentStep === 1 && (
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="firstName">First Name *</Label>
-                      <Input
-                        id="firstName"
-                        value={formData.firstName}
-                        onChange={(e) => updateFormData('firstName', e.target.value)}
-                        placeholder="Enter your first name"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="lastName">Last Name *</Label>
-                      <Input
-                        id="lastName"
-                        value={formData.lastName}
-                        onChange={(e) => updateFormData('lastName', e.target.value)}
-                        placeholder="Enter your last name"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="dateOfBirth">Date of Birth *</Label>
-                      <Input
-                        id="dateOfBirth"
-                        type="date"
-                        value={formData.dateOfBirth}
-                        onChange={(e) => updateFormData('dateOfBirth', e.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="ssn">Social Security Number *</Label>
-                      <Input
-                        id="ssn"
-                        type="password"
-                        value={formData.ssn}
-                        onChange={(e) => updateFormData('ssn', e.target.value)}
-                        placeholder="XXX-XX-XXXX"
-                        maxLength={11}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="email">Email Address *</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => updateFormData('email', e.target.value)}
-                        placeholder="Enter your email address"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="phone">Phone Number *</Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        value={formData.phone}
-                        onChange={(e) => updateFormData('phone', e.target.value)}
-                        placeholder="(555) 123-4567"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {currentStep === 2 && (
-                <div className="space-y-6">
-                  <div>
-                    <Label htmlFor="address">Street Address *</Label>
-                    <Input
-                      id="address"
-                      value={formData.address}
-                      onChange={(e) => updateFormData('address', e.target.value)}
-                      placeholder="Enter your street address"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <Label htmlFor="city">City *</Label>
-                      <Input
-                        id="city"
-                        value={formData.city}
-                        onChange={(e) => updateFormData('city', e.target.value)}
-                        placeholder="Enter city"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="state">State *</Label>
-                      <Select value={formData.state} onValueChange={(value) => updateFormData('state', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select state" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {states.map(state => (
-                            <SelectItem key={state} value={state}>{state}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="zipCode">ZIP Code *</Label>
-                      <Input
-                        id="zipCode"
-                        value={formData.zipCode}
-                        onChange={(e) => updateFormData('zipCode', e.target.value)}
-                        placeholder="Enter ZIP code"
-                        maxLength={10}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="border-t pt-6">
-                    <h3 className="text-lg font-semibold mb-4">Emergency Contact</h3>
+              <CardContent className="space-y-6">
+                {/* Step 1: Personal Information */}
+                {currentStep === 1 && (
+                  <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="emergencyContactName">Emergency Contact Name *</Label>
+                        <Label htmlFor="firstName">First Name *</Label>
                         <Input
-                          id="emergencyContactName"
-                          value={formData.emergencyContactName}
-                          onChange={(e) => updateFormData('emergencyContactName', e.target.value)}
-                          placeholder="Enter emergency contact name"
+                          id="firstName"
+                          value={formData.firstName}
+                          onChange={(e) => updateFormData('firstName', e.target.value)}
+                          placeholder="Enter your first name"
+                          className="border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]"
                         />
                       </div>
+                      
                       <div>
-                        <Label htmlFor="emergencyContactPhone">Emergency Contact Phone *</Label>
+                        <Label htmlFor="lastName">Last Name *</Label>
                         <Input
-                          id="emergencyContactPhone"
+                          id="lastName"
+                          value={formData.lastName}
+                          onChange={(e) => updateFormData('lastName', e.target.value)}
+                          placeholder="Enter your last name"
+                          className="border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="dateOfBirth">Date of Birth *</Label>
+                        <Input
+                          id="dateOfBirth"
+                          type="date"
+                          value={formData.dateOfBirth}
+                          onChange={(e) => updateFormData('dateOfBirth', e.target.value)}
+                          className="border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]"
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="ssn">Social Security Number *</Label>
+                        <Input
+                          id="ssn"
+                          value={formData.ssn}
+                          onChange={(e) => updateFormData('ssn', e.target.value)}
+                          placeholder="XXX-XX-XXXX"
+                          className="border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="email">Email Address *</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={formData.email}
+                          onChange={(e) => updateFormData('email', e.target.value)}
+                          placeholder="Enter your email address"
+                          className="border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]"
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="phone">Phone Number *</Label>
+                        <Input
+                          id="phone"
                           type="tel"
-                          value={formData.emergencyContactPhone}
-                          onChange={(e) => updateFormData('emergencyContactPhone', e.target.value)}
-                          placeholder="(555) 123-4567"
+                          value={formData.phone}
+                          onChange={(e) => updateFormData('phone', e.target.value)}
+                          placeholder="(XXX) XXX-XXXX"
+                          className="border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]"
                         />
                       </div>
-                    </div>
-                    <div className="mt-4">
-                      <Label htmlFor="emergencyContactRelationship">Relationship *</Label>
-                      <Input
-                        id="emergencyContactRelationship"
-                        value={formData.emergencyContactRelationship}
-                        onChange={(e) => updateFormData('emergencyContactRelationship', e.target.value)}
-                        placeholder="e.g., Spouse, Parent, Friend"
-                      />
                     </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {currentStep === 3 && (
-                <div className="space-y-6">
-                  <div className="border-b pb-4">
-                    <h3 className="text-lg font-semibold mb-4">Insurance Information</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Step 2: Address & Emergency Contact */}
+                {currentStep === 2 && (
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="address">Street Address *</Label>
+                      <Input
+                        id="address"
+                        value={formData.address}
+                        onChange={(e) => updateFormData('address', e.target.value)}
+                        placeholder="Enter your street address"
+                        className="border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <Label htmlFor="insuranceProvider">Insurance Provider *</Label>
+                        <Label htmlFor="city">City *</Label>
                         <Input
-                          id="insuranceProvider"
-                          value={formData.insuranceProvider}
-                          onChange={(e) => updateFormData('insuranceProvider', e.target.value)}
-                          placeholder="Enter insurance provider name"
+                          id="city"
+                          value={formData.city}
+                          onChange={(e) => updateFormData('city', e.target.value)}
+                          placeholder="Enter your city"
+                          className="border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]"
                         />
                       </div>
+                      
+                      <div>
+                        <Label htmlFor="state">State *</Label>
+                        <Select value={formData.state} onValueChange={(value) => updateFormData('state', value)}>
+                          <SelectTrigger className="border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]">
+                            <SelectValue placeholder="Select state" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="NY">New York</SelectItem>
+                            <SelectItem value="NJ">New Jersey</SelectItem>
+                            <SelectItem value="CT">Connecticut</SelectItem>
+                            <SelectItem value="PA">Pennsylvania</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="zipCode">ZIP Code *</Label>
+                        <Input
+                          id="zipCode"
+                          value={formData.zipCode}
+                          onChange={(e) => updateFormData('zipCode', e.target.value)}
+                          placeholder="Enter ZIP code"
+                          className="border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="border-t pt-6">
+                      <h3 className="text-lg font-semibold text-[#376F6B] mb-4">Emergency Contact</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="emergencyContactName">Emergency Contact Name *</Label>
+                          <Input
+                            id="emergencyContactName"
+                            value={formData.emergencyContactName}
+                            onChange={(e) => updateFormData('emergencyContactName', e.target.value)}
+                            placeholder="Enter emergency contact name"
+                            className="border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]"
+                          />
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor="emergencyContactPhone">Emergency Contact Phone *</Label>
+                          <Input
+                            id="emergencyContactPhone"
+                            type="tel"
+                            value={formData.emergencyContactPhone}
+                            onChange={(e) => updateFormData('emergencyContactPhone', e.target.value)}
+                            placeholder="(XXX) XXX-XXXX"
+                            className="border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="mt-4">
+                        <Label htmlFor="emergencyContactRelationship">Relationship *</Label>
+                        <Select value={formData.emergencyContactRelationship} onValueChange={(value) => updateFormData('emergencyContactRelationship', value)}>
+                          <SelectTrigger className="border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]">
+                            <SelectValue placeholder="Select relationship" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="spouse">Spouse</SelectItem>
+                            <SelectItem value="parent">Parent</SelectItem>
+                            <SelectItem value="child">Child</SelectItem>
+                            <SelectItem value="sibling">Sibling</SelectItem>
+                            <SelectItem value="friend">Friend</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 3: Insurance Information */}
+                {currentStep === 3 && (
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="insuranceProvider">Insurance Provider *</Label>
+                      <Input
+                        id="insuranceProvider"
+                        value={formData.insuranceProvider}
+                        onChange={(e) => updateFormData('insuranceProvider', e.target.value)}
+                        placeholder="Enter your insurance provider name"
+                        className="border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="insuranceGroupNumber">Group Number *</Label>
                         <Input
@@ -556,22 +552,27 @@ export default function PatientAccountCreation() {
                           value={formData.insuranceGroupNumber}
                           onChange={(e) => updateFormData('insuranceGroupNumber', e.target.value)}
                           placeholder="Enter group number"
+                          className="border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]"
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="insuranceMemberId">Member ID *</Label>
+                        <Input
+                          id="insuranceMemberId"
+                          value={formData.insuranceMemberId}
+                          onChange={(e) => updateFormData('insuranceMemberId', e.target.value)}
+                          placeholder="Enter member ID"
+                          className="border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]"
                         />
                       </div>
                     </div>
-                    <div className="mt-4">
-                      <Label htmlFor="insuranceMemberId">Member ID *</Label>
-                      <Input
-                        id="insuranceMemberId"
-                        value={formData.insuranceMemberId}
-                        onChange={(e) => updateFormData('insuranceMemberId', e.target.value)}
-                        placeholder="Enter member ID"
-                      />
-                    </div>
                   </div>
+                )}
 
-                  <div>
-                    <h3 className="text-lg font-semibold mb-4">Medical Information</h3>
+                {/* Step 4: Medical Information */}
+                {currentStep === 4 && (
+                  <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="primaryCarePhysician">Primary Care Physician *</Label>
@@ -580,8 +581,10 @@ export default function PatientAccountCreation() {
                           value={formData.primaryCarePhysician}
                           onChange={(e) => updateFormData('primaryCarePhysician', e.target.value)}
                           placeholder="Enter physician name"
+                          className="border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]"
                         />
                       </div>
+                      
                       <div>
                         <Label htmlFor="physicianPhone">Physician Phone *</Label>
                         <Input
@@ -589,69 +592,68 @@ export default function PatientAccountCreation() {
                           type="tel"
                           value={formData.physicianPhone}
                           onChange={(e) => updateFormData('physicianPhone', e.target.value)}
-                          placeholder="(555) 123-4567"
+                          placeholder="(XXX) XXX-XXXX"
+                          className="border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]"
                         />
                       </div>
                     </div>
-                    <div className="mt-4">
-                      <Label htmlFor="allergies">Allergies</Label>
+
+                    <div>
+                      <Label htmlFor="allergies">Allergies (Optional)</Label>
                       <Textarea
                         id="allergies"
                         value={formData.allergies}
                         onChange={(e) => updateFormData('allergies', e.target.value)}
-                        placeholder="List any known allergies (or 'None')"
-                        rows={2}
+                        placeholder="List any known allergies or 'None'"
+                        rows={3}
+                        className="border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]"
                       />
                     </div>
-                    <div className="mt-4">
-                      <Label htmlFor="currentMedications">Current Medications</Label>
+
+                    <div>
+                      <Label htmlFor="currentMedications">Current Medications (Optional)</Label>
                       <Textarea
                         id="currentMedications"
                         value={formData.currentMedications}
                         onChange={(e) => updateFormData('currentMedications', e.target.value)}
-                        placeholder="List current medications (or 'None')"
-                        rows={2}
+                        placeholder="List current medications or 'None'"
+                        rows={3}
+                        className="border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]"
                       />
                     </div>
-                    <div className="mt-4">
-                      <Label htmlFor="medicalConditions">Medical Conditions</Label>
+
+                    <div>
+                      <Label htmlFor="medicalConditions">Medical Conditions (Optional)</Label>
                       <Textarea
                         id="medicalConditions"
                         value={formData.medicalConditions}
                         onChange={(e) => updateFormData('medicalConditions', e.target.value)}
-                        placeholder="List any medical conditions (or 'None')"
-                        rows={2}
+                        placeholder="List any medical conditions or 'None'"
+                        rows={3}
+                        className="border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]"
                       />
                     </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {currentStep === 4 && (
-                <div className="space-y-6">
-                  <Alert>
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>
-                      <strong>Identity Verification Required:</strong> Please upload clear, legible copies of your documents. 
-                      All documents will be securely encrypted and used only for verification purposes.
-                    </AlertDescription>
-                  </Alert>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Step 5: Documentation */}
+                {currentStep === 5 && (
+                  <div className="space-y-6">
                     <div>
                       <Label htmlFor="governmentIdType">Government ID Type *</Label>
                       <Select value={formData.governmentIdType} onValueChange={(value) => updateFormData('governmentIdType', value)}>
-                        <SelectTrigger>
+                        <SelectTrigger className="border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]">
                           <SelectValue placeholder="Select ID type" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="drivers-license">Driver's License</SelectItem>
+                          <SelectItem value="driver-license">Driver's License</SelectItem>
                           <SelectItem value="state-id">State ID</SelectItem>
                           <SelectItem value="passport">Passport</SelectItem>
                           <SelectItem value="military-id">Military ID</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
+
                     <div>
                       <Label htmlFor="governmentIdNumber">Government ID Number *</Label>
                       <Input
@@ -659,15 +661,13 @@ export default function PatientAccountCreation() {
                         value={formData.governmentIdNumber}
                         onChange={(e) => updateFormData('governmentIdNumber', e.target.value)}
                         placeholder="Enter ID number"
+                        className="border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]"
                       />
                     </div>
-                  </div>
 
-                  <div className="space-y-4">
-                    <div>
-                      <Label>Government ID Upload *</Label>
-                      <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                        <UploadCloud className="mx-auto h-12 w-12 text-gray-400" />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <Label>Government ID *</Label>
                         <div className="mt-2">
                           <input
                             type="file"
@@ -676,23 +676,27 @@ export default function PatientAccountCreation() {
                             className="hidden"
                             id="governmentIdFile"
                           />
-                          <label htmlFor="governmentIdFile" className="cursor-pointer text-brand hover:text-brand-light">
-                            <span className="font-medium">Click to upload</span> or drag and drop
+                          <label
+                            htmlFor="governmentIdFile"
+                            className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#57BBB6] transition-colors"
+                          >
+                            {formData.governmentIdFile ? (
+                              <div className="text-center">
+                                <FileCheck className="h-8 w-8 text-[#57BBB6] mx-auto mb-2" />
+                                <p className="text-sm text-gray-600">{formData.governmentIdFile.name}</p>
+                              </div>
+                            ) : (
+                              <div className="text-center">
+                                <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                                <p className="text-sm text-gray-600">Upload Government ID</p>
+                              </div>
+                            )}
                           </label>
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">PNG, JPG, PDF up to 5MB</p>
-                        {formData.governmentIdFile && (
-                          <div className="mt-2 text-sm text-green-600">
-                            ✓ {formData.governmentIdFile.name}
-                          </div>
-                        )}
                       </div>
-                    </div>
 
-                    <div>
-                      <Label>Proof of Address Upload *</Label>
-                      <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                        <UploadCloud className="mx-auto h-12 w-12 text-gray-400" />
+                      <div>
+                        <Label>Proof of Address *</Label>
                         <div className="mt-2">
                           <input
                             type="file"
@@ -701,23 +705,27 @@ export default function PatientAccountCreation() {
                             className="hidden"
                             id="proofOfAddressFile"
                           />
-                          <label htmlFor="proofOfAddressFile" className="cursor-pointer text-brand hover:text-brand-light">
-                            <span className="font-medium">Click to upload</span> or drag and drop
+                          <label
+                            htmlFor="proofOfAddressFile"
+                            className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#57BBB6] transition-colors"
+                          >
+                            {formData.proofOfAddressFile ? (
+                              <div className="text-center">
+                                <FileCheck className="h-8 w-8 text-[#57BBB6] mx-auto mb-2" />
+                                <p className="text-sm text-gray-600">{formData.proofOfAddressFile.name}</p>
+                              </div>
+                            ) : (
+                              <div className="text-center">
+                                <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                                <p className="text-sm text-gray-600">Upload Proof of Address</p>
+                              </div>
+                            )}
                           </label>
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">Utility bill, bank statement, or lease agreement</p>
-                        {formData.proofOfAddressFile && (
-                          <div className="mt-2 text-sm text-green-600">
-                            ✓ {formData.proofOfAddressFile.name}
-                          </div>
-                        )}
                       </div>
-                    </div>
 
-                    <div>
-                      <Label>Insurance Card Upload</Label>
-                      <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                        <UploadCloud className="mx-auto h-12 w-12 text-gray-400" />
+                      <div>
+                        <Label>Insurance Card *</Label>
                         <div className="mt-2">
                           <input
                             type="file"
@@ -726,206 +734,89 @@ export default function PatientAccountCreation() {
                             className="hidden"
                             id="insuranceCardFile"
                           />
-                          <label htmlFor="insuranceCardFile" className="cursor-pointer text-brand hover:text-brand-light">
-                            <span className="font-medium">Click to upload</span> or drag and drop
+                          <label
+                            htmlFor="insuranceCardFile"
+                            className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#57BBB6] transition-colors"
+                          >
+                            {formData.insuranceCardFile ? (
+                              <div className="text-center">
+                                <FileCheck className="h-8 w-8 text-[#57BBB6] mx-auto mb-2" />
+                                <p className="text-sm text-gray-600">{formData.insuranceCardFile.name}</p>
+                              </div>
+                            ) : (
+                              <div className="text-center">
+                                <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                                <p className="text-sm text-gray-600">Upload Insurance Card</p>
+                              </div>
+                            )}
                           </label>
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">Front and back of insurance card</p>
-                        {formData.insuranceCardFile && (
-                          <div className="mt-2 text-sm text-green-600">
-                            ✓ {formData.insuranceCardFile.name}
-                          </div>
-                        )}
                       </div>
                     </div>
                   </div>
+                )}
 
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <div className="flex items-start space-x-3">
-                      <Info className="h-5 w-5 text-blue-600 mt-0.5" />
+                {/* Step 6: Security & Agreements */}
+                {currentStep === 6 && (
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <h4 className="font-semibold text-blue-800">Verification Process</h4>
-                        <p className="text-sm text-blue-700 mt-1">
-                          After uploading your documents, our verification team will review them within 24-48 hours. 
-                          You will receive an email notification once your account is verified and activated.
-                        </p>
+                        <Label htmlFor="password">Password *</Label>
+                        <div className="relative">
+                          <Input
+                            id="password"
+                            type={showPassword ? "text" : "password"}
+                            value={formData.password}
+                            onChange={(e) => updateFormData('password', e.target.value)}
+                            placeholder="Create a strong password"
+                            className="pr-10 border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                          >
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {currentStep === 5 && (
-                <div className="space-y-6">
-                  <Alert>
-                    <Shield className="h-4 w-4" />
-                    <AlertDescription>
-                      <strong>Legal Requirements:</strong> Please read and accept all terms and agreements to proceed with account creation.
-                    </AlertDescription>
-                  </Alert>
-
-                  <div className="space-y-4">
-                    <div className="flex items-start space-x-3">
-                      <Checkbox
-                        id="termsAccepted"
-                        checked={formData.termsAccepted}
-                        onCheckedChange={(checked) => updateFormData('termsAccepted', checked)}
-                      />
-                      <div className="space-y-1">
-                        <Label htmlFor="termsAccepted" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                          Terms of Service *
-                        </Label>
-                        <p className="text-sm text-gray-500">
-                          I have read and agree to the <a href="/terms-of-service" className="text-brand hover:underline" target="_blank">Terms of Service</a> 
-                          and understand my rights and responsibilities as a patient.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start space-x-3">
-                      <Checkbox
-                        id="privacyPolicyAccepted"
-                        checked={formData.privacyPolicyAccepted}
-                        onCheckedChange={(checked) => updateFormData('privacyPolicyAccepted', checked)}
-                      />
-                      <div className="space-y-1">
-                        <Label htmlFor="privacyPolicyAccepted" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                          Privacy Policy *
-                        </Label>
-                        <p className="text-sm text-gray-500">
-                          I have read and agree to the <a href="/privacy-policy" className="text-brand hover:underline" target="_blank">Privacy Policy</a> 
-                          and understand how my information will be used and protected.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start space-x-3">
-                      <Checkbox
-                        id="hipaaConsent"
-                        checked={formData.hipaaConsent}
-                        onCheckedChange={(checked) => updateFormData('hipaaConsent', checked)}
-                      />
-                      <div className="space-y-1">
-                        <Label htmlFor="hipaaConsent" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                          HIPAA Consent *
-                        </Label>
-                        <p className="text-sm text-gray-500">
-                          I acknowledge receipt of the <a href="/hipaa-notice" className="text-brand hover:underline" target="_blank">HIPAA Notice of Privacy Practices</a> 
-                          and consent to the use and disclosure of my health information for treatment, payment, and healthcare operations.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start space-x-3">
-                      <Checkbox
-                        id="medicalAuthorization"
-                        checked={formData.medicalAuthorization}
-                        onCheckedChange={(checked) => updateFormData('medicalAuthorization', checked)}
-                      />
-                      <div className="space-y-1">
-                        <Label htmlFor="medicalAuthorization" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                          Medical Authorization *
-                        </Label>
-                        <p className="text-sm text-gray-500">
-                          I authorize My Meds Pharmacy to provide pharmaceutical services and communicate with my healthcare providers 
-                          regarding my medications and treatment.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start space-x-3">
-                      <Checkbox
-                        id="financialResponsibility"
-                        checked={formData.financialResponsibility}
-                        onCheckedChange={(checked) => updateFormData('financialResponsibility', checked)}
-                      />
-                      <div className="space-y-1">
-                        <Label htmlFor="financialResponsibility" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                          Financial Responsibility *
-                        </Label>
-                        <p className="text-sm text-gray-500">
-                          I understand that I am financially responsible for any charges not covered by my insurance, 
-                          including copayments, deductibles, and non-covered services.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                    <div className="flex items-start space-x-3">
-                      <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5" />
+                      
                       <div>
-                        <h4 className="font-semibold text-yellow-800">Important Notice</h4>
-                        <p className="text-sm text-yellow-700 mt-1">
-                          By accepting these terms, you acknowledge that providing false information or failing to disclose 
-                          relevant medical information may result in account termination and could have serious health consequences.
-                        </p>
+                        <Label htmlFor="confirmPassword">Confirm Password *</Label>
+                        <div className="relative">
+                          <Input
+                            id="confirmPassword"
+                            type={showConfirmPassword ? "text" : "password"}
+                            value={formData.confirmPassword}
+                            onChange={(e) => updateFormData('confirmPassword', e.target.value)}
+                            placeholder="Confirm your password"
+                            className="pr-10 border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                          >
+                            {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              )}
 
-              {currentStep === 6 && (
-                <div className="space-y-6">
-                  <Alert>
-                    <Lock className="h-4 w-4" />
-                    <AlertDescription>
-                      <strong>Security Setup:</strong> Create a strong password and set up security questions to protect your account.
-                    </AlertDescription>
-                  </Alert>
+                    {formData.password && formData.confirmPassword && formData.password !== formData.confirmPassword && (
+                      <Alert>
+                        <AlertTriangle className="h-4 w-4" />
+                        <AlertDescription>Passwords do not match. Please try again.</AlertDescription>
+                      </Alert>
+                    )}
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="password">Password *</Label>
-                      <div className="relative">
-                        <Input
-                          id="password"
-                          type={showPassword ? 'text' : 'password'}
-                          value={formData.password}
-                          onChange={(e) => updateFormData('password', e.target.value)}
-                          placeholder="Create a strong password"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2"
-                        >
-                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </button>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">
-                        Must be at least 8 characters with uppercase, lowercase, number, and special character
-                      </p>
-                    </div>
-                    <div>
-                      <Label htmlFor="confirmPassword">Confirm Password *</Label>
-                      <div className="relative">
-                        <Input
-                          id="confirmPassword"
-                          type={showConfirmPassword ? 'text' : 'password'}
-                          value={formData.confirmPassword}
-                          onChange={(e) => updateFormData('confirmPassword', e.target.value)}
-                          placeholder="Confirm your password"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2"
-                        >
-                          {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="border-t pt-6">
-                    <h3 className="text-lg font-semibold mb-4">Security Questions</h3>
                     <div className="space-y-4">
+                      <h3 className="text-lg font-semibold text-[#376F6B]">Security Questions</h3>
+                      
                       <div>
                         <Label>Security Question 1 *</Label>
                         <Select value={formData.securityQuestions.question1} onValueChange={(value) => updateSecurityQuestion('question1', value)}>
-                          <SelectTrigger>
+                          <SelectTrigger className="border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]">
                             <SelectValue placeholder="Select a security question" />
                           </SelectTrigger>
                           <SelectContent>
@@ -935,7 +826,7 @@ export default function PatientAccountCreation() {
                           </SelectContent>
                         </Select>
                         <Input
-                          className="mt-2"
+                          className="mt-2 border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]"
                           value={formData.securityQuestions.answer1}
                           onChange={(e) => updateSecurityQuestion('answer1', e.target.value)}
                           placeholder="Enter your answer"
@@ -945,7 +836,7 @@ export default function PatientAccountCreation() {
                       <div>
                         <Label>Security Question 2 *</Label>
                         <Select value={formData.securityQuestions.question2} onValueChange={(value) => updateSecurityQuestion('question2', value)}>
-                          <SelectTrigger>
+                          <SelectTrigger className="border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]">
                             <SelectValue placeholder="Select a security question" />
                           </SelectTrigger>
                           <SelectContent>
@@ -955,7 +846,7 @@ export default function PatientAccountCreation() {
                           </SelectContent>
                         </Select>
                         <Input
-                          className="mt-2"
+                          className="mt-2 border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]"
                           value={formData.securityQuestions.answer2}
                           onChange={(e) => updateSecurityQuestion('answer2', e.target.value)}
                           placeholder="Enter your answer"
@@ -965,7 +856,7 @@ export default function PatientAccountCreation() {
                       <div>
                         <Label>Security Question 3 *</Label>
                         <Select value={formData.securityQuestions.question3} onValueChange={(value) => updateSecurityQuestion('question3', value)}>
-                          <SelectTrigger>
+                          <SelectTrigger className="border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]">
                             <SelectValue placeholder="Select a security question" />
                           </SelectTrigger>
                           <SelectContent>
@@ -975,36 +866,103 @@ export default function PatientAccountCreation() {
                           </SelectContent>
                         </Select>
                         <Input
-                          className="mt-2"
+                          className="mt-2 border-gray-300 focus:border-[#57BBB6] focus:ring-[#57BBB6]"
                           value={formData.securityQuestions.answer3}
                           onChange={(e) => updateSecurityQuestion('answer3', e.target.value)}
                           placeholder="Enter your answer"
                         />
                       </div>
                     </div>
-                  </div>
 
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <div className="flex items-start space-x-3">
-                      <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
-                      <div>
-                        <h4 className="font-semibold text-green-800">Account Creation Complete</h4>
-                        <p className="text-sm text-green-700 mt-1">
-                          You're almost done! Click "Create Account" to submit your application. 
-                          Our team will review your information and verify your identity within 24-48 hours.
-                        </p>
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold text-[#376F6B]">Legal Agreements</h3>
+                      
+                      <div className="space-y-3">
+                        <div className="flex items-start space-x-3">
+                          <Checkbox
+                            id="termsAccepted"
+                            checked={formData.termsAccepted}
+                            onCheckedChange={(checked) => updateFormData('termsAccepted', checked)}
+                            className="mt-1"
+                          />
+                          <Label htmlFor="termsAccepted" className="text-sm">
+                            I accept the <a href="/terms-of-service" className="text-[#57BBB6] hover:underline">Terms of Service</a> *
+                          </Label>
+                        </div>
+                        
+                        <div className="flex items-start space-x-3">
+                          <Checkbox
+                            id="privacyPolicyAccepted"
+                            checked={formData.privacyPolicyAccepted}
+                            onCheckedChange={(checked) => updateFormData('privacyPolicyAccepted', checked)}
+                            className="mt-1"
+                          />
+                          <Label htmlFor="privacyPolicyAccepted" className="text-sm">
+                            I accept the <a href="/privacy-policy" className="text-[#57BBB6] hover:underline">Privacy Policy</a> *
+                          </Label>
+                        </div>
+                        
+                        <div className="flex items-start space-x-3">
+                          <Checkbox
+                            id="hipaaConsent"
+                            checked={formData.hipaaConsent}
+                            onCheckedChange={(checked) => updateFormData('hipaaConsent', checked)}
+                            className="mt-1"
+                          />
+                          <Label htmlFor="hipaaConsent" className="text-sm">
+                            I consent to the use and disclosure of my health information as described in the <a href="/hipaa-notice" className="text-[#57BBB6] hover:underline">HIPAA Notice</a> *
+                          </Label>
+                        </div>
+                        
+                        <div className="flex items-start space-x-3">
+                          <Checkbox
+                            id="medicalAuthorization"
+                            checked={formData.medicalAuthorization}
+                            onCheckedChange={(checked) => updateFormData('medicalAuthorization', checked)}
+                            className="mt-1"
+                          />
+                          <Label htmlFor="medicalAuthorization" className="text-sm">
+                            I authorize the pharmacy to provide my medical information to healthcare providers as necessary *
+                          </Label>
+                        </div>
+                        
+                        <div className="flex items-start space-x-3">
+                          <Checkbox
+                            id="financialResponsibility"
+                            checked={formData.financialResponsibility}
+                            onCheckedChange={(checked) => updateFormData('financialResponsibility', checked)}
+                            className="mt-1"
+                          />
+                          <Label htmlFor="financialResponsibility" className="text-sm">
+                            I understand that I am financially responsible for any charges not covered by my insurance *
+                          </Label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                      <div className="flex items-start space-x-3">
+                        <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+                        <div>
+                          <h4 className="font-semibold text-green-800">Account Creation Complete</h4>
+                          <p className="text-sm text-green-700 mt-1">
+                            You're almost done! Click "Create Account" to submit your application. 
+                            Our team will review your information and verify your identity within 24-48 hours.
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </CardContent>
+            </Card>
 
             <div className="flex justify-between mt-8">
               <Button
                 variant="outline"
                 onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
                 disabled={currentStep === 1}
+                className="border-[#57BBB6] text-[#57BBB6] hover:bg-[#57BBB6] hover:text-white"
               >
                 Previous
               </Button>
@@ -1012,7 +970,7 @@ export default function PatientAccountCreation() {
               <Button
                 onClick={handleSubmit}
                 disabled={loading || !validateStep(currentStep)}
-                className="min-w-[120px]"
+                className="min-w-[120px] bg-[#57BBB6] hover:bg-[#376F6B] text-white"
               >
                 {loading ? (
                   <div className="flex items-center gap-2">
@@ -1026,18 +984,20 @@ export default function PatientAccountCreation() {
                 )}
               </Button>
             </div>
-          </CardContent>
-        </Card>
 
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-500">
-            Already have an account?{' '}
-            <a href="/patient-portal" className="text-brand hover:underline">
-              Sign in to your patient portal
-            </a>
-          </p>
+            <div className="mt-6 text-center">
+              <p className="text-sm text-gray-500">
+                Already have an account?{' '}
+                <a href="/patient-portal" className="text-[#57BBB6] hover:underline">
+                  Sign in to your patient portal
+                </a>
+              </p>
+            </div>
+          </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }

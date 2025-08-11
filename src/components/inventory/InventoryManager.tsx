@@ -632,7 +632,7 @@ export function InventoryManager({
               <Button variant="outline" onClick={() => setShowAddProduct(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleAddProduct} className="bg-brand hover:bg-brand-dark">
+              <Button onClick={handleAddProduct} className="bg-[#376F6B] hover:bg-[#57BBB6]">
                 Add Product
               </Button>
             </div>
@@ -696,7 +696,7 @@ export function InventoryManager({
               <Button variant="outline" onClick={() => setShowAddSupplier(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleAddSupplier} className="bg-brand hover:bg-brand-dark">
+              <Button onClick={handleAddSupplier} className="bg-[#376F6B] hover:bg-[#57BBB6]">
                 Add Supplier
               </Button>
             </div>

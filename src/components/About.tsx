@@ -1,143 +1,210 @@
-import { Award, Heart, Users, Clock, Star, ArrowRight, CheckCircle } from "lucide-react";
+import { Target, Globe, Award, Users, Clock, Star, Heart, Shield, Truck, MessageCircle, CheckCircle, ArrowRight } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 export const About = () => {
+  const navigate = useNavigate();
+  
   const stats = [
     {
-      icon: Award,
-      number: "Licensed",
-      label: "Certified Pharmacists",
-      color: "from-brand-accent to-brand"
-    },
-    {
-      icon: Heart,
-      number: "Caring",
-      label: "Personalized Service",
-      color: "from-brand-light to-brand-accent"
-    },
-    {
       icon: Users,
-      number: "Community",
-      label: "Local Focus",
-      color: "from-brand to-brand-light"
+      number: "10,000+",
+      label: "Patients Served",
+      color: "from-[#376F6B] to-[#57BBB6]"
     },
     {
       icon: Clock,
-      number: "Available",
-      label: "Extended Hours",
-      color: "from-brand to-brand-dark"
+      number: "25+",
+      label: "Years Experience",
+      color: "from-[#57BBB6] to-[#376F6B]"
+    },
+    {
+      icon: Star,
+      number: "4.9★",
+      label: "Customer Rating",
+      color: "from-[#57BBB6] to-[#376F6B]"
+    },
+    {
+      icon: Heart,
+      number: "100%",
+      label: "Patient Satisfaction",
+      color: "from-[#376F6B] to-[#57BBB6]"
     }
   ];
 
-  const benefits = [
-    "Experienced, licensed pharmacists",
-    "Convenient location and extended hours",
-    "Comprehensive health services",
-    "Free prescription delivery service",
-    "Insurance accepted and affordable pricing"
+  const values = [
+    {
+      icon: Shield,
+      title: "Trust & Safety",
+      description: "Your health and safety are our top priorities. We maintain the highest standards of pharmaceutical care."
+    },
+    {
+      icon: Users,
+      title: "Patient-Centered Care",
+      description: "Every patient is unique. We provide personalized care tailored to your individual health needs."
+    },
+    {
+      icon: Truck,
+      title: "Convenience",
+      description: "We make healthcare accessible with same-day delivery, 24/7 support, and flexible pickup options."
+    },
+    {
+      icon: MessageCircle,
+      title: "Expert Guidance",
+      description: "Our licensed pharmacists are always available to provide professional advice and answer your questions."
+    }
   ];
 
   return (
-    <section id="about" className="py-16 sm:py-20 md:py-24 bg-gradient-to-br from-gray-50 via-white to-brand-light/30">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-          
-          {/* Left Column - Enhanced Content */}
-          <div className="space-y-8">
-            {/* Enhanced Header */}
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-light to-brand text-white px-4 py-2 rounded-full text-sm font-semibold">
-                <Star className="h-4 w-4" />
-                About Our Pharmacy
-              </div>
-              
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
-                About 
-                <span className="block bg-gradient-to-r from-brand-light to-brand bg-clip-text text-transparent">
-                  My Meds Pharmacy
-                </span>
-              </h2>
-              
-              <div className="space-y-6 text-lg leading-relaxed text-gray-600">
-                <p>
-                  Welcome to <span className="font-semibold text-brand">My Meds Pharmacy</span>, your trusted healthcare partner in Brooklyn, NY. 
-                  We are a locally-owned, full-service pharmacy committed to providing exceptional pharmaceutical care 
-                  and personalized service to our community.
-                </p>
-                <p>
-                  Our experienced team of licensed pharmacists and healthcare professionals is dedicated to ensuring 
-                  you receive the highest quality medications, expert consultation, and compassionate care. 
-                  We understand that your health is personal, and we treat every patient like family.
-                </p>
-                <p>
-                  From prescription medications to over-the-counter products, health screenings, immunizations, 
-                  and medication therapy management, we offer comprehensive pharmaceutical services to support 
-                  your wellness journey.
-                </p>
-              </div>
-            </div>
+    <section className="py-16 sm:py-20 md:py-24 bg-[#D5C6BC] relative overflow-hidden">
+      {/* Background Elements */}
+      <div className="absolute top-20 left-10 w-72 h-72 bg-[#D5C6BC]/20 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#D5C6BC]/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-[#D5C6BC]/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '4s' }}></div>
 
-            {/* Enhanced Stats Grid - Aligned with text */}
-            <div className="grid grid-cols-2 gap-4 sm:gap-6">
-              {stats.map((stat, index) => (
-                <div 
-                  key={index} 
-                  className="group text-center p-4 sm:p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 border border-gray-100"
-                >
-                  <div className={`w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br ${stat.color} rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg group-hover:scale-110 transition-transform duration-500`}>
-                    <stat.icon className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
-                  </div>
-                  <h3 className="font-bold text-lg sm:text-2xl text-gray-900 mb-1 sm:mb-2 group-hover:text-brand transition-colors duration-300">
-                    {stat.number}
-                  </h3>
-                  <p className="text-gray-600 font-medium text-sm sm:text-base leading-relaxed">
-                    {stat.label}
-                  </p>
-                </div>
-              ))}
-            </div>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Enhanced Header Section */}
+        <div className="text-center mb-16 sm:mb-20">
+          <div className="inline-flex items-center gap-2 bg-[#57BBB6] text-white px-4 py-2 rounded-full text-sm font-semibold mb-6">
+            <Award className="h-4 w-4" />
+            About Us
           </div>
+          
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#57BBB6] leading-tight mb-6">
+            Your Trusted 
+            <span className="block text-[#57BBB6]">
+              Healthcare Partner
+            </span>
+          </h2>
+          
+          <p className="text-lg sm:text-xl text-[#376F6B] max-w-3xl mx-auto font-semibold">
+            For over 25 years, we've been serving the Brooklyn community with exceptional pharmaceutical care, 
+            building lasting relationships through trust, expertise, and personalized attention to your health needs.
+          </p>
+        </div>
 
-          {/* Right Column - Enhanced Cards - Perfectly Aligned */}
-          <div className="space-y-8 mt-16">
-            {/* Mission Card - Aligned with left text */}
-            <div className="bg-gradient-to-br from-brand to-brand-light rounded-2xl p-6 sm:p-8 shadow-2xl transform hover:scale-105 transition-transform duration-500">
-              <div className="flex items-center gap-3 mb-4 sm:mb-6">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                  <Star className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+        {/* Key Stats */}
+        <div className="mb-16 sm:mb-20">
+          <div className="grid grid-cols-2 gap-4 sm:gap-6">
+            {stats.map((stat, index) => (
+              <div 
+                key={index} 
+                className="group text-center p-4 sm:p-6 bg-[#57BBB6] rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 border-0"
+              >
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg group-hover:scale-110 transition-transform duration-500">
+                  <stat.icon className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-white">Our Mission</h3>
+                <h3 className="font-bold text-lg sm:text-2xl text-white mb-1 sm:mb-2 group-hover:text-white transition-colors duration-300">
+                  {stat.number}
+                </h3>
+                <p className="text-white/90 font-medium text-sm sm:text-base leading-relaxed">
+                  {stat.label}
+                </p>
               </div>
-              <p className="text-white/95 text-base sm:text-lg leading-relaxed">
-                 To provide exceptional pharmaceutical care while building lasting relationships with 
-                 our patients through <span className="font-semibold">trust, expertise, and personalized attention</span> 
-                 to their health needs. We strive to be more than just a pharmacy – we aim to be your 
-                 trusted healthcare partner, offering comprehensive medication management, expert consultation, 
-                 and compassionate support throughout your wellness journey. Our commitment extends beyond 
-                 dispensing medications to empowering our community with knowledge, accessibility, and 
-                 innovative healthcare solutions that enhance quality of life.
+            ))}
+          </div>
+        </div>
+
+        {/* Right Column - Enhanced Cards - Perfectly Aligned */}
+        <div className="mb-16 sm:mb-20">
+          <div className="text-center mb-12">
+            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#57BBB6] mb-4">
+              Our Core Values
+            </h3>
+            <p className="text-lg text-[#376F6B] max-w-2xl mx-auto">
+              The principles that guide everything we do and every decision we make
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+            {values.map((value, index) => (
+              <Card key={index} className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-[#57BBB6] hover:bg-[#57BBB6]/95">
+                <CardContent className="p-6 sm:p-8">
+                  <div className="flex items-start gap-4">
+                    <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-500">
+                      <value.icon className="h-8 w-8 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-xl font-bold text-white mb-3 group-hover:text-white transition-colors duration-300">
+                        {value.title}
+                      </h4>
+                      <p className="text-white/90 leading-relaxed group-hover:text-white transition-colors duration-300">
+                        {value.description}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Mission & Vision */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+          <Card className="bg-[#57BBB6] text-white hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-0">
+            <CardContent className="p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                  <Target className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-white">Our Mission</h3>
+              </div>
+              <p className="text-white/95 text-lg leading-relaxed">
+                To provide exceptional pharmaceutical care while building lasting relationships with
+                our patients through trust, expertise, and personalized attention to their health needs.
               </p>
-            </div>
+            </CardContent>
+          </Card>
 
-            {/* Why Choose Us Card - Aligned with left feature boxes */}
-            <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-xl border border-gray-100 transform hover:scale-105 transition-transform duration-500">
-              <div className="flex items-center gap-3 mb-4 sm:mb-6">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-brand-light to-brand rounded-xl flex items-center justify-center">
-                  <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+          <Card className="bg-[#57BBB6] text-white hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-0">
+            <CardContent className="p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                  <Globe className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-gray-900">Why Choose Us?</h3>
+                <h3 className="text-2xl font-bold text-white">Our Vision</h3>
               </div>
+              <p className="text-white/95 text-lg leading-relaxed">
+                To be the leading community pharmacy in Brooklyn, recognized for our commitment to
+                patient care, innovation in pharmaceutical services, and dedication to community health.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Enhanced CTA Section */}
+        <div className="bg-[#57BBB6] rounded-3xl p-8 sm:p-12 text-center text-white relative overflow-hidden">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.1%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%222%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
+          </div>
+          
+          <div className="relative z-10">
+            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 text-white">
+              Ready to Experience Better Care?
+            </h3>
+            <p className="text-lg sm:text-xl mb-8 text-white/90">
+              Join thousands of satisfied patients who trust us with their health
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                onClick={() => navigate('/contact')}
+                className="bg-white text-[#57BBB6] hover:bg-gray-100 font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+              >
+                <MessageCircle className="w-5 h-5 mr-2" />
+                Get Started Today
+              </Button>
               
-              <ul className="space-y-3 sm:space-y-4">
-                {benefits.map((benefit, index) => (
-                  <li key={index} className="flex items-start group">
-                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-br from-brand-light to-brand rounded-full mr-3 sm:mr-4 mt-1 flex-shrink-0 group-hover:scale-110 transition-transform duration-300"></div>
-                    <span className="text-gray-700 text-base sm:text-lg leading-relaxed group-hover:text-gray-900 transition-colors duration-300">
-                      {benefit}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              <Button 
+                onClick={() => navigate('/services')}
+                variant="outline"
+                className="border-white text-white hover:bg-white hover:text-[#57BBB6] font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
+              >
+                <ArrowRight className="w-5 h-5 mr-2" />
+                View Our Services
+              </Button>
             </div>
           </div>
         </div>

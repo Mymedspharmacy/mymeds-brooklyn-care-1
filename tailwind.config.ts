@@ -78,6 +78,7 @@ export default {
 					accent: '#31968a', // secondary accent
 					white: '#ffffff',  // white
 					black: '#231f20',  // near-black
+					beige: '#f5f5dc', // beige background color
 				}
 			},
 			borderRadius: {

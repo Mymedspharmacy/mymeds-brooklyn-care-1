@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import logo from "@/assets/logo.png";
 
 interface SEOHeadProps {
   title?: string;
@@ -10,10 +11,10 @@ interface SEOHeadProps {
 }
 
 export const SEOHead = ({ 
-  title = "My Meds Pharmacy - Your Trusted Brooklyn Pharmacy | Professional Healthcare Services",
+  title = "My Meds Pharmacy Inc.- Your Trusted Brooklyn Pharmacy | Professional Healthcare Services",
   description = "My Meds Pharmacy in Brooklyn, NY offers prescription services, free delivery, immunizations, and personalized pharmaceutical care. Located at 2242 65th St. Call (347) 312-6458.",
   keywords = "pharmacy, Brooklyn, prescription, medication, delivery, immunization, healthcare, pharmaceutical",
-  image = "/logo.png",
+  image = logo,
   url
 }: SEOHeadProps) => {
   const location = useLocation();

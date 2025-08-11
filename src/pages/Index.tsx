@@ -1,9 +1,9 @@
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
 import { Services } from "@/components/Services";
-import { About } from "@/components/About";
 import { Testimonials } from "@/components/Testimonials";
-import { Contact } from "@/components/Contact";
+import { FeaturedProducts } from "@/components/FeaturedProducts";
+import { Map } from "@/components/Map";
 import { Footer } from "@/components/Footer";
 import { RefillForm } from "@/components/RefillForm";
 import { AppointmentForm } from "@/components/AppointmentForm";
@@ -38,7 +38,7 @@ const Index = () => {
   }, [location.state, navigate, location.pathname]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#D5C6BC]">
       <Header 
         onRefillClick={() => setShowRefillForm(true)} 
         onAppointmentClick={() => setShowAppointmentForm(true)}
@@ -52,10 +52,25 @@ const Index = () => {
         onTransferClick={() => setShowTransferForm(true)}
         onAppointmentClick={() => setShowAppointmentForm(true)} 
       />
-      <About />
+      <FeaturedProducts />
       <OTCSection />
       <Testimonials />
-      <Contact />
+      
+      {/* Location Section */}
+      <section className="py-16 sm:py-20 bg-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#376F6B] mb-6">
+              Find Us
+            </h2>
+            <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
+              Visit our pharmacy for personalized care and expert consultation. We're conveniently located in Brooklyn.
+            </p>
+          </div>
+          <Map />
+        </div>
+      </section>
+      
       <Footer />
       <RefillForm isOpen={showRefillForm} onClose={() => setShowRefillForm(false)} />
       <AppointmentForm isOpen={showAppointmentForm} onClose={() => setShowAppointmentForm(false)} />

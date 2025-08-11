@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Pill, Truck, Heart, Shield, Star, Clock, CheckCircle, Phone, Mail, MapPin, Calendar, DollarSign, Users, Award, Zap, Gift, Tag, ShoppingCart, ArrowRight } from 'lucide-react';
+import { ArrowLeft, Pill, Truck, Heart, Shield, Star, Clock, CheckCircle, Phone, Mail, MapPin, Calendar, DollarSign, Users, Award, Zap, Gift, Tag, ShoppingCart, ArrowRight, Package } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 
 export default function SpecialOffers() {
   const navigate = useNavigate();
@@ -15,7 +17,7 @@ export default function SpecialOffers() {
       icon: Pill,
       title: "Prescription Refills",
       description: "Fast & Easy Refills, Right When You Need Them",
-      longDescription: "Our  prescription refill program is designed to make managing your medications as affordable as possible. We believe that quality healthcare shouldn't come with unexpected costs.",
+      longDescription: "Our prescription refill program is designed to make managing your medications as affordable as possible. We believe that quality healthcare shouldn't come with unexpected costs.",
       features: [
         "All prescription medications included",
         "Automatic refill reminders",
@@ -35,8 +37,6 @@ export default function SpecialOffers() {
         "Insurance copays still apply",
         "Some controlled substances may have restrictions"
       ],
-      accent: "from-brand-light to-brand",
-      bgGradient: "from-brand-light/10 to-brand/10",
       savings: "$50+ per refill",
       duration: "Ongoing",
       popularity: "Most Popular",
@@ -70,8 +70,6 @@ export default function SpecialOffers() {
         "Excludes controlled substances",
         "Delivery times may vary"
       ],
-      accent: "from-brand-accent to-brand",
-      bgGradient: "from-brand-accent/10 to-brand/10",
       savings: "$15 per order",
       duration: "Ongoing",
       popularity: "Limited Time",
@@ -83,102 +81,99 @@ export default function SpecialOffers() {
       id: 'senior-discount',
       icon: Heart,
       title: "Senior Citizen Discount",
-      description: "Special pricing and services for our valued senior customers",
-      longDescription: "We honor our senior community with exclusive discounts and personalized services. Our senior program includes special pricing, priority service, and dedicated support.",
+      description: "Special pricing and services for our senior community members",
+      longDescription: "We honor and support our senior community with special pricing, priority service, and personalized care. Your health and comfort are our top priorities.",
       features: [
-        "10% discount on all prescriptions",
+        "15% off all prescriptions",
         "Priority prescription processing",
-        "Free medication reviews",
-        "Dedicated senior care specialist",
-        "Home delivery available",
-        "Family consultation services"
+        "Free medication delivery",
+        "Personalized care consultations",
+        "Family member benefits",
+        "Special health screenings"
       ],
       benefits: [
-        "Save 10% on all medications",
-        "Priority customer service",
-        "Personalized care attention",
-        "Family support services"
+        "Save 15% on all prescriptions",
+        "Priority service and support",
+        "Free delivery service",
+        "Personalized care attention"
       ],
       terms: [
         "Must be 65 years or older",
         "Valid ID required",
-        "Cannot be combined with other offers",
-        "Some restrictions may apply"
-      ],
-      accent: "from-brand-light to-brand-accent",
-      bgGradient: "from-brand-light/10 to-brand-accent/10",
-      savings: "10% off",
-      duration: "Ongoing",
-      popularity: "Exclusive",
-      actionButton: "Book Consultation",
-      actionIcon: Calendar,
-      actionType: "appointment"
-    },
-    {
-      id: 'new-customer',
-      icon: Star,
-      title: "New Customer Welcome Package",
-      description: "Special offers and services for first-time customers",
-      longDescription: "Welcome to our pharmacy family! New customers receive exclusive benefits including free consultation, special pricing, and personalized care from day one.",
-      features: [
-        "10% off first prescription",
-        "Priority customer service",
-        "Personalized care plan",
-        "Family member discounts"
-      ],
-      benefits: [
-        "Save 10% on first prescription",
-        "Personalized care plan",
-        "Family member benefits"
-      ],
-      terms: [
-        "First-time customers only",
-        "Valid for 30 days from registration",
-        "One-time use per customer",
+        "Valid for all prescription medications",
         "Cannot be combined with other offers"
       ],
-      accent: "from-brand-accent to-brand-light",
-      bgGradient: "from-brand-accent/10 to-brand-light/10",
-      savings: "20% off first order",
+      savings: "15% off",
+      duration: "Ongoing",
+      popularity: "Community Favorite",
+      actionButton: "Learn More",
+      actionIcon: Heart,
+      actionType: "info"
+    },
+    {
+      id: 'new-patient',
+      icon: Users,
+      title: "New Patient Welcome Package",
+      description: "Special benefits and savings for new patients joining our pharmacy family",
+      longDescription: "Welcome to our pharmacy family! New patients receive exclusive benefits including free consultations, discounted services, and personalized care plans.",
+      features: [
+        "Free initial consultation",
+        "20% off first prescription",
+        "Free medication review",
+        "Personalized care plan",
+        "Family member discounts",
+        "Priority appointment scheduling"
+      ],
+      benefits: [
+        "Save on your first prescription",
+        "Free professional consultation",
+        "Personalized care from day one",
+        "Family benefits included"
+      ],
+      terms: [
+        "New patients only",
+        "Valid for first 30 days",
+        "One-time use per patient",
+        "Cannot be combined with other offers"
+      ],
+      savings: "20% off first Rx",
       duration: "30 days",
-      popularity: "New",
-      actionButton: "Book Consultation",
-      actionIcon: Calendar,
+      popularity: "New Patient",
+      actionButton: "Get Started",
+      actionIcon: Users,
       actionType: "appointment"
     },
     {
       id: 'bulk-discount',
-      icon: ShoppingCart,
-      title: "Bulk Purchase Discount",
-      description: "Save more when you buy more with our volume pricing",
-      longDescription: "Stock up and save! Our bulk purchase program offers significant discounts when you buy multiple months of medication or larger quantities of health products.",
+      icon: Package,
+      title: "Bulk Purchase Discounts",
+      description: "Save more when you buy in larger quantities",
+      longDescription: "Stock up and save! Our bulk purchase program offers significant discounts on larger quantities of medications and health products.",
       features: [
         "Up to 25% off bulk orders",
         "90-day supply options",
-        "Storage containers",
         "Automatic refill scheduling",
+        "Free storage containers",
         "Priority processing",
-        "Family package options"
+        "Family member sharing options"
       ],
       benefits: [
-        "Save up to 20% on bulk orders",
+        "Save up to 25% on medications",
         "Convenient 90-day supplies",
-        "Storage solutions",
-        "Automatic refill management"
+        "Reduced refill frequency",
+        "Better cost management"
       ],
       terms: [
-        "Minimum 3-month supply required",
+        "Minimum 90-day supply",
         "Valid for maintenance medications",
-        "Some medications excluded",
-        "Insurance approval required"
+        "Some restrictions may apply",
+        "Insurance coordination required"
       ],
-      accent: "from-brand to-brand-dark",
-      bgGradient: "from-brand/10 to-brand-dark/10",
-      savings: "Up to 20% off",
+      savings: "Up to 25% off",
       duration: "Ongoing",
-      popularity: "Value",
-      actionButton: "Refill Prescription",
-      actionIcon: Pill,
+      popularity: "Smart Savings",
+      actionButton: "Order Bulk",
+      actionIcon: Package,
       actionType: "refill"
     },
     {
@@ -186,35 +181,33 @@ export default function SpecialOffers() {
       icon: Gift,
       title: "Referral Rewards Program",
       description: "Earn rewards when you refer friends and family to our pharmacy",
-      longDescription: "Share the care and earn rewards! Our referral program rewards you for helping others discover quality healthcare. Both you and your referral receive special benefits.",
+      longDescription: "Share the care and earn rewards! Our referral program rewards you for helping others discover our exceptional pharmacy services.",
       features: [
-        "$25 credit for each referral",
-        "Referral gets 15% off first order",
-        "Unlimited referral rewards",
+        "$25 credit per referral",
+        "Unlimited referrals",
         "Easy referral tracking",
-        "Instant credit application",
-        "Family referral bonuses"
+        "Instant rewards",
+        "Family member bonuses",
+        "Special referral events"
       ],
       benefits: [
         "Earn $25 per successful referral",
-        "Help others save money",
         "Unlimited earning potential",
-        "Easy tracking system"
+        "Help others discover quality care",
+        "Build community connections"
       ],
       terms: [
-        "Referral must be new customer",
-        "Referral must make first purchase",
-        "Credit applied after first order",
-        "Valid for 6 months"
+        "Referral must be a new patient",
+        "Referral must complete first prescription",
+        "Credit applied to your account",
+        "Valid for 12 months"
       ],
-      accent: "from-brand to-brand-light",
-      bgGradient: "from-brand/10 to-brand-light/10",
       savings: "$25 per referral",
       duration: "Ongoing",
-      popularity: "Rewarding",
-      actionButton: "Transfer Prescription",
-      actionIcon: ArrowRight,
-      actionType: "transfer"
+      popularity: "Community Builder",
+      actionButton: "Refer Friends",
+      actionIcon: Gift,
+      actionType: "referral"
     }
   ];
 
@@ -231,7 +224,7 @@ export default function SpecialOffers() {
   };
 
   const handleEmailClick = () => {
-    window.location.href = 'mailto:info@mymedspharmacyinc.com';
+    window.open('mailto:info@mymedspharmacy.com');
   };
 
   const handleMapClick = () => {
@@ -241,214 +234,174 @@ export default function SpecialOffers() {
   const handleActionClick = (offer) => {
     switch (offer.actionType) {
       case 'refill':
-        // Navigate to home page and trigger refill form
         navigate('/', { state: { openRefillForm: true } });
         break;
-      case 'transfer':
-        // Navigate to home page and trigger transfer form
-        navigate('/', { state: { openTransferForm: true } });
-        break;
-      case 'appointment':
-        // Navigate to home page and trigger appointment form
-        navigate('/', { state: { openAppointmentForm: true } });
-        break;
       case 'shop':
-        // Navigate to shop page
         navigate('/shop');
         break;
+      case 'appointment':
+        navigate('/', { state: { openAppointmentForm: true } });
+        break;
+      case 'referral':
+        handleEmailClick();
+        break;
       default:
-        // Default to opening modal
-        setSelectedOffer(offer);
+        // For info type, just close modal
+        setSelectedOffer(null);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-brand-light/30">
-      {/* Header */}
-              <div className="bg-white shadow-sm border-b border-brand-light/20">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center gap-4">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/')}
-                              className="flex items-center gap-2 text-brand hover:text-brand-light transition-colors duration-300"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Home
-            </Button>
-                            <h1 className="text-4xl font-normal text-brand">SPECIAL OFFERS</h1>
-          </div>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header Section */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-light to-brand text-white px-6 py-3 rounded-full text-sm font-semibold mb-8 shadow-lg">
-            <Gift className="h-5 w-5" />
-            Exclusive Offers
-          </div>
-          
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-8">
-            Special Offers & Savings
-          </h2>
-          
-          <p className="text-xl sm:text-2xl text-gray-600 max-w-4xl mx-auto font-medium leading-relaxed mb-12">
-            Discover our exclusive offers designed to make your healthcare journey more affordable and convenient. 
-            From prescription refills to senior discounts, we have something for everyone.
-          </p>
-
-          {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
-            <Card className="text-center p-6 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 bg-white/80 backdrop-blur-sm border-0">
-              <div className="w-16 h-16 bg-gradient-to-r from-brand-light to-brand rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <Users className="h-8 w-8 text-white" />
+    <div className="min-h-screen bg-[#D5C6BC]">
+      <Header 
+        onRefillClick={() => navigate('/', { state: { openRefillForm: true } })}
+        onAppointmentClick={() => navigate('/', { state: { openAppointmentForm: true } })}
+        onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
+      />
+      
+      <div className="pt-20">
+        {/* Hero Section */}
+        <section className="py-16 sm:py-20 md:py-24 bg-[#57BBB6] text-white relative overflow-hidden">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 bg-white text-[#57BBB6] px-6 py-3 rounded-full text-sm font-semibold mb-8 shadow-lg">
+                <Gift className="h-5 w-5" />
+                Special Offers
               </div>
-              <div className="text-3xl font-bold text-brand mb-2">5,000+</div>
-              <div className="text-gray-600 font-medium">Happy Customers</div>
-            </Card>
-            
-            <Card className="text-center p-6 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 bg-white/80 backdrop-blur-sm border-0">
-              <div className="w-16 h-16 bg-gradient-to-r from-brand-light to-brand rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <DollarSign className="h-8 w-8 text-white" />
-              </div>
-              <div className="text-3xl font-bold text-brand mb-2">$250K+</div>
-              <div className="text-gray-600 font-medium">Total Savings</div>
-            </Card>
-            
-            <Card className="text-center p-6 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 bg-white/80 backdrop-blur-sm border-0">
-              <div className="w-16 h-16 bg-gradient-to-r from-brand-light to-brand rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <Award className="h-8 w-8 text-white" />
-              </div>
-              <div className="text-3xl font-bold text-brand mb-2">6</div>
-              <div className="text-gray-600 font-medium">Active Offers</div>
-            </Card>
-
-            <Card className="text-center p-6 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 bg-white/80 backdrop-blur-sm border-0">
-              <div className="w-16 h-16 bg-gradient-to-r from-brand-light to-brand rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <Star className="h-8 w-8 text-white" />
-              </div>
-              <div className="text-3xl font-bold text-brand mb-2">4.9★</div>
-              <div className="text-gray-600 font-medium">Customer Rating</div>
-            </Card>
-          </div>
-        </div>
-
-        {/* Offers Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-          {specialOffers.map((offer) => (
-            <Card 
-              key={offer.id}
-              className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 cursor-pointer"
-              onClick={() => setSelectedOffer(offer)}
-            >
-              <div className={`absolute inset-0 bg-gradient-to-br ${offer.bgGradient} opacity-50`}></div>
-              <CardContent className="p-8 relative z-10">
-                <div className="flex items-center justify-between mb-6">
-                  <div className={`w-16 h-16 bg-gradient-to-br ${offer.accent} rounded-2xl flex items-center justify-center shadow-lg`}>
-                    <offer.icon className="h-8 w-8 text-white" />
-                  </div>
-                  <div className="flex flex-col items-end gap-2">
-                    <Badge className={`bg-gradient-to-r ${offer.accent} text-white border-0`}>
-                      {offer.popularity}
-                    </Badge>
-                    <div className={`bg-gradient-to-r ${offer.accent} text-white px-3 py-1 rounded-full text-sm font-bold`}>
-                      {offer.savings}
-                    </div>
-                  </div>
-                </div>
-                
-                <h4 className="text-2xl font-bold text-gray-900 mb-3">
-                  {offer.title}
-                </h4>
-                <p className="text-gray-600 mb-6 leading-relaxed">
-                  {offer.description}
-                </p>
-                
-                <div className="space-y-2 mb-6">
-                  {offer.features.slice(0, 3).map((feature, index) => (
-                    <div key={index} className="flex items-center text-sm text-gray-600">
-                      <CheckCircle className={`h-4 w-4 mr-2 flex-shrink-0 bg-gradient-to-r ${offer.accent} text-white rounded-full`} />
-                      <span>{feature}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center text-sm text-gray-500">
-                    <Clock className="h-4 w-4 mr-1" />
-                    <span>{offer.duration}</span>
-                  </div>
-                  <Button 
-                    className={`bg-gradient-to-r ${offer.accent} text-white hover:shadow-lg transition-all duration-300 transform hover:scale-105`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleActionClick(offer);
-                    }}
-                  >
-                    <offer.actionIcon className="w-4 h-4 mr-2" />
-                    {offer.actionButton}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* CTA Section */}
-                  <div className="bg-gradient-to-r from-brand to-brand-light rounded-3xl p-8 sm:p-12 text-center text-white relative overflow-hidden">
-          <div className="relative z-10">
-            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">
-              Ready to Start Saving?
-            </h3>
-            <p className="text-lg sm:text-xl mb-8 opacity-90">
-              Contact us today to learn more about our special offers and start saving on your healthcare
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                onClick={handleCallClick}
-                className="bg-white text-brand hover:bg-gray-100 font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
-              >
-                <Phone className="w-5 h-5 mr-2" />
-                Call (347) 312-6458
-              </Button>
               
-              <Button 
-                onClick={handleEmailClick}
-                variant="outline"
-                className="border-white text-white hover:bg-white hover:text-brand font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
-              >
-                <Mail className="w-5 h-5 mr-2" />
-                Email Us
-              </Button>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-8">
+                Exclusive 
+                <span className="block text-white">
+                  Savings & Benefits
+                </span>
+              </h1>
               
-              <Button 
-                onClick={handleMapClick}
-                variant="outline"
-                className="border-white text-white hover:bg-white hover:text-brand font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
-              >
-                <MapPin className="w-5 h-5 mr-2" />
-                Visit Us
-              </Button>
+              <p className="text-xl sm:text-2xl text-white/90 max-w-4xl mx-auto font-medium leading-relaxed">
+                Discover our special offers designed to make quality healthcare more accessible and affordable. 
+                From prescription refills to senior discounts, we have savings for everyone.
+              </p>
             </div>
           </div>
-        </div>
+        </section>
+
+        {/* Offers Grid */}
+        <section className="py-16 sm:py-20 bg-white">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#57BBB6] mb-6">
+                Current Offers
+              </h2>
+              <p className="text-lg sm:text-xl text-[#376F6B] max-w-3xl mx-auto">
+                Take advantage of these exclusive offers and start saving on your healthcare today.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+              {specialOffers.map((offer) => (
+                <Card 
+                  key={offer.id} 
+                  className="group border-0 shadow-lg hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 cursor-pointer"
+                  onClick={() => setSelectedOffer(offer)}
+                >
+                  <CardContent className="p-6">
+                    {/* Offer Header */}
+                    <div className="text-center mb-6">
+                      <div className="w-20 h-20 bg-[#57BBB6] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                        <offer.icon className="h-10 w-10 text-white" />
+                      </div>
+                      
+                      <Badge className="bg-[#376F6B] text-white border-0 mb-3">
+                        {offer.popularity}
+                      </Badge>
+                      
+                      <CardTitle className="text-xl font-bold text-[#376F6B] mb-2 group-hover:text-[#57BBB6] transition-colors duration-300">
+                        {offer.title}
+                      </CardTitle>
+                      
+                      <CardDescription className="text-[#57BBB6] mb-4">
+                        {offer.description}
+                      </CardDescription>
+                    </div>
+
+                    {/* Offer Details */}
+                    <div className="space-y-4 mb-6">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-[#57BBB6]">Savings:</span>
+                        <span className="text-lg font-bold text-[#57BBB6]">{offer.savings}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-[#57BBB6]">Duration:</span>
+                        <span className="text-sm font-medium text-[#57BBB6]">{offer.duration}</span>
+                      </div>
+                    </div>
+
+                    {/* Action Button */}
+                    <Button 
+                      className="w-full bg-[#57BBB6] hover:bg-[#376F6B] text-white font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleActionClick(offer);
+                      }}
+                    >
+                      <offer.actionIcon className="w-4 h-4 mr-2" />
+                      {offer.actionButton}
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="py-16 sm:py-20 bg-[#D5C6BC]">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="bg-[#57BBB6] rounded-3xl p-8 sm:p-12 text-center text-white relative overflow-hidden">
+              <div className="relative z-10">
+                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">
+                  Questions About Our Offers?
+                </h3>
+                <p className="text-lg sm:text-xl mb-8 text-white/90">
+                  Our team is here to help you understand and take advantage of these special offers
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Button 
+                    onClick={handleCallClick}
+                    className="bg-white text-[#57BBB6] hover:bg-gray-100 font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+                  >
+                    <Phone className="w-5 h-5 mr-2" />
+                    Call (347) 312-6458
+                  </Button>
+                  
+                  <Button 
+                    onClick={handleEmailClick}
+                    variant="outline"
+                    className="border-white text-white hover:bg-white hover:text-[#57BBB6] font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
+                  >
+                    <Mail className="w-5 h-5 mr-2" />
+                    Send Email
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
 
-      {/* Detailed Offer Modal */}
+      {/* Offer Detail Modal */}
       {selectedOffer && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-8">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">
-                  <div className={`w-16 h-16 bg-gradient-to-br ${selectedOffer.accent} rounded-2xl flex items-center justify-center shadow-lg`}>
+                  <div className="w-16 h-16 bg-[#57BBB6] rounded-2xl flex items-center justify-center shadow-lg">
                     <selectedOffer.icon className="h-8 w-8 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-3xl font-bold text-gray-900">{selectedOffer.title}</h3>
-                    <p className="text-gray-600">{selectedOffer.description}</p>
+                    <h3 className="text-3xl font-bold text-[#57BBB6]">{selectedOffer.title}</h3>
+                    <p className="text-[#376F6B]">{selectedOffer.description}</p>
                   </div>
                 </div>
                 <Button 
@@ -462,40 +415,40 @@ export default function SpecialOffers() {
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div>
-                  <h4 className="text-xl font-bold text-gray-900 mb-4">What's Included</h4>
-                  <div className="space-y-3">
+                  <h4 className="text-xl font-bold text-[#57BBB6] mb-4">What's Included</h4>
+                  <ul className="space-y-2">
                     {selectedOffer.features.map((feature, index) => (
-                      <div key={index} className="flex items-start">
-                        <CheckCircle className={`h-5 w-5 mr-3 mt-0.5 flex-shrink-0 bg-gradient-to-r ${selectedOffer.accent} text-white rounded-full`} />
-                        <span className="text-gray-700">{feature}</span>
-                      </div>
+                      <li key={index} className="flex items-center text-[#57BBB6]">
+                        <CheckCircle className="h-5 w-5 mr-3 text-[#57BBB6] flex-shrink-0" />
+                        {feature}
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 </div>
-
+                
                 <div>
-                  <h4 className="text-xl font-bold text-gray-900 mb-4">Benefits</h4>
-                  <div className="space-y-3">
+                  <h4 className="text-xl font-bold text-[#57BBB6] mb-4">Benefits</h4>
+                  <ul className="space-y-2">
                     {selectedOffer.benefits.map((benefit, index) => (
-                      <div key={index} className="flex items-start">
-                        <Zap className={`h-5 w-5 mr-3 mt-0.5 flex-shrink-0 bg-gradient-to-r ${selectedOffer.accent} text-white rounded-full`} />
-                        <span className="text-gray-700">{benefit}</span>
-                      </div>
+                      <li key={index} className="flex items-center text-[#57BBB6]">
+                        <CheckCircle className="h-5 w-5 mr-3 text-[#57BBB6] flex-shrink-0" />
+                        {benefit}
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 </div>
               </div>
 
-              <div className="mt-8 p-6 bg-gray-50 rounded-2xl">
-                <h4 className="text-xl font-bold text-gray-900 mb-4">Terms & Conditions</h4>
-                <div className="space-y-2">
+              <div className="mt-8 p-6 bg-[#57BBB6]/5 rounded-2xl">
+                <h4 className="text-lg font-bold text-[#57BBB6] mb-3">Terms & Conditions</h4>
+                <ul className="space-y-1 text-sm text-[#57BBB6]">
                   {selectedOffer.terms.map((term, index) => (
-                    <div key={index} className="flex items-start">
-                      <Shield className="h-4 w-4 mr-3 mt-0.5 flex-shrink-0 text-gray-500" />
-                      <span className="text-gray-600 text-sm">{term}</span>
-                    </div>
+                    <li key={index} className="flex items-start">
+                      <span className="text-[#57BBB6] mr-2">•</span>
+                      {term}
+                    </li>
                   ))}
-                </div>
+                </ul>
               </div>
 
               <div className="mt-8 flex flex-col sm:flex-row gap-4">
@@ -504,7 +457,7 @@ export default function SpecialOffers() {
                     setSelectedOffer(null);
                     handleActionClick(selectedOffer);
                   }}
-                  className={`bg-gradient-to-r ${selectedOffer.accent} text-white hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex-1`}
+                  className="bg-[#57BBB6] text-white hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex-1"
                 >
                   <selectedOffer.actionIcon className="w-5 h-5 mr-2" />
                   {selectedOffer.actionButton}
@@ -512,7 +465,7 @@ export default function SpecialOffers() {
                 <Button 
                   onClick={handleCallClick}
                   variant="outline"
-                  className="flex-1"
+                  className="flex-1 border-[#57BBB6] text-[#57BBB6] hover:bg-[#57BBB6] hover:text-white"
                 >
                   <Phone className="w-5 h-5 mr-2" />
                   Call for Details
@@ -522,6 +475,8 @@ export default function SpecialOffers() {
           </div>
         </div>
       )}
+
+      <Footer />
     </div>
   );
 } 

@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from "react";
-import { Menu, X, Phone, Pill, ArrowRight, ShoppingCart, User } from "lucide-react";
+import { Menu, X, Phone, Pill, ArrowRight, ShoppingCart, User, Truck, Shield, Users, Stethoscope, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import logo from "@/assets/logo.png";
 
 interface HeaderProps {
   onRefillClick: () => void;
@@ -93,218 +94,213 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
 
   return (
     <>
-      {/* Top Bar - Compact CTA */}
-      <div className="bg-brand text-white py-2 px-4 shadow-md">
-        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2">
-          <p className="text-xs sm:text-sm font-semibold whitespace-nowrap text-center">
+      {/* Top Bar - Simple CTA */}
+      <div className="bg-[#376F6B] text-white py-2 px-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <p className="text-sm font-semibold">
             Protect your health, book your consultation now
           </p>
-          <Button
+          <Button 
             onClick={onAppointmentClick}
-            variant="outline"
-            className="bg-white text-brand hover:bg-white/90 border border-white/20 px-3 py-1 h-auto text-xs font-bold rounded-full shadow-sm"
+            className="bg-white text-[#376F6B] hover:bg-gray-100 font-semibold px-4 py-1 text-sm rounded transition-colors"
           >
-            BOOK NOW
+            Book Now
           </Button>
         </div>
       </div>
 
-      {/* Main Header - Enhanced Desktop Design */}
-      <header className={`bg-white/95 backdrop-blur-md sticky top-0 z-40 border-b border-gray-100/50 transition-all duration-300 ${
-        isScrolled ? 'shadow-xl bg-white/98' : 'shadow-lg'
+      {/* Main Header - Simple Design with Glowing Border */}
+      <header className={`bg-white sticky top-0 z-40 transition-all duration-300 ${
+        isScrolled ? 'shadow-md' : 'shadow-sm'
       }`}>
-        <div className="container mx-auto px-4 py-3 sm:py-2 flex items-center justify-between gap-4 relative">
+        <div className="container mx-auto px-4 py-4 sm:py-5 md:py-6 flex items-center justify-between gap-4">
           
-          {/* Left: Logo - Mobile Responsive */}
-          <div className="flex-1 flex justify-start lg:justify-start">
+          {/* Left: Logo */}
+          <div className="flex items-center">
             <div onClick={() => navigate('/')} className="cursor-pointer group">
               <img
-                src="/logo.png"
+                src={logo}
                 alt="My Meds Pharmacy Logo"
-                className="h-8 w-auto sm:h-12 md:h-16 lg:h-20 xl:h-24 2xl:h-28 object-contain transition-all duration-300 ease-in-out group-hover:scale-105 drop-shadow-sm"
+                className="h-16 w-auto sm:h-20 md:h-24 lg:h-28 object-contain transition-all duration-300 group-hover:scale-105 drop-shadow-lg"
               />
             </div>
           </div>
 
-          {/* Right: Mobile Actions (Clickable phone number + Menu) */}
-          <div className="lg:hidden relative z-[9999] flex items-center gap-3">
-            <a
-              href="tel:3473126458"
-              className="flex items-center gap-2 text-brand font-bold whitespace-nowrap"
-              aria-label="Call (347) 312-6458"
+          {/* Center: Navigation Links - Desktop Only */}
+          <nav className="hidden lg:flex items-center space-x-8">
+            <button onClick={() => navigate('/')} className="text-[#376F6B] hover:text-[#D5C6BC] font-medium transition-colors">
+              Home
+            </button>
+            <div className="relative group">
+              <button onClick={() => navigate('/services')} className="text-[#376F6B] hover:text-[#D5C6BC] font-medium transition-colors flex items-center gap-1">
+                Services
+                <ArrowRight className="h-3 w-3 transform group-hover:rotate-90 transition-transform duration-300" />
+              </button>
+              {/* Services Dropdown */}
+              <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-50">
+                <div className="p-4">
+                  <div className="text-sm font-semibold text-[#57BBB6] mb-3 text-center">Our Services</div>
+                  <div className="space-y-2">
+                    <button onClick={() => navigate('/services?service=prescription-refills')} className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#57BBB6]/10 transition-colors duration-200 w-full text-left">
+                      <Pill className="h-4 w-4 text-[#376F6B]" />
+                      <span className="text-sm text-[#57BBB6]">Prescription Refills</span>
+                    </button>
+                    <button onClick={() => navigate('/services?service=same-day-delivery')} className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#57BBB6]/10 transition-colors duration-200 w-full text-left">
+                      <Truck className="h-4 w-4 text-[#376F6B]" />
+                      <span className="text-sm text-[#57BBB6]">Same-Day Delivery</span>
+                    </button>
+                    <button onClick={() => navigate('/services?service=medication-management')} className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#57BBB6]/10 transition-colors duration-200 w-full text-left">
+                      <Shield className="h-4 w-4 text-[#376F6B]" />
+                      <span className="text-sm text-[#57BBB6]">Medication Reviews</span>
+                    </button>
+                    <button onClick={() => navigate('/services?service=health-consultations')} className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#57BBB6]/10 transition-colors duration-200 w-full text-left">
+                      <Users className="h-4 w-4 text-[#376F6B]" />
+                      <span className="text-sm text-[#57BBB6]">Health Consultations</span>
+                    </button>
+                    <button onClick={() => navigate('/services?service=immunizations')} className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#57BBB6]/10 transition-colors duration-200 w-full text-left">
+                      <Stethoscope className="h-4 w-4 text-[#376F6B]" />
+                      <span className="text-sm text-[#57BBB6]">Immunizations</span>
+                    </button>
+                    <button onClick={() => navigate('/services?service=24-7-support')} className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#57BBB6]/10 transition-colors duration-200 w-full text-left">
+                      <MessageCircle className="h-4 w-4 text-[#376F6B]" />
+                      <span className="text-sm text-[#57BBB6]">24/7 Support</span>
+                    </button>
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-[#57BBB6]/20">
+                    <button onClick={() => navigate('/services')} className="block text-center text-sm font-medium text-[#376F6B] hover:text-[#D5C6BC] transition-colors duration-200 w-full">
+                      View All Services
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button onClick={() => navigate('/blog')} className="text-[#376F6B] hover:text-[#D5C6BC] font-medium transition-colors">
+              Blog
+            </button>
+            <button onClick={() => navigate('/special-offers')} className="text-[#376F6B] hover:text-[#D5C6BC] font-medium transition-colors">
+              Special Offers
+            </button>
+            <button onClick={() => navigate('/about')} className="text-[#376F6B] hover:text-[#D5C6BC] font-medium transition-colors">
+              About
+            </button>
+            <button onClick={() => navigate('/contact')} className="text-[#376F6B] hover:text-[#D5C6BC] font-medium transition-colors">
+              Contact
+            </button>
+          </nav>
+
+          {/* Right: CTA Buttons - Desktop Only */}
+          <div className="hidden lg:flex items-center space-x-3">
+            <Button 
+              onClick={onRefillClick}
+              className="bg-[#376F6B] text-white font-semibold px-4 py-2 rounded hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-colors"
             >
-              <Phone className="h-5 w-5" />
-              <span className="text-sm">(347) 312-6458</span>
-            </a>
+              Refill Rx
+            </Button>
+            
+            <Button 
+              onClick={onTransferClick}
+              className="bg-[#376F6B] text-white font-semibold px-4 py-2 rounded hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-colors"
+            >
+              Transfer Rx
+            </Button>
+            
+            <Button 
+              onClick={() => navigate('/shop')}
+              className="bg-[#376F6B] text-white font-semibold px-4 py-2 rounded hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-colors"
+            >
+              Shop
+            </Button>
+            
+            <Button 
+              onClick={() => navigate('/patient-portal')}
+              className="bg-[#376F6B] text-white font-semibold px-4 py-2 rounded hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-colors"
+            >
+              Patient Portal
+            </Button>
+            
+            <Button 
+              onClick={handleCallClick}
+              className="bg-[#376F6B] text-white font-semibold px-4 py-2 rounded hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-colors flex items-center"
+            >
+              <Phone className="w-4 h-4 mr-2" />
+              Call Now
+            </Button>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="lg:hidden">
             <button
-              className="mobile-menu-button flex items-center justify-center p-3 rounded-lg text-brand hover:bg-brand-light/10 focus:outline-none focus:ring-2 focus:ring-brand-light transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-md"
+              className="mobile-menu-button p-2 text-[#376F6B] hover:bg-[#57BBB6]/10 rounded focus:outline-none"
               onClick={() => setIsMenuOpen(v => !v)}
               aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           </div>
-
-          {/* Enhanced Navigation - Desktop Only */}
-          <nav className="hidden lg:flex items-center justify-center flex-1">
-            <div className="bg-white/60 backdrop-blur-sm rounded-2xl px-6 py-3 shadow-lg border border-gray-100/50">
-              <ul className="flex items-center gap-1">
-                <li>
-                  <a 
-                    href="/" 
-                    className="text-brand font-semibold text-sm xl:text-base hover:text-brand-light transition-all duration-300 relative group px-4 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-brand-light/10 hover:to-brand/10 whitespace-nowrap hover:shadow-md hover:scale-105 transform"
-                  >
-                    Home
-                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-light to-brand transition-all duration-300 group-hover:w-full rounded-full opacity-0 group-hover:opacity-100"></span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-brand-light/20 to-brand/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </a>
-                </li>
-                <li>
-                  <a 
-                    href="#services" 
-                    className="text-brand font-semibold text-sm xl:text-base hover:text-brand-light transition-all duration-300 relative group px-4 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-brand-light/10 hover:to-brand/10 whitespace-nowrap hover:shadow-md hover:scale-105 transform"
-                  >
-                    Services
-                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-light to-brand transition-all duration-300 group-hover:w-full rounded-full opacity-0 group-hover:opacity-100"></span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-brand-light/20 to-brand/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </a>
-                </li>
-                
-                <li>
-                  <a 
-                    href="/blog" 
-                    className="text-brand font-semibold text-sm xl:text-base hover:text-brand-light transition-all duration-300 relative group px-4 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-brand-light/10 hover:to-brand/10 whitespace-nowrap hover:shadow-md hover:scale-105 transform"
-                  >
-                    Blogs
-                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-light to-brand transition-all duration-300 group-hover:w-full rounded-full opacity-0 group-hover:opacity-100"></span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-brand-light/20 to-brand/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </a>
-                </li>
-                
-                <li>
-                  <a 
-                    href="#about" 
-                    className="text-brand font-semibold text-sm xl:text-base hover:text-brand-light transition-all duration-300 relative group px-4 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-brand-light/10 hover:to-brand/10 whitespace-nowrap hover:shadow-md hover:scale-105 transform"
-                  >
-                    About
-                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-light to-brand transition-all duration-300 group-hover:w-full rounded-full opacity-0 group-hover:opacity-100"></span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-brand-light/20 to-brand/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </a>
-                </li>
-                <li>
-                  <a 
-                    href="#contact" 
-                    className="text-brand font-semibold text-sm xl:text-base hover:text-brand-light transition-all duration-300 relative group px-4 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-brand-light/10 hover:to-brand/10 whitespace-nowrap hover:shadow-md hover:scale-105 transform"
-                  >
-                    Contact
-                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-light to-brand transition-all duration-300 group-hover:w-full rounded-full opacity-0 group-hover:opacity-100"></span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-brand-light/20 to-brand/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </nav>
-
-          {/* Enhanced CTA Buttons - Desktop Only */}
-          <div className="hidden lg:flex items-center gap-2 xl:gap-3 flex-shrink-0">
-            {/* Refill Button - Enhanced */}
-            <Button 
-              onClick={onRefillClick}
-              className="bg-gradient-to-r from-brand-light to-brand-accent text-white font-bold px-3 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-brand-light/20 hover:border-brand-accent/30 group text-xs xl:text-sm"
-            >
-              <Pill className="w-3 h-3 xl:w-4 xl:h-4 mr-1.5 group-hover:rotate-12 transition-transform" />
-              Refill Rx
-              <ArrowRight className="w-3 h-3 xl:w-4 xl:h-4 ml-1.5 group-hover:translate-x-0.5 transition-transform" />
-            </Button>
-            
-            {/* Transfer Button - Enhanced */}
-            <Button 
-              onClick={onTransferClick}
-              className="bg-gradient-to-r from-brand to-brand-dark text-white font-bold px-3 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-brand/20 hover:border-brand-dark/30 group text-xs xl:text-sm"
-            >
-              <ArrowRight className="w-3 h-3 xl:w-4 xl:h-4 mr-1.5 group-hover:rotate-12 transition-transform" />
-              Transfer Rx
-              <ArrowRight className="w-3 h-3 xl:w-4 xl:h-4 ml-1.5 group-hover:translate-x-0.5 transition-transform" />
-            </Button>
-            
-            {/* Shop Button - Enhanced */}
-            <Button 
-              onClick={() => window.location.href = '/shop'}
-              className="bg-gradient-to-r from-brand-accent to-brand text-white font-bold px-3 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-brand-accent/20 hover:border-brand/30 group text-xs xl:text-sm"
-            >
-              <ShoppingCart className="w-3 h-3 xl:w-4 xl:h-4 mr-1.5 group-hover:rotate-12 transition-transform" />
-              Shop
-              <ArrowRight className="w-3 h-3 xl:w-4 xl:h-4 ml-1.5 group-hover:translate-x-0.5 transition-transform" />
-            </Button>
-            
-            {/* Patient Portal Button - Enhanced */}
-            <Button 
-              onClick={() => window.location.href = '/patient-portal'}
-              className="bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold px-3 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-purple-500/20 hover:border-purple-600/30 group text-xs xl:text-sm"
-            >
-              <User className="w-3 h-3 xl:w-4 xl:h-4 mr-1.5 group-hover:rotate-12 transition-transform" />
-              Patient Portal
-              <ArrowRight className="w-3 h-3 xl:w-4 xl:h-4 ml-1.5 group-hover:translate-x-0.5 transition-transform" />
-            </Button>
-            
-            {/* Call Button - Enhanced */}
-            <Button 
-              onClick={handleCallClick}
-              variant="outline"
-              className="bg-white/80 backdrop-blur-sm text-brand font-semibold px-3 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-brand/30 hover:bg-brand hover:text-white group text-xs xl:text-sm"
-            >
-              <Phone className="w-3 h-3 xl:w-4 xl:h-4 mr-1.5 group-hover:animate-pulse" />
-              Call Now
-            </Button>
-          </div>
         </div>
 
-        {/* Mobile Dropdown Menu - Enhanced Responsive */}
-        <div className={`mobile-menu lg:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-md shadow-2xl border-b border-gray-200/50 transform transition-all duration-300 ease-in-out z-50 max-h-[80vh] overflow-y-auto ${
+        {/* Glowing Teal Border */}
+        <div className="h-1 bg-gradient-to-r from-transparent via-[#376F6B] to-transparent shadow-[0_0_20px_rgba(55,111,107,0.6)]"></div>
+
+        {/* Mobile Dropdown Menu */}
+        <div className={`mobile-menu lg:hidden absolute top-full left-0 right-0 bg-white shadow-lg transform transition-all duration-300 ease-in-out z-50 ${
           isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
         }`}>
           <div className="container mx-auto px-4 py-6">
-            {/* Navigation Links - Enhanced Mobile Styling */}
-            <div className="grid grid-cols-1 gap-3 mb-6">
-              <a href="/" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-4 px-4 rounded-xl hover:bg-gradient-to-r hover:from-brand-light/10 hover:to-brand/10 transition-all duration-300 border border-transparent hover:border-brand-light/20 shadow-sm hover:shadow-md">
-                <span className="w-2 h-2 bg-brand rounded-full mr-3"></span>
-                Home
-              </a>
-              <a href="#services" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-4 px-4 rounded-xl hover:bg-gradient-to-r hover:from-brand-light/10 hover:to-brand/10 transition-all duration-300 border border-transparent hover:border-brand-light/20 shadow-sm hover:shadow-md">
-                <span className="w-2 h-2 bg-brand rounded-full mr-3"></span>
-                Services
-              </a>
-              <a href="/patient-resources" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-4 px-4 rounded-xl hover:bg-gradient-to-r hover:from-brand-light/10 hover:to-brand/10 transition-all duration-300 border border-transparent hover:border-brand-light/20 shadow-sm hover:shadow-md">
-                <span className="w-2 h-2 bg-brand rounded-full mr-3"></span>
-                Patient Resources
-              </a>
-              
-              <a href="/blog" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-4 px-4 rounded-xl hover:bg-gradient-to-r hover:from-brand-light/10 hover:to-brand/10 transition-all duration-300 border border-transparent hover:border-brand-light/20 shadow-sm hover:shadow-md">
-                <span className="w-2 h-2 bg-brand rounded-full mr-3"></span>
-                Blogs
-              </a>
-              <a href="#about" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-4 px-4 rounded-xl hover:bg-gradient-to-r hover:from-brand-light/10 hover:to-brand/10 transition-all duration-300 border border-transparent hover:border-brand-light/20 shadow-sm hover:shadow-md">
-                <span className="w-2 h-2 bg-brand rounded-full mr-3"></span>
-                About
-              </a>
-              <a href="#contact" onClick={() => setIsMenuOpen(false)} className="flex items-center text-base font-semibold text-brand-black hover:text-brand py-4 px-4 rounded-xl hover:bg-gradient-to-r hover:from-brand-light/10 hover:to-brand/10 transition-all duration-300 border border-transparent hover:border-brand-light/20 shadow-sm hover:shadow-md">
-                <span className="w-2 h-2 bg-brand rounded-full mr-3"></span>
-                Contact
-              </a>
+            {/* Mobile Logo Header */}
+            <div className="flex justify-center mb-6">
+              <div onClick={() => { navigate('/'); setIsMenuOpen(false); }} className="cursor-pointer group">
+                <img
+                  src={logo}
+                  alt="My Meds Pharmacy Logo"
+                  className="h-20 w-auto object-contain transition-all duration-300 group-hover:scale-105 drop-shadow-lg"
+                />
+              </div>
             </div>
             
-            {/* Mobile CTA Buttons - Enhanced */}
-            <div className="grid grid-cols-1 gap-4">
+            {/* Navigation Links */}
+            <div className="space-y-3 mb-6">
+              <button onClick={() => { navigate('/'); setIsMenuOpen(false); }} className="block text-base font-medium text-[#376F6B] hover:text-[#D5C6BC] py-2 transition-colors text-left w-full">
+                Home
+              </button>
+              <button onClick={() => { navigate('/services'); setIsMenuOpen(false); }} className="block text-base font-medium text-[#376F6B] hover:text-[#D5C6BC] py-2 transition-colors text-left w-full">
+                Services
+              </button>
+              <button onClick={() => { navigate('/blog'); setIsMenuOpen(false); }} className="block text-base font-medium text-[#376F6B] hover:text-[#D5C6BC] py-2 transition-colors text-left w-full">
+                Blog
+              </button>
+              <button onClick={() => { navigate('/special-offers'); setIsMenuOpen(false); }} className="block text-base font-medium text-[#376F6B] hover:text-[#D5C6BC] py-2 transition-colors text-left w-full">
+                Special Offers
+              </button>
+              <button onClick={() => { navigate('/about'); setIsMenuOpen(false); }} className="block text-base font-medium text-[#376F6B] hover:text-[#D5C6BC] py-2 transition-colors text-left w-full">
+                About
+              </button>
+              <button onClick={() => { navigate('/contact'); setIsMenuOpen(false); }} className="block text-base font-medium text-[#376F6B] hover:text-[#D5C6BC] py-2 transition-colors text-left w-full">
+                Contact
+              </button>
+              
+              {/* Additional Pages */}
+              <div className="pt-2 border-t border-[#57BBB6]/20">
+                <div className="text-xs font-medium text-[#57BBB6] mb-2 px-2">MORE PAGES</div>
+                <button onClick={() => { navigate('/blog'); setIsMenuOpen(false); }} className="block text-sm text-[#376F6B] hover:text-[#D5C6BC] py-2 transition-colors text-left w-full">
+                  Health Blog
+                </button>
+                <button onClick={() => { navigate('/patient-resources'); setIsMenuOpen(false); }} className="block text-sm text-[#376F6B] hover:text-[#D5C6BC] py-2 transition-colors text-left w-full">
+                  Patient Resources
+                </button>
+              </div>
+            </div>
+            
+            {/* Mobile CTA Buttons */}
+            <div className="space-y-3">
               <Button 
                 onClick={() => {
                   onRefillClick();
                   setIsMenuOpen(false);
                 }}
-                className="bg-gradient-to-r from-brand-light to-brand-accent text-white font-bold px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-brand-light/20 hover:border-brand-accent/30 group text-base"
+                className="w-full bg-[#376F6B] text-white font-semibold py-3 rounded hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-colors"
               >
-                <Pill className="w-5 h-5 mr-3 group-hover:rotate-12 transition-transform" />
-                Refill Prescription
-                <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-0.5 transition-transform" />
+                Refill Rx
               </Button>
               
               <Button 
@@ -312,35 +308,29 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
                   onTransferClick();
                   setIsMenuOpen(false);
                 }}
-                className="bg-gradient-to-r from-brand to-brand-dark text-white font-bold px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-brand/20 hover:border-brand-dark/30 group text-base"
+                className="w-full bg-[#376F6B] text-white font-semibold py-3 rounded hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-colors"
               >
-                <ArrowRight className="w-5 h-5 mr-3 group-hover:rotate-12 transition-transform" />
-                Transfer Prescription
-                <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-0.5 transition-transform" />
+                Transfer Rx
               </Button>
               
               <Button 
                 onClick={() => {
-                  window.location.href = '/shop';
+                  navigate('/shop');
                   setIsMenuOpen(false);
                 }}
-                className="bg-gradient-to-r from-brand-accent to-brand text-white font-bold px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-brand-accent/20 hover:border-brand/30 group text-base"
+                className="w-full bg-[#376F6B] text-white font-semibold py-3 rounded hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-colors"
               >
-                <ShoppingCart className="w-5 h-5 mr-3 group-hover:rotate-12 transition-transform" />
-                Shop Products
-                <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-0.5 transition-transform" />
+                Shop
               </Button>
               
               <Button 
                 onClick={() => {
-                  window.location.href = '/patient-portal';
+                  navigate('/patient-portal');
                   setIsMenuOpen(false);
                 }}
-                className="bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-purple-500/20 hover:border-purple-600/30 group text-base"
+                className="w-full bg-[#376F6B] text-white font-semibold py-3 rounded hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-colors"
               >
-                <User className="w-5 h-5 mr-3 group-hover:rotate-12 transition-transform" />
                 Patient Portal
-                <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-0.5 transition-transform" />
               </Button>
               
               <Button 
@@ -348,10 +338,9 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
                   handleCallClick();
                   setIsMenuOpen(false);
                 }}
-                variant="outline"
-                className="bg-white/90 backdrop-blur-sm text-brand font-semibold px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-brand/30 hover:bg-brand hover:text-white group text-base"
+                className="w-full bg-[#376F6B] text-white font-semibold py-3 rounded hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-colors flex items-center justify-center"
               >
-                <Phone className="w-5 h-5 mr-3 group-hover:animate-pulse" />
+                <Phone className="w-4 h-4 mr-2" />
                 Call Now
               </Button>
             </div>

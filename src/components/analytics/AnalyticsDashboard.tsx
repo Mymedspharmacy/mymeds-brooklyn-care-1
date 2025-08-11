@@ -50,8 +50,8 @@ export function AnalyticsDashboard({ data, timeRange, onTimeRangeChange }: Analy
       {/* Header with Time Range Selector */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Analytics Dashboard</h2>
-          <p className="text-gray-600">Track your business performance and insights</p>
+          <h2 className="text-2xl font-bold text-[#376F6B]">Analytics Dashboard</h2>
+          <p className="text-[#57BBB6]">Track your business performance and insights</p>
         </div>
         <Select value={timeRange} onValueChange={onTimeRangeChange}>
           <SelectTrigger className="w-48">
@@ -308,14 +308,14 @@ export function AnalyticsDashboard({ data, timeRange, onTimeRangeChange }: Analy
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-brand">12.5%</div>
-            <p className="text-sm text-gray-600">Website visitors to customers</p>
+            <p className="text-sm text-[#57BBB6]">Website visitors to customers</p>
             <div className="mt-4">
               <div className="flex items-center justify-between text-sm">
                 <span>Target: 15%</span>
                 <span className="text-green-500">+2.5%</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                <div className="bg-brand h-2 rounded-full" style={{ width: '83%' }}></div>
+              <div className="w-full bg-[#57BBB6]/20 rounded-full h-2 mt-2">
+                <div className="bg-[#376F6B] h-2 rounded-full" style={{ width: '83%' }}></div>
               </div>
             </div>
           </CardContent>
@@ -327,14 +327,14 @@ export function AnalyticsDashboard({ data, timeRange, onTimeRangeChange }: Analy
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-brand">78%</div>
-            <p className="text-sm text-gray-600">Repeat customers</p>
+            <p className="text-sm text-[#57BBB6]">Repeat customers</p>
             <div className="mt-4">
               <div className="flex items-center justify-between text-sm">
                 <span>Target: 80%</span>
                 <span className="text-green-500">+3%</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                <div className="bg-brand h-2 rounded-full" style={{ width: '97.5%' }}></div>
+              <div className="w-full bg-[#57BBB6]/20 rounded-full h-2 mt-2">
+                <div className="bg-[#376F6B] h-2 rounded-full" style={{ width: '97.5%' }}></div>
               </div>
             </div>
           </CardContent>
@@ -346,14 +346,14 @@ export function AnalyticsDashboard({ data, timeRange, onTimeRangeChange }: Analy
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-brand">2.3h</div>
-            <p className="text-sm text-gray-600">Customer support response</p>
+            <p className="text-sm text-[#57BBB6]">Customer support response</p>
             <div className="mt-4">
               <div className="flex items-center justify-between text-sm">
                 <span>Target: 4h</span>
                 <span className="text-green-500">-1.7h</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                <div className="bg-brand h-2 rounded-full" style={{ width: '57.5%' }}></div>
+              <div className="w-full bg-[#57BBB6]/20 rounded-full h-2 mt-2">
+                <div className="bg-[#376F6B] h-2 rounded-full" style={{ width: '57.5%' }}></div>
               </div>
             </div>
           </CardContent>

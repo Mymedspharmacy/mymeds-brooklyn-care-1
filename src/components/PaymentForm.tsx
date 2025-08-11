@@ -59,7 +59,7 @@ export const PaymentForm = ({ amount, onSuccess, onError }: PaymentFormProps) =>
         throw new Error('Network error. Please check your connection and try again.');
       }
 
-      let data: any;
+      let data: { clientSecret?: string; error?: string };
       try {
         data = await response.json();
       } catch {
@@ -94,9 +94,10 @@ export const PaymentForm = ({ amount, onSuccess, onError }: PaymentFormProps) =>
       } else {
         throw new Error('Payment was not successful');
       }
-    } catch (err: any) {
-      setError(err.message);
-      onError(err.message);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+      setError(errorMessage);
+      onError(errorMessage);
     } finally {
       setLoading(false);
     }

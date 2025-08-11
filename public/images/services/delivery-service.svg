@@ -1,0 +1,10 @@
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="300" fill="#f8fafc"/>
+  <rect x="50" y="50" width="300" height="200" rx="20" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="2"/>
+  <rect x="120" y="100" width="160" height="80" rx="10" fill="#10b981"/>
+  <rect x="140" y="120" width="120" height="40" rx="5" fill="#ffffff"/>
+  <circle cx="160" cy="140" r="8" fill="#10b981"/>
+  <circle cx="200" cy="140" r="8" fill="#10b981"/>
+  <circle cx="240" cy="140" r="8" fill="#10b981"/>
+  <text x="200" y="250" text-anchor="middle" fill="#64748b" font-family="Arial" font-size="16">Delivery Service</text>
+</svg>

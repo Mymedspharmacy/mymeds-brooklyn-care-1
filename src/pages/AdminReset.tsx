@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import logo from '../assets/logo.png';
+
 import api from '../lib/api';
 import { Loader2, Lock, Eye, EyeOff, ArrowLeft, CheckCircle, XCircle } from 'lucide-react';
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 
 export default function AdminReset() {
   const [searchParams] = useSearchParams();
@@ -36,8 +38,15 @@ export default function AdminReset() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#e6f7f6] via-[#f5fefd] to-[#d2f1ef] p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-[#D5C6BC]">
+      <Header 
+        onRefillClick={() => navigate('/', { state: { openRefillForm: true } })}
+        onAppointmentClick={() => navigate('/', { state: { openAppointmentForm: true } })}
+        onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
+      />
+      
+      <div className="pt-20 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
         <form
           className="relative bg-white/95 backdrop-blur-sm p-8 rounded-3xl shadow-2xl flex flex-col items-center border border-[#e0f2f1] animate-fade-in"
           onSubmit={handleSubmit}
@@ -50,7 +59,7 @@ export default function AdminReset() {
             <ArrowLeft size={16} />
             Back to Sign In
           </button>
-          <img src={logo} alt="Pharmacy Logo" className="w-20 h-20 mb-4 rounded-full shadow-lg animate-pulse" />
+          <img src="/logo.png" alt="My Meds Pharmacy Logo" className="w-20 h-20 mb-4 rounded-full shadow-lg animate-pulse" />
           <h2 className="text-3xl font-extrabold text-[#376f6b] mb-2 tracking-tight text-center">Reset Admin Password</h2>
           <p className="text-[#2e8f88] text-base mb-6 text-center">{tokenValid ? 'Enter your new password below.' : 'Invalid or missing reset link. Please request a new password reset.'}</p>
 
@@ -97,9 +106,9 @@ export default function AdminReset() {
           {/* Submit Button */}
           {tokenValid && !success && (
             <button
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#376f6b] to-[#2e8f88] hover:from-[#2e8f88] hover:to-[#376f6b] text-white py-3 rounded-xl font-bold text-lg shadow-lg transition-all duration-200 hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed"
               type="submit"
-              disabled={loading}
+              disabled={loading || !tokenValid || success}
+              className="w-full flex items-center justify-center gap-2 bg-[#376F6B] hover:bg-[#57BBB6] text-white py-3 rounded-xl font-bold text-lg shadow-lg transition-all duration-200 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading && <Loader2 className="animate-spin" size={22} />} Reset Password
             </button>
@@ -135,5 +144,8 @@ export default function AdminReset() {
         `}</style>
       </div>
     </div>
-  );
+
+    <Footer />
+  </div>
+);
 } 

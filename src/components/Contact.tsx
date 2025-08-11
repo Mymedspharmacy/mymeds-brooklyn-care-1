@@ -123,8 +123,8 @@ export const Contact = () => {
         title: 'Message Sent Successfully!', 
         description: "Thank you for contacting us. We'll get back to you within 24 hours." 
       });
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.error || 'Failed to send message. Please try again.';
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to send message. Please try again.';
       setError(errorMessage);
       toast({ 
         title: 'Error Sending Message', 
@@ -233,27 +233,27 @@ Phone: (347) 312-6458`;
   };
 
   return (
-    <section id="contact" className="py-16 sm:py-20 md:py-24 bg-gradient-to-br from-slate-50 via-white to-brand-light/30 relative overflow-hidden">
-      {/* Background Decoration */}
-      <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-r from-brand-light/20 to-brand/20 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-r from-brand-accent/20 to-brand-dark/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+    <section id="contact" className="py-16 sm:py-20 md:py-24 bg-[#D5C6BC] relative overflow-hidden">
+             {/* Background Decoration */}
+       <div className="absolute top-20 left-10 w-72 h-72 bg-[#57BBB6]/20 rounded-full blur-3xl animate-pulse"></div>
+       <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#376F6B]/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Enhanced Header */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-light to-brand text-white px-6 py-3 rounded-full text-sm font-semibold mb-8 shadow-lg">
-            <MessageCircle className="h-5 w-5" />
-            Get In Touch
-          </div>
+                     <div className="inline-flex items-center gap-2 bg-[#376F6B] text-white px-6 py-3 rounded-full text-sm font-semibold mb-8 shadow-lg">
+             <MessageCircle className="h-5 w-5" />
+             Get In Touch
+           </div>
           
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-8">
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#376F6B] leading-tight mb-8">
             Contact 
-            <span className="block bg-gradient-to-r from-brand-light to-brand bg-clip-text text-transparent">
-              Our Team
-            </span>
+                         <span className="block text-[#57BBB6]">
+               Our Team
+             </span>
           </h2>
           
-          <p className="text-xl sm:text-2xl text-gray-600 max-w-4xl mx-auto font-medium leading-relaxed">
+          <p className="text-xl sm:text-2xl text-[#57BBB6] max-w-4xl mx-auto font-medium leading-relaxed">
             We're here to help with all your pharmaceutical needs. Reach out to us through any of the methods below, 
             and our knowledgeable team will get back to you promptly.
           </p>
@@ -263,10 +263,9 @@ Phone: (347) 312-6458`;
           {/* Enhanced Contact Information */}
           <div className="space-y-8">
             <div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-6">Contact Information</h3>
-              <p className="text-lg text-gray-600 leading-relaxed mb-8">
-                Visit us in person, call us directly, or send us an email. Our friendly staff is ready to assist you 
-                with all your pharmaceutical and health-related questions.
+              <h3 className="text-3xl font-bold text-[#376F6B] mb-6">Contact Information</h3>
+              <p className="text-lg text-[#57BBB6] leading-relaxed mb-8">
+                Choose your preferred way to get in touch with us. We're available through multiple channels to serve you better.
               </p>
             </div>
 
@@ -275,17 +274,17 @@ Phone: (347) 312-6458`;
               <Card className="hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 border-0 bg-white/80 backdrop-blur-sm">
                 <CardContent className="p-6">
                   <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-brand-light to-brand rounded-xl flex items-center justify-center flex-shrink-0">
+                    <div className="w-12 h-12 bg-[#376F6B] rounded-xl flex items-center justify-center flex-shrink-0">
                       <Building2 className="h-6 w-6 text-white" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="font-semibold text-gray-900 text-lg mb-2">Visit Our Location</h4>
-                      <p className="text-gray-600 mb-3">2242 65th St., Brooklyn, NY 11204</p>
+                      <h4 className="font-semibold text-[#376F6B] text-lg mb-2">Visit Our Location</h4>
+                      <p className="text-[#57BBB6] mb-3">2242 65th St., Brooklyn, NY 11204</p>
                       <Button 
                         variant="outline" 
                         size="sm"
                         onClick={handleMapClick}
-                        className="text-brand-light border-brand-light hover:bg-brand-light hover:text-white"
+                        className="text-[#57BBB6] border-[#57BBB6] hover:bg-[#57BBB6] hover:text-white"
                       >
                         <MapPin className="h-4 w-4 mr-2" />
                         Get Directions
@@ -299,17 +298,17 @@ Phone: (347) 312-6458`;
               <Card className="hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 border-0 bg-white/80 backdrop-blur-sm">
                 <CardContent className="p-6">
                   <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-brand-light to-brand rounded-xl flex items-center justify-center flex-shrink-0">
+                    <div className="w-12 h-12 bg-[#376F6B] rounded-xl flex items-center justify-center flex-shrink-0">
                       <Phone className="h-6 w-6 text-white" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="font-semibold text-gray-900 text-lg mb-2">Call Us Directly</h4>
-                      <p className="text-gray-600 mb-3">(347) 312-6458</p>
+                      <h4 className="font-semibold text-[#376F6B] text-lg mb-2">Call Us Directly</h4>
+                      <p className="text-[#57BBB6] mb-3">(347) 312-6458</p>
                       <Button 
                         variant="outline" 
                         size="sm"
                         onClick={handleCallClick}
-                        className="text-brand-light border-brand-light hover:bg-brand-light hover:text-white"
+                        className="text-[#57BBB6] border-[#57BBB6] hover:bg-[#57BBB6] hover:text-white"
                       >
                         <Phone className="h-4 w-4 mr-2" />
                         Call Now
@@ -323,17 +322,17 @@ Phone: (347) 312-6458`;
               <Card className="hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 border-0 bg-white/80 backdrop-blur-sm">
                 <CardContent className="p-6">
                   <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-brand-accent to-brand rounded-xl flex items-center justify-center flex-shrink-0">
+                    <div className="w-12 h-12 bg-[#376F6B] rounded-xl flex items-center justify-center flex-shrink-0">
                       <Mail className="h-6 w-6 text-white" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="font-semibold text-gray-900 text-lg mb-2">Send Us an Email</h4>
-                      <p className="text-gray-600 mb-3">Mymedspharmacy@outlook.com</p>
+                      <h4 className="font-semibold text-[#376F6B] text-lg mb-2">Send Us an Email</h4>
+                      <p className="text-[#57BBB6] mb-3">Mymedspharmacy@outlook.com</p>
                       <Button 
                         variant="outline" 
                         size="sm"
                         onClick={handleEmailClick}
-                        className="text-brand-accent border-brand-accent hover:bg-brand-accent hover:text-white"
+                        className="text-[#57BBB6] border-[#57BBB6] hover:bg-[#57BBB6] hover:text-white"
                       >
                         <Mail className="h-4 w-4 mr-2" />
                         Send Email
@@ -350,7 +349,7 @@ Phone: (347) 312-6458`;
 
                      {/* Enhanced Contact Form */}
            <Card className="shadow-2xl border-0 bg-gradient-to-br from-white to-gray-50/50 backdrop-blur-sm">
-             <CardHeader className="pb-4 bg-gradient-to-r from-brand to-brand-light text-white rounded-t-lg">
+             <CardHeader className="pb-4 bg-[#376F6B] text-white rounded-t-lg">
                <div className="flex items-center justify-between mb-3">
                  <CardTitle className="text-2xl text-white flex items-center gap-2">
                    <MessageCircle className="h-6 w-6" />
@@ -383,8 +382,8 @@ Phone: (347) 312-6458`;
                    <div className="space-y-4">
                      <div className="grid md:grid-cols-2 gap-4">
                        <div className="space-y-2">
-                         <label htmlFor="firstName" className="block text-sm font-semibold text-gray-700">
-                           First Name <span className="text-red-500">*</span>
+                         <label htmlFor="firstName" className="block text-sm font-semibold text-[#376F6B]">
+                           First Name *
                          </label>
                          <Input
                            id="firstName"
@@ -392,7 +391,7 @@ Phone: (347) 312-6458`;
                            type="text"
                            value={formData.firstName}
                            onChange={handleChange}
-                           className={`w-full ${formErrors.firstName ? 'border-red-500 focus:border-red-500' : 'focus:border-brand-light'}`}
+                                                       className={`w-full ${formErrors.firstName ? 'border-red-500 focus:border-red-500' : 'focus:border-[#57BBB6]'}`}
                            placeholder="Enter your first name"
                          />
                          {formErrors.firstName && (
@@ -403,8 +402,8 @@ Phone: (347) 312-6458`;
                          )}
                        </div>
                        <div className="space-y-2">
-                         <label htmlFor="lastName" className="block text-sm font-semibold text-gray-700">
-                           Last Name <span className="text-red-500">*</span>
+                         <label htmlFor="lastName" className="block text-sm font-semibold text-[#376F6B]">
+                           Last Name *
                          </label>
                          <Input
                            id="lastName"
@@ -412,7 +411,7 @@ Phone: (347) 312-6458`;
                            type="text"
                            value={formData.lastName}
                            onChange={handleChange}
-                           className={`w-full ${formErrors.lastName ? 'border-red-500 focus:border-red-500' : 'focus:border-brand-light'}`}
+                                                       className={`w-full ${formErrors.lastName ? 'border-red-500 focus:border-red-500' : 'focus:border-[#57BBB6]'}`}
                            placeholder="Enter your last name"
                          />
                          {formErrors.lastName && (
@@ -425,8 +424,8 @@ Phone: (347) 312-6458`;
                      </div>
 
                      <div className="space-y-2">
-                       <label htmlFor="email" className="block text-sm font-semibold text-gray-700">
-                         Email Address <span className="text-red-500">*</span>
+                       <label htmlFor="email" className="block text-sm font-semibold text-[#376F6B]">
+                         Email Address *
                        </label>
                        <Input
                          id="email"
@@ -434,7 +433,7 @@ Phone: (347) 312-6458`;
                          type="email"
                          value={formData.email}
                          onChange={handleChange}
-                         className={`w-full ${formErrors.email ? 'border-red-500 focus:border-red-500' : 'focus:border-brand-light'}`}
+                                                     className={`w-full ${formErrors.email ? 'border-red-500 focus:border-red-500' : 'focus:border-[#57BBB6]'}`}
                          placeholder="your.email@example.com"
                        />
                        {formErrors.email && (
@@ -446,8 +445,8 @@ Phone: (347) 312-6458`;
                      </div>
 
                      <div className="space-y-2">
-                       <label htmlFor="phone" className="block text-sm font-semibold text-gray-700">
-                         Phone Number <span className="text-red-500">*</span>
+                       <label htmlFor="phone" className="block text-sm font-semibold text-[#376F6B]">
+                         Phone Number
                        </label>
                        <Input
                          id="phone"
@@ -455,7 +454,7 @@ Phone: (347) 312-6458`;
                          type="tel"
                          value={formData.phone}
                          onChange={handleChange}
-                         className={`w-full ${formErrors.phone ? 'border-red-500 focus:border-red-500' : 'focus:border-brand-light'}`}
+                                                     className={`w-full ${formErrors.phone ? 'border-red-500 focus:border-red-500' : 'focus:border-[#57BBB6]'}`}
                          placeholder="(555) 123-4567"
                        />
                        {formErrors.phone && (
@@ -470,7 +469,7 @@ Phone: (347) 312-6458`;
                        <Button 
                          type="button" 
                          onClick={nextStep}
-                         className="bg-gradient-to-r from-brand-light to-brand hover:from-brand hover:to-brand-light text-white px-6 py-2 shadow-lg hover:shadow-xl transition-all duration-300"
+                         className="bg-[#376F6B] hover:bg-[#57BBB6] text-white px-6 py-2 shadow-lg hover:shadow-xl transition-all duration-300"
                        >
                          Next Step
                          <ArrowRight className="h-4 w-4 ml-2" />
@@ -483,8 +482,8 @@ Phone: (347) 312-6458`;
                  {currentStep === 2 && (
                    <div className="space-y-4">
                      <div className="space-y-2">
-                       <label htmlFor="subject" className="block text-sm font-semibold text-gray-700">
-                         Subject <span className="text-red-500">*</span>
+                       <label htmlFor="subject" className="block text-sm font-semibold text-[#376F6B]">
+                         Subject *
                        </label>
                        <Input
                          id="subject"
@@ -492,7 +491,7 @@ Phone: (347) 312-6458`;
                          type="text"
                          value={formData.subject}
                          onChange={handleChange}
-                         className={`w-full ${formErrors.subject ? 'border-red-500 focus:border-red-500' : 'focus:border-brand-light'}`}
+                                                     className={`w-full ${formErrors.subject ? 'border-red-500 focus:border-red-500' : 'focus:border-[#57BBB6]'}`}
                          placeholder="Brief description of your inquiry"
                        />
                        {formErrors.subject && (
@@ -505,13 +504,13 @@ Phone: (347) 312-6458`;
 
                      <div className="grid md:grid-cols-2 gap-4">
                        <div className="space-y-2">
-                         <label className="block text-sm font-semibold text-gray-700">
+                         <label className="block text-sm font-semibold text-[#376F6B]">
                            Service Type
                          </label>
-                         <Select value={formData.serviceType} onValueChange={(value) => handleSelectChange('serviceType', value)}>
-                           <SelectTrigger className="focus:border-brand-light">
-                             <SelectValue placeholder="Select a service type" />
-                           </SelectTrigger>
+                                                   <Select value={formData.serviceType} onValueChange={(value) => handleSelectChange('serviceType', value)}>
+                            <SelectTrigger className="focus:border-[#57BBB6]">
+                              <SelectValue placeholder="Select a service type" />
+                            </SelectTrigger>
                            <SelectContent>
                              {serviceTypes.map((service) => (
                                <SelectItem key={service.value} value={service.value}>
@@ -526,19 +525,19 @@ Phone: (347) 312-6458`;
                        </div>
 
                        <div className="space-y-2">
-                         <label className="block text-sm font-semibold text-gray-700">
+                         <label className="block text-sm font-semibold text-[#376F6B]">
                            Urgency Level
                          </label>
-                         <Select value={formData.urgency} onValueChange={(value) => handleSelectChange('urgency', value)}>
-                           <SelectTrigger className="focus:border-brand-light">
-                             <SelectValue />
-                           </SelectTrigger>
+                                                   <Select value={formData.urgency} onValueChange={(value) => handleSelectChange('urgency', value)}>
+                            <SelectTrigger className="focus:border-[#57BBB6]">
+                              <SelectValue />
+                            </SelectTrigger>
                            <SelectContent>
                              {urgencyLevels.map((level) => (
                                <SelectItem key={level.value} value={level.value}>
                                  <div>
                                    <div className="font-medium">{level.label}</div>
-                                   <div className="text-sm text-gray-500">{level.description}</div>
+                                   <div className="text-sm text-[#57BBB6]">{level.description}</div>
                                  </div>
                                </SelectItem>
                              ))}
@@ -548,8 +547,8 @@ Phone: (347) 312-6458`;
                      </div>
 
                      <div className="space-y-2">
-                       <label htmlFor="message" className="block text-sm font-semibold text-gray-700">
-                         Message <span className="text-red-500">*</span>
+                       <label htmlFor="message" className="block text-sm font-semibold text-[#376F6B]">
+                         Message *
                        </label>
                        <Textarea
                          id="message"
@@ -557,7 +556,7 @@ Phone: (347) 312-6458`;
                          rows={4}
                          value={formData.message}
                          onChange={handleChange}
-                         className={`w-full ${formErrors.message ? 'border-red-500 focus:border-red-500' : 'focus:border-brand-light'}`}
+                                                     className={`w-full ${formErrors.message ? 'border-red-500 focus:border-red-500' : 'focus:border-[#57BBB6]'}`}
                          placeholder="Please provide detailed information about your inquiry, question, or concern..."
                        />
                        {formErrors.message && (
@@ -573,14 +572,14 @@ Phone: (347) 312-6458`;
                          type="button" 
                          variant="outline"
                          onClick={prevStep}
-                         className="border-brand-light text-brand-light hover:bg-brand-light hover:text-white px-6 py-2"
+                         className="border-[#57BBB6] text-[#57BBB6] hover:bg-[#57BBB6] hover:text-white px-6 py-2"
                        >
                          Previous
                        </Button>
                        <Button 
                          type="button" 
                          onClick={nextStep}
-                         className="bg-gradient-to-r from-brand-light to-brand hover:from-brand hover:to-brand-light text-white px-6 py-2 shadow-lg hover:shadow-xl transition-all duration-300"
+                         className="bg-[#376F6B] hover:bg-[#57BBB6] text-white px-6 py-2 shadow-lg hover:shadow-xl transition-all duration-300"
                        >
                          Next Step
                          <ArrowRight className="h-4 w-4 ml-2" />
@@ -594,13 +593,13 @@ Phone: (347) 312-6458`;
                    <div className="space-y-4">
                      <div className="grid md:grid-cols-2 gap-4">
                        <div className="space-y-2">
-                         <label className="block text-sm font-semibold text-gray-700">
+                         <label className="block text-sm font-semibold text-[#376F6B]">
                            Preferred Contact Method
                          </label>
-                         <Select value={formData.preferredContact} onValueChange={(value) => handleSelectChange('preferredContact', value)}>
-                           <SelectTrigger className="focus:border-brand-light">
-                             <SelectValue />
-                           </SelectTrigger>
+                                                   <Select value={formData.preferredContact} onValueChange={(value) => handleSelectChange('preferredContact', value)}>
+                            <SelectTrigger className="focus:border-[#57BBB6]">
+                              <SelectValue />
+                            </SelectTrigger>
                            <SelectContent>
                              {contactMethods.map((method) => (
                                <SelectItem key={method.value} value={method.value}>
@@ -615,13 +614,13 @@ Phone: (347) 312-6458`;
                        </div>
 
                        <div className="space-y-2">
-                         <label className="block text-sm font-semibold text-gray-700">
+                         <label className="block text-sm font-semibold text-[#376F6B]">
                            Best Time to Contact
                          </label>
-                         <Select value={formData.bestTimeToContact} onValueChange={(value) => handleSelectChange('bestTimeToContact', value)}>
-                           <SelectTrigger className="focus:border-brand-light">
-                             <SelectValue placeholder="Select preferred time" />
-                           </SelectTrigger>
+                                                   <Select value={formData.bestTimeToContact} onValueChange={(value) => handleSelectChange('bestTimeToContact', value)}>
+                            <SelectTrigger className="focus:border-[#57BBB6]">
+                              <SelectValue placeholder="Select preferred time" />
+                            </SelectTrigger>
                            <SelectContent>
                              {timeSlots.map((time) => (
                                <SelectItem key={time} value={time}>
@@ -633,7 +632,7 @@ Phone: (347) 312-6458`;
                        </div>
                      </div>
 
-                     <div className="space-y-3 bg-gray-50/50 rounded-lg p-4">
+                     <div className="space-y-3 bg-[#57BBB6]/5 rounded-lg p-4">
                        <div className="flex items-start space-x-3">
                          <Checkbox
                            id="agreeToTerms"
@@ -648,8 +647,8 @@ Phone: (347) 312-6458`;
                            >
                              I agree to the terms and conditions <span className="text-red-500">*</span>
                            </label>
-                           <p className="text-xs text-gray-500">
-                             By submitting this form, you agree to our privacy policy and terms of service.
+                           <p className="text-xs text-[#57BBB6]">
+                             By submitting this form, you agree to our privacy policy and consent to being contacted regarding your inquiry.
                            </p>
                          </div>
                        </div>
@@ -674,7 +673,7 @@ Phone: (347) 312-6458`;
                            >
                              Receive updates and newsletters
                            </label>
-                           <p className="text-xs text-gray-500">
+                           <p className="text-xs text-[#57BBB6]">
                              Stay informed about health tips, pharmacy services, and special offers.
                            </p>
                          </div>
@@ -682,30 +681,20 @@ Phone: (347) 312-6458`;
                      </div>
 
                      <div className="flex justify-between pt-2">
-                       <Button 
-                         type="button" 
-                         variant="outline"
-                         onClick={prevStep}
-                         className="border-brand-light text-brand-light hover:bg-brand-light hover:text-white px-6 py-2"
-                       >
-                         Previous
-                       </Button>
+                                               <Button 
+                          type="button" 
+                          variant="outline"
+                          onClick={prevStep}
+                          className="border-[#57BBB6] text-[#57BBB6] hover:bg-[#57BBB6] hover:text-white px-6 py-2"
+                        >
+                          Previous
+                        </Button>
                        <Button 
                          type="submit" 
                          disabled={loading}
-                         className="bg-gradient-to-r from-brand-light to-brand hover:from-brand hover:to-brand-light text-white px-6 py-2 shadow-lg hover:shadow-xl transition-all duration-300"
+                         className="text-[#57BBB6] border-[#57BBB6] hover:bg-[#57BBB6] hover:text-white"
                        >
-                         {loading ? (
-                           <>
-                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                             Sending...
-                           </>
-                         ) : (
-                           <>
-                             <Send className="h-4 w-4 mr-2" />
-                             Send Message
-                           </>
-                         )}
+                         {loading ? 'Sending...' : 'Send Message'}
                        </Button>
                      </div>
                    </div>
@@ -736,7 +725,7 @@ Phone: (347) 312-6458`;
         {/* Enhanced Map Section */}
         <div className="mb-16">
           <Card className="overflow-hidden shadow-2xl border-0">
-            <CardHeader className="bg-gradient-to-r from-brand to-brand-light text-white">
+                         <CardHeader className="bg-[#376F6B] text-white">
               <CardTitle className="text-2xl flex items-center">
                 <MapPin className="h-6 w-6 mr-3" />
                 Visit Our Location
@@ -758,13 +747,13 @@ Phone: (347) 312-6458`;
                 ></iframe>
                 <div className="absolute top-4 left-4 bg-white rounded-xl shadow-lg p-4 max-w-xs">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gradient-to-r from-brand-light to-brand text-white rounded-full flex items-center justify-center font-bold text-sm">
-                      MM
-                    </div>
+                                         <div className="w-10 h-10 bg-[#376F6B] text-white rounded-full flex items-center justify-center font-bold text-sm">
+                       MM
+                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900">My Meds Pharmacy</p>
-                      <p className="text-sm text-gray-600">2242 65th St., Brooklyn, NY</p>
-                      <p className="text-xs text-gray-500">Open Mon-Sat</p>
+                      <p className="font-semibold text-[#376F6B]">My Meds Pharmacy</p>
+                      <p className="text-sm text-[#57BBB6]">2242 65th St., Brooklyn, NY</p>
+                      <p className="text-xs text-[#57BBB6]">Open Mon-Sat</p>
                     </div>
                   </div>
                 </div>
@@ -775,60 +764,60 @@ Phone: (347) 312-6458`;
 
         {/* Enhanced Quick Actions */}
         <div className="text-center">
-          <h3 className="text-3xl font-bold text-gray-900 mb-4">Quick Actions</h3>
-          <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto">
+          <h3 className="text-3xl font-bold text-[#376F6B] mb-4">Quick Actions</h3>
+          <p className="text-lg text-[#57BBB6] leading-relaxed mb-8">
             Need immediate assistance? Use these quick contact methods for faster response times.
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Card className="hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-0 bg-white/80 backdrop-blur-sm h-full flex flex-col">
               <CardContent className="p-8 text-center flex flex-col h-full">
-                <div className="w-16 h-16 bg-gradient-to-r from-brand-light to-brand rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <Phone className="h-8 w-8 text-white" />
-                </div>
-                <h4 className="text-xl font-semibold text-gray-900 mb-3">Call Us Now</h4>
-                <p className="text-gray-600 mb-6 flex-grow">Speak directly with our pharmacy team for immediate assistance</p>
-                <Button 
-                  className="w-full bg-brand-light hover:bg-brand text-white text-lg py-3 mt-auto"
-                  onClick={handleCallClick}
-                >
-                  <Phone className="h-5 w-5 mr-2" />
-                  Call (347) 312-6458
-                </Button>
+                                 <div className="w-16 h-16 bg-[#376F6B] rounded-2xl flex items-center justify-center mx-auto mb-6">
+                   <Phone className="h-8 w-8 text-white" />
+                 </div>
+                <h4 className="text-xl font-semibold text-[#376F6B] mb-3">Call Us Now</h4>
+                <p className="text-[#57BBB6] mb-6 flex-grow">Speak directly with our pharmacy team for immediate assistance</p>
+                                 <Button 
+                   className="w-full bg-[#376F6B] hover:bg-[#57BBB6] text-white text-lg py-3 mt-auto"
+                   onClick={handleCallClick}
+                 >
+                   <Phone className="h-5 w-5 mr-2" />
+                   Call (347) 312-6458
+                 </Button>
               </CardContent>
             </Card>
 
             <Card className="hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-0 bg-white/80 backdrop-blur-sm h-full flex flex-col">
               <CardContent className="p-8 text-center flex flex-col h-full">
-                <div className="w-16 h-16 bg-gradient-to-r from-brand-accent to-brand rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <Mail className="h-8 w-8 text-white" />
-                </div>
-                <h4 className="text-xl font-semibold text-gray-900 mb-3">Email Us</h4>
-                <p className="text-gray-600 mb-6 flex-grow">Send us your questions or concerns via email</p>
-                <Button 
-                  className="w-full bg-brand-accent hover:bg-brand text-white text-lg py-3 mt-auto"
-                  onClick={handleEmailClick}
-                >
-                  <Mail className="h-5 w-5 mr-2" />
-                  Send Email
-                </Button>
+                                 <div className="w-16 h-16 bg-[#376F6B] rounded-2xl flex items-center justify-center mx-auto mb-6">
+                   <Mail className="h-8 w-8 text-white" />
+                 </div>
+                <h4 className="text-xl font-semibold text-[#376F6B] mb-3">Email Us</h4>
+                <p className="text-[#57BBB6] mb-6 flex-grow">Send us your questions or concerns via email</p>
+                                 <Button 
+                   className="w-full bg-[#376F6B] hover:bg-[#57BBB6] text-white text-lg py-3 mt-auto"
+                   onClick={handleEmailClick}
+                 >
+                   <Mail className="h-5 w-5 mr-2" />
+                   Send Email
+                 </Button>
               </CardContent>
             </Card>
 
             <Card className="hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-0 bg-white/80 backdrop-blur-sm h-full flex flex-col">
               <CardContent className="p-8 text-center flex flex-col h-full">
-                <div className="w-16 h-16 bg-gradient-to-r from-brand to-brand-dark rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <MapPin className="h-8 w-8 text-white" />
-                </div>
-                <h4 className="text-xl font-semibold text-gray-900 mb-3">Get Directions</h4>
-                <p className="text-gray-600 mb-6 flex-grow">Navigate to our convenient Brooklyn location</p>
-                <Button 
-                  className="w-full bg-brand hover:bg-brand-dark text-white text-lg py-3 mt-auto"
-                  onClick={handleMapClick}
-                >
-                  <MapPin className="h-5 w-5 mr-2" />
-                  Get Directions
-                </Button>
+                                 <div className="w-16 h-16 bg-[#376F6B] rounded-2xl flex items-center justify-center mx-auto mb-6">
+                   <MapPin className="h-8 w-8 text-white" />
+                 </div>
+                <h4 className="text-xl font-semibold text-[#376F6B] mb-3">Get Directions</h4>
+                <p className="text-[#57BBB6] mb-6 flex-grow">Navigate to our convenient Brooklyn location</p>
+                                 <Button 
+                   className="w-full bg-[#376F6B] hover:bg-[#57BBB6] text-white text-lg py-3 mt-auto"
+                   onClick={handleMapClick}
+                 >
+                   <MapPin className="h-5 w-5 mr-2" />
+                   Get Directions
+                 </Button>
               </CardContent>
             </Card>
           </div>

@@ -1,676 +1,581 @@
-import { useState, useEffect } from 'react';
-import { ShoppingCart, Heart, Star, Search, Filter, X, Plus, Minus, ExternalLink } from 'lucide-react';
-import { PaymentForm } from '@/components/PaymentForm';
-import wooCommerceAPI from '../lib/woocommerce';
-import { useScrollToTop } from '@/hooks/useScrollToTop';
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Search, Filter, ShoppingCart, Heart, Star, Eye, Package, Truck, Shield, Clock, CheckCircle, ArrowRight, Minus, Plus, Home, Baby, Loader2 } from "lucide-react";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
+import { wooCommerceAPI } from "@/lib/woocommerce";
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-// WooCommerce integration
-export default function Shop() {
-  useScrollToTop();
-  const [cart, setCart] = useState([]);
-  const [wishlist, setWishlist] = useState([]);
-  const [showCart, setShowCart] = useState(false);
-  const [showCheckout, setShowCheckout] = useState(false);
-  const [showPayment, setShowPayment] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [order, setOrder] = useState({ 
-    name: '', 
-    email: '', 
-    phone: '', 
-    address: '', 
-    city: '', 
-    zip: '', 
-    notes: '' 
-  });
-  const [orderPlaced, setOrderPlaced] = useState(false);
-  const [showProductDetail, setShowProductDetail] = useState(null);
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+// Load Stripe
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_...');
 
-  useEffect(() => {
-    const initializeData = async () => {
-      try {
-        await Promise.all([
-          loadProducts(),
-          loadCategories()
-        ]);
-      } catch (error) {
-        console.error('Failed to initialize shop data:', error);
-        setError('Failed to load shop data. Please refresh the page.');
-      }
-    };
+interface WooCommerceProduct {
+  id: number;
+  name: string;
+  description: string;
+  price: string;
+  regular_price: string;
+  sale_price: string;
+  categories: Array<{ id: number; name: string }>;
+  images: Array<{ src: string; alt: string }>;
+  stock_quantity: number;
+  average_rating: string;
+  rating_count: number;
+  tags: Array<{ id: number; name: string }>;
+  attributes: Array<{ name: string; options: string[] }>;
+}
 
-    initializeData();
-  }, []);
+interface CartItem {
+  product: WooCommerceProduct;
+  quantity: number;
+}
 
-  const loadProducts = async () => {
+// Stripe Checkout Component
+const CheckoutForm = ({ cart, total, onSuccess, onCancel }: { 
+  cart: CartItem[], 
+  total: number, 
+  onSuccess: () => void, 
+  onCancel: () => void 
+}) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!stripe || !elements) return;
+
+    setLoading(true);
+    setError(null);
+
     try {
-      setLoading(true);
-      
-      // Check if WooCommerce is configured
-      if (!import.meta.env.VITE_WOOCOMMERCE_URL || 
-          !import.meta.env.VITE_WOOCOMMERCE_CONSUMER_KEY || 
-          !import.meta.env.VITE_WOOCOMMERCE_CONSUMER_SECRET) {
-        console.warn('WooCommerce not configured, using sample products');
-        setError('WooCommerce not configured. Please set up VITE_WOOCOMMERCE_URL, VITE_WOOCOMMERCE_CONSUMER_KEY, and VITE_WOOCOMMERCE_CONSUMER_SECRET in your .env file.');
-        setProducts([
-          {
-            id: 1,
-            name: 'Sample Product 1',
-            description: 'This is a sample product for testing purposes.',
-            price: '19.99',
-            regular_price: '24.99',
-            sale_price: '19.99',
-            images: [{ src: '/placeholder.svg' }],
-            categories: [{ name: 'Health & Wellness' }]
-          },
-          {
-            id: 2,
-            name: 'Sample Product 2',
-            description: 'Another sample product for testing.',
-            price: '29.99',
-            regular_price: '29.99',
-            sale_price: null,
-            images: [{ src: '/placeholder.svg' }],
-            categories: [{ name: 'Supplements' }]
-          }
-        ]);
-        return;
-      }
-      
-      const productsData = await wooCommerceAPI.getProducts({
-        per_page: 50,
-        status: 'publish',
+      // Create payment intent
+      const response = await fetch('/api/payments/create-payment-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: total, currency: 'usd' })
       });
-      // Ensure productsData is an array
-      if (Array.isArray(productsData)) {
-        setProducts(productsData);
+
+      const { clientSecret } = await response.json();
+
+      // Confirm payment
+      const { error: paymentError } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: elements.getElement(CardElement)!,
+          billing_details: {
+            name: 'Customer Name', // You can add a form for this
+          },
+        }
+      });
+
+      if (paymentError) {
+        setError(paymentError.message || 'Payment failed');
       } else {
-        console.error('Products data is not an array:', productsData);
-        setProducts([]);
-        setError('Invalid products data received');
+        onSuccess();
       }
     } catch (err) {
-      setError('Failed to load products from WooCommerce');
-      console.error('Error loading products:', err);
-      setProducts([]);
+      setError('Payment failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const loadCategories = async () => {
-    try {
-      // Check if WooCommerce is configured
-      if (!import.meta.env.VITE_WOOCOMMERCE_URL || 
-          !import.meta.env.VITE_WOOCOMMERCE_CONSUMER_KEY || 
-          !import.meta.env.VITE_WOOCOMMERCE_CONSUMER_SECRET) {
-        console.warn('WooCommerce not configured, using sample categories');
-        setCategories([
-          { id: 1, name: 'Health & Wellness' },
-          { id: 2, name: 'Supplements' },
-          { id: 3, name: 'Personal Care' },
-          { id: 4, name: 'Medical Supplies' }
-        ]);
-        return;
-      }
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="border rounded-lg p-4">
+        <CardElement 
+          options={{
+            style: {
+              base: {
+                fontSize: '16px',
+                color: '#424770',
+                '::placeholder': { color: '#aab7c4' },
+              },
+              invalid: { color: '#9e2146' },
+            },
+          }}
+        />
+      </div>
       
-      const categoriesData = await wooCommerceAPI.getCategories();
-      // Ensure categoriesData is an array
-      if (Array.isArray(categoriesData)) {
-        setCategories(categoriesData);
-      } else {
-        console.error('Categories data is not an array:', categoriesData);
+      {error && (
+        <div className="text-red-600 text-sm">{error}</div>
+      )}
+      
+      <div className="flex gap-2">
+        <Button 
+          type="submit" 
+          disabled={!stripe || loading} 
+          className="flex-1 bg-[#57BBB6] hover:bg-[#376F6B]"
+        >
+          {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+          Pay ${total.toFixed(2)}
+        </Button>
+        <Button 
+          type="button" 
+          variant="outline" 
+          onClick={onCancel}
+        >
+          Cancel
+        </Button>
+      </div>
+    </form>
+  );
+};
+
+export default function Shop() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [products, setProducts] = useState<WooCommerceProduct[]>([]);
+  const [categories, setCategories] = useState<Array<{ id: number; name: string; count: number }>>([]);
+  const [loading, setLoading] = useState(true);
+  const [showCheckout, setShowCheckout] = useState(false);
+
+  // Fetch products from WooCommerce
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const [productsData, categoriesData] = await Promise.all([
+          wooCommerceAPI.getProducts({ per_page: 100 }),
+          wooCommerceAPI.getCategories()
+        ]);
+        
+        setProducts(productsData);
+        setCategories(categoriesData.map(cat => ({
+          id: cat.id,
+          name: cat.name,
+          count: cat.count
+        })));
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setProducts([]);
         setCategories([]);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error('Error loading categories:', err);
-      setCategories([]);
-    }
-  };
+    };
 
-  // Calculate cart totals
-  const cartTotal = cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
-  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+    fetchProducts();
+  }, []);
 
-  // Filter products
-  const filteredProducts = Array.isArray(products) ? products.filter(product => {
-    const matchesCategory = selectedCategory === 'All' || 
-      product.categories?.some(cat => cat.name === selectedCategory);
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.description.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
-  }) : [];
-
-  function addToCart(product) {
+  const addToCart = (product: WooCommerceProduct) => {
     setCart(prev => {
-      const existing = prev.find(item => item.id === product.id);
-      if (existing) {
+      const existingItem = prev.find(item => item.product.id === product.id);
+      if (existingItem) {
         return prev.map(item => 
-          item.id === product.id 
+          item.product.id === product.id 
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       }
-      return [...prev, { 
-        ...product, 
-        quantity: 1,
-        price: product.price || product.regular_price || '0'
-      }];
+      return [...prev, { product, quantity: 1 }];
     });
-  }
+  };
 
-  function removeFromCart(productId) {
-    setCart(prev => prev.filter(item => item.id !== productId));
-  }
+  const removeFromCart = (productId: number) => {
+    setCart(prev => prev.filter(item => item.product.id !== productId));
+  };
 
-  function updateQuantity(productId, newQuantity) {
-    if (newQuantity <= 0) {
+  const updateCartQuantity = (productId: number, quantity: number) => {
+    if (quantity <= 0) {
       removeFromCart(productId);
       return;
     }
     setCart(prev => prev.map(item => 
-      item.id === productId 
-        ? { ...item, quantity: newQuantity }
+      item.product.id === productId 
+        ? { ...item, quantity }
         : item
     ));
-  }
+  };
 
-  function toggleWishlist(productId) {
-    setWishlist(prev => 
-      prev.includes(productId) 
-        ? prev.filter(id => id !== productId)
-        : [...prev, productId]
+  const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const cartTotal = cart.reduce((total, item) => total + (parseFloat(item.product.price) * item.quantity), 0);
+
+  const filteredProducts = products.filter(product => {
+    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         product.tags.some(tag => tag.name.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesCategory = selectedCategory === "all" || 
+                           product.categories.some(cat => cat.name.toLowerCase() === selectedCategory.toLowerCase());
+    return matchesSearch && matchesCategory;
+  });
+
+  const handleCheckoutSuccess = () => {
+    alert('Payment successful! Your order has been placed.');
+    setCart([]);
+    setShowCheckout(false);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#D5C6BC]">
+        <Header 
+          onRefillClick={() => window.location.href = '/'}
+          onAppointmentClick={() => window.location.href = '/'}
+          onTransferClick={() => window.location.href = '/'}
+        />
+        <div className="pt-20 flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <Loader2 className="h-12 w-12 animate-spin text-[#57BBB6] mx-auto mb-4" />
+            <p className="text-lg text-[#376F6B]">Loading products...</p>
+          </div>
+        </div>
+      </div>
     );
   }
 
-  async function handleCheckout(e) {
-    e.preventDefault();
-    if (!order.name || !order.email || !order.phone || !order.address) {
-      alert('Please fill in all required fields');
-      return;
-    }
-    
-    // Move to payment step
-    setShowCheckout(false);
-    setShowPayment(true);
-  }
-
-  async function handlePaymentSuccess(paymentIntentId: string) {
-    try {
-      // For WooCommerce integration, you might want to redirect to WooCommerce checkout
-      // or handle the order through WooCommerce API
-      console.log('Payment successful:', paymentIntentId);
-      
-      // Show success message
-      setOrderPlaced(true);
-      setCart([]);
-      setShowPayment(false);
-      
-      // Reset order form
-      setOrder({
-        name: '',
-        email: '',
-        phone: '',
-        address: '',
-        city: '',
-        zip: '',
-        notes: ''
-      });
-      
-    } catch (error) {
-      console.error('Failed to process order:', error);
-      alert('Failed to process order. Please try again or contact us directly.');
-    }
-  }
-
-  function handlePaymentError(error: string) {
-    alert(`Payment failed: ${error}`);
-    setShowPayment(false);
-    setShowCheckout(true);
-  }
-
-  // Get category names for display
-  const categoryNames = ['All', ...categories.map(cat => cat.name)];
-
-  // Get featured image URL
-  const getProductImage = (product) => {
-    if (product.images && product.images.length > 0) {
-      return product.images[0].src;
-    }
-    // Return a default pharmacy image or data URL
-    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik01MCA1MEgxNTBWMTUwSDUwVjUwWiIgZmlsbD0iIzU3QkJCNiIvPgo8dGV4dCB4PSIxMDAiIHk9IjExMCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UGhhcm1hY3k8L3RleHQ+Cjwvc3ZnPgo=';
-  };
-
-  // Get product price
-  const getProductPrice = (product) => {
-    if (product.sale_price) {
-      return product.sale_price;
-    }
-    return product.price || product.regular_price || '0';
-  };
-
-  // Get original price for sale items
-  const getOriginalPrice = (product) => {
-    if (product.sale_price && product.regular_price) {
-      return product.regular_price;
-    }
-    return null;
-  };
-
   return (
-            <div className="min-h-screen bg-brand-light/5">
-      {/* Header */}
-              <div className="bg-white shadow-sm border-b border-brand-light/20">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <button 
-                onClick={() => window.history.back()}
-                className="flex items-center gap-2 text-brand hover:text-brand-light transition-colors duration-300 p-2 rounded-lg hover:bg-brand-light/10"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                Back
-              </button>
-                              <h1 className="text-4xl font-normal text-brand">SHOP</h1>
+    <div className="min-h-screen bg-[#D5C6BC]">
+      <Header 
+        onRefillClick={() => window.location.href = '/'}
+        onAppointmentClick={() => window.location.href = '/'}
+        onTransferClick={() => window.location.href = '/'}
+      />
+      
+      <div className="pt-20">
+        {/* Hero Section */}
+        <section className="py-16 sm:py-20 md:py-24 bg-[#57BBB6] text-white relative overflow-hidden">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 bg-white text-[#57BBB6] px-6 py-3 rounded-full text-sm font-semibold mb-8 shadow-lg">
+                <Package className="h-5 w-5" />
+                Health & Wellness
+              </div>
+              
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-8">
+                Shop Our 
+                <span className="block text-white">
+                  Premium Products
+                </span>
+              </h1>
+              
+              <p className="text-xl sm:text-2xl text-white/90 max-w-4xl mx-auto font-medium leading-relaxed">
+                Discover our carefully curated selection of health products, supplements, and wellness essentials 
+                to support your journey to better health.
+              </p>
             </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Coming Soon Section */}
-      <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-                    <div className="bg-white rounded-3xl shadow-2xl p-12 border border-brand-light/20">
-          {/* Icon */}
-                      <div className="w-24 h-24 bg-gradient-to-br from-brand to-brand-light rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg">
-            <ShoppingCart className="w-12 h-12 text-white" />
-          </div>
-          
-          {/* Title */}
-                      <h2 className="text-4xl md:text-5xl font-bold text-brand mb-6">
-            Coming Soon
-          </h2>
-          
-          {/* Subtitle */}
-                      <p className="text-xl md:text-2xl text-brand-light mb-8 font-medium">
-            Our Online Pharmacy Shop
-          </p>
-          
-          {/* Description */}
-          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
-            We're working hard to bring you a comprehensive online pharmacy experience. 
-            Soon you'll be able to browse our full range of health products, prescription medications, 
-            and wellness supplies with convenient online ordering and delivery.
-          </p>
-          
-          {/* Features Preview */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-xl border border-blue-100">
-              <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
-              </div>
-                              <h3 className="font-semibold text-brand mb-2">Wide Selection</h3>
-              <p className="text-sm text-gray-600">Prescription medications, OTC products, and health supplies</p>
-            </div>
-            
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl border border-green-100">
-              <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-                              <h3 className="font-semibold text-brand mb-2">Fast Delivery</h3>
-              <p className="text-sm text-gray-600">Same-day delivery in Brooklyn and Manhattan</p>
-            </div>
-            
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-100">
-              <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-              </div>
-                              <h3 className="font-semibold text-brand mb-2">Expert Support</h3>
-              <p className="text-sm text-gray-600">Licensed pharmacists available for consultation</p>
-            </div>
-          </div>
-          
-          {/* Contact Info */}
-          <div className="bg-gradient-to-r from-brand to-brand-light rounded-2xl p-8 text-white">
-            <h3 className="text-2xl font-bold mb-4">Need Something Now?</h3>
-            <p className="text-lg mb-6 opacity-90">
-              Visit our physical location or call us for immediate assistance
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a 
-                href="tel:3473126458"
-                className="bg-white text-brand px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-flex items-center justify-center gap-2"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                </svg>
-                Call (347) 312-6458
-              </a>
-              <a 
-                href="https://maps.app.goo.gl/gXSVqF25sAB7r6m76"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-white/20 text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/30 transition-colors inline-flex items-center justify-center gap-2 border border-white/30"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                Visit Us
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Cart Sidebar */}
-      {showCart && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end">
-          <div className="bg-white w-full max-w-full sm:max-w-md h-full overflow-y-auto">
-            <div className="p-6 border-b border-brand-light/20">
-              <div className="flex items-center justify-between">
-                                  <h2 className="text-2xl font-normal text-brand">Shopping Cart</h2>
-                                  <button onClick={() => setShowCart(false)} className="text-brand hover:text-brand-light">
-                  <X size={24} />
-                </button>
-              </div>
-            </div>
-            
-            <div className="p-6">
-              {cart.length === 0 ? (
-                <div className="text-center py-12">
-                  <ShoppingCart size={48} className="mx-auto text-brand-light mb-4" />
-                  <p className="text-[#231f20] text-lg">Your cart is empty</p>
-                                      <p className="text-brand">Add some products to get started!</p>
+            {/* Search and Filter */}
+            <div className="max-w-4xl mx-auto">
+              <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                  <Input
+                    type="text"
+                    placeholder="Search products..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 pr-4 py-3 text-lg border-0 focus:ring-2 focus:ring-white/50 focus:outline-none"
+                  />
                 </div>
-              ) : (
-                <>
-                  <div className="space-y-4 mb-6">
-                    {cart.map((item) => (
-                      <div key={item.id} className="flex gap-4 p-4 border border-brand-light/20 rounded-lg">
-                        <img src={getProductImage(item)} alt={item.name} className="w-16 h-16 object-cover rounded" />
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-[#231f20]">{item.name}</h4>
-                                                      <p className="text-brand-light font-bold">${item.price}</p>
-                          <div className="flex items-center gap-2 mt-2">
-                            <button
-                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                              className="w-8 h-8 rounded-full border border-brand-light flex items-center justify-center hover:bg-brand-light hover:text-white"
-                            >
-                              <Minus size={16} />
-                            </button>
-                            <span className="w-8 text-center font-semibold">{item.quantity}</span>
-                            <button
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              className="w-8 h-8 rounded-full border border-brand-light flex items-center justify-center hover:bg-brand-light hover:text-white"
-                            >
-                              <Plus size={16} />
-                            </button>
-                          </div>
+                <Button className="bg-white text-[#57BBB6] hover:bg-gray-100 px-6 py-3">
+                  <Filter className="h-5 w-5 mr-2" />
+                  Filter
+                </Button>
+              </div>
+
+              {/* Category Tabs */}
+              <div className="flex flex-wrap justify-center gap-2">
+                <Button
+                  variant={selectedCategory === "all" ? "default" : "outline"}
+                  onClick={() => setSelectedCategory("all")}
+                  className={`${
+                    selectedCategory === "all"
+                      ? "bg-white text-[#57BBB6] hover:bg-gray-100"
+                      : "border-white text-white hover:bg-white hover:text-[#57BBB6]"
+                  } px-4 py-2 rounded-full transition-all duration-300`}
+                >
+                  <Package className="h-4 w-4 mr-2" />
+                  All Products
+                  <Badge variant="secondary" className="ml-2 bg-[#57BBB6] text-white">
+                    {products.length}
+                  </Badge>
+                </Button>
+                {categories.map((category) => (
+                  <Button
+                    key={category.id}
+                    variant={selectedCategory === category.name.toLowerCase() ? "default" : "outline"}
+                    onClick={() => setSelectedCategory(category.name.toLowerCase())}
+                    className={`${
+                      selectedCategory === category.name.toLowerCase()
+                        ? "bg-white text-[#57BBB6] hover:bg-gray-100"
+                        : "border-white text-white hover:bg-white hover:text-[#57BBB6]"
+                    } px-4 py-2 rounded-full transition-all duration-300`}
+                  >
+                    <Package className="h-4 w-4 mr-2" />
+                    {category.name}
+                    <Badge variant="secondary" className="ml-2 bg-[#57BBB6] text-white">
+                      {category.count}
+                    </Badge>
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Products Grid */}
+        <section className="py-16 sm:py-20 bg-white">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+              {filteredProducts.map((product) => (
+                <Card key={product.id} className="group border-0 shadow-lg hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2">
+                  <CardContent className="p-6">
+                    {/* Product Image */}
+                    <div className="w-full h-48 bg-[#D5C6BC] rounded-xl mb-4 flex items-center justify-center overflow-hidden">
+                      {product.images && product.images.length > 0 ? (
+                        <img 
+                          src={product.images[0].src} 
+                          alt={product.images[0].alt || product.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <Package className="h-16 w-16 text-[#57BBB6]" />
+                      )}
+                    </div>
+
+                    {/* Product Info */}
+                    <div className="mb-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <Badge variant="outline" className="text-xs">
+                          {product.categories[0]?.name || 'General'}
+                        </Badge>
+                        <div className="flex items-center">
+                          <Star className="h-4 w-4 text-yellow-400 fill-current mr-1" />
+                          <span className="text-sm font-medium">{product.average_rating}</span>
+                          <span className="text-sm text-gray-500 ml-1">({product.rating_count})</span>
                         </div>
-                        <button
-                          onClick={() => removeFromCart(item.id)}
-                          className="text-red-500 hover:text-red-700"
+                      </div>
+                      
+                      <h3 className="text-lg font-semibold text-[#376F6B] mb-2 group-hover:text-[#57BBB6] transition-colors duration-300">
+                        {product.name}
+                      </h3>
+                      
+                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                        {product.description.replace(/<[^>]*>/g, '')}
+                      </p>
+
+                      {/* Price */}
+                      <div className="flex items-center gap-2 mb-4">
+                        <span className="text-2xl font-bold text-[#57BBB6]">
+                          ${product.price}
+                        </span>
+                        {product.sale_price && parseFloat(product.sale_price) < parseFloat(product.regular_price) && (
+                          <span className="text-lg text-gray-400 line-through">
+                            ${product.regular_price}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Stock Status */}
+                      <div className="mb-4">
+                        <Badge 
+                          variant={product.stock_quantity > 0 ? "default" : "destructive"}
+                          className={product.stock_quantity > 0 ? "bg-green-500" : "bg-red-500"}
                         >
-                          <X size={20} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <div className="border-t border-brand-light/20 pt-4 mb-6">
-                    <div className="flex justify-between items-center text-lg font-bold text-[#231f20]">
-                      <span>Total:</span>
-                      <span className="text-brand-light">${cartTotal.toFixed(2)}</span>
-                    </div>
-                  </div>
-                  
-                  <button
-                    onClick={() => {
-                      setShowCart(false);
-                      setShowCheckout(true);
-                    }}
-                    className="w-full bg-brand text-white py-3 rounded-lg font-semibold hover:bg-brand-dark transition-colors"
-                  >
-                    Proceed to Checkout
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Product Detail Modal */}
-      {showProductDetail && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4">
-          <div className="bg-white rounded-2xl max-w-full sm:max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <h2 className="text-3xl font-normal text-brand">{showProductDetail.name}</h2>
-                <button onClick={() => setShowProductDetail(null)} className="text-brand hover:text-brand-light">
-                  <X size={24} />
-                </button>
-              </div>
-              
-              <div className="grid md:grid-cols-2 gap-8">
-                <div>
-                  <img src={getProductImage(showProductDetail)} alt={showProductDetail.name} className="w-full rounded-lg" />
-                </div>
-                
-                <div>
-                  <div className="flex items-center gap-2 mb-4">
-                    {showProductDetail.categories && showProductDetail.categories.length > 0 && (
-                      <span className="bg-brand-light text-[#231f20] px-3 py-1 rounded-full font-semibold">
-                        {showProductDetail.categories[0].name}
-                      </span>
-                    )}
-                    <div className="flex items-center gap-1">
-                      <Star size={20} className="text-yellow-400 fill-current" />
-                      <span className="font-semibold text-brand">
-                        {showProductDetail.average_rating || '4.5'}
-                      </span>
-                      <span className="text-gray-500">
-                        ({showProductDetail.review_count || '0'} reviews)
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="text-brand text-lg mb-4" 
-                       dangerouslySetInnerHTML={{ __html: showProductDetail.description }} />
-                  
-                  <div className="flex items-center gap-3 mb-6">
-                    <span className="text-3xl font-bold text-brand-light">${getProductPrice(showProductDetail)}</span>
-                    {getOriginalPrice(showProductDetail) && (
-                      <span className="text-xl text-gray-500 line-through">${getOriginalPrice(showProductDetail)}</span>
-                    )}
-                  </div>
-                  
-                  <button
-                    onClick={() => {
-                      addToCart(showProductDetail);
-                      setShowProductDetail(null);
-                    }}
-                    disabled={!showProductDetail.stock_status || showProductDetail.stock_status === 'outofstock'}
-                    className="w-full bg-brand text-white py-4 rounded-lg font-semibold text-lg hover:bg-brand-dark transition-colors disabled:opacity-50"
-                  >
-                    {showProductDetail.stock_status === 'outofstock' ? 'Out of Stock' : 'Add to Cart'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Checkout Modal */}
-      {showCheckout && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4">
-          <div className="bg-white rounded-2xl max-w-full sm:max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-3xl font-normal text-brand">Checkout</h2>
-                <button onClick={() => setShowCheckout(false)} className="text-brand hover:text-brand-light">
-                  <X size={24} />
-                </button>
-              </div>
-              
-              <form onSubmit={handleCheckout} className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <input
-                    type="text"
-                    placeholder="Full Name *"
-                    value={order.name}
-                    onChange={(e) => setOrder({ ...order, name: e.target.value })}
-                    className="w-full p-3 border-2 border-brand-light rounded-lg focus:outline-none focus:border-brand"
-                    required
-                  />
-                  <input
-                    type="email"
-                    placeholder="Email Address *"
-                    value={order.email}
-                    onChange={(e) => setOrder({ ...order, email: e.target.value })}
-                    className="w-full p-3 border-2 border-brand-light rounded-lg focus:outline-none focus:border-brand"
-                    required
-                  />
-                </div>
-                
-                <input
-                  type="tel"
-                  placeholder="Phone Number *"
-                  value={order.phone}
-                  onChange={(e) => setOrder({ ...order, phone: e.target.value })}
-                  className="w-full p-3 border-2 border-brand-light rounded-lg focus:outline-none focus:border-brand"
-                  required
-                />
-                
-                <input
-                  type="text"
-                  placeholder="Street Address *"
-                  value={order.address}
-                  onChange={(e) => setOrder({ ...order, address: e.target.value })}
-                  className="w-full p-3 border-2 border-brand-light rounded-lg focus:outline-none focus:border-brand"
-                  required
-                />
-                
-                <div className="grid md:grid-cols-2 gap-4">
-                  <input
-                    type="text"
-                    placeholder="City *"
-                    value={order.city}
-                    onChange={(e) => setOrder({ ...order, city: e.target.value })}
-                    className="w-full p-3 border-2 border-brand-light rounded-lg focus:outline-none focus:border-brand"
-                    required
-                  />
-                  <input
-                    type="text"
-                    placeholder="ZIP Code *"
-                    value={order.zip}
-                    onChange={(e) => setOrder({ ...order, zip: e.target.value })}
-                    className="w-full p-3 border-2 border-brand-light rounded-lg focus:outline-none focus:border-brand"
-                    required
-                  />
-                </div>
-                
-                <textarea
-                  placeholder="Additional Notes (optional)"
-                  value={order.notes}
-                  onChange={(e) => setOrder({ ...order, notes: e.target.value })}
-                  className="w-full p-3 border-2 border-brand-light rounded-lg focus:outline-none focus:border-brand h-24 resize-none"
-                />
-                
-                <div className="border-t border-brand-light/20 pt-4">
-                  <div className="flex justify-between items-center text-xl font-bold text-[#231f20] mb-4">
-                    <span>Order Total:</span>
-                    <span className="text-brand-light">${cartTotal.toFixed(2)}</span>
-                  </div>
-                  
-                  <button
-                    type="submit"
-                    className="w-full bg-brand text-white py-4 rounded-lg font-semibold text-lg hover:bg-brand-dark transition-colors"
-                  >
-                    Place Order
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Payment Modal */}
-      {showPayment && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4">
-          <div className="bg-white rounded-2xl max-w-full sm:max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-3xl font-normal text-brand">Payment</h2>
-                <button onClick={() => setShowPayment(false)} className="text-brand hover:text-brand-light">
-                  <X size={24} />
-                </button>
-              </div>
-              
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-[#231f20] mb-2">Order Summary</h3>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <div className="space-y-2">
-                    {cart.map((item) => (
-                      <div key={item.id} className="flex justify-between">
-                        <span>{item.name} x {item.quantity}</span>
-                        <span>${(parseFloat(item.price) * item.quantity).toFixed(2)}</span>
-                      </div>
-                    ))}
-                    <div className="border-t pt-2 mt-2">
-                      <div className="flex justify-between font-semibold">
-                        <span>Total:</span>
-                        <span className="text-brand-light">${cartTotal.toFixed(2)}</span>
+                          {product.stock_quantity > 0 ? `In Stock (${product.stock_quantity})` : 'Out of Stock'}
+                        </Badge>
                       </div>
                     </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2">
+                      <Button 
+                        onClick={() => addToCart(product)}
+                        disabled={product.stock_quantity <= 0}
+                        className="flex-1 bg-[#57BBB6] hover:bg-[#376F6B] text-white disabled:opacity-50"
+                      >
+                        <ShoppingCart className="h-4 w-4 mr-2" />
+                        Add to Cart
+                      </Button>
+                      <Button variant="outline" size="icon" className="border-[#57BBB6] text-[#57BBB6] hover:bg-[#57BBB6] hover:text-white">
+                        <Heart className="h-4 w-4" />
+                      </Button>
+                      <Button variant="outline" size="icon" className="border-[#57BBB6] text-[#57BBB6] hover:bg-[#57BBB6] hover:text-white">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* No Results */}
+            {filteredProducts.length === 0 && (
+              <div className="text-center py-16">
+                <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-600 mb-2">No products found</h3>
+                <p className="text-gray-500 mb-6">Try adjusting your search or filter criteria</p>
+                <Button 
+                  onClick={() => {
+                    setSearchQuery("");
+                    setSelectedCategory("all");
+                  }}
+                  className="bg-[#57BBB6] hover:bg-[#376F6B] text-white"
+                >
+                  Clear Filters
+                </Button>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Shopping Cart */}
+        {cartItemCount > 0 && (
+          <div className="fixed bottom-6 left-6 right-6 z-50">
+            <Card className="bg-[#57BBB6] text-white border-0 shadow-2xl">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <ShoppingCart className="h-6 w-6" />
+                    <div>
+                      <p className="text-white font-semibold">
+                        {cartItemCount} item{cartItemCount !== 1 ? 's' : ''}
+                      </p>
+                      <p className="text-white/80 text-sm">
+                        Total: ${cartTotal.toFixed(2)}
+                      </p>
+                    </div>
                   </div>
+                  <Button 
+                    onClick={() => setShowCheckout(true)}
+                    className="bg-white text-[#57BBB6] hover:bg-gray-100 px-4 py-2 rounded-xl"
+                  >
+                    Checkout
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Checkout Modal */}
+        {showCheckout && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full max-h-[80vh] overflow-y-auto">
+              <h3 className="text-xl font-bold text-[#376F6B] mb-4">Checkout</h3>
+              
+              {/* Cart Summary */}
+              <div className="mb-4">
+                <h4 className="font-semibold mb-2">Order Summary</h4>
+                {cart.map((item) => (
+                  <div key={item.product.id} className="flex justify-between items-center py-2 border-b">
+                    <div>
+                      <p className="font-medium">{item.product.name}</p>
+                      <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+                    </div>
+                    <p className="font-medium">${(parseFloat(item.product.price) * item.quantity).toFixed(2)}</p>
+                  </div>
+                ))}
+                <div className="flex justify-between items-center py-2 font-bold text-lg">
+                  <span>Total:</span>
+                  <span>${cartTotal.toFixed(2)}</span>
                 </div>
               </div>
-              
-              <PaymentForm
-                amount={cartTotal}
-                onSuccess={handlePaymentSuccess}
-                onError={handlePaymentError}
-              />
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* Order Confirmation */}
-      {orderPlaced && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4">
-          <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-full sm:max-w-md w-full text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
+              {/* Stripe Payment Form */}
+              <Elements stripe={stripePromise}>
+                <CheckoutForm 
+                  cart={cart}
+                  total={cartTotal}
+                  onSuccess={handleCheckoutSuccess}
+                  onCancel={() => setShowCheckout(false)}
+                />
+              </Elements>
             </div>
-            <h3 className="text-2xl font-bold text-brand mb-2">Order Placed Successfully!</h3>
-            <p className="text-[#231f20] mb-6">Thank you for your purchase. We'll contact you soon to confirm your order and arrange delivery.</p>
-            <button
-              onClick={() => setOrderPlaced(false)}
-              className="bg-brand text-white px-6 py-3 rounded-lg font-semibold hover:bg-brand-dark transition-colors"
-            >
-              Continue Shopping
-            </button>
           </div>
-        </div>
-      )}
+        )}
+
+        {/* Features Section */}
+        <section className="py-16 sm:py-20 bg-[#D5C6BC]">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+              <Card className="bg-[#57BBB6] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <CardContent className="p-6 sm:p-8 text-center">
+                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Truck className="h-8 w-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">
+                    Fast Delivery
+                  </h3>
+                  <p className="text-white/90">
+                    Free shipping on orders over $50. Same-day delivery available in Brooklyn.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-[#376F6B] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <CardContent className="p-6 sm:p-8 text-center">
+                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Shield className="h-8 w-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">
+                    Quality Guaranteed
+                  </h3>
+                  <p className="text-white/90">
+                    All products are authentic and backed by our 100% satisfaction guarantee.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-[#57BBB6] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <CardContent className="p-6 sm:p-8 text-center">
+                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Clock className="h-8 w-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">
+                    24/7 Support
+                  </h3>
+                  <p className="text-white/90">
+                    Our pharmacy team is always available to answer your questions and provide guidance.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="py-16 sm:py-20 bg-white">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="bg-[#57BBB6] rounded-3xl p-8 sm:p-12 text-center text-white relative overflow-hidden">
+              <div className="relative z-10">
+                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 text-white">
+                  Need Help Choosing?
+                </h3>
+                <p className="text-lg sm:text-xl mb-8 text-white/90 max-w-2xl mx-auto">
+                  Our pharmacists are here to help you find the right products for your health needs
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Button 
+                    className="bg-white text-[#57BBB6] hover:bg-gray-100 font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+                  >
+                    <Package className="w-5 h-5 mr-2" />
+                    Get Personalized Recommendations
+                  </Button>
+                  
+                  <Button 
+                    variant="outline"
+                    className="border-white text-white hover:bg-white hover:text-[#57BBB6] font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
+                  >
+                    <ArrowRight className="w-5 h-5 mr-2" />
+                    Contact Our Team
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <Footer />
     </div>
   );
 } 
