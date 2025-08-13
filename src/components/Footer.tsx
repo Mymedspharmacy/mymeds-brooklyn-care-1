@@ -290,13 +290,39 @@ export const Footer = () => {
                     e.preventDefault();
                     const formData = new FormData(e.currentTarget as HTMLFormElement);
                     const email = String(formData.get('email') || '').trim();
-                    if (!email || !email.includes('@')) return;
+                    
+                    if (!email || !email.includes('@')) {
+                      alert('Please enter a valid email address');
+                      return;
+                    }
+                    
                     try {
-                      await api.post('/newsletter/subscribe', { email });
-                      (e.currentTarget as HTMLFormElement).reset();
-                      setIsSubscribed(true);
-                    } catch (_) {
-                      // intentionally silent; backend may not be wired in all envs
+                      const response = await api.post('/newsletter/subscribe', { 
+                        email,
+                        source: 'website',
+                        consent: true
+                      });
+                      
+                      if (response.data.success) {
+                        (e.currentTarget as HTMLFormElement).reset();
+                        setIsSubscribed(true);
+                        
+                        if (response.data.alreadySubscribed) {
+                          alert('You\'re already subscribed to our newsletter!');
+                        } else {
+                          alert('Thank you for subscribing! Check your email for confirmation.');
+                        }
+                      }
+                    } catch (error: any) {
+                      console.error('Newsletter subscription error:', error);
+                      
+                      if (error.response?.status === 400) {
+                        alert('Please enter a valid email address.');
+                      } else if (error.response?.status === 500) {
+                        alert('Subscription failed. Please try again later or contact us directly.');
+                      } else {
+                        alert('Unable to subscribe at the moment. Please try again later.');
+                      }
                     }
                   }}
                   className="flex items-stretch"
@@ -305,6 +331,7 @@ export const Footer = () => {
                     name="email"
                     type="email" 
                     placeholder="Enter your email"
+                    required
                     className="flex-1 px-4 py-2 rounded-l-lg border border-gray-300 focus:ring-2 focus:ring-[#57BBB6] focus:outline-none text-gray-900 bg-white placeholder-gray-500"
                     aria-label="Email address for newsletter subscription"
                   />

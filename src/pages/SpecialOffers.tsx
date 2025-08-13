@@ -231,6 +231,23 @@ export default function SpecialOffers() {
     window.open('https://maps.app.goo.gl/gXSVqF25sAB7r6m76', '_blank');
   };
 
+  const handlePersonalizedRecommendations = () => {
+    console.log('Opening personalized recommendations...');
+    // Navigate to home page with appointment form open for personalized consultation
+    navigate('/', { state: { openAppointmentForm: true, consultationType: 'personalized' } });
+  };
+
+  const handleContactTeam = () => {
+    console.log('Opening contact options...');
+    // Show contact options - can call or email
+    const choice = confirm('How would you like to contact our team?\n\nClick OK to call us\nClick Cancel to send an email');
+    if (choice) {
+      handleCallClick();
+    } else {
+      handleEmailClick();
+    }
+  };
+
   const handleActionClick = (offer) => {
     try {
       console.log('Button clicked:', offer.actionButton, 'Action type:', offer.actionType);
@@ -381,20 +398,20 @@ export default function SpecialOffers() {
                 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button 
-                    onClick={handleCallClick}
-                    className="bg-white text-[#57BBB6] hover:bg-gray-100 font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+                    onClick={() => handlePersonalizedRecommendations()}
+                    className="bg-white text-[#57BBB6] hover:bg-gray-100 font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg border border-[#57BBB6]"
                   >
-                    <Phone className="w-5 h-5 mr-2" />
-                    Call (347) 312-6458
+                    <Package className="w-5 h-5 mr-2" />
+                    Get Personalized Recommendations
                   </Button>
                   
                   <Button 
-                    onClick={handleEmailClick}
+                    onClick={() => handleContactTeam()}
                     variant="outline"
-                    className="border-white text-white hover:bg-white hover:text-[#57BBB6] font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
+                    className="bg-[#57BBB6] text-white hover:bg-[#376F6B] font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 border-white"
                   >
-                    <Mail className="w-5 h-5 mr-2" />
-                    Send Email
+                    <ArrowRight className="w-5 h-5 mr-2" />
+                    Contact Our Team
                   </Button>
                 </div>
               </div>
