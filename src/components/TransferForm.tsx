@@ -384,7 +384,7 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
                       type="button" 
                       onClick={prevStep}
                       variant="outline"
-                      className="border-gray-200 hover:border-[#376F6B] hover:text-[#376F6B]"
+                      className="border-white hover:border-[#57bbb6] hover:text-[#57bbb6]"
                     >
                       Previous
                     </Button>
@@ -618,7 +618,7 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
                       type="button" 
                       onClick={prevStep}
                       variant="outline"
-                      className="border-gray-200 hover:border-[#57bbb6] hover:text-[#57bbb6]"
+                      className="border-white hover:border-[#57bbb6] hover:text-[#57bbb6]"
                     >
                       Previous
                     </Button>

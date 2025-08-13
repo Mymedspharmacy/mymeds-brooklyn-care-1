@@ -50,6 +50,7 @@ export default function ProductView({ product: propProduct, relatedProducts: pro
   const [quantity, setQuantity] = useState(1);
   const [selectedVariation, setSelectedVariation] = useState<any>(null);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
 
   useEffect(() => {
     if (!propProduct && productId) {
@@ -464,7 +465,7 @@ export default function ProductView({ product: propProduct, relatedProducts: pro
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <h3 className="text-xl font-semibold text-gray-900">Customer Reviews</h3>
-                    <Button variant="outline" className="border-[#376F6B] text-[#376F6B] hover:bg-[#376F6B] hover:text-white">
+                    <Button variant="outline" className="border-[#376F6B] text-[#376F6B] hover:bg-[#376F6B] hover:text-white" onClick={() => setShowReviewForm(true)}>
                       Write a Review
                     </Button>
                   </div>

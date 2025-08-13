@@ -1085,7 +1085,7 @@ export default function Admin() {
                   
                   {/* Notifications Button - Responsive */}
                   <div className="relative">
-                    <Button variant="outline" size="sm" className="relative p-2 sm:px-3">
+                    <Button variant="outline" size="sm" className="relative p-2 sm:px-3" onClick={() => setShowNotificationDialog(true)}>
                       <Bell className="h-4 w-4" />
                       <span className="hidden lg:inline ml-2">Notifications</span>
                       {stats.unreadNotifications > 0 && (

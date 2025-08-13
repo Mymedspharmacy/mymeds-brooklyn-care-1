@@ -205,7 +205,7 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
                           value={formData.firstName}
                           onChange={handleChange}
                           placeholder="Enter your first name"
-                                                     className="pl-10 border-gray-200 focus:border-[#376F6B] focus:ring-[#376F6B] transition-all duration-300 group-hover:border-[#376F6B]/50 group-hover:shadow-md"
+                          className="pl-10 border-white focus:border-[#376F6B] focus:ring-[#376F6B] transition-all duration-300 group-hover:border-[#376F6B]/50 group-hover:shadow-md"
                         />
                                                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 group-hover:text-[#376F6B] transition-colors duration-300" />
                       </div>
@@ -269,7 +269,7 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
                     <Button 
                       type="button" 
                       onClick={nextStep}
-                                             className="bg-[#376F6B] hover:bg-[#2A5A56] hover:shadow-lg text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105"
+                      className="bg-[#376F6B] hover:bg-[#2A5A56] hover:shadow-lg text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105"
                     >
                       Next Step
                       <ArrowRight className="h-4 w-4 ml-2" />
@@ -356,14 +356,14 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
                       type="button" 
                       onClick={prevStep}
                       variant="outline"
-                                             className="border-gray-200 hover:border-[#376F6B] hover:text-[#376F6B] transition-all duration-300 transform hover:scale-105 hover:shadow-md"
+                      className="border-white hover:border-[#376F6B] hover:text-[#376F6B] transition-all duration-300 transform hover:scale-105 hover:shadow-md"
                     >
                       Previous
                     </Button>
                     <Button 
                       type="button" 
                       onClick={nextStep}
-                                             className="bg-[#376F6B] hover:bg-[#2A5A56] hover:shadow-lg text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl group"
+                      className="bg-[#376F6B] hover:bg-[#2A5A56] hover:shadow-lg text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl group"
                     >
                       Next Step
                       <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
@@ -464,14 +464,14 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
                       type="button" 
                       onClick={prevStep}
                       variant="outline"
-                                             className="border-gray-200 hover:border-[#376F6B] hover:text-[#376F6B]"
+                      className="border-white hover:border-[#376F6B] hover:text-[#376F6B] transition-all duration-300 transform hover:scale-105 hover:shadow-md"
                     >
                       Previous
                     </Button>
                     <Button 
                       type="submit" 
                       disabled={loading || !prescriptionFile}
-                                             className="bg-[#376F6B] hover:bg-[#2A5A56] hover:shadow-lg text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl disabled:opacity-50 disabled:transform-none group"
+                      className="bg-[#376F6B] hover:bg-[#2A5A56] hover:shadow-lg text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl disabled:opacity-50 disabled:transform-none group"
                     >
                       {loading ? (
                         <div className="flex items-center">

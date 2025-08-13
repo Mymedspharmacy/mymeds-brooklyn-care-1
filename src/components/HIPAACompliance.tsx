@@ -1,6 +1,6 @@
 import { Shield, Lock, Eye, CheckCircle, AlertTriangle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const hipaaFeatures = [
@@ -59,29 +59,35 @@ export const HIPAACompliance = ({ variant = 'badge', showDetails = false }: HIPA
 
   if (variant === 'card') {
     return (
-      <Card className="border-green-200 bg-green-50/50">
-        <CardContent className="p-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-              <Shield className="h-5 w-5 text-green-600" />
+      <Card className="border-white bg-green-50/50">
+        <CardHeader>
+          <CardTitle className="text-xl font-semibold text-green-800 flex items-center gap-2">
+            <Shield className="h-6 w-6" />
+            HIPAA Compliance
+          </CardTitle>
+          <CardDescription className="text-green-700">
+            Your privacy and data security are our top priorities
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <h4 className="font-medium text-green-800">Data Protection</h4>
+              <ul className="text-sm text-green-700 space-y-1">
+                <li>• Encrypted data transmission</li>
+                <li>• Secure storage systems</li>
+                <li>• Access controls and authentication</li>
+              </ul>
             </div>
-            <div>
-              <h4 className="font-semibold text-green-800">HIPAA Compliant</h4>
-              <p className="text-sm text-green-700">Your health information is protected under federal law</p>
+            <div className="space-y-2">
+              <h4 className="font-medium text-green-800">Privacy Standards</h4>
+              <ul className="text-sm text-green-700 space-y-1">
+                <li>• Strict confidentiality policies</li>
+                <li>• Limited data access</li>
+                <li>• Regular security audits</li>
+              </ul>
             </div>
           </div>
-          {showDetails && (
-            <div className="mt-4 pt-4 border-t border-green-200">
-              <div className="grid grid-cols-2 gap-3">
-                {hipaaFeatures.map((feature, index) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    <feature.icon className="h-4 w-4 text-green-600" />
-                    <span className="text-xs text-green-700">{feature.title}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
     );

@@ -98,6 +98,33 @@ export function CustomerCRM({
     }
   };
 
+  const handleExportCustomers = () => {
+    const csvContent = [
+      ['Name', 'Email', 'Phone', 'Address', 'City', 'State', 'Segment', 'Total Orders', 'Total Spent', 'Status', 'Health Score'],
+      ...filteredCustomers.map(customer => [
+        customer.name,
+        customer.email,
+        customer.phone,
+        customer.address,
+        customer.city,
+        customer.state,
+        customer.segment,
+        customer.totalOrders.toString(),
+        customer.totalSpent.toString(),
+        customer.status,
+        customer.healthScore.toString()
+      ])
+    ].map(row => row.join(',')).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `customers-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -273,7 +300,7 @@ export function CustomerCRM({
                   </Select>
                 </div>
                 <div className="flex items-end">
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full" onClick={() => handleExportCustomers()}>
                     <Download className="h-4 w-4 mr-2" />
                     Export
                   </Button>

@@ -96,13 +96,13 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
     <>
       {/* Top Bar - Simple CTA */}
       <div className="bg-[#376F6B] text-white py-2 px-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <p className="text-sm font-semibold">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
+          <p className="text-sm font-semibold text-center sm:text-left">
             Protect your health, book your consultation now
           </p>
           <Button 
             onClick={onAppointmentClick}
-            className="bg-white text-[#376F6B] hover:bg-gray-100 font-semibold px-4 py-1 text-sm rounded transition-colors"
+            className="bg-white text-[#376F6B] hover:bg-gray-100 font-semibold px-4 py-1 text-sm rounded transition-colors w-full sm:w-auto"
           >
             Book Now
           </Button>
@@ -121,7 +121,7 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
               <img
                 src={logo}
                 alt="My Meds Pharmacy Logo"
-                className="h-16 w-auto sm:h-20 md:h-24 lg:h-28 object-contain transition-all duration-300 group-hover:scale-105 drop-shadow-lg"
+                className="h-12 w-auto sm:h-16 md:h-20 lg:h-24 object-contain transition-all duration-300 group-hover:scale-105 drop-shadow-lg"
               />
             </div>
           </div>
@@ -230,7 +230,7 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
           {/* Mobile Menu Button */}
           <div className="lg:hidden">
             <button
-              className="mobile-menu-button p-2 text-[#376F6B] hover:bg-[#57BBB6]/10 rounded focus:outline-none"
+              className="mobile-menu-button p-2 text-[#376F6B] hover:bg-[#57BBB6]/10 rounded focus:outline-none focus:ring-2 focus:ring-[#57BBB6]/20"
               onClick={() => setIsMenuOpen(v => !v)}
               aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
             >
@@ -242,96 +242,103 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
         {/* Glowing Teal Border */}
         <div className="h-1 bg-[#57bbb6] shadow-[0_0_20px_rgba(55,111,107,0.6)]"></div>
 
-        {/* Mobile Dropdown Menu */}
-        <div className={`mobile-menu lg:hidden absolute top-full left-0 right-0 bg-white shadow-lg transform transition-all duration-300 ease-in-out z-50 ${
-          isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
+        {/* Mobile Dropdown Menu - Fixed positioning and improved responsiveness */}
+        <div className={`mobile-menu lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 transition-all duration-300 ease-in-out ${
+          isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
         }`}>
-          <div className="container mx-auto px-4 py-4">
-            {/* Navigation Links */}
-            <div className="space-y-3 mb-6">
-              <button onClick={() => { navigate('/'); setIsMenuOpen(false); }} className="block text-base font-medium text-[#376F6B] hover:text-[#D5C6BC] py-2 transition-colors text-left w-full">
-                Home
-              </button>
-              <button onClick={() => { navigate('/services'); setIsMenuOpen(false); }} className="block text-base font-medium text-[#376F6B] hover:text-[#D5C6BC] py-2 transition-colors text-left w-full">
-                Services
-              </button>
-              <button onClick={() => { navigate('/blog'); setIsMenuOpen(false); }} className="block text-base font-medium text-[#376F6B] hover:text-[#D5C6BC] py-2 transition-colors text-left w-full">
-                Blog
-              </button>
-              <button onClick={() => { navigate('/special-offers'); setIsMenuOpen(false); }} className="block text-base font-medium text-[#376F6B] hover:text-[#D5C6BC] py-2 transition-colors text-left w-full">
-                Special Offers
-              </button>
-              <button onClick={() => { navigate('/about'); setIsMenuOpen(false); }} className="block text-base font-medium text-[#376F6B] hover:text-[#D5C6BC] py-2 transition-colors text-left w-full">
-                About
-              </button>
-              <button onClick={() => { navigate('/contact'); setIsMenuOpen(false); }} className="block text-base font-medium text-[#376F6B] hover:text-[#D5C6BC] py-2 transition-colors text-left w-full">
-                Contact
-              </button>
-              
-              {/* Additional Pages */}
-              <div className="pt-2 border-t border-[#57BBB6]/20">
-                <div className="text-xs font-medium text-[#57BBB6] mb-2 px-2">MORE PAGES</div>
-                <button onClick={() => { navigate('/blog'); setIsMenuOpen(false); }} className="block text-sm text-[#376F6B] hover:text-[#D5C6BC] py-2 transition-colors text-left w-full">
-                  Health Blog
-                </button>
-                <button onClick={() => { navigate('/patient-resources'); setIsMenuOpen(false); }} className="block text-sm text-[#376F6B] hover:text-[#D5C6BC] py-2 transition-colors text-left w-full">
-                  Patient Resources
+          <div className={`absolute top-0 right-0 h-full w-80 max-w-[90vw] bg-white shadow-2xl transform transition-transform duration-300 ease-in-out ${
+            isMenuOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}>
+            <div className="flex flex-col h-full">
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-[#376F6B]">Menu</h3>
+                <button
+                  onClick={() => setIsMenuOpen(false)}
+                  className="p-2 text-gray-500 hover:text-[#376F6B] hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="h-5 w-5" />
                 </button>
               </div>
-            </div>
-            
-            {/* Mobile CTA Buttons */}
-            <div className="space-y-3">
-              <Button 
-                onClick={() => {
-                  onRefillClick();
-                  setIsMenuOpen(false);
-                }}
-                className="w-full bg-[#376F6B] text-white font-semibold py-3 rounded hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-colors"
-              >
-                Refill Rx
-              </Button>
+
+              {/* Navigation Links - Scrollable */}
+              <div className="flex-1 overflow-y-auto p-4">
+                <div className="space-y-1 mb-6">
+                  <button onClick={() => { navigate('/'); setIsMenuOpen(false); }} className="block text-base font-medium text-[#376F6B] hover:text-[#D5C6BC] py-3 px-3 rounded-lg hover:bg-[#57BBB6]/10 transition-all duration-200 text-left w-full">
+                    Home
+                  </button>
+                  <button onClick={() => { navigate('/services'); setIsMenuOpen(false); }} className="block text-base font-medium text-[#376F6B] hover:text-[#D5C6BC] py-3 px-3 rounded-lg hover:bg-[#57BBB6]/10 transition-all duration-200 text-left w-full">
+                    Services
+                  </button>
+                  <button onClick={() => { navigate('/blog'); setIsMenuOpen(false); }} className="block text-base font-medium text-[#376F6B] hover:text-[#D5C6BC] py-3 px-3 rounded-lg hover:bg-[#57BBB6]/10 transition-all duration-200 text-left w-full">
+                    Blog
+                  </button>
+                  <button onClick={() => { navigate('/special-offers'); setIsMenuOpen(false); }} className="block text-base font-medium text-[#376F6B] hover:text-[#D5C6BC] py-3 px-3 rounded-lg hover:bg-[#57BBB6]/10 transition-all duration-200 text-left w-full">
+                    Special Offers
+                  </button>
+                  <button onClick={() => { navigate('/about'); setIsMenuOpen(false); }} className="block text-base font-medium text-[#376F6B] hover:text-[#D5C6BC] py-3 px-3 rounded-lg hover:bg-[#57BBB6]/10 transition-all duration-200 text-left w-full">
+                    About
+                  </button>
+                  <button onClick={() => { navigate('/contact'); setIsMenuOpen(false); }} className="block text-base font-medium text-[#376F6B] hover:text-[#D5C6BC] py-3 px-3 rounded-lg hover:bg-[#57BBB6]/10 transition-all duration-200 text-left w-full">
+                    Contact
+                  </button>
+                  
+                  {/* Additional Pages */}
+                  <div className="pt-4 border-t border-[#57BBB6]/20">
+                    <div className="text-xs font-medium text-[#57BBB6] mb-3 px-3">MORE PAGES</div>
+                    <button onClick={() => { navigate('/patient-resources'); setIsMenuOpen(false); }} className="block text-sm text-[#376F6B] hover:text-[#D5C6BC] py-2 px-3 rounded-lg hover:bg-[#57BBB6]/10 transition-all duration-200 text-left w-full">
+                      Patient Resources
+                    </button>
+                    <button onClick={() => { navigate('/shop'); setIsMenuOpen(false); }} className="block text-sm text-[#376F6B] hover:text-[#D5C6BC] py-2 px-3 rounded-lg hover:bg-[#57BBB6]/10 transition-all duration-200 text-left w-full">
+                      Shop Products
+                    </button>
+                  </div>
+                </div>
+              </div>
               
-              <Button 
-                onClick={() => {
-                  onTransferClick();
-                  setIsMenuOpen(false);
-                }}
-                className="w-full bg-[#376F6B] text-white font-semibold py-3 rounded hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-colors"
-              >
-                Transfer Rx
-              </Button>
-              
-              <Button 
-                onClick={() => {
-                  navigate('/shop');
-                  setIsMenuOpen(false);
-                }}
-                className="w-full bg-[#376F6B] text-white font-semibold py-3 rounded hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-colors"
-              >
-                Shop
-              </Button>
-              
-              <Button 
-                onClick={() => {
-                  navigate('/patient-portal');
-                  setIsMenuOpen(false);
-                }}
-                className="w-full bg-[#376F6B] text-white font-semibold py-3 rounded hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-colors"
-              >
-                Patient Portal
-              </Button>
-              
-              <Button 
-                onClick={() => {
-                  handleCallClick();
-                  setIsMenuOpen(false);
-                }}
-                className="w-full bg-[#376F6B] text-white font-semibold py-3 rounded hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-colors flex items-center justify-center"
-              >
-                <Phone className="w-4 h-4 mr-2" />
-                Call Now
-              </Button>
+              {/* Mobile CTA Buttons - Fixed at bottom */}
+              <div className="p-4 border-t border-gray-200 space-y-3">
+                <Button 
+                  onClick={() => {
+                    onRefillClick();
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full bg-[#376F6B] text-white font-semibold py-3 rounded-lg hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-all duration-300"
+                >
+                  Refill Rx
+                </Button>
+                
+                <Button 
+                  onClick={() => {
+                    onTransferClick();
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full bg-[#376F6B] text-white font-semibold py-3 rounded-lg hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-all duration-300"
+                >
+                  Transfer Rx
+                </Button>
+                
+                <Button 
+                  onClick={() => {
+                    navigate('/patient-portal');
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full bg-[#376F6B] text-white font-semibold py-3 rounded-lg hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-all duration-300"
+                >
+                  Patient Portal
+                </Button>
+                
+                <Button 
+                  onClick={() => {
+                    handleCallClick();
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full bg-[#376F6B] text-white font-semibold py-3 rounded-lg hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-all duration-300 flex items-center justify-center"
+                >
+                  <Phone className="w-4 h-4 mr-2" />
+                  Call Now
+                </Button>
+              </div>
             </div>
           </div>
         </div>

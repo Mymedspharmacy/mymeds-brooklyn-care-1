@@ -141,6 +141,11 @@ const PatientResources = () => {
     window.open(pdfUrl, '_blank');
   };
 
+  const handleReadArticle = (article: any) => {
+    // Navigate to specific article or open modal
+    console.log(`Reading article: ${article.id}`);
+  };
+
   const filteredCalculators = healthCalculators.filter(calc =>
     calc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     calc.description.toLowerCase().includes(searchTerm.toLowerCase())
@@ -239,7 +244,7 @@ const PatientResources = () => {
                       <CardDescription>{calculator.description}</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <Button className="w-full" variant="outline">
+                      <Button className="w-full" variant="outline" onClick={() => handleCalculatorClick(calculator.id)}>
                         Open Calculator
                       </Button>
                     </CardContent>
@@ -305,7 +310,7 @@ const PatientResources = () => {
                       <CardDescription>{article.description}</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <Button className="w-full" variant="outline">
+                      <Button className="w-full" variant="outline" onClick={() => handleReadArticle(article)}>
                         <ExternalLink className="h-4 w-4 mr-2" />
                         Read Article
                       </Button>
@@ -324,7 +329,7 @@ const PatientResources = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {emergencyInfo.map((info, index) => (
-                  <Card key={index} className="border-red-200 bg-red-50/50">
+                  <Card key={index} className="border-white bg-red-50/50">
                     <CardHeader>
                       <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
                         <Phone className="h-6 w-6 text-red-600" />
@@ -333,7 +338,7 @@ const PatientResources = () => {
                       <CardDescription className="text-red-700">{info.description}</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <Button className="w-full bg-red-600 hover:bg-red-700 text-white">
+                      <Button className="w-full bg-red-600 hover:bg-red-700 text-white" onClick={() => window.open(`tel:${info.phone}`)}>
                         <Phone className="h-4 w-4 mr-2" />
                         {info.phone}
                       </Button>
@@ -343,74 +348,44 @@ const PatientResources = () => {
               </div>
 
               {/* Additional Emergency Resources */}
-              <Card className="border-orange-200 bg-orange-50/50">
+              <Card className="border-white bg-orange-50/50">
                 <CardHeader>
-                  <h3 className="text-xl font-semibold text-orange-800">Additional Emergency Resources</h3>
+                  <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+                    <AlertTriangle className="h-6 w-6 text-orange-600" />
+                  </div>
+                  <CardTitle className="text-lg text-orange-800">Urgent Care</CardTitle>
+                  <CardDescription className="text-orange-700">
+                    For non-life-threatening conditions that need immediate attention
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Accordion type="single" collapsible className="w-full">
-                    <AccordionItem value="medication-reactions">
-                      <AccordionTrigger className="text-orange-800">
-                        What to do if you have a medication reaction
-                      </AccordionTrigger>
-                      <AccordionContent className="text-orange-700">
-                        <ul className="list-disc list-inside space-y-2">
-                          <li>Stop taking the medication immediately</li>
-                          <li>Call your doctor or pharmacist</li>
-                          <li>If severe, call 911 or go to the emergency room</li>
-                          <li>Keep the medication bottle for identification</li>
-                          <li>Note the time and symptoms of the reaction</li>
-                        </ul>
-                      </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem value="overdose">
-                      <AccordionTrigger className="text-orange-800">
-                        Suspected medication overdose
-                      </AccordionTrigger>
-                      <AccordionContent className="text-orange-700">
-                        <ul className="list-disc list-inside space-y-2">
-                          <li>Call Poison Control immediately: 1-800-222-1222</li>
-                          <li>Do NOT induce vomiting unless instructed</li>
-                          <li>Call 911 if the person is unconscious or having seizures</li>
-                          <li>Bring the medication bottle to the hospital</li>
-                        </ul>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
+                  <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white" onClick={() => window.open('tel:3473126458')}>
+                    <Phone className="h-4 w-4 mr-2" />
+                    Call (347) 312-6458
+                  </Button>
                 </CardContent>
               </Card>
             </TabsContent>
           </Tabs>
 
           {/* Contact Information */}
-          <Card className="mt-12 border-brand-light/20">
+          <Card className="mt-12 border-white">
             <CardHeader>
-              <h3 className="text-xl font-semibold text-gray-900">Need More Help?</h3>
-              <p className="text-gray-600">Our pharmacists are here to answer your questions</p>
+              <CardTitle className="text-2xl font-bold text-center">Need Help?</CardTitle>
+              <CardDescription className="text-center">
+                Our pharmacy team is here to help with any questions about your medications or health.
+              </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="flex items-center space-x-3">
-                  <Phone className="h-5 w-5 text-brand" />
-                  <div>
-                    <p className="font-medium">Call Us</p>
-                    <p className="text-sm text-gray-600">(347) 312-6458</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Mail className="h-5 w-5 text-brand" />
-                  <div>
-                    <p className="font-medium">Email Us</p>
-                    <p className="text-sm text-gray-600">Mymedspharmacy@outlook.com</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <MapPin className="h-5 w-5 text-brand" />
-                  <div>
-                    <p className="font-medium">Visit Us</p>
-                    <p className="text-sm text-gray-600">2242 65th St., Brooklyn, NY</p>
-                  </div>
-                </div>
+            <CardContent className="text-center">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Button className="w-full" onClick={() => window.open('tel:3473126458')}>
+                  <Phone className="h-4 w-4 mr-2" />
+                  Call Us
+                </Button>
+                <Button variant="outline" className="w-full" onClick={() => window.open('/contact', '_blank')}>
+                  <Mail className="h-4 w-4 mr-2" />
+                  Send Message
+                </Button>
               </div>
             </CardContent>
           </Card>

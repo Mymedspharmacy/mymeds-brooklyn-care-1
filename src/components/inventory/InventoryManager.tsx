@@ -99,6 +99,33 @@ export function InventoryManager({
     return { status: 'in-stock', color: 'bg-green-100 text-green-800' };
   };
 
+  const handleExportInventory = () => {
+    const csvContent = [
+      ['Name', 'SKU', 'Category', 'Price', 'Cost', 'Stock', 'Min Stock', 'Max Stock', 'Supplier', 'Status', 'Last Updated'],
+      ...filteredProducts.map(product => [
+        product.name,
+        product.sku,
+        product.category,
+        product.price.toString(),
+        product.cost.toString(),
+        product.stock.toString(),
+        product.minStock.toString(),
+        product.maxStock.toString(),
+        product.supplier,
+        product.status,
+        product.lastUpdated
+      ])
+    ].map(row => row.join(',')).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `inventory-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   const handleAddProduct = async () => {
     if (newProduct.name && newProduct.sku && newProduct.price) {
       await onAddProduct(newProduct as Omit<Product, 'id'>);
@@ -287,7 +314,7 @@ export function InventoryManager({
                   </Select>
                 </div>
                 <div className="flex items-end">
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full" onClick={() => handleExportInventory()}>
                     <Download className="h-4 w-4 mr-2" />
                     Export
                   </Button>

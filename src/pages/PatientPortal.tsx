@@ -169,6 +169,15 @@ const PatientPortal = () => {
     // Handle downloading records
   };
 
+  const handleDownloadAllRecords = () => {
+    // Handle downloading all records
+  };
+
+  const handleDownloadRecord = (record: any) => {
+    // Handle downloading individual record
+    console.log(`Downloading record: ${record.id}`);
+  };
+
   // Login handler
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -654,7 +663,7 @@ const PatientPortal = () => {
               <TabsContent value="health-records" className="space-y-6">
                 <div className="flex justify-between items-center">
                   <h2 className="text-2xl font-bold">Health Records</h2>
-                  <Button variant="outline">
+                  <Button variant="outline" onClick={() => handleDownloadAllRecords()}>
                     <Download className="h-4 w-4 mr-2" />
                     Download All
                   </Button>
@@ -679,7 +688,7 @@ const PatientPortal = () => {
                       <CardContent>
                         <div className="flex items-center justify-between">
                           <p className="text-sm font-medium">Result: {record.result}</p>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" onClick={() => handleDownloadRecord(record)}>
                             <Download className="h-4 w-4 mr-1" />
                             Download
                           </Button>

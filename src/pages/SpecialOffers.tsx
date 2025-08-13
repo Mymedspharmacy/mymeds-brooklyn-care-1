@@ -252,7 +252,7 @@ export default function SpecialOffers() {
   };
 
   return (
-    <div className="min-h-screen bg-[#D5C6BC]">
+    <div className="min-h-screen bg-white">
       <Header 
         onRefillClick={() => navigate('/', { state: { openRefillForm: true } })}
         onAppointmentClick={() => navigate('/', { state: { openAppointmentForm: true } })}

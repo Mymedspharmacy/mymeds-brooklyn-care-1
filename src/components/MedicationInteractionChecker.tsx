@@ -180,6 +180,99 @@ const MedicationInteractionChecker = () => {
     }
   };
 
+  const handlePrintReport = () => {
+    if (interactionResults) {
+      let reportContent = `Medication Interaction Report for ${interactionResults.medications.join(', ')}\n\n`;
+      interactionResults.interactions.forEach(interaction => {
+        reportContent += `Severity: ${interaction.severity.toUpperCase()} RISK\n`;
+        reportContent += `Description: ${interaction.description}\n`;
+        reportContent += `Recommendation: ${interaction.recommendation}\n`;
+        reportContent += `Evidence: ${interaction.evidence}\n\n`;
+      });
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(`
+          <html>
+            <head>
+              <title>Medication Interaction Report</title>
+              <style>
+                body { font-family: Arial, sans-serif; padding: 20px; }
+                h1 { color: #333; }
+                .summary { margin-top: 20px; }
+                .interaction { margin-bottom: 15px; padding: 10px; border-radius: 5px; }
+                .high { background-color: #ffebee; color: #d32f2f; border: 1px solid #ef9a9a; }
+                .moderate { background-color: #fff3e0; color: #ef6c00; border: 1px solid #ffcc80; }
+                .low { background-color: #e0f2f7; color: #0288d1; border: 1px solid #90caf9; }
+                .none { background-color: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+                .severity-badge { padding: 5px 10px; border-radius: 5px; font-weight: bold; }
+                .severity-badge.high { background-color: #ffebee; color: #d32f2f; border: 1px solid #ef9a9a; }
+                .severity-badge.moderate { background-color: #fff3e0; color: #ef6c00; border: 1px solid #ffcc80; }
+                .severity-badge.low { background-color: #e0f2f7; color: #0288d1; border: 1px solid #90caf9; }
+                .severity-badge.none { background-color: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+              </style>
+            </head>
+            <body>
+              <h1>Medication Interaction Report</h1>
+              <p>Analysis for ${interactionResults.medications.join(', ')}</p>
+              <div class="summary">
+                <h2>Summary</h2>
+                <p>High Risk: ${interactionResults.summary.high}</p>
+                <p>Moderate: ${interactionResults.summary.moderate}</p>
+                <p>Low Risk: ${interactionResults.summary.low}</p>
+                <p>No Interaction: ${interactionResults.summary.none}</p>
+              </div>
+              <div class="interactions">
+                <h2>Detailed Analysis</h2>
+                ${interactionResults.interactions.map(interaction => `
+                  <div class="interaction ${getSeverityColor(interaction.severity)}">
+                    <div class="flex items-start gap-3">
+                      ${getSeverityIcon(interaction.severity)}
+                      <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-2">
+                          <span class="severity-badge ${getSeverityColor(interaction.severity)}">
+                            ${interaction.severity.toUpperCase()} RISK
+                          </span>
+                        </div>
+                        <p class="font-medium mb-2">${interaction.description}</p>
+                        <p class="text-sm mb-2"><strong>Recommendation:</strong> ${interaction.recommendation}</p>
+                        <p class="text-xs opacity-75"><strong>Evidence:</strong> ${interaction.evidence}</p>
+                      </div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </body>
+          </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
+        printWindow.close();
+      }
+    }
+  };
+
+  const handleShareWithDoctor = () => {
+    if (interactionResults) {
+      let shareContent = `Medication Interaction Report for ${interactionResults.medications.join(', ')}\n\n`;
+      interactionResults.interactions.forEach(interaction => {
+        shareContent += `Severity: ${interaction.severity.toUpperCase()} RISK\n`;
+        shareContent += `Description: ${interaction.description}\n`;
+        shareContent += `Recommendation: ${interaction.recommendation}\n`;
+        shareContent += `Evidence: ${interaction.evidence}\n\n`;
+      });
+      if (navigator.share) {
+        navigator.share({
+          title: 'Medication Interaction Report',
+          text: shareContent,
+          url: window.location.href // Or a specific URL for this report
+        }).then(() => console.log('Report shared successfully'))
+          .catch((error) => console.error('Error sharing report:', error));
+      } else {
+        alert('Web Share API not supported in your browser. Please manually copy the report.');
+      }
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <div className="text-center">
@@ -340,11 +433,11 @@ const MedicationInteractionChecker = () => {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-3">
-              <Button variant="outline" className="flex-1">
+              <Button variant="outline" className="flex-1" onClick={() => handlePrintReport()}>
                 <ExternalLink className="h-4 w-4 mr-2" />
                 Print Report
               </Button>
-              <Button variant="outline" className="flex-1">
+              <Button variant="outline" className="flex-1" onClick={() => handleShareWithDoctor()}>
                 <ExternalLink className="h-4 w-4 mr-2" />
                 Share with Doctor
               </Button>
@@ -366,10 +459,10 @@ const MedicationInteractionChecker = () => {
                       Our pharmacists can provide personalized advice about your medication interactions 
                       and help you understand the risks and benefits.
                     </p>
-                    <Button className="w-full">
+                    <Button className="w-full" onClick={() => window.open('tel:3473126458')}>
                       Call (347) 312-6458
                     </Button>
-                    <Button variant="outline" className="w-full">
+                    <Button variant="outline" className="w-full" onClick={() => window.open('/contact', '_blank')}>
                       Book Online Appointment
                     </Button>
                   </div>
@@ -387,19 +480,19 @@ const MedicationInteractionChecker = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Button variant="outline" className="justify-start">
+            <Button variant="outline" className="justify-start" onClick={() => window.open('https://www.fda.gov/drugs', '_blank')}>
               <ExternalLink className="h-4 w-4 mr-2" />
               FDA Drug Information
             </Button>
-            <Button variant="outline" className="justify-start">
+            <Button variant="outline" className="justify-start" onClick={() => window.open('https://medlineplus.gov/druginformation.html', '_blank')}>
               <ExternalLink className="h-4 w-4 mr-2" />
               MedlinePlus Drug Information
             </Button>
-            <Button variant="outline" className="justify-start">
+            <Button variant="outline" className="justify-start" onClick={() => window.open('https://www.drugs.com/drug_interactions.html', '_blank')}>
               <ExternalLink className="h-4 w-4 mr-2" />
               Drug Interaction Database
             </Button>
-            <Button variant="outline" className="justify-start">
+            <Button variant="outline" className="justify-start" onClick={() => window.open('https://www.drugs.com/sfx/', '_blank')}>
               <ExternalLink className="h-4 w-4 mr-2" />
               Side Effect Information
             </Button>

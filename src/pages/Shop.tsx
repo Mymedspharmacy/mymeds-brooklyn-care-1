@@ -135,6 +135,7 @@ export default function Shop() {
   const [categories, setCategories] = useState<Array<{ id: number; name: string; count: number }>>([]);
   const [loading, setLoading] = useState(true);
   const [showCheckout, setShowCheckout] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
   // Fetch products from WooCommerce
   useEffect(() => {
@@ -274,7 +275,7 @@ export default function Shop() {
                     className="pl-10 pr-4 py-3 text-lg border-0 focus:ring-2 focus:ring-white/50 focus:outline-none"
                   />
                 </div>
-                <Button className="bg-white text-[#57BBB6] hover:bg-gray-100 px-6 py-3">
+                <Button className="bg-white text-[#57BBB6] hover:bg-gray-100 px-6 py-3" onClick={() => setShowFilters(!showFilters)}>
                   <Filter className="h-5 w-5 mr-2" />
                   Filter
                 </Button>

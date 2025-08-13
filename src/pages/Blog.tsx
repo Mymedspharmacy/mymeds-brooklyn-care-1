@@ -99,12 +99,18 @@ export default function Blog() {
     closeTransferForm
   } = useFormHandlers();
   
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
   const [posts, setPosts] = useState<WordPressPost[]>([]);
   const [categories, setCategories] = useState<WordPressCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+
+  const handleSearch = () => {
+    // The search is already handled by the searchQuery state and useEffect
+    // This function can be used for additional search logic if needed
+    console.log('Searching for:', searchQuery);
+  };
   const [featuredPosts, setFeaturedPosts] = useState<WordPressPost[]>([]);
   const [recentPosts, setRecentPosts] = useState<WordPressPost[]>([]);
 
@@ -257,7 +263,7 @@ export default function Blog() {
                     className="pl-10 pr-4 py-3 text-lg border-0 focus:ring-2 focus:ring-white/50 focus:outline-none"
                   />
                 </div>
-                <Button className="bg-white text-[#57BBB6] hover:bg-gray-100 px-6 py-3">
+                <Button className="bg-white text-[#57BBB6] hover:bg-gray-100 px-6 py-3" onClick={() => handleSearch()}>
                   <Search className="h-5 w-5 mr-2" />
                   Search
                 </Button>

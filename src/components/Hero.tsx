@@ -200,7 +200,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
           <div className="grid grid-cols-1 gap-8 sm:gap-12 lg:gap-16 items-center">
             
             {/* Left Column - Main Content */}
-            <div className="text-center lg:text-left space-y-6 sm:space-y-8">
+            <div className="text-center space-y-6 sm:space-y-8">
               {/* Badge */}
               <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium border border-white/30">
                 <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -214,7 +214,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
                   Your Health,
                   <span className="block text-[#2A5A56]">Our Priority</span>
                 </h1>
-                <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 leading-relaxed max-w-2xl mx-auto lg:mx-0 px-2 sm:px-0">
+                <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 leading-relaxed max-w-2xl mx-auto px-4 sm:px-0">
                   Professional pharmaceutical care with personalized service. 
                   Fast prescription refills, free delivery, and expert consultation 
                   for the Brooklyn community.
@@ -222,7 +222,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
               </div>
 
               {/* Call-to-Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 md:gap-6 justify-center lg:justify-start">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 md:gap-6 justify-center">
                 <Button 
                   onClick={onRefillClick}
                   size="lg" 
@@ -248,7 +248,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
               </div>
 
               {/* Trust Indicators */}
-              <div className="flex flex-wrap justify-center lg:justify-start gap-4 sm:gap-6 pt-4">
+              <div className="flex flex-wrap justify-center gap-4 sm:gap-6 pt-4">
                 <div className="flex items-center gap-2 text-white/80">
                   <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#2A5A56] rounded-full"></div>
                   <span className="text-xs sm:text-sm font-medium">Licensed Pharmacists</span>

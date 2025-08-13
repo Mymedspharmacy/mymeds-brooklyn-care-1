@@ -87,6 +87,32 @@ export function AdvancedScheduling({
     }
   };
 
+  const handleExportAppointments = () => {
+    const csvContent = [
+      ['Customer Name', 'Email', 'Phone', 'Service', 'Date', 'Time', 'Duration', 'Status', 'Staff Member', 'Notes'],
+      ...filteredAppointments.map(appointment => [
+        appointment.customerName,
+        appointment.customerEmail,
+        appointment.customerPhone,
+        appointment.service,
+        appointment.date,
+        appointment.time,
+        appointment.duration.toString(),
+        appointment.status,
+        appointment.staffMember || 'Unassigned',
+        appointment.notes || ''
+      ])
+    ].map(row => row.join(',')).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `appointments-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString();
   };
@@ -248,7 +274,7 @@ export function AdvancedScheduling({
                   </Select>
                 </div>
                 <div className="flex items-end">
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full" onClick={() => handleExportAppointments()}>
                     <Calendar className="h-4 w-4 mr-2" />
                     Export
                   </Button>

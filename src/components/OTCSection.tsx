@@ -1,59 +1,63 @@
-import { ShoppingCart, Heart, Zap, Thermometer, Bandage, Pill, ArrowRight, Star, Phone, Eye, Brain, Baby, Shield, Leaf, Activity } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useState } from 'react';
+import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Pill, Heart, Shield, Brain, Leaf, Eye, Phone, ArrowRight, Star
+} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export const OTCSection = () => {
   const navigate = useNavigate();
   const otcCategories = [
     {
+      icon: Pill,
+      title: "Pain Relief",
+      description: "Fast-acting pain relief for headaches, muscle aches, and joint discomfort",
+      items: ["Acetaminophen", "Ibuprofen", "Aspirin", "Topical pain relievers"],
+      image: "/images/otc/pain-relief.jpg"
+    },
+    {
       icon: Heart,
       title: "Heart Health",
-      description: "Comprehensive cardiovascular wellness products and monitoring solutions",
-      items: ["Blood pressure monitors", "Heart-healthy supplements", "Cholesterol management", "Omega-3 supplements"],
+      description: "Supplements and medications to support cardiovascular wellness",
+      items: ["Blood pressure support", "Cholesterol management", "Heart rhythm support", "Circulation boosters"],
       image: "/images/otc/heart-health.jpg"
     },
     {
-      icon: Thermometer,
+      icon: Shield,
       title: "Cold & Flu Relief",
       description: "Effective relief from common cold and flu symptoms for all ages",
-      items: ["Pain relievers", "Cough suppressants", "Throat lozenges", "Decongestants"],
+      items: ["Decongestants", "Cough suppressants", "Fever reducers", "Immune boosters"],
       image: "/images/otc/cold-flu.jpg"
     },
     {
-      icon: Bandage,
+      icon: Brain,
       title: "First Aid & Wound Care",
       description: "Essential supplies for minor injuries and emergency preparedness",
-      items: ["Bandages & gauze", "Antiseptic wipes", "Pain relief gels", "Thermometers"],
+      items: ["Bandages", "Antiseptics", "Gauze", "Medical tape"],
       image: "/images/otc/first-aid.jpg"
     },
     {
-      icon: Pill,
+      icon: Leaf,
       title: "Digestive Health",
-      description: "Products to support digestive wellness and gastrointestinal comfort",
-      items: ["Probiotics", "Digestive enzymes", "Antacids", "Fiber supplements"],
+      description: "Natural solutions for digestive comfort and gut health support",
+      items: ["Probiotics", "Digestive enzymes", "Fiber supplements", "Stomach soothers"],
       image: "/images/otc/digestive-health.jpg"
     },
     {
-      icon: Brain,
-      title: "Mental Wellness",
-      description: "Supplements and products to support cognitive function and mental health",
-      items: ["Omega-3 supplements", "B-complex vitamins", "Herbal remedies", "Sleep aids"],
-      image: "/images/otc/mental-wellness.jpg"
-    },
-    {
-      icon: Baby,
+      icon: Shield,
       title: "Pediatric Care",
       description: "Safe and effective products specifically formulated for children",
-      items: ["Children's vitamins", "Pediatric pain relief", "Baby care products", "Kids' supplements"],
+      items: ["Children's pain relief", "Kids' vitamins", "Pediatric supplements", "Child-safe remedies"],
       image: "/images/otc/pediatric-care.jpg"
     },
     {
-      icon: Shield,
-      title: "Immune Support",
-      description: "Products to strengthen and maintain a healthy immune system",
-      items: ["Vitamin C", "Zinc supplements", "Echinacea", "Multivitamins"],
-      image: "/images/otc/immune-support.jpg"
+      icon: Heart,
+      title: "Sleep & Relaxation",
+      description: "Natural sleep aids and relaxation support for better rest",
+      items: ["Melatonin", "Herbal sleep aids", "Relaxation supplements", "Stress relief"],
+      image: "/images/otc/sleep-relaxation.jpg"
     },
     {
       icon: Leaf,
@@ -61,36 +65,6 @@ export const OTCSection = () => {
       description: "Eco-friendly and natural alternatives for health and wellness",
       items: ["Organic supplements", "Herbal remedies", "Natural pain relief", "Plant-based products"],
       image: "/images/otc/natural-organic.jpg"
-    }
-  ];
-
-  const featuredProducts = [
-    {
-      icon: Heart,
-      title: "Premium Omega-3",
-      description: "High-quality fish oil supplement for heart and brain health",
-      price: "$29.99",
-      rating: 4.8,
-      reviews: 127,
-      image: "/images/otc/omega-3.jpg"
-    },
-    {
-      icon: Shield,
-      title: "Immune Boost Complex",
-      description: "Comprehensive blend of vitamins and minerals for immune support",
-      price: "$24.99",
-      rating: 4.6,
-      reviews: 89,
-      image: "/images/otc/immune-boost.jpg"
-    },
-    {
-      icon: Brain,
-      title: "Focus & Memory Formula",
-      description: "Natural cognitive enhancer for mental clarity and focus",
-      price: "$34.99",
-      rating: 4.7,
-      reviews: 156,
-      image: "/images/otc/focus-memory.jpg"
     }
   ];
 
@@ -175,84 +149,12 @@ export const OTCSection = () => {
                   className="w-full bg-white text-[#57BBB6] hover:bg-gray-100 font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
                   onClick={() => navigate('/shop', { state: { category: category.title.toLowerCase() } })}
                 >
-                  <ShoppingCart className="w-4 h-4 mr-2" />
+                  <ArrowRight className="w-4 h-4 mr-2" />
                   Shop Now
                 </Button>
               </CardContent>
             </Card>
           ))}
-        </div>
-
-        {/* Featured Products Section */}
-        <div className="mb-16 sm:mb-20">
-          <div className="text-center mb-12">
-            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#57BBB6] mb-4">
-              Featured Products
-            </h3>
-            <p className="text-lg text-[#376F6B] max-w-2xl mx-auto">
-              Our most popular and highly-rated health products, carefully selected for quality and effectiveness
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-            {featuredProducts.map((product, index) => (
-              <Card key={index} className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-[#57BBB6] hover:bg-[#57BBB6]/95">
-                {/* Product Image Background */}
-                <div className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-500 pointer-events-none">
-                  <img 
-                    src={product.image} 
-                    alt={product.title}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
-                </div>
-
-                <CardContent className="relative p-6 sm:p-8">
-                  {/* Product Icon */}
-                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-500">
-                    <product.icon className="h-8 w-8 text-white" />
-                  </div>
-
-                  {/* Product Info */}
-                  <h4 className="text-xl font-bold text-white mb-3 text-center">
-                    {product.title}
-                  </h4>
-                  <p className="text-white/90 mb-4 text-sm leading-relaxed text-center">
-                    {product.description}
-                  </p>
-
-                  {/* Rating & Reviews */}
-                  <div className="flex items-center justify-center gap-2 mb-4">
-                    <div className="flex items-center">
-                      {[...Array(5)].map((_, i) => (
-                        <Star 
-                          key={i} 
-                          className={`h-4 w-4 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-white/30'}`} 
-                        />
-                      ))}
-                    </div>
-                    <span className="text-white/80 text-sm">({product.reviews})</span>
-                  </div>
-
-                  {/* Price & Action */}
-                  <div className="flex items-center justify-between">
-                    <div className="text-2xl font-bold text-white">
-                      {product.price}
-                    </div>
-                    <Button 
-                      className="bg-white text-[#57BBB6] hover:bg-gray-100 font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
-                      onClick={() => navigate('/shop', { state: { product: product.title.toLowerCase() } })}
-                    >
-                      <ArrowRight className="w-4 h-4 mr-2" />
-                      Add to Cart
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
         </div>
 
         {/* Enhanced CTA Section */}
