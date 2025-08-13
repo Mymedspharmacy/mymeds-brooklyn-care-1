@@ -13,6 +13,17 @@ interface RefillFormProps {
   onClose: () => void;
 }
 
+interface FormErrors {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  email?: string;
+  prescriptionNumber?: string;
+  medication?: string;
+  pharmacy?: string;
+  prescriptionFile?: string;
+}
+
 export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -27,6 +38,7 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
   const [prescriptionFile, setPrescriptionFile] = useState<File | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
   const [dragActive, setDragActive] = useState(false);
+  const [errors, setErrors] = useState<FormErrors>({});
 
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -39,21 +51,97 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
     { id: 3, title: 'Upload & Submit', icon: Upload }
   ];
 
+  // Validation functions
+  const validateStep1 = (): boolean => {
+    const newErrors: FormErrors = {};
+    
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = 'First name is required';
+    } else if (formData.firstName.trim().length < 2) {
+      newErrors.firstName = 'First name must be at least 2 characters';
+    }
+    
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = 'Last name is required';
+    } else if (formData.lastName.trim().length < 2) {
+      newErrors.lastName = 'Last name must be at least 2 characters';
+    }
+    
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    } else if (!/^[\+]?[1-9][\d]{0,15}$/.test(formData.phone.replace(/[\s\-\(\)]/g, ''))) {
+      newErrors.phone = 'Please enter a valid phone number';
+    }
+    
+    if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateStep2 = (): boolean => {
+    const newErrors: FormErrors = {};
+    
+    if (!formData.prescriptionNumber.trim()) {
+      newErrors.prescriptionNumber = 'Prescription number is required';
+    } else if (formData.prescriptionNumber.trim().length < 3) {
+      newErrors.prescriptionNumber = 'Prescription number must be at least 3 characters';
+    }
+    
+    if (!formData.medication.trim()) {
+      newErrors.medication = 'Medication name is required';
+    } else if (formData.medication.trim().length < 2) {
+      newErrors.medication = 'Medication name must be at least 2 characters';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateStep3 = (): boolean => {
+    const newErrors: FormErrors = {};
+    
+    if (!prescriptionFile) {
+      newErrors.prescriptionFile = 'Prescription file is required';
+    } else {
+      // Check file size (10MB limit)
+      if (prescriptionFile.size > 10 * 1024 * 1024) {
+        newErrors.prescriptionFile = 'File size must be less than 10MB';
+      }
+      
+      // Check file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+      if (!allowedTypes.includes(prescriptionFile.type)) {
+        newErrors.prescriptionFile = 'Only JPG, PNG, and PDF files are allowed';
+      }
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!prescriptionFile) {
-      setError('Please upload your prescription file');
-      toast({ title: 'Error', description: 'Please upload your prescription file', variant: 'destructive' });
+    // Validate all steps before submission
+    if (!validateStep1() || !validateStep2() || !validateStep3()) {
+      toast({ 
+        title: 'Validation Error', 
+        description: 'Please fix all errors before submitting', 
+        variant: 'destructive' 
+      });
       return;
     }
     
     setLoading(true);
     setError('');
     setSuccess(false);
+    
     try {
       const formDataToSend = new FormData();
-      formDataToSend.append('file', prescriptionFile);
+      formDataToSend.append('file', prescriptionFile!);
       
       Object.entries(formData).forEach(([key, value]) => {
         formDataToSend.append(key, value);
@@ -64,33 +152,61 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
           'Content-Type': 'multipart/form-data',
         },
       });
+      
       setSuccess(true);
       setFormData({
         firstName: '', lastName: '', phone: '', email: '', prescriptionNumber: '', medication: '', pharmacy: '', notes: ''
       });
       setPrescriptionFile(null);
-      toast({ title: 'Refill Request Submitted!', description: "We'll process your prescription refill and contact you when it's ready." });
+      setErrors({});
+      setCurrentStep(1);
+      
+      toast({ 
+        title: 'Refill Request Submitted!', 
+        description: "We'll process your prescription refill and contact you when it's ready." 
+      });
+      
       onClose();
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to submit refill request';
       setError(errorMessage);
-      toast({ title: 'Error', description: errorMessage, variant: 'destructive' });
+      toast({ 
+        title: 'Error', 
+        description: errorMessage, 
+        variant: 'destructive' 
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [name]: value
     }));
+    
+    // Clear error when user starts typing
+    if (errors[name as keyof FormErrors]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: undefined
+      }));
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setPrescriptionFile(file);
+      // Clear file error when user selects a file
+      if (errors.prescriptionFile) {
+        setErrors(prev => ({
+          ...prev,
+          prescriptionFile: undefined
+        }));
+      }
     }
   };
 
@@ -110,23 +226,45 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
     setDragActive(false);
     
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setPrescriptionFile(e.dataTransfer.files[0]);
+      const file = e.dataTransfer.files[0];
+      setPrescriptionFile(file);
+      // Clear file error when user drops a file
+      if (errors.prescriptionFile) {
+        setErrors(prev => ({
+          ...prev,
+          prescriptionFile: undefined
+        }));
+      }
     }
   };
 
   const nextStep = () => {
-    if (currentStep < 3) setCurrentStep(currentStep + 1);
+    let isValid = false;
+    
+    if (currentStep === 1) {
+      isValid = validateStep1();
+    } else if (currentStep === 2) {
+      isValid = validateStep2();
+    }
+    
+    if (isValid && currentStep < 3) {
+      setCurrentStep(currentStep + 1);
+    }
   };
 
   const prevStep = () => {
-    if (currentStep > 1) setCurrentStep(currentStep - 1);
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+      // Clear errors when going back
+      setErrors({});
+    }
   };
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-300">
-              <div className="bg-[#D5C6BC] rounded-2xl max-w-full sm:max-w-2xl w-full max-h-screen overflow-y-auto shadow-2xl animate-in slide-in-from-bottom-4 duration-300 scale-in-95">
+      <div className="bg-[#D5C6BC] rounded-2xl max-w-full sm:max-w-2xl w-full max-h-screen overflow-y-auto shadow-2xl animate-in slide-in-from-bottom-4 duration-300 scale-in-95">
         <Card className="border-0 shadow-none">
           {/* Enhanced Header */}
           <CardHeader className="relative rounded-t-2xl bg-gradient-to-r from-[#376f6b] to-[#57bbb6] text-white p-6">
@@ -181,15 +319,15 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
             </div>
           </CardHeader>
 
-                  <CardContent className="p-6">
-          <HIPAAFormBanner />
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <CardContent className="p-6">
+            <HIPAAFormBanner />
+            <form onSubmit={handleSubmit} className="space-y-6">
               {/* Step 1: Patient Information */}
               {currentStep === 1 && (
                 <div className="space-y-6">
                   <div className="flex items-center space-x-2 mb-4">
-                                         <User className="h-5 w-5 text-[#376F6B]" />
-                     <h3 className="text-lg font-semibold text-gray-900">Patient Information</h3>
+                    <User className="h-5 w-5 text-[#376F6B]" />
+                    <h3 className="text-lg font-semibold text-gray-900">Patient Information</h3>
                   </div>
                   
                   <div className="grid md:grid-cols-2 gap-4">
@@ -201,31 +339,50 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
                         <Input
                           name="firstName"
                           type="text"
-                          required
                           value={formData.firstName}
                           onChange={handleChange}
                           placeholder="Enter your first name"
-                          className="pl-10 border-white focus:border-[#376F6B] focus:ring-[#376F6B] transition-all duration-300 group-hover:border-[#376F6B]/50 group-hover:shadow-md"
+                          className={`pl-10 transition-all duration-300 group-hover:shadow-md ${
+                            errors.firstName 
+                              ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
+                              : 'border-white focus:border-[#376F6B] focus:ring-[#376F6B] group-hover:border-[#376F6B]/50'
+                          }`}
                         />
-                                                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 group-hover:text-[#376F6B] transition-colors duration-300" />
+                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 group-hover:text-[#376F6B] transition-colors duration-300" />
                       </div>
+                      {errors.firstName && (
+                        <p className="text-red-500 text-sm flex items-center">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {errors.firstName}
+                        </p>
+                      )}
                     </div>
+                    
                     <div className="space-y-2">
                       <label className="block text-sm font-medium text-gray-700">
                         Last Name *
                       </label>
                       <div className="relative">
-                                                 <Input
-                           name="lastName"
-                           type="text"
-                           required
-                           value={formData.lastName}
-                           onChange={handleChange}
-                           placeholder="Enter your last name"
-                           className="pl-10 border-gray-200 focus:border-[#376F6B] focus:ring-[#376F6B]"
-                         />
+                        <Input
+                          name="lastName"
+                          type="text"
+                          value={formData.lastName}
+                          onChange={handleChange}
+                          placeholder="Enter your last name"
+                          className={`pl-10 transition-all duration-300 ${
+                            errors.lastName 
+                              ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
+                              : 'border-gray-200 focus:border-[#376F6B] focus:ring-[#376F6B]'
+                          }`}
+                        />
                         <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       </div>
+                      {errors.lastName && (
+                        <p className="text-red-500 text-sm flex items-center">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {errors.lastName}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -235,33 +392,53 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
                         Phone Number *
                       </label>
                       <div className="relative">
-                                                 <Input
-                           name="phone"
-                           type="tel"
-                           required
-                           value={formData.phone}
-                           onChange={handleChange}
-                           placeholder="(347) 312-6458"
-                           className="pl-10 border-gray-200 focus:border-[#376F6B] focus:ring-[#376F6B]"
-                         />
+                        <Input
+                          name="phone"
+                          type="tel"
+                          value={formData.phone}
+                          onChange={handleChange}
+                          placeholder="(347) 312-6458"
+                          className={`pl-10 transition-all duration-300 ${
+                            errors.phone 
+                              ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
+                              : 'border-gray-200 focus:border-[#376F6B] focus:ring-[#376F6B]'
+                          }`}
+                        />
                         <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       </div>
+                      {errors.phone && (
+                        <p className="text-red-500 text-sm flex items-center">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {errors.phone}
+                        </p>
+                      )}
                     </div>
+                    
                     <div className="space-y-2">
                       <label className="block text-sm font-medium text-gray-700">
                         Email Address
                       </label>
                       <div className="relative">
-                                                 <Input
-                           name="email"
-                           type="email"
-                           value={formData.email}
-                           onChange={handleChange}
-                           placeholder="your@email.com"
-                           className="pl-10 border-gray-200 focus:ring-[#376F6B]"
-                         />
+                        <Input
+                          name="email"
+                          type="email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          placeholder="your@email.com"
+                          className={`pl-10 transition-all duration-300 ${
+                            errors.email 
+                              ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
+                              : 'border-gray-200 focus:ring-[#376F6B]'
+                          }`}
+                        />
                         <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       </div>
+                      {errors.email && (
+                        <p className="text-red-500 text-sm flex items-center">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {errors.email}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -282,8 +459,8 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
               {currentStep === 2 && (
                 <div className="space-y-6">
                   <div className="flex items-center space-x-2 mb-4">
-                                         <Pill className="h-5 w-5 text-[#376F6B]" />
-                     <h3 className="text-lg font-semibold text-gray-900">Prescription Information</h3>
+                    <Pill className="h-5 w-5 text-[#376F6B]" />
+                    <h3 className="text-lg font-semibold text-gray-900">Prescription Information</h3>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-4">
@@ -295,15 +472,25 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
                         <Input
                           name="prescriptionNumber"
                           type="text"
-                          required
                           value={formData.prescriptionNumber}
                           onChange={handleChange}
                           placeholder="Rx# (required)"
-                          className="pl-10 border-gray-200 focus:border-[#57bbb6] focus:ring-[#57bbb6]"
+                          className={`pl-10 transition-all duration-300 ${
+                            errors.prescriptionNumber 
+                              ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
+                              : 'border-gray-200 focus:border-[#57bbb6] focus:ring-[#57bbb6]'
+                          }`}
                         />
                         <FileText className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       </div>
+                      {errors.prescriptionNumber && (
+                        <p className="text-red-500 text-sm flex items-center">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {errors.prescriptionNumber}
+                        </p>
+                      )}
                     </div>
+                    
                     <div className="space-y-2">
                       <label className="block text-sm font-medium text-gray-700">
                         Medication Name *
@@ -312,14 +499,23 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
                         <Input
                           name="medication"
                           type="text"
-                          required
                           value={formData.medication}
                           onChange={handleChange}
                           placeholder="Name of medication"
-                          className="pl-10 border-gray-200 focus:border-[#57bbb6] focus:ring-[#57bbb6]"
+                          className={`pl-10 transition-all duration-300 ${
+                            errors.medication 
+                              ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
+                              : 'border-gray-200 focus:border-[#57bbb6] focus:ring-[#57bbb6]'
+                          }`}
                         />
                         <Pill className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       </div>
+                      {errors.medication && (
+                        <p className="text-red-500 text-sm flex items-center">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {errors.medication}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -376,8 +572,8 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
               {currentStep === 3 && (
                 <div className="space-y-6">
                   <div className="flex items-center space-x-2 mb-4">
-                                         <Upload className="h-5 w-5 text-[#376F6B]" />
-                     <h3 className="text-lg font-semibold text-gray-900">Upload Prescription & Submit</h3>
+                    <Upload className="h-5 w-5 text-[#376F6B]" />
+                    <h3 className="text-lg font-semibold text-gray-900">Upload Prescription & Submit</h3>
                   </div>
 
                   {/* File Upload Area */}
@@ -387,20 +583,22 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
                     </label>
                     <div
                       className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-500 transform hover:scale-[1.02] ${
-                                                 dragActive 
-                           ? 'border-[#376F6B] bg-[#376F6B]/5 scale-105 shadow-lg' 
-                           : prescriptionFile 
-                             ? 'border-green-500 bg-green-50 shadow-md' 
-                             : 'border-gray-300 hover:border-[#376F6B] hover:bg-gray-50 hover:shadow-md'
+                        dragActive 
+                          ? 'border-[#376F6B] bg-[#376F6B]/5 scale-105 shadow-lg' 
+                          : prescriptionFile 
+                            ? 'border-green-500 bg-green-50 shadow-md' 
+                            : errors.prescriptionFile
+                              ? 'border-red-500 bg-red-50'
+                              : 'border-gray-300 hover:border-[#376F6B] hover:bg-gray-50 hover:shadow-md'
                       }`}
                       onDragEnter={handleDrag}
                       onDragLeave={handleDrag}
                       onDragOver={handleDrag}
                       onDrop={handleDrop}
                     >
-                                               <Upload className={`h-12 w-12 mx-auto mb-4 transition-all duration-300 ${
-                           prescriptionFile ? 'text-green-500 animate-bounce' : 'text-gray-400 group-hover:text-[#376F6B]'
-                         }`} />
+                      <Upload className={`h-12 w-12 mx-auto mb-4 transition-all duration-300 ${
+                        prescriptionFile ? 'text-green-500 animate-bounce' : errors.prescriptionFile ? 'text-red-500' : 'text-gray-400 group-hover:text-[#376F6B]'
+                      }`} />
                       
                       {prescriptionFile ? (
                         <div className="space-y-2">
@@ -414,9 +612,9 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
                         <div className="space-y-2">
                           <p className="text-gray-600">
                             Drag and drop your prescription here, or{' '}
-                                                         <label htmlFor="prescriptionFile" className="text-[#376F6B] hover:text-[#2A5A56] cursor-pointer font-medium">
-                               browse files
-                             </label>
+                            <label htmlFor="prescriptionFile" className="text-[#376F6B] hover:text-[#2A5A56] cursor-pointer font-medium">
+                              browse files
+                            </label>
                           </p>
                           <p className="text-xs text-gray-500">
                             Supports: JPG, PNG, PDF (Max 10MB)
@@ -432,6 +630,12 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
                         className="hidden"
                       />
                     </div>
+                    {errors.prescriptionFile && (
+                      <p className="text-red-500 text-sm flex items-center">
+                        <AlertCircle className="h-4 w-4 mr-1" />
+                        {errors.prescriptionFile}
+                      </p>
+                    )}
                   </div>
 
                   {/* Error Display */}
@@ -470,7 +674,7 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
                     </Button>
                     <Button 
                       type="submit" 
-                      disabled={loading || !prescriptionFile}
+                      disabled={loading}
                       className="bg-[#376F6B] hover:bg-[#2A5A56] hover:shadow-lg text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl disabled:opacity-50 disabled:transform-none group"
                     >
                       {loading ? (
