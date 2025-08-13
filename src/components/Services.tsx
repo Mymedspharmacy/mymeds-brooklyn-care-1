@@ -95,7 +95,7 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
   ];
 
   return (
-    <section id="services" className="py-16 sm:py-20 md:py-24 bg-[#D5C6BC] relative overflow-hidden">
+    <section id="services" className="py-16 sm:py-20 md:py-24 bg-white relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute top-20 left-10 w-72 h-72 bg-[#D5C6BC]/20 rounded-full blur-3xl animate-pulse"></div>
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#D5C6BC]/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>

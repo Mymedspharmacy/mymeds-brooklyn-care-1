@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Search, Filter, ShoppingCart, Heart, Star, Eye, Package, Truck, Shield, Clock, CheckCircle, ArrowRight, Minus, Plus, Home, Baby, Loader2 } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { NewsTicker } from "@/components/NewsTicker";
 import { wooCommerceAPI } from "@/lib/woocommerce";
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
@@ -238,6 +239,7 @@ export default function Shop() {
         onAppointmentClick={() => window.location.href = '/'}
         onTransferClick={() => window.location.href = '/'}
       />
+      <NewsTicker />
       
       <div className="pt-20">
         {/* Hero Section */}
