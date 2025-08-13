@@ -513,7 +513,7 @@ export default function Shop() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-[#376F6B] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+              <Card className="bg-[#57BBB6] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                 <CardContent className="p-6 sm:p-8 text-center">
                   <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <Shield className="h-8 w-8 text-white" />
