@@ -232,22 +232,38 @@ export default function SpecialOffers() {
   };
 
   const handleActionClick = (offer) => {
-    switch (offer.actionType) {
-      case 'refill':
-        navigate('/', { state: { openRefillForm: true } });
-        break;
-      case 'shop':
-        navigate('/shop');
-        break;
-      case 'appointment':
-        navigate('/', { state: { openAppointmentForm: true } });
-        break;
-      case 'referral':
-        handleEmailClick();
-        break;
-      default:
-        // For info type, just close modal
-        setSelectedOffer(null);
+    try {
+      console.log('Button clicked:', offer.actionButton, 'Action type:', offer.actionType);
+      
+      switch (offer.actionType) {
+        case 'refill':
+          console.log('Navigating to refill form...');
+          navigate('/', { state: { openRefillForm: true } });
+          break;
+        case 'shop':
+          console.log('Navigating to shop...');
+          navigate('/shop');
+          break;
+        case 'appointment':
+          console.log('Navigating to appointment form...');
+          navigate('/', { state: { openAppointmentForm: true } });
+          break;
+        case 'referral':
+          console.log('Opening email for referral...');
+          handleEmailClick();
+          break;
+        case 'info':
+          console.log('Opening info modal...');
+          setSelectedOffer(offer);
+          break;
+        default:
+          console.log('Unknown action type:', offer.actionType);
+          setSelectedOffer(offer);
+      }
+    } catch (error) {
+      console.error('Error handling button click:', error);
+      // Fallback: open the modal for more information
+      setSelectedOffer(offer);
     }
   };
 
@@ -303,9 +319,9 @@ export default function SpecialOffers() {
                   className="group border-0 shadow-lg hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 cursor-pointer"
                   onClick={() => setSelectedOffer(offer)}
                 >
-                  <CardContent className="p-6">
+                  <CardContent className="p-6 flex flex-col h-full">
                     {/* Offer Header */}
-                    <div className="text-center mb-6">
+                    <div className="text-center mb-6 flex-shrink-0">
                       <div className="w-20 h-20 bg-[#57BBB6] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300">
                         <offer.icon className="h-10 w-10 text-white" />
                       </div>
@@ -314,7 +330,7 @@ export default function SpecialOffers() {
                         {offer.popularity}
                       </Badge>
                       
-                      <CardTitle className="text-xl font-bold text-[#376F6B] mb-2 group-hover:text-[#57BBB6] transition-colors duration-300">
+                      <CardTitle className="text-xl font-bold text-[#57BBB6] mb-2 group-hover:text-[#376F6B] transition-colors duration-300">
                         {offer.title}
                       </CardTitle>
                       
@@ -324,28 +340,26 @@ export default function SpecialOffers() {
                     </div>
 
                     {/* Offer Details */}
-                    <div className="space-y-4 mb-6">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-[#57BBB6]">Savings:</span>
-                        <span className="text-lg font-bold text-[#57BBB6]">{offer.savings}</span>
-                      </div>
+                    <div className="space-y-4 mb-6 flex-shrink-0">
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-[#57BBB6]">Duration:</span>
                         <span className="text-sm font-medium text-[#57BBB6]">{offer.duration}</span>
                       </div>
                     </div>
 
-                    {/* Action Button */}
-                    <Button 
-                      className="w-full bg-[#57BBB6] hover:bg-[#376F6B] text-white font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleActionClick(offer);
-                      }}
-                    >
-                      <offer.actionIcon className="w-4 h-4 mr-2" />
-                      {offer.actionButton}
-                    </Button>
+                    {/* Action Button - Spacer to push to bottom */}
+                    <div className="mt-auto">
+                      <Button 
+                        className="w-full bg-[#57BBB6] hover:bg-[#376F6B] text-white font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleActionClick(offer);
+                        }}
+                      >
+                        <offer.actionIcon className="w-4 h-4 mr-2" />
+                        {offer.actionButton}
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
