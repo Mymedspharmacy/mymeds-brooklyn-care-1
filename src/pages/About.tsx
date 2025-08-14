@@ -1,6 +1,7 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { HowItWorks } from "@/components/HowItWorks";
+import { SEOHead } from "@/components/SEOHead";
 import { RefillForm } from "@/components/RefillForm";
 import { AppointmentForm } from "@/components/AppointmentForm";
 import { TransferForm } from "@/components/TransferForm";
@@ -168,16 +169,36 @@ export default function About() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#D5C6BC]">
-      <Header 
-        onRefillClick={onRefillClick}
-        onAppointmentClick={onAppointmentClick}
-        onTransferClick={onTransferClick}
+    <>
+      <SEOHead 
+        title="About Us - My Meds Pharmacy | Brooklyn's Trusted Healthcare Partner"
+        description="Learn about My Meds Pharmacy's 15+ years serving Brooklyn. Discover our patient-centered care, community values, and commitment to excellence in pharmaceutical services."
+        keywords="Brooklyn pharmacy, about us, pharmacy history, patient care, community pharmacy, pharmaceutical services, Brooklyn healthcare, trusted pharmacy"
       />
+      <div className="min-h-screen bg-[#D5C6BC]">
+        <Header 
+          onRefillClick={onRefillClick}
+          onAppointmentClick={onAppointmentClick}
+          onTransferClick={onTransferClick}
+        />
       
       <div className="pt-20">
         {/* Hero Section */}
-        <div className="bg-[#57BBB6] text-white py-16 sm:py-20 md:py-24 relative overflow-hidden">
+                  <div className="text-white py-16 sm:py-20 md:py-24 relative overflow-hidden">
+          {/* Background Image Placeholder - Replace with actual pharmacy team/building image */}
+                       <div
+               className="absolute inset-0 opacity-70 pointer-events-none"
+               style={{
+                 backgroundImage: `url('/images/new/aboutus.jpg')`,
+                 backgroundSize: 'cover',
+                 backgroundPosition: 'center',
+                 backgroundRepeat: 'no-repeat'
+               }}
+             ></div>
+             
+             {/* Balanced Overlay for Text Readability */}
+             <div className="absolute inset-0 bg-black/35 z-10"></div>
+          
           {/* Animated Background Elements */}
           <div className="absolute inset-0 pointer-events-none">
             {/* Floating Medical Icons */}
@@ -326,13 +347,35 @@ export default function About() {
         </div>
 
         {/* Location Section */}
-        <section className="py-16 sm:py-20 bg-white">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
+        <section className="py-16 sm:py-20 bg-white relative overflow-hidden">
+          {/* Background Images for Map Section */}
+          <div className="absolute inset-0 opacity-30 pointer-events-none">
+            <div
+              className="absolute inset-0 opacity-50"
+              style={{
+                backgroundImage: `url('/images/new/contactus.jpg')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+              }}
+            ></div>
+            <div
+              className="absolute inset-0 opacity-40"
+              style={{
+                backgroundImage: `url('/images/new/service.jpg')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+              }}
+            ></div>
+          </div>
+          
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="text-center lg:text-left mb-16">
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#376F6B] mb-6">
                 Visit Our Location
               </h2>
-              <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
+              <p className="text-lg sm:text-xl text-gray-600 max-w-3xl lg:max-w-2xl lg:mx-0 mx-auto">
                 Come visit us at our convenient Brooklyn location for personalized care and expert consultation.
               </p>
             </div>
@@ -347,8 +390,9 @@ export default function About() {
       <RefillForm isOpen={showRefillForm} onClose={closeRefillForm} />
       <AppointmentForm isOpen={showAppointmentForm} onClose={closeAppointmentForm} />
       <TransferForm isOpen={showTransferForm} onClose={closeTransferForm} />
-    </div>
-  );
+        </div>
+      </>
+    );
 }
 
 

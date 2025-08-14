@@ -7,6 +7,7 @@ import { Search, Calendar, User, Clock, ArrowRight, Tag, Eye, Heart, Share2, Boo
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { wordPressAPI } from "@/lib/wordpress";
+import { SEOHead } from "@/components/SEOHead";
 import { useFormHandlers } from "@/hooks/useFormHandlers";
 import { RefillForm } from "@/components/RefillForm";
 import { AppointmentForm } from "@/components/AppointmentForm";
@@ -204,12 +205,18 @@ export default function Blog() {
   }
 
   return (
-    <div className="min-h-screen bg-[#D5C6BC]">
-      <Header 
-        onRefillClick={onRefillClick}
-        onAppointmentClick={onAppointmentClick}
-        onTransferClick={onTransferClick}
+    <>
+      <SEOHead 
+        title="Health Blog - My Meds Pharmacy | Expert Health & Wellness Articles"
+        description="Read expert health articles, medication guides, and wellness tips from our pharmacy team. Stay informed about your health with our comprehensive blog."
+        keywords="health blog, pharmacy blog, medication guides, health articles, wellness tips, pharmaceutical advice, health education, medication safety"
       />
+      <div className="min-h-screen bg-[#D5C6BC]">
+        <Header 
+          onRefillClick={onRefillClick}
+          onAppointmentClick={onAppointmentClick}
+          onTransferClick={onTransferClick}
+        />
       
       <div className="pt-20">
         {/* Error Banner */}
@@ -229,7 +236,21 @@ export default function Blog() {
         )}
 
         {/* Hero Section */}
-        <section className="py-16 sm:py-20 md:py-24 bg-[#57BBB6] text-white relative overflow-hidden">
+                  <section className="py-16 sm:py-20 md:py-24 text-white relative overflow-hidden">
+          {/* Background Image Placeholder - Replace with actual pharmacy health/wellness image */}
+                       <div
+               className="absolute inset-0 opacity-60 pointer-events-none"
+               style={{
+                 backgroundImage: `url('/images/new/blogpage.jpg')`,
+                 backgroundSize: 'cover',
+                 backgroundPosition: 'center',
+                 backgroundRepeat: 'no-repeat'
+               }}
+             ></div>
+             
+             {/* Balanced Overlay for Text Readability */}
+             <div className="absolute inset-0 bg-black/30 z-10"></div>
+          
           {/* Animated Background Elements */}
           <div className="absolute inset-0 pointer-events-none">
             {/* Floating Medical Icons */}
@@ -547,6 +568,7 @@ export default function Blog() {
       <RefillForm isOpen={showRefillForm} onClose={closeRefillForm} />
       <AppointmentForm isOpen={showAppointmentForm} onClose={closeAppointmentForm} />
       <TransferForm isOpen={showTransferForm} onClose={closeTransferForm} />
-    </div>
-  );
+        </div>
+      </>
+    );
 } 

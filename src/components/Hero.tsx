@@ -10,34 +10,22 @@ interface HeroProps {
 // Hero slider images - High-quality professional pharmacy images
 const heroImages = [
   {
-    src: "/images/hero/pharmacy-modern.jpg", // Modern pharmacy interior
-    alt: "Modern pharmacy with professional staff and clean environment",
+    src: "/images/new/hero.jpg", // Main hero image
+    alt: "Professional pharmacy care and service",
     title: "Professional Care",
     subtitle: "Expert pharmacists ready to serve you with personalized attention"
   },
   {
-    src: "/images/hero/pharmacy-consultation.jpg", // Consultation area
-    alt: "Pharmacist providing one-on-one consultation",
-    title: "Personal Consultation",
-    subtitle: "Comprehensive medication reviews and expert health advice"
+    src: "/images/new/hero2.jpg", // Second hero image
+    alt: "Modern pharmacy environment",
+    title: "Modern Environment",
+    subtitle: "State-of-the-art pharmacy with the latest technology"
   },
   {
-    src: "/images/hero/pharmacy-prescription.jpg", // Prescription counter
-    alt: "Prescription counter with medications and professional service",
-    title: "Fast Prescription Service",
-    subtitle: "Quick refills and transfers with the highest standards of care"
-  },
-  {
-    src: "/images/hero/pharmacy-wellness.jpg", // Health products
-    alt: "Health and wellness products display",
-    title: "Complete Health Solutions",
+    src: "/images/new/hero3.jpg", // Third hero image
+    alt: "Comprehensive pharmacy services",
+    title: "Complete Services",
     subtitle: "From prescriptions to wellness products for your entire family"
-  },
-  {
-    src: "/images/hero/pharmacy-delivery.jpg", // Delivery service
-    alt: "Pharmacy delivery service",
-    title: "Convenient Delivery",
-    subtitle: "Same-day local delivery for your prescriptions and health products"
   }
 ];
 
@@ -139,7 +127,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
       onTouchEnd={handleTouchEnd}
     >
       {/* Subtle Background Elements */}
-      <div className="absolute inset-0 pointer-events-none z-10">
+      <div className="absolute inset-0 pointer-events-none z-30">
         {/* Floating Medical Icons - Reduced */}
         <div className="absolute top-20 left-10 text-white/10 animate-bounce" style={{ animationDelay: '0s' }}>
           <Shield className="w-6 h-6" />
@@ -153,31 +141,50 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
         <div className="absolute bottom-1/3 right-1/4 w-1 h-1 bg-white/15 rounded-full animate-ping" style={{ animationDelay: '2s' }}></div>
       </div>
       
-      {/* Background Image Slider */}
+      {/* Rotating Hero Background Images */}
       <div className="absolute inset-0 z-0">
-        {heroImages.map((image, index) => (
-          <div
-            key={index}
-            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-              index === currentSlide ? 'opacity-100' : 'opacity-0'
-            }`}
-          >
-            <img 
-              src={image.src}
-              alt={image.alt}
-              data-slide={index}
-              className="w-full h-full object-cover"
-              onLoad={() => handleImageLoad(index)}
-              onError={() => handleImageError(index)}
-            />
-                            <div className="absolute inset-0 bg-[#D5C6BC]/90"></div>
-            <div className="absolute inset-0 bg-black/20"></div>
-          </div>
-        ))}
+        <div
+          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+            currentSlide === 0 ? 'opacity-100' : 'opacity-0'
+          }`}
+          style={{
+            backgroundImage: `url('/images/new/hero.jpg')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}
+        ></div>
+        
+        <div
+          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+            currentSlide === 1 ? 'opacity-100' : 'opacity-0'
+          }`}
+          style={{
+            backgroundImage: `url('/images/new/hero2.jpg')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}
+        ></div>
+        
+        <div
+          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+            currentSlide === 2 ? 'opacity-100' : 'opacity-0'
+          }`}
+          style={{
+            backgroundImage: `url('/images/new/hero3.jpg')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}
+        ></div>
       </div>
+      
+                   {/* Clean Dark Overlay for Text Readability */}
+             <div className="absolute inset-0 bg-black/40 z-10"></div>
 
-      {/* Slide Navigation Dots */}
-      <div className="absolute bottom-4 sm:bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex gap-2 sm:gap-3">
+              {/* Slide Navigation Dots */}
+        <div className="absolute bottom-4 sm:bottom-8 left-1/2 transform -translate-x-1/2 z-30 flex gap-2 sm:gap-3">
         {heroImages.map((_, index) => (
           <button
             key={index}
@@ -195,7 +202,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
       {/* Slide Navigation Arrows - Hidden on mobile */}
       <button
         onClick={prevSlide}
-        className="hidden sm:flex absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 z-20 bg-white/20 backdrop-blur-sm text-white p-2 sm:p-3 rounded-full hover:bg-white/30 transition-all duration-300 group"
+        className="hidden sm:flex absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 z-30 bg-white/20 backdrop-blur-sm text-white p-2 sm:p-3 rounded-full hover:bg-white/30 transition-all duration-300 group"
         aria-label="Previous slide"
       >
         <ChevronLeft className="w-4 h-4 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
@@ -203,19 +210,19 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
       
       <button
         onClick={nextSlide}
-        className="hidden sm:flex absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 z-20 bg-white/20 backdrop-blur-sm text-white p-2 sm:p-3 rounded-full hover:bg-white/30 transition-all duration-300 group"
+        className="hidden sm:flex absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 z-30 bg-white/20 backdrop-blur-sm text-white p-2 sm:p-3 rounded-full hover:bg-white/30 transition-all duration-300 group"
         aria-label="Next slide"
       >
         <ChevronRight className="w-4 h-4 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
       </button>
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
+      <div className="relative z-30 container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 lg:pl-16">
+        <div className="max-w-6xl mx-auto lg:mx-0 lg:ml-8">
           <div className="grid grid-cols-1 gap-8 sm:gap-12 lg:gap-16 items-center">
             
             {/* Left Column - Main Content */}
-            <div className="text-center space-y-6 sm:space-y-8">
+            <div className="text-center lg:text-left space-y-6 sm:space-y-8 lg:max-w-2xl">
               {/* Badge */}
               <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium border border-white/30 hover:scale-105 transition-transform duration-300 shadow-lg hover:shadow-xl">
                 <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -231,6 +238,14 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
                     Our Priority
                   </span>
                 </h1>
+                
+                {/* Slogan */}
+                <div className="text-center lg:text-left">
+                  <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-[#57BBB6] font-semibold italic max-w-2xl lg:max-w-none lg:mx-0 mx-auto">
+                    Your Way to Better Health
+                  </p>
+                </div>
+                
                 <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 leading-relaxed max-w-2xl mx-auto px-4 sm:px-0">
                   Professional pharmaceutical care with personalized service. 
                   Fast prescription refills, free delivery, and expert consultation 
@@ -239,7 +254,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
               </div>
 
               {/* Call-to-Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 md:gap-6 justify-center">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 md:gap-6 justify-center lg:justify-start">
                 <Button 
                   onClick={onRefillClick}
                   size="lg" 
@@ -265,7 +280,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
               </div>
 
               {/* Trust Indicators */}
-              <div className="flex flex-wrap justify-center gap-4 sm:gap-6 pt-4">
+              <div className="flex flex-wrap justify-center lg:justify-start gap-4 sm:gap-6 pt-4">
                 <div className="flex items-center gap-2 text-white/80 hover:text-white transition-colors duration-300 group">
                   <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#2A5A56] rounded-full group-hover:scale-110 transition-transform duration-300"></div>
                   <span className="text-xs sm:text-sm font-medium">Licensed Pharmacists</span>

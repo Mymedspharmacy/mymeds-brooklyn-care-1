@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { wooCommerceAPI } from '@/lib/woocommerce';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { SEOHead } from '@/components/SEOHead';
 
 interface WooCommerceProduct {
   id: number;
@@ -161,7 +162,11 @@ export default function ProductView({ product: propProduct, relatedProducts: pro
   if (loading) {
     return (
       <div className="min-h-screen bg-[#D5C6BC]">
-        <Header />
+        <Header 
+          onRefillClick={() => navigate('/', { state: { openRefillForm: true } })}
+          onAppointmentClick={() => navigate('/', { state: { openAppointmentForm: true } })}
+          onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
+        />
         <div className="pt-20">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
             <div className="text-center">
@@ -178,7 +183,11 @@ export default function ProductView({ product: propProduct, relatedProducts: pro
   if (error || !product) {
     return (
       <div className="min-h-screen bg-[#D5C6BC]">
-        <Header />
+        <Header 
+          onRefillClick={() => navigate('/', { state: { openRefillForm: true } })}
+          onAppointmentClick={() => navigate('/', { state: { openAppointmentForm: true } })}
+          onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
+        />
         <div className="pt-20">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
             <div className="text-center">
@@ -198,8 +207,18 @@ export default function ProductView({ product: propProduct, relatedProducts: pro
   }
 
   return (
-    <div className="min-h-screen bg-[#D5C6BC]">
-      <Header />
+    <>
+      <SEOHead 
+        title={product ? `${product.name} - My Meds Pharmacy | Brooklyn Health Store` : "Product Details - My Meds Pharmacy"}
+        description={product ? `${product.short_description} - Shop ${product.name} at My Meds Pharmacy in Brooklyn. Quality health products with fast delivery.` : "Browse our selection of health products and medications at My Meds Pharmacy in Brooklyn."}
+        keywords={product ? `${product.name}, ${product.categories.map(cat => cat.name).join(', ')}, health products, Brooklyn pharmacy, online pharmacy, health store` : "health products, pharmacy, Brooklyn, online store, medications, health supplies"}
+      />
+      <div className="min-h-screen bg-[#D5C6BC]">
+        <Header 
+          onRefillClick={() => navigate('/', { state: { openRefillForm: true } })}
+          onAppointmentClick={() => navigate('/', { state: { openAppointmentForm: true } })}
+          onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
+        />
       
       <div className="pt-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -542,6 +561,7 @@ export default function ProductView({ product: propProduct, relatedProducts: pro
       </div>
       
       <Footer />
-    </div>
-  );
+        </div>
+      </>
+    );
 }

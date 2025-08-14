@@ -4,18 +4,25 @@ import { Button } from "@/components/ui/button";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { SEOHead } from "@/components/SEOHead";
 
 const TermsOfService = () => {
   const navigate = useNavigate();
   useScrollToTop();
 
   return (
-    <div className="min-h-screen bg-[#D5C6BC]">
-      <Header 
-        onRefillClick={() => navigate('/', { state: { openRefillForm: true } })}
-        onAppointmentClick={() => navigate('/', { state: { openAppointmentForm: true } })}
-        onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
+    <>
+      <SEOHead 
+        title="Terms of Service - My Meds Pharmacy | Brooklyn Pharmacy Terms"
+        description="Read our terms of service and user agreement for My Meds Pharmacy services. Understand your rights and responsibilities when using our pharmacy services."
+        keywords="terms of service, pharmacy terms, user agreement, pharmacy services terms, Brooklyn pharmacy terms, service conditions"
       />
+      <div className="min-h-screen bg-[#D5C6BC]">
+        <Header 
+          onRefillClick={() => navigate('/', { state: { openRefillForm: true } })}
+          onAppointmentClick={() => navigate('/', { state: { openAppointmentForm: true } })}
+          onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
+        />
       
       <div className="pt-20">
         {/* Header */}
@@ -231,8 +238,9 @@ const TermsOfService = () => {
       </div>
 
       <Footer />
-    </div>
-  );
+        </div>
+      </>
+    );
 };
 
 export default TermsOfService; 

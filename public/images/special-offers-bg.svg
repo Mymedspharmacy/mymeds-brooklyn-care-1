@@ -1,0 +1,221 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="800" fill="#F8FAFC"/>
+  
+  <!-- Promotional Displays -->
+  <g transform="translate(200, 200)">
+    <!-- Sale Banner -->
+    <rect x="0" y="0" width="300" height="80" rx="10" fill="#57BBB6" opacity="0.3"/>
+    <rect x="10" y="10" width="280" height="60" rx="8" fill="#E8DCD4" opacity="0.4"/>
+    
+    <!-- Sale Text -->
+    <text x="150" y="35" text-anchor="middle" fill="#376F6B" opacity="0.6" font-size="24" font-weight="bold">SPECIAL OFFER</text>
+    <text x="150" y="55" text-anchor="middle" fill="#376F6B" opacity="0.5" font-size="16">SAVE UP TO 50%</text>
+    
+    <!-- Decorative Elements -->
+    <g transform="translate(20, 20)">
+      <circle cx="0" cy="0" r="8" fill="#57BBB6" opacity="0.4"/>
+    </g>
+    <g transform="translate(280, 20)">
+      <circle cx="0" cy="0" r="8" fill="#57BBB6" opacity="0.4"/>
+    </g>
+  </g>
+  
+  <!-- Savings and Benefits -->
+  <g transform="translate(600, 150)">
+    <!-- Discount Tags -->
+    <g transform="translate(0, 0)">
+      <path d="M0 0 L30 0 L35 15 L30 30 L0 30 L5 15 Z" fill="#57BBB6" opacity="0.3"/>
+      <text x="17.5" y="20" text-anchor="middle" fill="#376F6B" opacity="0.6" font-size="12" font-weight="bold">20%</text>
+      <circle cx="5" cy="15" r="2" fill="#E8DCD4" opacity="0.5"/>
+    </g>
+    
+    <g transform="translate(50, 0)">
+      <path d="M0 0 L30 0 L35 15 L30 30 L0 30 L5 15 Z" fill="#376F6B" opacity="0.3"/>
+      <text x="17.5" y="20" text-anchor="middle" fill="#57BBB6" opacity="0.6" font-size="12" font-weight="bold">30%</text>
+      <circle cx="5" cy="15" r="2" fill="#D5C6BC" opacity="0.5"/>
+    </g>
+    
+    <g transform="translate(100, 0)">
+      <path d="M0 0 L30 0 L35 15 L30 30 L0 30 L5 15 Z" fill="#57BBB6" opacity="0.3"/>
+      <text x="17.5" y="20" text-anchor="middle" fill="#376F6B" opacity="0.6" font-size="12" font-weight="bold">40%</text>
+      <circle cx="5" cy="15" r="2" fill="#E8DCD4" opacity="0.5"/>
+    </g>
+    
+    <g transform="translate(150, 0)">
+      <path d="M0 0 L30 0 L35 15 L30 30 L0 30 L5 15 Z" fill="#376F6B" opacity="0.3"/>
+      <text x="17.5" y="20" text-anchor="middle" fill="#57BBB6" opacity="0.6" font-size="12" font-weight="bold">50%</text>
+      <circle cx="5" cy="15" r="2" fill="#D5C6BC" opacity="0.5"/>
+    </g>
+  </g>
+  
+  <!-- Customer Satisfaction -->
+  <g transform="translate(800, 200)">
+    <!-- Happy Customer -->
+    <g transform="translate(0, 0)">
+      <circle cx="0" cy="0" r="25" fill="#57BBB6" opacity="0.3"/>
+      <rect x="-20" y="25" width="40" height="60" fill="#376F6B" opacity="0.2"/>
+      <rect x="-15" y="35" width="30" height="40" fill="#E8DCD4" opacity="0.3"/>
+      
+      <!-- Happy Face -->
+      <g transform="translate(-8, -8)">
+        <circle cx="0" cy="0" r="4" fill="#376F6B" opacity="0.4"/>
+      </g>
+      <g transform="translate(8, -8)">
+        <circle cx="0" cy="0" r="4" fill="#376F6B" opacity="0.4"/>
+      </g>
+      <path d="M-8 5 Q0 15 8 5" fill="none" stroke="#376F6B" stroke-width="2" opacity="0.4"/>
+    </g>
+    
+    <!-- Satisfaction Stars -->
+    <g transform="translate(80, 0)">
+      <path d="M0 -10 L3 -3 L10 -3 L4 2 L6 10 L0 5 L-6 10 L-4 2 L-10 -3 L-3 -3 Z" fill="#57BBB6" opacity="0.4"/>
+    </g>
+    <g transform="translate(100, 0)">
+      <path d="M0 -10 L3 -3 L10 -3 L4 2 L6 10 L0 5 L-6 10 L-4 2 L-10 -3 L-3 -3 Z" fill="#57BBB6" opacity="0.4"/>
+    </g>
+    <g transform="translate(120, 0)">
+      <path d="M0 -10 L3 -3 L10 -3 L4 2 L6 10 L0 5 L-6 10 L-4 2 L-10 -3 L-3 -3 Z" fill="#57BBB6" opacity="0.4"/>
+    </g>
+    <g transform="translate(140, 0)">
+      <path d="M0 -10 L3 -3 L10 -3 L4 2 L6 10 L0 5 L-6 10 L-4 2 L-10 -3 L-3 -3 Z" fill="#57BBB6" opacity="0.4"/>
+    </g>
+    <g transform="translate(160, 0)">
+      <path d="M0 -10 L3 -3 L10 -3 L4 2 L6 10 L0 5 L-6 10 L-4 2 L-10 -3 L-3 -3 Z" fill="#57BBB6" opacity="0.4"/>
+    </g>
+  </g>
+  
+  <!-- Value Propositions -->
+  <g transform="translate(300, 400)">
+    <!-- Money Savings -->
+    <g transform="translate(0, 0)">
+      <!-- Dollar Sign -->
+      <circle cx="0" cy="0" r="30" fill="#57BBB6" opacity="0.2"/>
+      <text x="0" y="8" text-anchor="middle" fill="#376F6B" opacity="0.6" font-size="24" font-weight="bold">$</text>
+    </g>
+    
+    <!-- Savings Arrow -->
+    <g transform="translate(60, 0)">
+      <path d="M0 20 L20 0 L20 10 L40 10 L40 30 L20 30 L20 40 Z" fill="#376F6B" opacity="0.3"/>
+    </g>
+    
+    <!-- Percentage -->
+    <g transform="translate(120, 0)">
+      <text x="0" y="8" text-anchor="middle" fill="#57BBB6" opacity="0.6" font-size="20" font-weight="bold">SAVE</text>
+      <text x="0" y="30" text-anchor="middle" fill="#376F6B" opacity="0.6" font-size="16">MORE</text>
+    </g>
+  </g>
+  
+  <!-- Product Highlights -->
+  <g transform="translate(700, 400)">
+    <!-- Featured Products -->
+    <g transform="translate(0, 0)">
+      <!-- Product 1 -->
+      <rect x="0" y="0" width="40" height="60" rx="4" fill="#57BBB6" opacity="0.3"/>
+      <rect x="2" y="2" width="36" height="56" rx="3" fill="#E8DCD4" opacity="0.4"/>
+      <text x="20" y="35" text-anchor="middle" fill="#376F6B" opacity="0.6" font-size="10">VIT</text>
+    </g>
+    
+    <g transform="translate(50, 0)">
+      <!-- Product 2 -->
+      <rect x="0" y="0" width="40" height="60" rx="4" fill="#376F6B" opacity="0.3"/>
+      <rect x="2" y="2" width="36" height="56" rx="3" fill="#D5C6BC" opacity="0.4"/>
+      <text x="20" y="35" text-anchor="middle" fill="#57BBB6" opacity="0.6" font-size="10">PAIN</text>
+    </g>
+    
+    <g transform="translate(100, 0)">
+      <!-- Product 3 -->
+      <rect x="0" y="0" width="40" height="60" rx="4" fill="#57BBB6" opacity="0.3"/>
+      <rect x="2" y="2" width="36" height="56" rx="3" fill="#E8DCD4" opacity="0.4"/>
+      <text x="20" y="35" text-anchor="middle" fill="#376F6B" opacity="0.6" font-size="10">SKIN</text>
+    </g>
+    
+    <!-- Highlight Frame -->
+    <rect x="-5" y="-5" width="150" height="70" rx="8" fill="none" stroke="#57BBB6" stroke-width="2" opacity="0.3"/>
+  </g>
+  
+  <!-- Limited Time Offers -->
+  <g transform="translate(1000, 350)">
+    <!-- Clock -->
+    <circle cx="0" cy="0" r="30" fill="none" stroke="#376F6B" stroke-width="2" opacity="0.3"/>
+    <circle cx="0" cy="0" r="2" fill="#57BBB6" opacity="0.4"/>
+    <line x1="0" y1="0" x2="0" y2="-20" stroke="#376F6B" stroke-width="1.5" opacity="0.4"/>
+    <line x1="0" y1="0" x2="15" y2="0" stroke="#376F6B" stroke-width="1" opacity="0.4"/>
+    
+    <!-- Urgency Text -->
+    <text x="0" y="50" text-anchor="middle" fill="#376F6B" opacity="0.6" font-size="12" font-weight="bold">LIMITED</text>
+    <text x="0" y="65" text-anchor="middle" fill="#57BBB6" opacity="0.6" font-size="12" font-weight="bold">TIME</text>
+  </g>
+  
+  <!-- Customer Benefits -->
+  <g transform="translate(200, 600)">
+    <!-- Benefits List -->
+    <g transform="translate(0, 0)">
+      <!-- Checkmark 1 -->
+      <circle cx="0" cy="0" r="8" fill="#57BBB6" opacity="0.3"/>
+      <path d="M-3 0 L0 3 L5 -2" fill="none" stroke="#E8DCD4" stroke-width="2" opacity="0.5"/>
+      <text x="20" y="5" fill="#376F6B" opacity="0.6" font-size="14">Free Delivery</text>
+    </g>
+    
+    <g transform="translate(0, 30)">
+      <!-- Checkmark 2 -->
+      <circle cx="0" cy="0" r="8" fill="#57BBB6" opacity="0.3"/>
+      <path d="M-3 0 L0 3 L5 -2" fill="none" stroke="#E8DCD4" stroke-width="2" opacity="0.5"/>
+      <text x="20" y="5" fill="#376F6B" opacity="0.6" font-size="14">Expert Consultation</text>
+    </g>
+    
+    <g transform="translate(0, 60)">
+      <!-- Checkmark 3 -->
+      <circle cx="0" cy="0" r="8" fill="#57BBB6" opacity="0.3"/>
+      <path d="M-3 0 L0 3 L5 -2" fill="none" stroke="#E8DCD4" stroke-width="2" opacity="0.5"/>
+      <text x="20" y="5" fill="#376F6B" opacity="0.6" font-size="14">Quality Guarantee</text>
+    </g>
+  </g>
+  
+  <!-- Abstract Promotional Elements -->
+  <g transform="translate(150, 150)">
+    <!-- Sparkle Effect -->
+    <path d="M0 -8 L2 -2 L8 -2 L3 2 L5 8 L0 4 L-5 8 L-3 2 L-8 -2 L-2 -2 Z" fill="#57BBB6" opacity="0.2"/>
+  </g>
+  
+  <g transform="translate(1050, 150)">
+    <!-- Sparkle Effect -->
+    <path d="M0 -8 L2 -2 L8 -2 L3 2 L5 8 L0 4 L-5 8 L-3 2 L-8 -2 L-2 -2 Z" fill="#376F6B" opacity="0.2"/>
+  </g>
+  
+  <g transform="translate(150, 650)">
+    <!-- Sparkle Effect -->
+    <path d="M0 -8 L2 -2 L8 -2 L3 2 L5 8 L0 4 L-5 8 L-3 2 L-8 -2 L-2 -2 Z" fill="#57BBB6" opacity="0.2"/>
+  </g>
+  
+  <g transform="translate(1050, 650)">
+    <!-- Sparkle Effect -->
+    <path d="M0 -8 L2 -2 L8 -2 L3 2 L5 8 L0 4 L-5 8 L-3 2 L-8 -2 L-2 -2 Z" fill="#376F6B" opacity="0.2"/>
+  </g>
+  
+  <!-- Connection Lines -->
+  <g transform="translate(500, 400)">
+    <line x1="0" y1="0" x2="100" y2="0" stroke="#57BBB6" stroke-width="1" opacity="0.1"/>
+  </g>
+  
+  <g transform="translate(900, 400)">
+    <line x1="0" y1="0" x2="100" y2="0" stroke="#376F6B" stroke-width="1" opacity="0.1"/>
+  </g>
+  
+  <!-- Subtle Background Elements -->
+  <g transform="translate(100, 100)">
+    <circle cx="0" cy="0" r="25" fill="#57BBB6" opacity="0.03"/>
+  </g>
+  
+  <g transform="translate(1100, 100)">
+    <circle cx="0" cy="0" r="30" fill="#D5C6BC" opacity="0.03"/>
+  </g>
+  
+  <g transform="translate(100, 700)">
+    <circle cx="0" cy="0" r="20" fill="#376F6B" opacity="0.03"/>
+  </g>
+  
+  <g transform="translate(1100, 700)">
+    <circle cx="0" cy="0" r="35" fill="#E8DCD4" opacity="0.03"/>
+  </g>
+</svg>

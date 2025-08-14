@@ -1,0 +1,201 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="800" fill="#F8FAFC"/>
+  
+  <!-- Patient Care Interactions -->
+  <g transform="translate(200, 200)">
+    <!-- Healthcare Professional -->
+    <g transform="translate(0, 0)">
+      <circle cx="0" cy="0" r="30" fill="#57BBB6" opacity="0.3"/>
+      <rect x="-25" y="30" width="50" height="80" fill="#376F6B" opacity="0.2"/>
+      <rect x="-20" y="40" width="40" height="60" fill="#E8DCD4" opacity="0.3"/>
+      
+      <!-- Stethoscope -->
+      <g transform="translate(15, 15)">
+        <circle cx="0" cy="0" r="20" fill="none" stroke="#57BBB6" stroke-width="2" opacity="0.3"/>
+        <path d="M-20 0 Q-35 -25 -50 0 Q-35 25 -20 0" fill="none" stroke="#57BBB6" stroke-width="1.5" opacity="0.3"/>
+      </g>
+    </g>
+    
+    <!-- Patient -->
+    <g transform="translate(100, 20)">
+      <circle cx="0" cy="0" r="25" fill="#57BBB6" opacity="0.3"/>
+      <rect x="-20" y="25" width="40" height="70" fill="#376F6B" opacity="0.2"/>
+      <rect x="-15" y="35" width="30" height="50" fill="#E8DCD4" opacity="0.3"/>
+      
+      <!-- Heart Symbol -->
+      <g transform="translate(0, -15)">
+        <path d="M0 15 C-10 5 -10 -5 0 -15 C10 -5 10 5 0 15" fill="#57BBB6" opacity="0.4"/>
+      </g>
+    </g>
+    
+    <!-- Connection Line -->
+    <line x1="30" y1="30" x2="70" y2="45" stroke="#57BBB6" stroke-width="2" opacity="0.2"/>
+  </g>
+  
+  <!-- Family Healthcare -->
+  <g transform="translate(500, 150)">
+    <!-- Family Group -->
+    <g transform="translate(0, 0)">
+      <!-- Parent 1 -->
+      <circle cx="0" cy="0" r="20" fill="#57BBB6" opacity="0.3"/>
+      <rect x="-15" y="20" width="30" height="50" fill="#376F6B" opacity="0.2"/>
+      
+      <!-- Child -->
+      <circle cx="40" cy="10" r="15" fill="#57BBB6" opacity="0.3"/>
+      <rect x="-10" y="25" width="20" height="35" fill="#376F6B" opacity="0.2"/>
+      
+      <!-- Parent 2 -->
+      <circle cx="80" cy="0" r="20" fill="#57BBB6" opacity="0.3"/>
+      <rect x="65" y="20" width="30" height="50" fill="#376F6B" opacity="0.2"/>
+      
+      <!-- Connection Lines -->
+      <line x1="20" y1="20" x2="30" y2="25" stroke="#57BBB6" stroke-width="1" opacity="0.2"/>
+      <line x1="60" y1="20" x2="70" y2="25" stroke="#57BBB6" stroke-width="1" opacity="0.2"/>
+    </g>
+    
+    <!-- Family Health Icons -->
+    <g transform="translate(0, 100)">
+      <!-- House -->
+      <path d="M0 40 L20 20 L40 40 L40 60 L0 60 Z" fill="#D5C6BC" opacity="0.3"/>
+      <rect x="15" y="40" width="10" height="20" fill="#E8DCD4" opacity="0.4"/>
+      <rect x="5" y="30" width="8" height="8" fill="#57BBB6" opacity="0.3"/>
+      <rect x="27" y="30" width="8" height="8" fill="#57BBB6" opacity="0.3"/>
+    </g>
+  </g>
+  
+  <!-- Senior Care -->
+  <g transform="translate(800, 250)">
+    <!-- Senior Patient -->
+    <g transform="translate(0, 0)">
+      <circle cx="0" cy="0" r="28" fill="#57BBB6" opacity="0.3"/>
+      <rect x="-22" y="28" width="44" height="70" fill="#376F6B" opacity="0.2"/>
+      <rect x="-17" y="38" width="34" height="50" fill="#E8DCD4" opacity="0.3"/>
+      
+      <!-- Glasses -->
+      <g transform="translate(-8, -5)">
+        <circle cx="0" cy="0" r="8" fill="none" stroke="#376F6B" stroke-width="1" opacity="0.3"/>
+      </g>
+      <g transform="translate(8, -5)">
+        <circle cx="0" cy="0" r="8" fill="none" stroke="#376F6B" stroke-width="1" opacity="0.3"/>
+      </g>
+      <line x1="-8" y1="-5" x2="8" y2="-5" stroke="#376F6B" stroke-width="1" opacity="0.3"/>
+    </g>
+    
+    <!-- Care Equipment -->
+    <g transform="translate(80, 0)">
+      <!-- Wheelchair -->
+      <circle cx="0" cy="0" r="25" fill="#D5C6BC" opacity="0.3"/>
+      <circle cx="0" cy="0" r="20" fill="#E8DCD4" opacity="0.4"/>
+      <rect x="-15" y="25" width="30" height="8" fill="#57BBB6" opacity="0.3"/>
+      <rect x="-20" y="33" width="40" height="5" fill="#376F6B" opacity="0.2"/>
+    </g>
+    
+    <!-- Walking Aid -->
+    <g transform="translate(120, 20)">
+      <rect x="0" y="0" width="4" height="60" fill="#D5C6BC" opacity="0.3"/>
+      <rect x="-8" y="60" width="20" height="4" fill="#E8DCD4" opacity="0.4"/>
+      <rect x="-4" y="64" width="12" height="4" fill="#57BBB6" opacity="0.3"/>
+    </g>
+  </g>
+  
+  <!-- Pediatric Care -->
+  <g transform="translate(300, 500)">
+    <!-- Child Patient -->
+    <g transform="translate(0, 0)">
+      <circle cx="0" cy="0" r="20" fill="#57BBB6" opacity="0.3"/>
+      <rect x="-15" y="20" width="30" height="50" fill="#376F6B" opacity="0.2"/>
+      <rect x="-10" y="30" width="20" height="30" fill="#E8DCD4" opacity="0.3"/>
+      
+      <!-- Teddy Bear -->
+      <g transform="translate(25, 10)">
+        <circle cx="0" cy="0" r="12" fill="#D5C6BC" opacity="0.4"/>
+        <circle cx="-8" cy="-8" r="6" fill="#E8DCD4" opacity="0.5"/>
+        <circle cx="8" cy="-8" r="6" fill="#E8DCD4" opacity="0.5"/>
+        <circle cx="0" cy="8" r="4" fill="#57BBB6" opacity="0.3"/>
+      </g>
+    </g>
+    
+    <!-- Pediatric Equipment -->
+    <g transform="translate(80, 0)">
+      <!-- Growth Chart -->
+      <rect x="0" y="0" width="40" height="60" fill="#D5C6BC" opacity="0.3"/>
+      <rect x="5" y="5" width="30" height="50" fill="#E8DCD4" opacity="0.4"/>
+      
+      <!-- Growth Lines -->
+      <line x1="10" y1="50" x2="30" y2="45" stroke="#57BBB6" stroke-width="1" opacity="0.3"/>
+      <line x1="10" y1="40" x2="30" y2="35" stroke="#57BBB6" stroke-width="1" opacity="0.3"/>
+      <line x1="10" y1="30" x2="30" y2="25" stroke="#57BBB6" stroke-width="1" opacity="0.3"/>
+      <line x1="10" y1="20" x2="30" y2="15" stroke="#57BBB6" stroke-width="1" opacity="0.3"/>
+      <line x1="10" y1="10" x2="30" y2="5" stroke="#57BBB6" stroke-width="1" opacity="0.3"/>
+    </g>
+  </g>
+  
+  <!-- Trust and Care Symbols -->
+  <g transform="translate(700, 500)">
+    <!-- Shield of Trust -->
+    <path d="M0 -30 L25 -15 L25 20 L0 35 L-25 20 L-25 -15 Z" fill="#57BBB6" opacity="0.2"/>
+    <path d="M0 -25 L20 -12 L20 18 L0 30 L-20 18 L-20 -12 Z" fill="#E8DCD4" opacity="0.3"/>
+    
+    <!-- Medical Cross -->
+    <rect x="-8" y="-15" width="16" height="30" fill="#376F6B" opacity="0.3"/>
+    <rect x="-15" y="-8" width="30" height="16" fill="#376F6B" opacity="0.3"/>
+  </g>
+  
+  <!-- Care Quality Indicators -->
+  <g transform="translate(1000, 300)">
+    <!-- Star Ratings -->
+    <g transform="translate(0, 0)">
+      <path d="M0 -10 L3 -3 L10 -3 L4 2 L6 10 L0 5 L-6 10 L-4 2 L-10 -3 L-3 -3 Z" fill="#57BBB6" opacity="0.3"/>
+    </g>
+    <g transform="translate(25, 0)">
+      <path d="M0 -10 L3 -3 L10 -3 L4 2 L6 10 L0 5 L-6 10 L-4 2 L-10 -3 L-3 -3 Z" fill="#57BBB6" opacity="0.3"/>
+    </g>
+    <g transform="translate(50, 0)">
+      <path d="M0 -10 L3 -3 L10 -3 L4 2 L6 10 L0 5 L-6 10 L-4 2 L-10 -3 L-3 -3 Z" fill="#57BBB6" opacity="0.3"/>
+    </g>
+    <g transform="translate(75, 0)">
+      <path d="M0 -10 L3 -3 L10 -3 L4 2 L6 10 L0 5 L-6 10 L-4 2 L-10 -3 L-3 -3 Z" fill="#57BBB6" opacity="0.3"/>
+    </g>
+    <g transform="translate(100, 0)">
+      <path d="M0 -10 L3 -3 L10 -3 L4 2 L6 10 L0 5 L-6 10 L-4 2 L-10 -3 L-3 -3 Z" fill="#57BBB6" opacity="0.3"/>
+    </g>
+  </g>
+  
+  <!-- Abstract Care Patterns -->
+  <g transform="translate(150, 150)">
+    <!-- Care Wave -->
+    <path d="M0 0 Q20 -20 40 0 Q60 20 80 0 Q100 -20 120 0" fill="none" stroke="#57BBB6" stroke-width="1.5" opacity="0.2"/>
+  </g>
+  
+  <g transform="translate(950, 150)">
+    <!-- Care Spiral -->
+    <path d="M0 0 Q15 -15 30 0 Q45 15 30 30 Q15 45 0 30 Q-15 15 0 0" fill="none" stroke="#376F6B" stroke-width="1" opacity="0.2"/>
+  </g>
+  
+  <!-- Connection Elements -->
+  <g transform="translate(400, 400)">
+    <line x1="0" y1="0" x2="100" y2="0" stroke="#57BBB6" stroke-width="1" opacity="0.1"/>
+  </g>
+  
+  <g transform="translate(800, 400)">
+    <line x1="0" y1="0" x2="100" y2="0" stroke="#376F6B" stroke-width="1" opacity="0.1"/>
+  </g>
+  
+  <!-- Subtle Background Elements -->
+  <g transform="translate(100, 100)">
+    <circle cx="0" cy="0" r="25" fill="#57BBB6" opacity="0.03"/>
+  </g>
+  
+  <g transform="translate(1100, 100)">
+    <circle cx="0" cy="0" r="30" fill="#D5C6BC" opacity="0.03"/>
+  </g>
+  
+  <g transform="translate(100, 700)">
+    <circle cx="0" cy="0" r="20" fill="#376F6B" opacity="0.03"/>
+  </g>
+  
+  <g transform="translate(1100, 700)">
+    <circle cx="0" cy="0" r="35" fill="#E8DCD4" opacity="0.03"/>
+  </g>
+</svg>

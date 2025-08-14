@@ -7,6 +7,7 @@ import { Search, Filter, ShoppingCart, Heart, Star, Eye, Package, Truck, Shield,
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { NewsTicker } from "@/components/NewsTicker";
+import { SEOHead } from "@/components/SEOHead";
 import { wooCommerceAPI } from "@/lib/woocommerce";
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
@@ -233,17 +234,37 @@ export default function Shop() {
   }
 
   return (
-    <div className="min-h-screen bg-[#D5C6BC]">
-      <Header 
-        onRefillClick={() => window.location.href = '/'}
-        onAppointmentClick={() => window.location.href = '/'}
-        onTransferClick={() => window.location.href = '/'}
+    <>
+      <SEOHead 
+        title="Shop Health Products - My Meds Pharmacy | Brooklyn's Health & Wellness Store"
+        description="Shop our comprehensive selection of health products, vitamins, supplements, and over-the-counter medications. Free delivery on orders over $25 in Brooklyn."
+        keywords="health products, vitamins, supplements, over the counter medications, Brooklyn pharmacy shop, health store, wellness products, pharmaceutical supplies"
       />
+      <div className="min-h-screen bg-[#D5C6BC]">
+        <Header 
+          onRefillClick={() => window.location.href = '/'}
+          onAppointmentClick={() => window.location.href = '/'}
+          onTransferClick={() => window.location.href = '/'}
+        />
       <NewsTicker />
       
       <div className="pt-20">
         {/* Hero Section */}
-        <section className="py-16 sm:py-20 md:py-24 bg-[#57BBB6] text-white relative overflow-hidden">
+                  <section className="py-16 sm:py-20 md:py-24 text-white relative overflow-hidden">
+          {/* Background Image Placeholder - Replace with actual pharmacy products/shopping image */}
+                       <div
+               className="absolute inset-0 opacity-60 pointer-events-none"
+               style={{
+                 backgroundImage: `url('/images/new/shop1.jpg')`,
+                 backgroundSize: 'cover',
+                 backgroundPosition: 'center',
+                 backgroundRepeat: 'no-repeat'
+               }}
+             ></div>
+             
+             {/* Balanced Overlay for Text Readability */}
+             <div className="absolute inset-0 bg-black/30 z-10"></div>
+          
           {/* Animated Background Elements */}
           <div className="absolute inset-0 pointer-events-none">
             {/* Floating Medical Icons */}
@@ -611,6 +632,7 @@ export default function Shop() {
       </div>
 
       <Footer />
-    </div>
-  );
+        </div>
+      </>
+    );
 } 

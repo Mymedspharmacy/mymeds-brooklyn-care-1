@@ -10,6 +10,7 @@ import { useToast } from '../hooks/use-toast';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { HowItWorks } from '../components/HowItWorks';
+import { SEOHead } from '../components/SEOHead';
 import { Map } from '../components/Map';
 import { 
   MessageCircle, 
@@ -52,15 +53,35 @@ const Contact = () => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   return (
-    <div className="min-h-screen bg-[#D5C6BC]">
-      <Header 
-        onRefillClick={() => window.location.href = '/'}
-        onAppointmentClick={() => window.location.href = '/'}
-        onTransferClick={() => window.location.href = '/'}
+    <>
+      <SEOHead 
+        title="Contact Us - My Meds Pharmacy | Brooklyn Pharmacy Location & Hours"
+        description="Contact My Meds Pharmacy in Brooklyn. Visit us at 2242 65th St, call (347) 312-6458, or send us a message. We're here to help with all your pharmaceutical needs."
+        keywords="contact pharmacy, Brooklyn pharmacy contact, pharmacy location, pharmacy hours, pharmacy phone number, pharmacy email, visit pharmacy, pharmacy address"
       />
+      <div className="min-h-screen bg-[#D5C6BC]">
+        <Header 
+          onRefillClick={() => window.location.href = '/'}
+          onAppointmentClick={() => window.location.href = '/'}
+          onTransferClick={() => window.location.href = '/'}
+        />
       
       <div className="pt-20">
-        <section id="contact" className="py-16 sm:py-20 md:py-24 bg-gradient-to-br from-[#57BBB6] via-[#57BBB6]/95 to-[#376F6B] relative overflow-hidden">
+                  <section id="contact" className="py-16 sm:py-20 md:py-24 relative overflow-hidden">
+          {/* Background Image Placeholder - Replace with actual pharmacy location/staff image */}
+                       <div
+               className="absolute inset-0 opacity-65 pointer-events-none"
+               style={{
+                 backgroundImage: `url('/images/new/contactus.jpg')`,
+                 backgroundSize: 'cover',
+                 backgroundPosition: 'center',
+                 backgroundRepeat: 'no-repeat'
+               }}
+             ></div>
+             
+             {/* Balanced Overlay for Text Readability */}
+             <div className="absolute inset-0 bg-black/35 z-10"></div>
+          
           {/* Enhanced Animated Background Elements - All White */}
           <div className="absolute inset-0 pointer-events-none">
             {/* Floating Medical Icons - White Colors */}
@@ -418,8 +439,30 @@ const Contact = () => {
 
         {/* Enhanced Location Section */}
         <section className="py-16 sm:py-20 bg-gradient-to-br from-[#D5C6BC] via-[#E8DCD4] to-[#D5C6BC] relative overflow-hidden">
+          {/* Background Images for Map Section */}
+          <div className="absolute inset-0 opacity-40 pointer-events-none">
+            <div
+              className="absolute inset-0 opacity-60"
+              style={{
+                backgroundImage: `url('/images/new/contactus.jpg')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+              }}
+            ></div>
+            <div
+              className="absolute inset-0 opacity-50"
+              style={{
+                backgroundImage: `url('/images/new/service.jpg')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+              }}
+            ></div>
+          </div>
+          
           {/* Background Decorative Elements */}
-          <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0 pointer-events-none z-20">
             <div className="absolute top-20 left-10 text-[#57BBB6]/15 animate-bounce" style={{ animationDelay: '0s' }}>
               <MapPin className="w-8 h-8" />
             </div>
@@ -431,7 +474,7 @@ const Contact = () => {
             </div>
           </div>
           
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-30">
             <div className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#376F6B] mb-6">
                 Find Our Location
@@ -446,8 +489,9 @@ const Contact = () => {
       </div>
 
       <Footer />
-    </div>
-  );
+        </div>
+      </>
+    );
 };
 
 export default Contact;

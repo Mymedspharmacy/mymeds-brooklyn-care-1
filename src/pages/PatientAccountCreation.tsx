@@ -36,6 +36,7 @@ import {
 import { HIPAAFormBanner } from '@/components/HIPAACompliance';
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { SEOHead } from "@/components/SEOHead";
 import api from '@/lib/api';
 
 interface AccountCreationData {
@@ -270,12 +271,18 @@ export default function PatientAccountCreation() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#D5C6BC]">
-      <Header 
-        onRefillClick={() => navigate('/', { state: { openRefillForm: true } })}
-        onAppointmentClick={() => navigate('/', { state: { openAppointmentForm: true } })}
-        onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
+    <>
+      <SEOHead 
+        title="Create Patient Account - My Meds Pharmacy | Brooklyn Patient Portal"
+        description="Create your patient account at My Meds Pharmacy. Access prescription management, health records, and personalized care services in Brooklyn."
+        keywords="patient account creation, pharmacy patient portal, Brooklyn patient account, prescription management, health records, patient portal signup"
       />
+      <div className="min-h-screen bg-[#D5C6BC]">
+        <Header 
+          onRefillClick={() => navigate('/', { state: { openRefillForm: true } })}
+          onAppointmentClick={() => navigate('/', { state: { openAppointmentForm: true } })}
+          onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
+        />
       
       <div className="pt-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -998,6 +1005,7 @@ export default function PatientAccountCreation() {
       </div>
 
       <Footer />
-    </div>
-  );
+        </div>
+      </>
+    );
 }

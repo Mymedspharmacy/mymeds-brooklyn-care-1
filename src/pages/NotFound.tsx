@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { SEOHead } from "@/components/SEOHead";
 
 const NotFound = () => {
   const location = useLocation();
@@ -15,12 +16,18 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen bg-[#D5C6BC]">
-      <Header 
-        onRefillClick={() => navigate('/', { state: { openRefillForm: true } })}
-        onAppointmentClick={() => navigate('/', { state: { openAppointmentForm: true } })}
-        onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
+    <>
+      <SEOHead 
+        title="Page Not Found - My Meds Pharmacy | Brooklyn Pharmacy"
+        description="The page you're looking for doesn't exist. Return to My Meds Pharmacy homepage for prescription services, health products, and pharmacy care in Brooklyn."
+        keywords="page not found, 404 error, Brooklyn pharmacy, My Meds Pharmacy, prescription services"
       />
+      <div className="min-h-screen bg-[#D5C6BC]">
+        <Header 
+          onRefillClick={() => navigate('/', { state: { openRefillForm: true } })}
+          onAppointmentClick={() => navigate('/', { state: { openAppointmentForm: true } })}
+          onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
+        />
       
       <div className="pt-20 flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
@@ -39,8 +46,9 @@ const NotFound = () => {
       </div>
 
       <Footer />
-    </div>
-  );
+        </div>
+      </>
+    );
 };
 
 export default NotFound;

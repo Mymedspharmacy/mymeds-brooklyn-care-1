@@ -64,10 +64,27 @@ export const HowItWorks = ({ className = '', showTitle = true }: HowItWorksProps
   };
 
   return (
-    <section className={`py-16 sm:py-20 bg-[#D5C6BC] relative overflow-hidden w-screen ${className}`}>
-      {/* Background Decoration */}
-      <div className="absolute top-20 left-10 w-72 h-72 bg-[#57BBB6]/20 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#376F6B]/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+          <section className={`py-16 sm:py-20 md:py-24 relative overflow-hidden ${showTitle ? '' : 'pt-0'}`}>
+      {/* Background Image Placeholder - Replace with actual pharmacy process/workflow image */}
+                   <div
+               className="absolute inset-0 opacity-60 pointer-events-none"
+               style={{
+                 backgroundImage: `url('/images/new/homepage.jpg')`,
+                 backgroundSize: 'cover',
+                 backgroundPosition: 'center',
+                 backgroundRepeat: 'no-repeat'
+               }}
+             ></div>
+             
+             {/* Balanced Overlay for Text Readability */}
+             <div className="absolute inset-0 bg-black/30 z-10"></div>
+      
+      {/* Background Blur Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Background Decoration */}
+        <div className="absolute top-20 left-10 w-72 h-72 bg-[#57BBB6]/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#376F6B]/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+      </div>
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {showTitle && (

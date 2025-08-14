@@ -1,0 +1,205 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="800" fill="#F8FAFC"/>
+  
+  <!-- Digital Health Interface -->
+  <g transform="translate(200, 150)">
+    <!-- Main Screen -->
+    <rect x="0" y="0" width="300" height="200" rx="8" fill="#57BBB6" opacity="0.2"/>
+    <rect x="5" y="5" width="290" height="190" rx="6" fill="#E8DCD4" opacity="0.3"/>
+    
+    <!-- Header Bar -->
+    <rect x="5" y="5" width="290" height="30" fill="#376F6B" opacity="0.2"/>
+    
+    <!-- Navigation Menu -->
+    <rect x="10" y="40" width="80" height="20" rx="4" fill="#57BBB6" opacity="0.3"/>
+    <rect x="100" y="40" width="80" height="20" rx="4" fill="#D5C6BC" opacity="0.3"/>
+    <rect x="190" y="40" width="80" height="20" rx="4" fill="#D5C6BC" opacity="0.3"/>
+    
+    <!-- Content Area -->
+    <rect x="10" y="70" width="280" height="100" rx="4" fill="#F8FAFC" opacity="0.5"/>
+    
+    <!-- Data Fields -->
+    <rect x="20" y="80" width="120" height="15" rx="2" fill="#57BBB6" opacity="0.2"/>
+    <rect x="20" y="105" width="120" height="15" rx="2" fill="#376F6B" opacity="0.2"/>
+    <rect x="20" y="130" width="120" height="15" rx="2" fill="#57BBB6" opacity="0.2"/>
+    
+    <!-- Action Buttons -->
+    <rect x="160" y="80" width="60" height="25" rx="4" fill="#57BBB6" opacity="0.3"/>
+    <rect x="160" y="115" width="60" height="25" rx="4" fill="#376F6B" opacity="0.3"/>
+  </g>
+  
+  <!-- Patient Records -->
+  <g transform="translate(600, 200)">
+    <!-- File Cabinet -->
+    <rect x="0" y="0" width="120" height="150" fill="#D5C6BC" opacity="0.3"/>
+    <rect x="5" y="5" width="110" height="140" fill="#E8DCD4" opacity="0.4"/>
+    
+    <!-- Drawers -->
+    <rect x="10" y="15" width="100" height="25" fill="#57BBB6" opacity="0.2"/>
+    <rect x="10" y="50" width="100" height="25" fill="#376F6B" opacity="0.2"/>
+    <rect x="10" y="85" width="100" height="25" fill="#57BBB6" opacity="0.2"/>
+    <rect x="10" y="120" width="100" height="25" fill="#376F6B" opacity="0.2"/>
+    
+    <!-- Drawer Handles -->
+    <rect x="45" y="22" width="30" height="3" fill="#E8DCD4" opacity="0.5"/>
+    <rect x="45" y="57" width="30" height="3" fill="#E8DCD4" opacity="0.5"/>
+    <rect x="45" y="92" width="30" height="3" fill="#E8DCD4" opacity="0.5"/>
+    <rect x="45" y="127" width="30" height="3" fill="#E8DCD4" opacity="0.5"/>
+  </g>
+  
+  <!-- Healthcare Access -->
+  <g transform="translate(800, 150)">
+    <!-- Access Icons -->
+    <g transform="translate(0, 0)">
+      <!-- Calendar -->
+      <rect x="0" y="0" width="60" height="50" rx="4" fill="#57BBB6" opacity="0.3"/>
+      <rect x="5" y="5" width="50" height="40" rx="2" fill="#E8DCD4" opacity="0.4"/>
+      <rect x="5" y="5" width="50" height="15" fill="#376F6B" opacity="0.2"/>
+      <rect x="20" y="8" width="20" height="8" fill="#F8FAFC" opacity="0.6"/>
+      <line x1="15" y1="25" x2="25" y2="25" stroke="#376F6B" stroke-width="1" opacity="0.3"/>
+      <line x1="15" y1="32" x2="25" y2="32" stroke="#376F6B" stroke-width="1" opacity="0.3"/>
+      <line x1="15" y1="39" x2="20" y2="39" stroke="#376F6B" stroke-width="1" opacity="0.3"/>
+    </g>
+    
+    <g transform="translate(80, 0)">
+      <!-- Prescription -->
+      <rect x="0" y="0" width="50" height="60" rx="3" fill="#376F6B" opacity="0.3"/>
+      <rect x="3" y="3" width="44" height="54" rx="2" fill="#D5C6BC" opacity="0.4"/>
+      <line x1="8" y1="15" x2="42" y2="15" stroke="#57BBB6" stroke-width="1" opacity="0.3"/>
+      <line x1="8" y1="25" x2="42" y2="25" stroke="#57BBB6" stroke-width="1" opacity="0.3"/>
+      <line x1="8" y1="35" x2="42" y2="35" stroke="#57BBB6" stroke-width="1" opacity="0.3"/>
+      <line x1="8" y1="45" x2="35" y2="45" stroke="#57BBB6" stroke-width="1" opacity="0.3"/>
+    </g>
+    
+    <g transform="translate(150, 0)">
+      <!-- Lab Results -->
+      <rect x="0" y="0" width="55" height="45" rx="3" fill="#57BBB6" opacity="0.3"/>
+      <rect x="3" y="3" width="49" height="39" rx="2" fill="#E8DCD4" opacity="0.4"/>
+      <circle cx="15" cy="15" r="3" fill="#376F6B" opacity="0.3"/>
+      <line x1="25" y1="15" x2="45" y2="15" stroke="#376F6B" stroke-width="1" opacity="0.3"/>
+      <line x1="15" y1="25" x2="45" y2="25" stroke="#376F6B" stroke-width="1" opacity="0.3"/>
+      <line x1="15" y1="35" x2="40" y2="35" stroke="#376F6B" stroke-width="1" opacity="0.3"/>
+    </g>
+  </g>
+  
+  <!-- Digital Health Management -->
+  <g transform="translate(300, 400)">
+    <!-- Health Dashboard -->
+    <rect x="0" y="0" width="250" height="180" rx="8" fill="#57BBB6" opacity="0.1"/>
+    <rect x="5" y="5" width="240" height="170" rx="6" fill="#E8DCD4" opacity="0.2"/>
+    
+    <!-- Dashboard Widgets -->
+    <g transform="translate(15, 15)">
+      <!-- Vital Signs -->
+      <rect x="0" y="0" width="70" height="50" rx="4" fill="#57BBB6" opacity="0.2"/>
+      <rect x="5" y="5" width="60" height="40" rx="2" fill="#F8FAFC" opacity="0.4"/>
+      <text x="35" y="20" text-anchor="middle" fill="#376F6B" opacity="0.6" font-size="10">VITALS</text>
+      <text x="35" y="35" text-anchor="middle" fill="#376F6B" opacity="0.6" font-size="8">120/80</text>
+    </g>
+    
+    <g transform="translate(95, 15)">
+      <!-- Medications -->
+      <rect x="0" y="0" width="70" height="50" rx="4" fill="#376F6B" opacity="0.2"/>
+      <rect x="5" y="5" width="60" height="40" rx="2" fill="#F8FAFC" opacity="0.4"/>
+      <text x="35" y="20" text-anchor="middle" fill="#57BBB6" opacity="0.6" font-size="10">MEDS</text>
+      <text x="35" y="35" text-anchor="middle" fill="#57BBB6" opacity="0.6" font-size="8">3 Active</text>
+    </g>
+    
+    <g transform="translate(175, 15)">
+      <!-- Appointments -->
+      <rect x="0" y="0" width="70" height="50" rx="4" fill="#57BBB6" opacity="0.2"/>
+      <rect x="5" y="5" width="60" height="40" rx="2" fill="#F8FAFC" opacity="0.4"/>
+      <text x="35" y="20" text-anchor="middle" fill="#376F6B" opacity="0.6" font-size="10">APPT</text>
+      <text x="35" y="35" text-anchor="middle" fill="#376F6B" opacity="0.6" font-size="8">Next: 2d</text>
+    </g>
+    
+    <!-- Chart Area -->
+    <g transform="translate(15, 80)">
+      <rect x="0" y="0" width="220" height="80" rx="4" fill="#D5C6BC" opacity="0.2"/>
+      <rect x="5" y="5" width="210" height="70" rx="2" fill="#F8FAFC" opacity="0.3"/>
+      
+      <!-- Sample Chart -->
+      <path d="M10 60 L50 40 L90 50 L130 30 L170 45 L210 25" fill="none" stroke="#57BBB6" stroke-width="2" opacity="0.4"/>
+      <path d="M10 60 L50 45 L90 55 L130 35 L170 50 L210 30" fill="none" stroke="#376F6B" stroke-width="1" opacity="0.3"/>
+    </g>
+  </g>
+  
+  <!-- Patient Communication -->
+  <g transform="translate(700, 400)">
+    <!-- Communication Hub -->
+    <g transform="translate(0, 0)">
+      <!-- Message Icon -->
+      <rect x="0" y="0" width="50" height="40" rx="6" fill="#57BBB6" opacity="0.3"/>
+      <rect x="5" y="5" width="40" height="30" rx="4" fill="#E8DCD4" opacity="0.4"/>
+      <path d="M5 15 L25 15 L25 25 L15 25 L5 15" fill="#376F6B" opacity="0.3"/>
+    </g>
+    
+    <g transform="translate(70, 0)">
+      <!-- Video Call Icon -->
+      <circle cx="0" cy="0" r="25" fill="#376F6B" opacity="0.3"/>
+      <circle cx="0" cy="0" r="20" fill="#D5C6BC" opacity="0.4"/>
+      <circle cx="0" cy="0" r="15" fill="#57BBB6" opacity="0.2"/>
+      <circle cx="0" cy="0" r="8" fill="#E8DCD4" opacity="0.3"/>
+    </g>
+    
+    <g transform="translate(140, 0)">
+      <!-- Phone Icon -->
+      <rect x="0" y="0" width="25" height="40" rx="4" fill="#57BBB6" opacity="0.3"/>
+      <rect x="2" y="2" width="21" height="36" rx="3" fill="#E8DCD4" opacity="0.4"/>
+      <circle cx="12.5" cy="30" r="4" fill="#376F6B" opacity="0.3"/>
+    </g>
+  </g>
+  
+  <!-- Security and Privacy -->
+  <g transform="translate(1000, 300)">
+    <!-- Security Shield -->
+    <path d="M0 -30 L25 -15 L25 20 L0 35 L-25 20 L-25 -15 Z" fill="#57BBB6" opacity="0.2"/>
+    <path d="M0 -25 L20 -12 L20 18 L0 30 L-20 18 L-20 -12 Z" fill="#E8DCD4" opacity="0.3"/>
+    
+    <!-- Lock Icon -->
+    <rect x="-8" y="-5" width="16" height="20" rx="2" fill="#376F6B" opacity="0.3"/>
+    <circle cx="0" cy="-5" r="6" fill="#376F6B" opacity="0.3"/>
+    <rect x="-4" y="0" width="8" height="15" fill="#D5C6BC" opacity="0.4"/>
+  </g>
+  
+  <!-- Abstract Digital Elements -->
+  <g transform="translate(150, 150)">
+    <!-- Digital Grid -->
+    <rect x="0" y="0" width="40" height="40" fill="none" stroke="#57BBB6" stroke-width="0.5" opacity="0.2"/>
+    <line x1="20" y1="0" x2="20" y2="40" stroke="#57BBB6" stroke-width="0.5" opacity="0.2"/>
+    <line x1="0" y1="20" x2="40" y2="20" stroke="#57BBB6" stroke-width="0.5" opacity="0.2"/>
+  </g>
+  
+  <g transform="translate(1050, 150)">
+    <!-- Digital Circuit -->
+    <path d="M0 0 L20 0 L20 20 L40 20 L40 40 L20 40 L20 20 L0 20 Z" fill="none" stroke="#376F6B" stroke-width="1" opacity="0.2"/>
+    <circle cx="20" cy="20" r="3" fill="#57BBB6" opacity="0.3"/>
+  </g>
+  
+  <!-- Connection Lines -->
+  <g transform="translate(500, 300)">
+    <line x1="0" y1="0" x2="100" y2="0" stroke="#57BBB6" stroke-width="1" opacity="0.1"/>
+  </g>
+  
+  <g transform="translate(900, 300)">
+    <line x1="0" y1="0" x2="100" y2="0" stroke="#376F6B" stroke-width="1" opacity="0.1"/>
+  </g>
+  
+  <!-- Subtle Background Elements -->
+  <g transform="translate(100, 100)">
+    <circle cx="0" cy="0" r="25" fill="#57BBB6" opacity="0.03"/>
+  </g>
+  
+  <g transform="translate(1100, 100)">
+    <circle cx="0" cy="0" r="30" fill="#D5C6BC" opacity="0.03"/>
+  </g>
+  
+  <g transform="translate(100, 700)">
+    <circle cx="0" cy="0" r="20" fill="#376F6B" opacity="0.03"/>
+  </g>
+  
+  <g transform="translate(1100, 700)">
+    <circle cx="0" cy="0" r="35" fill="#E8DCD4" opacity="0.03"/>
+  </g>
+</svg>

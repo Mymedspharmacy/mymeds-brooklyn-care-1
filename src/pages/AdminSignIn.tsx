@@ -5,6 +5,7 @@ import railwayAuth from '../lib/railwayAuth';
 import { Eye, EyeOff, Loader2, ArrowLeft, Lock, Mail, X } from 'lucide-react';
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { SEOHead } from "@/components/SEOHead";
 
 export default function AdminSignIn() {
   const [username, setUsername] = useState('');
@@ -83,12 +84,18 @@ export default function AdminSignIn() {
   }
 
   return (
-    <div className="min-h-screen bg-[#D5C6BC]">
-      <Header 
-        onRefillClick={() => navigate('/', { state: { openRefillForm: true } })}
-        onAppointmentClick={() => navigate('/', { state: { openAppointmentForm: true } })}
-        onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
+    <>
+      <SEOHead 
+        title="Admin Sign In - My Meds Pharmacy | Brooklyn Pharmacy Management"
+        description="Sign in to the My Meds Pharmacy admin dashboard. Access pharmacy management tools, patient records, and administrative functions."
+        keywords="admin login, pharmacy admin, admin dashboard, pharmacy management login, Brooklyn pharmacy admin"
       />
+      <div className="min-h-screen bg-[#D5C6BC]">
+        <Header 
+          onRefillClick={() => navigate('/', { state: { openRefillForm: true } })}
+          onAppointmentClick={() => navigate('/', { state: { openAppointmentForm: true } })}
+          onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
+        />
       
       <div className="pt-20 flex items-center justify-center p-4">
         <div className={`transition-all duration-700 ease-out transform ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
@@ -284,6 +291,7 @@ export default function AdminSignIn() {
       </div>
 
       <Footer />
-    </div>
-  );
+        </div>
+      </>
+    );
 } 

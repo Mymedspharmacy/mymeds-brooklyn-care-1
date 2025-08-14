@@ -89,7 +89,21 @@ export const Testimonials = () => {
   };
 
   return (
-    <section className="py-16 sm:py-20 md:py-24 bg-gradient-to-br from-[#D5C6BC] via-[#E8DCD4] to-[#D5C6BC] relative overflow-hidden">
+          <section className="py-16 sm:py-20 md:py-24 relative overflow-hidden">
+      {/* Background Image Placeholder - Replace with actual pharmacy patient care image */}
+                   <div
+               className="absolute inset-0 opacity-60 pointer-events-none"
+               style={{
+                 backgroundImage: `url('/images/new/service.jpg')`,
+                 backgroundSize: 'cover',
+                 backgroundPosition: 'center',
+                 backgroundRepeat: 'no-repeat'
+               }}
+             ></div>
+             
+             {/* Balanced Overlay for Text Readability */}
+             <div className="absolute inset-0 bg-black/30 z-10"></div>
+      
       {/* Enhanced Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Floating Medical Icons */}

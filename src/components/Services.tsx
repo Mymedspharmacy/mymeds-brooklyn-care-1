@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { HowItWorks } from "@/components/HowItWorks";
+import { SEOHead } from "@/components/SEOHead";
 
 interface ServicesProps {
   onRefillClick: () => void;
@@ -26,7 +27,7 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
         "Multiple pickup options",
         "Insurance coordination"
       ],
-      image: "/images/services/prescription-refill.jpg"
+      image: "/images/new/service.jpg"
     },
     {
       id: 'same-day-delivery',
@@ -39,7 +40,7 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
         "Real-time tracking",
         "Secure prescription handling"
       ],
-      image: "/images/services/delivery-service.jpg"
+      image: "/images/new/services.jpg"
     },
     {
       id: 'medication-management',
@@ -52,7 +53,7 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
         "Side effect monitoring",
         "Dosage optimization"
       ],
-      image: "/images/services/medication-review.jpg"
+      image: "/images/new/servicespage.jpg"
     },
     {
       id: 'health-consultations',
@@ -65,7 +66,7 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
         "Vaccination services",
         "Chronic disease management"
       ],
-      image: "/images/services/health-consultation.jpg"
+      image: "/images/new/servicess.jpg"
     },
     {
       id: 'immunizations',
@@ -78,7 +79,7 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
         "Pediatric immunizations",
         "Vaccine records management"
       ],
-      image: "/images/services/immunizations.jpg"
+      image: "/images/new/service.jpg"
     },
     {
       id: '24-7-support',
@@ -91,14 +92,34 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
         "After-hours pickup",
         "Telepharmacy services"
       ],
-      image: "/images/services/24-7-support.jpg"
+      image: "/images/new/services.jpg"
     }
   ];
 
   return (
-    <section id="services" className="py-16 sm:py-20 md:py-24 bg-white relative overflow-hidden">
+    <>
+      <SEOHead 
+        title="Pharmacy Services - My Meds Pharmacy | Comprehensive Healthcare Solutions"
+        description="Discover our complete range of pharmacy services including prescription refills, medication management, immunizations, health consultations, and free delivery in Brooklyn."
+        keywords="pharmacy services, prescription refills, medication management, immunizations, health consultations, free delivery, Brooklyn pharmacy services, pharmaceutical care"
+      />
+      <section id="services" className="py-16 sm:py-20 md:py-24 relative overflow-hidden">
+      {/* Background Image Placeholder - Replace with actual pharmacy services image */}
+                   <div
+               className="absolute inset-0 opacity-60 pointer-events-none"
+               style={{
+                 backgroundImage: `url('/images/new/servicess.jpg')`,
+                 backgroundSize: 'cover',
+                 backgroundPosition: 'center',
+                 backgroundRepeat: 'no-repeat'
+               }}
+             ></div>
+             
+             {/* Balanced Overlay for Text Readability */}
+             <div className="absolute inset-0 bg-black/30 z-10"></div>
+      
       {/* Enhanced Background Elements */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 overflow-hidden">
         {/* Floating Geometric Shapes */}
         <div className="absolute top-10 left-10 w-20 h-20 border-2 border-[#D5C6BC]/30 rounded-lg rotate-45 animate-pulse" style={{ animationDuration: '4s' }}></div>
         <div className="absolute top-32 right-16 w-16 h-16 bg-[#57BBB6]/10 rounded-full animate-bounce" style={{ animationDelay: '1s' }}></div>
@@ -202,7 +223,7 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
               </div>
               
               {/* Service Image Background */}
-              <div className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
+                                 <div className="absolute inset-0 opacity-40 group-hover:opacity-50 transition-opacity duration-500">
                 <img 
                   src={service.image} 
                   alt={service.title}
@@ -254,6 +275,60 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
               </CardContent>
             </Card>
           ))}
+        </div>
+
+        {/* Services Showcase Section */}
+        <div className="mb-16 sm:mb-20 relative">
+          <div className="text-center mb-12 relative z-10">
+            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#57BBB6] mb-4">
+              Our Service Environment
+            </h3>
+            <p className="text-lg text-[#376F6B] max-w-2xl mx-auto font-medium">
+              Experience our modern pharmacy facilities and professional service areas
+            </p>
+          </div>
+          
+          {/* Service Environment Images */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-12">
+            <div className="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
+              <img 
+                src="/images/new/servicess.jpg" 
+                alt="Pharmacy Services Environment"
+                className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+              <div className="absolute bottom-4 left-4 text-white">
+                <h4 className="text-lg font-bold">Professional Service Area</h4>
+                <p className="text-sm opacity-90">Modern consultation rooms</p>
+              </div>
+            </div>
+            
+            <div className="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
+              <img 
+                src="/images/new/services.jpg" 
+                alt="Pharmacy Support Services"
+                className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+              <div className="absolute bottom-4 left-4 text-white">
+                <h4 className="text-lg font-bold">Support Services</h4>
+                <p className="text-sm opacity-90">24/7 assistance available</p>
+              </div>
+            </div>
+            
+            <div className="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
+              <img 
+                src="/images/new/servicespage.jpg" 
+                alt="Pharmacy Operations"
+                className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+              <div className="absolute bottom-4 left-4 text-white">
+                <h4 className="text-lg font-bold">Operations Center</h4>
+                <p className="text-sm opacity-90">Efficient prescription processing</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Special Offers Section */}
@@ -579,6 +654,7 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
           </div>
         </div>
       </div>
-    </section>
-  );
+        </section>
+      </>
+    );
 };

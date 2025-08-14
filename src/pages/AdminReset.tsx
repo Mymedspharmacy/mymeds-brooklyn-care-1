@@ -5,6 +5,7 @@ import api from '../lib/api';
 import { Loader2, Lock, Eye, EyeOff, ArrowLeft, CheckCircle, XCircle } from 'lucide-react';
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { SEOHead } from "@/components/SEOHead";
 
 export default function AdminReset() {
   const [searchParams] = useSearchParams();
@@ -38,12 +39,18 @@ export default function AdminReset() {
   }
 
   return (
-    <div className="min-h-screen bg-[#D5C6BC]">
-      <Header 
-        onRefillClick={() => navigate('/', { state: { openRefillForm: true } })}
-        onAppointmentClick={() => navigate('/', { state: { openAppointmentForm: true } })}
-        onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
+    <>
+      <SEOHead 
+        title="Admin Password Reset - My Meds Pharmacy | Brooklyn Pharmacy Management"
+        description="Reset your admin password for My Meds Pharmacy. Secure access to pharmacy management tools and administrative functions."
+        keywords="admin password reset, pharmacy admin reset, admin access recovery, pharmacy management reset, Brooklyn pharmacy admin"
       />
+      <div className="min-h-screen bg-[#D5C6BC]">
+        <Header 
+          onRefillClick={() => navigate('/', { state: { openRefillForm: true } })}
+          onAppointmentClick={() => navigate('/', { state: { openAppointmentForm: true } })}
+          onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
+        />
       
       <div className="pt-20 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
@@ -145,7 +152,8 @@ export default function AdminReset() {
       </div>
     </div>
 
-    <Footer />
-  </div>
-);
+      <Footer />
+        </div>
+      </>
+    );
 } 

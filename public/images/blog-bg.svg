@@ -1,0 +1,199 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="800" fill="#F8FAFC"/>
+  
+  <!-- Health and Wellness -->
+  <g transform="translate(200, 200)">
+    <!-- Wellness Tree -->
+    <g transform="translate(100, 100)">
+      <!-- Tree Trunk -->
+      <rect x="0" y="0" width="20" height="80" fill="#D5C6BC" opacity="0.4"/>
+      
+      <!-- Tree Leaves -->
+      <circle cx="10" cy="0" r="40" fill="#57BBB6" opacity="0.2"/>
+      <circle cx="-20" cy="20" r="25" fill="#376F6B" opacity="0.2"/>
+      <circle cx="40" cy="20" r="30" fill="#57BBB6" opacity="0.2"/>
+      <circle cx="10" cy="-30" r="20" fill="#376F6B" opacity="0.2"/>
+    </g>
+    
+    <!-- Health Symbols -->
+    <g transform="translate(50, 50)">
+      <!-- Heart -->
+      <path d="M0 20 C-15 0 -15 -15 0 -25 C15 -15 15 0 0 20" fill="#57BBB6" opacity="0.3"/>
+    </g>
+    
+    <g transform="translate(250, 50)">
+      <!-- Leaf -->
+      <path d="M0 0 Q20 -20 40 0 Q20 20 0 0" fill="#376F6B" opacity="0.3"/>
+    </g>
+    
+    <g transform="translate(150, 250)">
+      <!-- Sun -->
+      <circle cx="0" cy="0" r="25" fill="#E8DCD4" opacity="0.3"/>
+      <g>
+        <line x1="0" y1="-35" x2="0" y2="-25" stroke="#57BBB6" stroke-width="2" opacity="0.3"/>
+        <line x1="0" y1="25" x2="0" y2="35" stroke="#57BBB6" stroke-width="2" opacity="0.3"/>
+        <line x1="-35" y1="0" x2="-25" y2="0" stroke="#57BBB6" stroke-width="2" opacity="0.3"/>
+        <line x1="25" y1="0" x2="35" y2="0" stroke="#57BBB6" stroke-width="2" opacity="0.3"/>
+        <line x1="-25" y1="-25" x2="-35" y2="-35" stroke="#57BBB6" stroke-width="2" opacity="0.3"/>
+        <line x1="25" y1="25" x2="35" y2="35" stroke="#57BBB6" stroke-width="2" opacity="0.3"/>
+        <line x1="-25" y1="25" x2="-35" y2="35" stroke="#57BBB6" stroke-width="2" opacity="0.3"/>
+        <line x1="25" y1="-25" x2="35" y2="-35" stroke="#57BBB6" stroke-width="2" opacity="0.3"/>
+      </g>
+    </g>
+  </g>
+  
+  <!-- Medical Themes -->
+  <g transform="translate(600, 150)">
+    <!-- DNA Helix -->
+    <g transform="translate(0, 0)">
+      <circle cx="0" cy="0" r="8" fill="#57BBB6" opacity="0.3"/>
+      <circle cx="30" cy="30" r="6" fill="#376F6B" opacity="0.3"/>
+      <circle cx="60" cy="0" r="7" fill="#57BBB6" opacity="0.3"/>
+      <circle cx="90" cy="30" r="5" fill="#376F6B" opacity="0.3"/>
+      <circle cx="120" cy="0" r="8" fill="#57BBB6" opacity="0.3"/>
+      
+      <!-- Connecting Lines -->
+      <line x1="0" y1="0" x2="30" y2="30" stroke="#57BBB6" stroke-width="1" opacity="0.2"/>
+      <line x1="30" y1="30" x2="60" y2="0" stroke="#376F6B" stroke-width="1" opacity="0.2"/>
+      <line x1="60" y1="0" x2="90" y2="30" stroke="#57BBB6" stroke-width="1" opacity="0.2"/>
+      <line x1="90" y1="30" x2="120" y2="0" stroke="#376F6B" stroke-width="1" opacity="0.2"/>
+    </g>
+    
+    <!-- Molecular Structure -->
+    <g transform="translate(0, 100)">
+      <circle cx="0" cy="0" r="12" fill="#D5C6BC" opacity="0.3"/>
+      <circle cx="40" cy="0" r="10" fill="#E8DCD4" opacity="0.3"/>
+      <circle cx="20" cy="35" r="8" fill="#57BBB6" opacity="0.3"/>
+      <circle cx="60" cy="35" r="9" fill="#376F6B" opacity="0.3"/>
+      
+      <!-- Bonds -->
+      <line x1="0" y1="0" x2="40" y2="0" stroke="#376F6B" stroke-width="2" opacity="0.2"/>
+      <line x1="0" y1="0" x2="20" y2="35" stroke="#376F6B" stroke-width="2" opacity="0.2"/>
+      <line x1="40" y1="0" x2="20" y2="35" stroke="#376F6B" stroke-width="2" opacity="0.2"/>
+      <line x1="40" y1="0" x2="60" y2="35" stroke="#376F6B" stroke-width="2" opacity="0.2"/>
+      <line x1="20" y1="35" x2="60" y2="35" stroke="#376F6B" stroke-width="2" opacity="0.2"/>
+    </g>
+  </g>
+  
+  <!-- Professional Healthcare -->
+  <g transform="translate(800, 300)">
+    <!-- Medical Cross -->
+    <g transform="translate(0, 0)">
+      <rect x="-20" y="-60" width="40" height="120" fill="#57BBB6" opacity="0.3"/>
+      <rect x="-60" y="-20" width="120" height="40" fill="#57BBB6" opacity="0.3"/>
+    </g>
+    
+    <!-- Stethoscope -->
+    <g transform="translate(100, 0)">
+      <circle cx="0" cy="0" r="25" fill="none" stroke="#376F6B" stroke-width="3" opacity="0.3"/>
+      <path d="M-25 0 Q-50 -30 -75 0 Q-50 30 -25 0" fill="none" stroke="#376F6B" stroke-width="2" opacity="0.3"/>
+    </g>
+    
+    <!-- Medical Equipment -->
+    <g transform="translate(200, 0)">
+      <!-- Syringe -->
+      <rect x="0" y="0" width="8" height="40" fill="#D5C6BC" opacity="0.3"/>
+      <rect x="2" y="2" width="4" height="36" fill="#E8DCD4" opacity="0.4"/>
+      <circle cx="4" cy="40" r="6" fill="#57BBB6" opacity="0.3"/>
+      <rect x="2" y="42" width="4" height="15" fill="#376F6B" opacity="0.2"/>
+    </g>
+  </g>
+  
+  <!-- Community Health -->
+  <g transform="translate(300, 500)">
+    <!-- People Icons -->
+    <g transform="translate(0, 0)">
+      <circle cx="0" cy="0" r="20" fill="#57BBB6" opacity="0.2"/>
+      <rect x="-15" y="20" width="30" height="40" fill="#376F6B" opacity="0.15"/>
+    </g>
+    
+    <g transform="translate(50, 0)">
+      <circle cx="0" cy="0" r="18" fill="#57BBB6" opacity="0.2"/>
+      <rect x="-13" y="18" width="26" height="36" fill="#376F6B" opacity="0.15"/>
+    </g>
+    
+    <g transform="translate(100, 0)">
+      <circle cx="0" cy="0" r="22" fill="#57BBB6" opacity="0.2"/>
+      <rect x="-16" y="22" width="32" height="44" fill="#376F6B" opacity="0.15"/>
+    </g>
+    
+    <!-- Connection Lines -->
+    <line x1="20" y1="20" x2="30" y2="18" stroke="#57BBB6" stroke-width="1" opacity="0.2"/>
+    <line x1="68" y1="18" x2="78" y2="22" stroke="#57BBB6" stroke-width="1" opacity="0.2"/>
+  </g>
+  
+  <!-- Educational Elements -->
+  <g transform="translate(700, 500)">
+    <!-- Book -->
+    <rect x="0" y="0" width="60" height="80" rx="4" fill="#D5C6BC" opacity="0.3"/>
+    <rect x="5" y="5" width="50" height="70" rx="2" fill="#E8DCD4" opacity="0.4"/>
+    <line x1="15" y1="20" x2="45" y2="20" stroke="#376F6B" stroke-width="1" opacity="0.3"/>
+    <line x1="15" y1="30" x2="45" y2="30" stroke="#376F6B" stroke-width="1" opacity="0.3"/>
+    <line x1="15" y1="40" x2="45" y2="40" stroke="#376F6B" stroke-width="1" opacity="0.3"/>
+    <line x1="15" y1="50" x2="35" y2="50" stroke="#376F6B" stroke-width="1" opacity="0.3"/>
+  </g>
+  
+  <g transform="translate(800, 520)">
+    <!-- Magnifying Glass -->
+    <circle cx="0" cy="0" r="20" fill="none" stroke="#57BBB6" stroke-width="2" opacity="0.3"/>
+    <line x1="14" y1="14" x2="25" y2="25" stroke="#57BBB6" stroke-width="2" opacity="0.3"/>
+  </g>
+  
+  <!-- Abstract Health Patterns -->
+  <g transform="translate(1000, 200)">
+    <!-- Wave Pattern -->
+    <path d="M0 50 Q25 25 50 50 Q75 75 100 50 Q125 25 150 50" fill="none" stroke="#57BBB6" stroke-width="2" opacity="0.2"/>
+    <path d="M0 70 Q25 45 50 70 Q75 95 100 70 Q125 45 150 70" fill="none" stroke="#376F6B" stroke-width="1.5" opacity="0.2"/>
+  </g>
+  
+  <g transform="translate(1000, 400)">
+    <!-- Spiral Pattern -->
+    <path d="M0 0 Q20 -20 40 0 Q60 20 40 40 Q20 60 0 40 Q-20 20 0 0" fill="none" stroke="#D5C6BC" stroke-width="1" opacity="0.2"/>
+  </g>
+  
+  <!-- Wellness Icons -->
+  <g transform="translate(150, 600)">
+    <!-- Yoga Pose -->
+    <circle cx="0" cy="0" r="15" fill="#57BBB6" opacity="0.1"/>
+    <path d="M0 -15 L0 15 M-15 0 L15 0" stroke="#376F6B" stroke-width="1" opacity="0.2"/>
+  </g>
+  
+  <g transform="translate(200, 600)">
+    <!-- Meditation -->
+    <circle cx="0" cy="0" r="15" fill="#57BBB6" opacity="0.1"/>
+    <circle cx="0" cy="0" r="8" fill="#376F6B" opacity="0.2"/>
+  </g>
+  
+  <g transform="translate(250, 600)">
+    <!-- Exercise -->
+    <circle cx="0" cy="0" r="15" fill="#57BBB6" opacity="0.1"/>
+    <path d="M-10 -10 L10 10 M-10 10 L10 -10" stroke="#376F6B" stroke-width="1" opacity="0.2"/>
+  </g>
+  
+  <!-- Connection Lines -->
+  <g transform="translate(400, 400)">
+    <line x1="0" y1="0" x2="100" y2="0" stroke="#57BBB6" stroke-width="1" opacity="0.1"/>
+  </g>
+  
+  <g transform="translate(800, 400)">
+    <line x1="0" y1="0" x2="100" y2="0" stroke="#376F6B" stroke-width="1" opacity="0.1"/>
+  </g>
+  
+  <!-- Subtle Background Elements -->
+  <g transform="translate(100, 100)">
+    <circle cx="0" cy="0" r="30" fill="#57BBB6" opacity="0.03"/>
+  </g>
+  
+  <g transform="translate(1100, 100)">
+    <circle cx="0" cy="0" r="40" fill="#D5C6BC" opacity="0.03"/>
+  </g>
+  
+  <g transform="translate(100, 700)">
+    <circle cx="0" cy="0" r="25" fill="#376F6B" opacity="0.03"/>
+  </g>
+  
+  <g transform="translate(1100, 700)">
+    <circle cx="0" cy="0" r="35" fill="#E8DCD4" opacity="0.03"/>
+  </g>
+</svg>

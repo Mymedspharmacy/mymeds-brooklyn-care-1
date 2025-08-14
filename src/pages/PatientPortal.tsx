@@ -306,36 +306,57 @@ const PatientPortal = () => {
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen bg-[#D5C6BC]">
+        <SEOHead 
+          title="Patient Portal - My Meds Pharmacy | Secure Patient Login"
+          description="Access your secure patient portal at My Meds Pharmacy. Manage prescriptions, view health records, and communicate with your pharmacy team."
+          keywords="patient portal, pharmacy login, secure patient access, prescription management, health records, Brooklyn patient portal"
+        />
         <Header 
           onRefillClick={() => navigate('/', { state: { openRefillForm: true } })}
           onAppointmentClick={() => navigate('/', { state: { openAppointmentForm: true } })}
           onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
         />
         
-        <div className="pt-20">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 relative overflow-hidden">
-            {/* Animated Background Elements */}
-            <div className="absolute inset-0 pointer-events-none">
-              {/* Floating Medical Icons */}
-              <div className="absolute top-10 left-10 text-[#57BBB6]/15 animate-bounce" style={{ animationDelay: '0s' }}>
-                <Shield className="w-6 h-6" />
-              </div>
-              <div className="absolute top-20 right-20 text-[#376F6B]/12 animate-bounce" style={{ animationDelay: '1s' }}>
-                <Heart className="w-5 h-5" />
-              </div>
-              <div className="absolute bottom-20 left-20 text-[#D5C6BC]/18 animate-bounce" style={{ animationDelay: '2s' }}>
-                <Pill className="w-7 h-7" />
-              </div>
-              <div className="absolute bottom-10 right-10 text-[#57BBB6]/14 animate-bounce" style={{ animationDelay: '3s' }}>
-                <User className="w-6 h-6" />
-              </div>
-              
-              {/* Animated Particles */}
-              <div className="absolute top-1/3 left-1/4 w-1.5 h-1.5 bg-[#57BBB6]/20 rounded-full animate-ping"></div>
-              <div className="absolute bottom-1/3 right-1/4 w-1 h-1 bg-[#376F6B]/15 rounded-full animate-ping" style={{ animationDelay: '2s' }}></div>
+        {/* Login Section */}
+        <div className="min-h-screen flex flex-col relative overflow-hidden">
+          {/* Background Image Placeholder - Replace with actual pharmacy patient care image */}
+          <div
+            className="absolute inset-0 opacity-65 pointer-events-none"
+            style={{
+              backgroundImage: `url('/images/new/service.jpg')`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat'
+            }}
+          ></div>
+          
+          {/* Balanced Overlay for Text Readability */}
+          <div className="absolute inset-0 bg-black/35 z-10"></div>
+        
+          {/* Animated Background Elements */}
+          <div className="absolute inset-0 pointer-events-none">
+            {/* Floating Medical Icons */}
+            <div className="absolute top-10 left-10 text-[#57BBB6]/15 animate-bounce" style={{ animationDelay: '0s' }}>
+              <Shield className="w-6 h-6" />
+            </div>
+            <div className="absolute top-20 right-20 text-[#376F6B]/12 animate-bounce" style={{ animationDelay: '1s' }}>
+              <Heart className="w-5 w-5" />
+            </div>
+            <div className="absolute bottom-20 left-20 text-[#D5C6BC]/18 animate-bounce" style={{ animationDelay: '2s' }}>
+              <Pill className="w-7 h-7" />
+            </div>
+            <div className="absolute bottom-10 right-10 text-[#57BBB6]/14 animate-bounce" style={{ animationDelay: '3s' }}>
+              <User className="w-6 h-6" />
             </div>
             
-            <div className="max-w-md mx-auto relative z-10">
+            {/* Animated Particles */}
+            <div className="absolute top-1/3 left-1/4 w-1.5 h-1.5 bg-[#57BBB6]/20 rounded-full animate-ping"></div>
+            <div className="absolute bottom-1/3 right-1/4 w-1 h-1 bg-[#376F6B]/15 rounded-full animate-ping" style={{ animationDelay: '2s' }}></div>
+          </div>
+          
+          {/* Login Content - Centered */}
+          <div className="flex-1 flex items-center justify-center py-16 px-4 relative z-20">
+            <div className="max-w-md mx-auto">
               <Card className="border-0 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1">
                 <CardHeader className="text-center pb-6">
                   <div className="w-16 h-16 bg-[#57BBB6] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300">
@@ -391,7 +412,7 @@ const PatientPortal = () => {
                     <p className="text-sm text-[#57BBB6]">
                       Enter your credentials to access your patient portal
                     </p>
-                    <p className="text-[#57BBB6]">
+                    <p className="text-sm text-[#57BBB6]">
                       Don't have an account?{' '}
                       <Button 
                         variant="link" 
@@ -406,9 +427,12 @@ const PatientPortal = () => {
               </Card>
             </div>
           </div>
+          
+          {/* Footer - Inside the login section */}
+          <div className="relative z-20">
+            <Footer />
+          </div>
         </div>
-
-        <Footer />
       </div>
     );
   }

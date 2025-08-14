@@ -58,8 +58,33 @@ export const Map = ({ showDetails = true, className = "" }: MapProps) => {
            onMouseEnter={() => setIsHovered(true)}
            onMouseLeave={() => setIsHovered(false)}>
         
+        {/* Background Images Behind Map */}
+        <div className="absolute inset-0 opacity-40 pointer-events-none">
+          <div
+            className="absolute inset-0 opacity-60"
+            style={{
+              backgroundImage: `url('/images/new/contactus.jpg')`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat'
+            }}
+          ></div>
+          <div
+            className="absolute inset-0 opacity-40"
+            style={{
+              backgroundImage: `url('/images/new/service.jpg')`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat'
+            }}
+          ></div>
+        </div>
+        
+        {/* Subtle Overlay for Map Readability */}
+        <div className="absolute inset-0 bg-black/20 z-10"></div>
+        
         {/* Map Type Selector Tabs */}
-        <div className="absolute top-4 right-4 z-20 flex gap-2">
+        <div className="absolute top-4 right-4 z-30 flex gap-2">
           {[
             { id: 'map', label: 'Map', icon: MapPin },
             { id: 'street', label: 'Street', icon: Navigation },
@@ -90,11 +115,11 @@ export const Map = ({ showDetails = true, className = "" }: MapProps) => {
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
           title="My Meds Pharmacy Location"
-          className="transition-all duration-500 group-hover:scale-[1.02]"
+          className="transition-all duration-500 group-hover:scale-[1.02] relative z-20"
         />
         
         {/* Enhanced Map Overlay with Pharmacy Info */}
-        <div className={`absolute top-4 left-4 bg-white/95 backdrop-blur-sm rounded-xl shadow-xl p-5 max-w-sm transition-all duration-500 ${
+        <div className={`absolute top-4 left-4 bg-white/95 backdrop-blur-sm rounded-xl shadow-xl p-5 max-w-sm transition-all duration-500 z-30 ${
           isHovered ? 'scale-105 shadow-2xl' : 'scale-100'
         }`}>
           <div className="flex items-start gap-4">

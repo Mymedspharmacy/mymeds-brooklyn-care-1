@@ -8,7 +8,7 @@ import {
   Edit, Trash2, Eye, Download, Filter,
   BarChart3, PieChart, LineChart, Activity,
   Package,
-  Volume2, VolumeX
+  Volume2, VolumeX, Shield
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,6 +31,7 @@ import MedicineSearch from '../components/MedicineSearch';
 import { useNotifications } from '@/hooks/useNotifications';
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { SEOHead } from "@/components/SEOHead";
 import logo from "@/assets/logo.png";
 
 const TABS = [
@@ -1245,12 +1246,18 @@ export default function Admin() {
   )}
 
   return (
-    <div className="min-h-screen bg-[#D5C6BC]">
-      <Header 
-        onRefillClick={() => navigate('/', { state: { openRefillForm: true } })}
-        onAppointmentClick={() => navigate('/', { state: { openAppointmentForm: true } })}
-        onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
+    <>
+      <SEOHead 
+        title="Admin Dashboard - My Meds Pharmacy | Brooklyn Pharmacy Management"
+        description="Access the My Meds Pharmacy admin dashboard for comprehensive pharmacy management, analytics, and patient care coordination in Brooklyn."
+        keywords="admin dashboard, pharmacy management, pharmacy analytics, patient management, prescription management, Brooklyn pharmacy admin"
       />
+      <div className="min-h-screen bg-[#D5C6BC]">
+        <Header 
+          onRefillClick={() => navigate('/', { state: { openRefillForm: true } })}
+          onAppointmentClick={() => navigate('/', { state: { openAppointmentForm: true } })}
+          onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
+        />
       
       <div className="pt-20">
         {/* Toast Notification */}
@@ -1296,7 +1303,21 @@ export default function Admin() {
           
           {/* Admin Header */}
           <div className="bg-white shadow-sm border-b border-gray-200 rounded-lg mb-8 relative z-10 hover:shadow-md transition-shadow duration-300">
-            <div className="px-6 py-4">
+            {/* Background Image Placeholder - Replace with actual pharmacy management/analytics image */}
+                         <div
+               className="absolute inset-0 opacity-50 pointer-events-none rounded-lg"
+               style={{
+                 backgroundImage: `url('/images/new/homepage.jpg')`,
+                 backgroundSize: 'cover',
+                 backgroundPosition: 'center',
+                 backgroundRepeat: 'no-repeat'
+               }}
+             ></div>
+             
+             {/* Balanced Overlay for Text Readability */}
+             <div className="absolute inset-0 bg-black/30 rounded-lg z-10"></div>
+            
+            <div className="px-6 py-4 relative z-10">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="flex-shrink-0 group">
@@ -3402,6 +3423,7 @@ export default function Admin() {
         
         <Footer />
       </div>
-    </div>
-  );
+      </div>
+      </>
+    );
 } 

@@ -4,18 +4,25 @@ import { Button } from "@/components/ui/button";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { SEOHead } from "@/components/SEOHead";
 
 const HIPAANotice = () => {
   const navigate = useNavigate();
   useScrollToTop();
 
   return (
-    <div className="min-h-screen bg-[#D5C6BC]">
-      <Header 
-        onRefillClick={() => navigate('/', { state: { openRefillForm: true } })}
-        onAppointmentClick={() => navigate('/', { state: { openAppointmentForm: true } })}
-        onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
+    <>
+      <SEOHead 
+        title="HIPAA Privacy Notice - My Meds Pharmacy | Brooklyn Privacy Practices"
+        description="Read our HIPAA Notice of Privacy Practices. Learn how My Meds Pharmacy protects your health information and your privacy rights under federal law."
+        keywords="HIPAA notice, privacy practices, health information privacy, patient privacy, Brooklyn pharmacy privacy, HIPAA compliance, health data protection"
       />
+      <div className="min-h-screen bg-[#D5C6BC]">
+        <Header 
+          onRefillClick={() => navigate('/', { state: { openRefillForm: true } })}
+          onAppointmentClick={() => navigate('/', { state: { openAppointmentForm: true } })}
+          onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
+        />
       
       <div className="pt-20">
         {/* Header */}
@@ -239,8 +246,9 @@ const HIPAANotice = () => {
       </div>
 
       <Footer />
-    </div>
-  );
+        </div>
+      </>
+    );
 };
 
 export default HIPAANotice; 
