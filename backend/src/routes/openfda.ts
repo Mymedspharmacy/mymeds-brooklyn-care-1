@@ -5,8 +5,8 @@ import logger from '../utils/logger';
 
 const router = Router();
 
-// Search drugs using OpenFDA API
-router.get('/search', adminAuthMiddleware, async (req: Request, res: Response) => {
+// Search drugs using OpenFDA API - PUBLIC ROUTE (no authentication required)
+router.get('/search', async (req: Request, res: Response) => {
   try {
     const { query, limit = '10' } = req.query;
     
@@ -26,10 +26,10 @@ router.get('/search', adminAuthMiddleware, async (req: Request, res: Response) =
 
     const limitNum = Math.min(parseInt(limit as string), 50); // Max 50 results
     
-    logger.info('OpenFDA: Admin search request', { 
+    logger.info('OpenFDA: Public search request', { 
       query, 
       limit: limitNum,
-      userId: (req.user as any)?.userId 
+      ip: req.ip
     });
 
     const results = await openfdaService.searchDrugs(query, limitNum);
@@ -48,7 +48,7 @@ router.get('/search', adminAuthMiddleware, async (req: Request, res: Response) =
   } catch (error: any) {
     logger.error('OpenFDA: Search failed', { 
       error: error.message,
-      userId: (req.user as any)?.userId 
+      query: req.query.query
     });
     
     res.status(500).json({
@@ -59,7 +59,7 @@ router.get('/search', adminAuthMiddleware, async (req: Request, res: Response) =
   }
 });
 
-// Get detailed drug information
+// Get detailed drug information - ADMIN ONLY
 router.get('/drug/:drugId', adminAuthMiddleware, async (req: Request, res: Response) => {
   try {
     const { drugId } = req.params;

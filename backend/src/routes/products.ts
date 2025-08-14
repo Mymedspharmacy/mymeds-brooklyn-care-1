@@ -1,7 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
-import jwt from 'jsonwebtoken';
-// import { createClient } from '@supabase/supabase-js';
 import multer from 'multer';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
@@ -13,38 +11,10 @@ interface AuthRequest extends Request {
 
 const router = Router();
 const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET;
-
-if (!JWT_SECRET) {
-  console.error('❌ JWT_SECRET environment variable is not set!');
-  console.error('Please set a strong JWT_SECRET in your environment variables.');
-  process.exit(1);
-}
 
 // Supabase is no longer used - migrated to Railway
-// const supabase = createClient(
-//   process.env.SUPABASE_URL!,
-//   process.env.SUPABASE_SERVICE_ROLE_KEY!
-// );
 const SUPABASE_BUCKET = 'product-images';
 const upload = multer({ storage: multer.memoryStorage() });
-
-function auth(req: AuthRequest, res: Response, next: NextFunction) {
-  const header = req.headers.authorization;
-  if (!header) return res.status(401).json({ error: 'No token' });
-  try {
-    const token = header.split(' ')[1];
-    const payload = jwt.verify(token, JWT_SECRET as string);
-    if (typeof payload === 'object' && 'userId' in payload) {
-      req.user = payload;
-      next();
-    } else {
-      res.status(401).json({ error: 'Invalid token' });
-    }
-  } catch {
-    res.status(401).json({ error: 'Invalid token' });
-  }
-}
 
 // Public: list products
 router.get('/', async (req, res) => {
@@ -59,9 +29,8 @@ router.get('/', async (req, res) => {
 });
 
 // Admin: create product
-router.post('/', auth, async (req: AuthRequest, res: Response) => {
+router.post('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     const { name, description, price, stock, imageUrl, categoryId } = req.body;
     const product = await prisma.product.create({
       data: {
@@ -81,9 +50,8 @@ router.post('/', auth, async (req: AuthRequest, res: Response) => {
 });
 
 // Admin: update product
-router.put('/:id', auth, async (req: AuthRequest, res: Response) => {
+router.put('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     const { name, description, price, stock, imageUrl, categoryId } = req.body;
     const product = await prisma.product.update({
       where: { id: Number(req.params.id) },
@@ -106,7 +74,6 @@ router.put('/:id', auth, async (req: AuthRequest, res: Response) => {
 // Admin: delete product
 router.delete('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     await prisma.product.delete({ where: { id: Number(req.params.id) } });
     res.json({ success: true });
   } catch (err) {
@@ -116,9 +83,8 @@ router.delete('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) 
 });
 
 // Upload product image (Supabase storage disabled - migrated to Railway)
-router.post('/:id/images', auth, upload.single('file'), async (req: AuthRequest, res: Response) => {
+router.post('/:id/images', unifiedAdminAuth, upload.single('file'), async (req: AuthRequest, res: Response) => {
   try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     const productId = Number(req.params.id);
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
     
@@ -132,9 +98,8 @@ router.post('/:id/images', auth, upload.single('file'), async (req: AuthRequest,
 });
 
 // Delete product image (Supabase storage disabled - migrated to Railway)
-router.delete('/images/:imageId', auth, async (req: AuthRequest, res: Response) => {
+router.delete('/images/:imageId', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     const imageId = Number(req.params.imageId);
     const image = await prisma.productImage.findUnique({ where: { id: imageId } });
     if (!image) return res.status(404).json({ error: 'Image not found' });
@@ -150,9 +115,8 @@ router.delete('/images/:imageId', auth, async (req: AuthRequest, res: Response) 
 });
 
 // Create product variant
-router.post('/:id/variants', auth, async (req: AuthRequest, res: Response) => {
+router.post('/:id/variants', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     const productId = Number(req.params.id);
     const { name, value, price, stock } = req.body;
     const variant = await prisma.productVariant.create({ data: { productId, name, value, price, stock } });
@@ -163,9 +127,8 @@ router.post('/:id/variants', auth, async (req: AuthRequest, res: Response) => {
   }
 });
 // Update product variant
-router.put('/variants/:variantId', auth, async (req: AuthRequest, res: Response) => {
+router.put('/variants/:variantId', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     const variantId = Number(req.params.variantId);
     const { name, value, price, stock } = req.body;
     const variant = await prisma.productVariant.update({ where: { id: variantId }, data: { name, value, price, stock } });
@@ -176,9 +139,8 @@ router.put('/variants/:variantId', auth, async (req: AuthRequest, res: Response)
   }
 });
 // Delete product variant
-router.delete('/variants/:variantId', auth, async (req: AuthRequest, res: Response) => {
+router.delete('/variants/:variantId', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     const variantId = Number(req.params.variantId);
     await prisma.productVariant.delete({ where: { id: variantId } });
     res.json({ success: true });
@@ -199,9 +161,8 @@ router.get('/categories', async (req: Request, res: Response) => {
   }
 });
 
-router.post('/categories', auth, async (req: AuthRequest, res: Response) => {
+router.post('/categories', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     const { name } = req.body;
     const category = await prisma.category.create({ data: { name } });
     res.status(201).json(category);
@@ -211,9 +172,8 @@ router.post('/categories', auth, async (req: AuthRequest, res: Response) => {
   }
 });
 
-router.put('/categories/:id', auth, async (req: AuthRequest, res: Response) => {
+router.put('/categories/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     const { name } = req.body;
     const category = await prisma.category.update({ where: { id: Number(req.params.id) }, data: { name } });
     res.json(category);
@@ -223,9 +183,8 @@ router.put('/categories/:id', auth, async (req: AuthRequest, res: Response) => {
   }
 });
 
-router.delete('/categories/:id', auth, async (req: AuthRequest, res: Response) => {
+router.delete('/categories/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     await prisma.category.delete({ where: { id: Number(req.params.id) } });
     res.json({ success: true });
   } catch (err) {

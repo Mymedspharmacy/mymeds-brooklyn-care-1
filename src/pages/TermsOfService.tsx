@@ -219,7 +219,7 @@ const TermsOfService = () => {
                     If you have any questions about these Terms of Service, please contact us:
                   </p>
                   <div className="space-y-2 text-[#57BBB6]">
-                    <p><strong>Email:</strong> legal@mymedspharmacy.com</p>
+                    <p><strong>Email:</strong> mymedspharmacy@outlook.com</p>
                     <p><strong>Phone:</strong> (347) 312-6458</p>
                     <p><strong>Address:</strong> J279+5V Brooklyn, NY</p>
                   </div>

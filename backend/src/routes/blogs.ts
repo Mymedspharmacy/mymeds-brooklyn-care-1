@@ -1,6 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
-import jwt from 'jsonwebtoken';
 import { unifiedAdminAuth } from './auth';
 
 interface AuthRequest extends Request {
@@ -9,24 +8,6 @@ interface AuthRequest extends Request {
 
 const router = Router();
 const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || 'changeme';
-
-function auth(req: AuthRequest, res: Response, next: NextFunction) {
-  const header = req.headers.authorization;
-  if (!header) return res.status(401).json({ error: 'No token' });
-  try {
-    const token = header.split(' ')[1];
-    const payload = jwt.verify(token, JWT_SECRET);
-    if (typeof payload === 'object' && 'userId' in payload) {
-      req.user = payload;
-      next();
-    } else {
-      res.status(401).json({ error: 'Invalid token' });
-    }
-  } catch {
-    res.status(401).json({ error: 'Invalid token' });
-  }
-}
 
 // Public: list blogs
 router.get('/', async (req, res) => {
@@ -43,7 +24,6 @@ router.get('/', async (req, res) => {
 // Admin: create blog
 router.post('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     const { title, content, author } = req.body;
     const blog = await prisma.blog.create({ data: { title, content, author } });
     res.status(201).json(blog);
@@ -54,9 +34,8 @@ router.post('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
 });
 
 // Admin: update blog
-router.put('/:id', auth, async (req: AuthRequest, res: Response) => {
+router.put('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     const { title, content, author } = req.body;
     const blog = await prisma.blog.update({ where: { id: Number(req.params.id) }, data: { title, content, author } });
     res.json(blog);
@@ -67,9 +46,8 @@ router.put('/:id', auth, async (req: AuthRequest, res: Response) => {
 });
 
 // Admin: delete blog
-router.delete('/:id', auth, async (req: AuthRequest, res: Response) => {
+router.delete('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     await prisma.blog.delete({ where: { id: Number(req.params.id) } });
     res.json({ success: true });
   } catch (err) {

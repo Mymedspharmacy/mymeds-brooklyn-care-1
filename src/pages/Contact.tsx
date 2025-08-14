@@ -144,11 +144,11 @@ const Contact = () => {
                         </div>
                         <div className="min-w-0 flex-1">
                           <h4 className="font-semibold text-[#376F6B] text-lg mb-2">Email Us</h4>
-                          <p className="text-gray-600 mb-3">info@mymedspharmacy.com</p>
+                          <p className="text-gray-600 mb-3">mymedspharmacy@outlook.com</p>
                           <Button 
                             variant="outline" 
                             size="sm"
-                            onClick={() => window.open('mailto:info@mymedspharmacy.com')}
+                                                          onClick={() => window.open('mailto:mymedspharmacy@outlook.com')}
                             className="text-[#57BBB6] border-[#57BBB6] hover:bg-[#57BBB6] hover:text-white"
                           >
                             <Mail className="h-4 w-4 mr-2" />

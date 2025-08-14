@@ -83,7 +83,7 @@ router.post('/admin-reset-request', async (req, res) => {
 
     try {
       await transporter.sendMail({
-        from: process.env.SMTP_FROM || 'noreply@mymeds.com',
+        from: process.env.SMTP_FROM || 'noreply@mymedspharmacy.com',
         to: user.email,
         subject: 'Admin Password Reset',
         html: `<p>You requested a password reset for your admin account.</p><p><a href="${resetUrl}">Click here to reset your password</a></p><p>This link will expire in 30 minutes.</p>`

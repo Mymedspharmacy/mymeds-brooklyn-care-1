@@ -34,18 +34,23 @@ api.interceptors.response.use(
     return response;
   },
   error => {
-    // Only redirect on authentication errors if we're not already on signin page
-    // and if it's a genuine auth failure (not just a token refresh issue)
+    // Handle authentication errors more gracefully
     if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-      console.log('API Auth Error - checking if we should redirect');
+      console.log('API Auth Error:', error.response.status, error.config?.url);
       
-      // Don't redirect immediately - let the component handle it
-      // This prevents infinite redirect loops
-      if (window.location.pathname !== '/admin-signin') {
-        console.log('Auth error detected, but not redirecting automatically');
-        // Instead of immediate redirect, just clear tokens
+      // Only clear tokens if we're not already on signin page
+      // Let the component handle the redirect to avoid conflicts
+      if (window.location.pathname !== '/admin-signin' && 
+          window.location.pathname !== '/admin-reset') {
+        console.log('Auth error detected, clearing tokens');
+        
+        // Clear tokens but don't redirect automatically
         localStorage.removeItem('railway-admin-token');
         localStorage.removeItem('railway-admin-auth');
+        localStorage.removeItem('railway-admin-user');
+        
+        // Don't redirect here - let the component handle it
+        // This prevents conflicts with the component's authentication flow
       }
     }
     console.log('API Error:', error.config?.url, error.response?.status, error.response?.data);

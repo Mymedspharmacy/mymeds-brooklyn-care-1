@@ -1,6 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import multer from 'multer';
 import path from 'path';
@@ -14,7 +13,6 @@ interface AuthRequest extends Request {
 
 const router = Router();
 const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || 'changeme';
 
 // Email transporter setup
 const emailRecipient = process.env.CONTACT_RECEIVER || process.env.EMAIL_USER;
@@ -61,23 +59,6 @@ const upload = multer({
   }
 });
 
-function auth(req: AuthRequest, res: Response, next: NextFunction) {
-  const header = req.headers.authorization;
-  if (!header) return res.status(401).json({ error: 'No token' });
-  try {
-    const token = header.split(' ')[1];
-    const payload = jwt.verify(token, JWT_SECRET);
-    if (typeof payload === 'object' && 'userId' in payload) {
-      req.user = payload;
-      next();
-    } else {
-      res.status(401).json({ error: 'Invalid token' });
-    }
-  } catch {
-    res.status(401).json({ error: 'Invalid token' });
-  }
-}
-
 // Public: refill prescription request (no auth required)
 router.post('/refill', upload.single('file'), async (req: Request, res: Response) => {
   try {
@@ -101,7 +82,7 @@ router.post('/refill', upload.single('file'), async (req: Request, res: Response
       const hashedPassword = await bcrypt.hash(adminPassword, 10);
       defaultUser = await prisma.user.create({
         data: {
-          email: process.env.ADMIN_EMAIL || 'admin@mymeds.com',
+          email: process.env.ADMIN_EMAIL || 'admin@mymedspharmacy.com',
           password: hashedPassword,
           name: process.env.ADMIN_NAME || 'Admin User',
           role: 'ADMIN'
@@ -168,7 +149,7 @@ router.post('/transfer', upload.single('file'), async (req: Request, res: Respon
       const hashedPassword = await bcrypt.hash(adminPassword, 10);
       defaultUser = await prisma.user.create({
         data: {
-          email: process.env.ADMIN_EMAIL || 'admin@mymeds.com',
+          email: process.env.ADMIN_EMAIL || 'admin@mymedspharmacy.com',
           password: hashedPassword,
           name: process.env.ADMIN_NAME || 'Admin User',
           role: 'ADMIN'
@@ -213,7 +194,7 @@ router.post('/transfer', upload.single('file'), async (req: Request, res: Respon
 });
 
 // User: create prescription (authenticated users)
-router.post('/', auth, async (req: AuthRequest, res: Response) => {
+router.post('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
     const { medication, dosage, instructions } = req.body;
     const prescription = await prisma.prescription.create({
@@ -232,7 +213,7 @@ router.post('/', auth, async (req: AuthRequest, res: Response) => {
 });
 
 // User: get own prescriptions
-router.get('/my', auth, async (req: AuthRequest, res: Response) => {
+router.get('/my', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
     const prescriptions = await prisma.prescription.findMany({ where: { userId: req.user.userId } });
     res.json(prescriptions);
@@ -257,7 +238,7 @@ router.get('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
 });
 
 // Admin: delete prescription
-router.delete('/:id', auth, async (req: AuthRequest, res: Response) => {
+router.delete('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     await prisma.prescription.delete({ where: { id: Number(req.params.id) } });

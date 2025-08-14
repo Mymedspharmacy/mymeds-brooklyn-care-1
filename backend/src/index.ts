@@ -32,6 +32,7 @@ import analyticsRoutes from './routes/analytics';
 import patientRoutes from './routes/patient';
 import monitoringRoutes from './routes/monitoring';
 import openfdaRoutes from './routes/openfda';
+import cartRoutes from './routes/cart';
 // @ts-ignore
 import hpp from 'hpp';
 import mongoSanitize from 'express-mongo-sanitize';
@@ -381,6 +382,7 @@ app.use('/api/analytics', currentLimiter, analyticsRoutes);
 app.use('/api/patient', currentLimiter, patientRoutes);
 app.use('/api/monitoring', currentLimiter, monitoringRoutes);
 app.use('/api/openfda', currentLimiter, openfdaRoutes);
+app.use('/api/cart', currentLimiter, cartRoutes);
 
 // Notification endpoints
 app.get('/api/notifications', adminAuthMiddleware, async (req: Request, res: Response) => {

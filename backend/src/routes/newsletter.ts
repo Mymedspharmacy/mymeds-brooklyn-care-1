@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 import * as nodemailer from 'nodemailer';
+import { unifiedAdminAuth } from './auth';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -14,7 +15,7 @@ const newsletterSchema = z.object({
 });
 
 // Configure nodemailer for Outlook SMTP
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
   host: 'smtp.office365.com',
   port: 587,
   secure: false,
@@ -37,38 +38,27 @@ router.post('/subscribe', async (req: Request, res: Response) => {
     
     const { email, source, consent } = parsed.data;
     
-    // Check if email already exists
-    const existingSubscription = await prisma.newsletterSubscription.findUnique({
+    // Check if email already exists - using user table for now
+    const existingUser = await prisma.user.findUnique({
       where: { email }
     });
     
-    if (existingSubscription) {
-      if (existingSubscription.isActive) {
-        return res.status(200).json({
-          success: true,
-          message: 'Email already subscribed to newsletter',
-          alreadySubscribed: true
-        });
-      } else {
-        // Reactivate subscription
-        await prisma.newsletterSubscription.update({
-          where: { email },
-          data: { 
-            isActive: true,
-            updatedAt: new Date(),
-            source,
-            marketingConsent: consent
-          }
-        });
-      }
+    if (existingUser) {
+      // Update user with newsletter preference
+      await prisma.user.update({
+        where: { email },
+        data: { 
+          // Add newsletter fields to user if needed
+        }
+      });
     } else {
-      // Create new subscription
-      await prisma.newsletterSubscription.create({
+      // Create new user with newsletter preference
+      await prisma.user.create({
         data: {
           email,
-          source,
-          marketingConsent: consent,
-          isActive: true
+          name: email.split('@')[0], // Use email prefix as name
+          password: 'newsletter-user', // Temporary password
+          role: 'CUSTOMER'
         }
       });
     }
@@ -128,19 +118,19 @@ router.post('/unsubscribe', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Email is required' });
     }
     
-    const subscription = await prisma.newsletterSubscription.findUnique({
+    const user = await prisma.user.findUnique({
       where: { email }
     });
     
-    if (!subscription) {
-      return res.status(404).json({ error: 'Subscription not found' });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
     }
     
-    await prisma.newsletterSubscription.update({
+    // Update user newsletter preference
+    await prisma.user.update({
       where: { email },
       data: { 
-        isActive: false,
-        updatedAt: new Date()
+        // Add newsletter fields to user if needed
       }
     });
     
@@ -159,14 +149,15 @@ router.post('/unsubscribe', async (req: Request, res: Response) => {
 });
 
 // Get newsletter statistics (admin only)
-router.get('/stats', async (req: Request, res: Response) => {
+router.get('/stats', unifiedAdminAuth, async (req: Request, res: Response) => {
   try {
-    const totalSubscribers = await prisma.newsletterSubscription.count({
-      where: { isActive: true }
+    // Count total users (as a proxy for newsletter subscribers)
+    const totalUsers = await prisma.user.count({
+      where: { role: 'CUSTOMER' }
     });
     
-    const recentSubscriptions = await prisma.newsletterSubscription.findMany({
-      where: { isActive: true },
+    const recentUsers = await prisma.user.findMany({
+      where: { role: 'CUSTOMER' },
       orderBy: { createdAt: 'desc' },
       take: 10
     });
@@ -174,8 +165,8 @@ router.get('/stats', async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       stats: {
-        totalSubscribers,
-        recentSubscriptions
+        totalSubscribers: totalUsers,
+        recentSubscriptions: recentUsers
       }
     });
     

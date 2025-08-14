@@ -84,7 +84,7 @@ export default function About() {
   };
 
   const handleEmailClick = () => {
-    window.open('mailto:info@mymedspharmacy.com');
+    window.open('mailto:mymedspharmacy@outlook.com');
   };
 
   const handleMapClick = () => {

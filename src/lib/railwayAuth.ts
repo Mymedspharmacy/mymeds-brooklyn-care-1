@@ -97,7 +97,33 @@ class RailwayAuth {
   }
 
   // Check if user is authenticated
-  isAuthenticated(): boolean {
+  async isAuthenticated(): Promise<boolean> {
+    const token = localStorage.getItem('railway-admin-token');
+    const auth = localStorage.getItem('railway-admin-auth');
+    
+    if (!token || auth !== 'true') {
+      return false;
+    }
+
+    // Validate token with backend
+    try {
+      const response = await api.get('/auth/me');
+      if (response.status === 200 && response.data) {
+        this.user = response.data;
+        return true;
+      }
+      return false;
+    } catch (error: any) {
+      // If token is invalid, clear it
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        await this.logout();
+      }
+      return false;
+    }
+  }
+
+  // Synchronous check for UI rendering (use with caution)
+  isAuthenticatedSync(): boolean {
     return !!this.token && !!localStorage.getItem('railway-admin-auth');
   }
 

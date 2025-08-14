@@ -1,8 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
-import jwt from 'jsonwebtoken';
-import { unifiedAdminAuth } from './auth';
-
+import { z } from 'zod';
+import { auth, unifiedAdminAuth } from './auth';
 
 interface AuthRequest extends Request {
   user?: any;
@@ -10,253 +9,386 @@ interface AuthRequest extends Request {
 
 const router = Router();
 const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || 'changeme';
 
-function auth(req: AuthRequest, res: Response, next: NextFunction) {
-  const header = req.headers.authorization;
-  if (!header) return res.status(401).json({ error: 'No token' });
-  try {
-    const token = header.split(' ')[1];
-    req.user = jwt.verify(token, JWT_SECRET);
-    next();
-  } catch {
-    res.status(401).json({ error: 'Invalid token' });
+// Guest checkout schema
+const guestCheckoutSchema = z.object({
+  cartId: z.string(),
+  guestEmail: z.string().email('Valid email is required'),
+  guestName: z.string().min(2, 'Name must be at least 2 characters'),
+  guestPhone: z.string().min(10, 'Valid phone number is required'),
+  shippingAddress: z.string().min(10, 'Shipping address is required'),
+  shippingCity: z.string().min(2, 'City is required'),
+  shippingState: z.string().min(2, 'State is required'),
+  shippingZipCode: z.string().min(5, 'Valid ZIP code is required'),
+  shippingCountry: z.string().default('USA'),
+  shippingMethod: z.enum(['standard', 'express', 'overnight']).default('standard'),
+  paymentMethod: z.enum(['stripe', 'paypal']).default('stripe'),
+  paymentIntentId: z.string().optional(), // Stripe payment intent ID
+  notes: z.string().optional(),
+});
+
+// Guest order tracking schema
+const guestOrderTrackingSchema = z.object({
+  orderNumber: z.string().optional(),
+  guestEmail: z.string().email('Valid email is required'),
+  guestPhone: z.string().min(10, 'Valid phone number is required'),
+});
+
+// Calculate shipping cost
+function calculateShippingCost(method: string, subtotal: number): number {
+  switch (method) {
+    case 'standard':
+      return subtotal >= 50 ? 0 : 5.99; // Free shipping over $50
+    case 'express':
+      return 12.99;
+    case 'overnight':
+      return 24.99;
+    default:
+      return 5.99;
   }
 }
 
-// User: create order
-router.post('/', auth, async (req: AuthRequest, res: Response) => {
-  try {
-    const { items, total, status } = req.body;
-    const order = await prisma.order.create({
-      data: {
-        userId: req.user.userId,
-        total,
-        status,
-        items: {
-          create: items.map((i: any) => ({ productId: i.productId, quantity: i.quantity, price: i.price }))
-        }
-      },
-      include: { items: true }
-    });
-    res.status(201).json(order);
-  } catch (err) {
-    console.error('Error creating order:', err);
-    res.status(500).json({ error: 'Failed to create order' });
-  }
-});
+// Calculate tax (simplified - you may want to integrate with a tax service)
+function calculateTax(subtotal: number, state: string): number {
+  // Simplified tax calculation - in production, use a tax service
+  const taxRates: { [key: string]: number } = {
+    'NY': 0.0875, // New York
+    'CA': 0.0825, // California
+    'TX': 0.0625, // Texas
+    'FL': 0.0600, // Florida
+    'WA': 0.0650, // Washington
+  };
+  
+  const rate = taxRates[state.toUpperCase()] || 0.0600; // Default 6%
+  return subtotal * rate;
+}
 
-// Public: create order (for client-side ordering)
-router.post('/public', async (req: Request, res: Response) => {
+// Generate order number
+function generateOrderNumber(): string {
+  const timestamp = Date.now().toString().slice(-8);
+  const random = Math.random().toString(36).substr(2, 4).toUpperCase();
+  return `ORD-${timestamp}-${random}`;
+}
+
+// Guest checkout - create order without account
+router.post('/guest-checkout', async (req: Request, res: Response) => {
   try {
-    const { items, total, customerInfo } = req.body;
+    const validatedData = guestCheckoutSchema.parse(req.body);
     
-    // Create or get a default user for public orders
-    let user = await prisma.user.findFirst({ where: { email: 'public@mymeds.com' } });
-    if (!user) {
-      user = await prisma.user.create({
-        data: {
-          email: 'public@mymeds.com',
-          name: 'Public Customer',
-          password: 'public123',
-          role: 'CUSTOMER'
-        }
-      });
-    }
-    
-    const order = await prisma.order.create({
-      data: {
-        userId: user.id,
-        total,
-        status: 'pending',
-        notified: false, // Ensure notified is false for new orders
+    // Get cart and validate
+    const cart = await prisma.cart.findUnique({
+      where: { id: validatedData.cartId },
+      include: {
         items: {
-          create: items.map((item: any) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            price: item.price
-          }))
-        }
-      },
-      include: { 
-        items: {
-          include: {
-            product: true
-          }
-        },
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true
-          }
+          include: { product: true }
         }
       }
     });
     
-    // Send email notification to admin
-    try {
-      const nodemailer = require('nodemailer');
-      const transporter = nodemailer.createTransporter({
-        host: process.env.SMTP_HOST,
-        port: process.env.SMTP_PORT,
-        secure: false,
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS
-        }
-      });
-      
-      const mailOptions = {
-        from: process.env.SMTP_USER,
-        to: process.env.ADMIN_EMAIL || 'admin@mymeds.com',
-        subject: `New Order Received - Order #${order.id}`,
-        html: `
-          <h2>New Order Received</h2>
-          <p><strong>Order ID:</strong> ${order.id}</p>
-          <p><strong>Customer:</strong> ${customerInfo.name}</p>
-          <p><strong>Email:</strong> ${customerInfo.email}</p>
-          <p><strong>Phone:</strong> ${customerInfo.phone}</p>
-          <p><strong>Address:</strong> ${customerInfo.address}</p>
-          <p><strong>Total:</strong> $${total}</p>
-          <h3>Items:</h3>
-          <ul>
-            ${items.map((item: any) => `<li>${item.quantity}x ${item.productName} - $${item.price}</li>`).join('')}
-          </ul>
-          <p><strong>Notes:</strong> ${customerInfo.notes || 'None'}</p>
-        `
-      };
-      
-      await transporter.sendMail(mailOptions);
-    } catch (emailError) {
-      console.error('Failed to send order notification email:', emailError);
+    if (!cart) {
+      return res.status(404).json({ error: 'Cart not found' });
     }
     
-    res.status(201).json(order);
-  } catch (err) {
-    console.error('Error creating public order:', err);
-    res.status(500).json({ error: 'Failed to create order' });
+    if (cart.items.length === 0) {
+      return res.status(400).json({ error: 'Cart is empty' });
+    }
+    
+    // Check stock availability
+    for (const item of cart.items) {
+      if (item.product.stock < item.quantity) {
+        return res.status(400).json({
+          error: `Insufficient stock for ${item.product.name}`,
+          product: item.product.name,
+          availableStock: item.product.stock,
+          requestedQuantity: item.quantity
+        });
+      }
+    }
+    
+    // Calculate totals
+    const subtotal = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const shippingCost = calculateShippingCost(validatedData.shippingMethod, subtotal);
+    const taxAmount = calculateTax(subtotal, validatedData.shippingState);
+    const total = subtotal + shippingCost + taxAmount;
+    
+    // Create order
+    const order = await prisma.order.create({
+      data: {
+        orderNumber: generateOrderNumber(),
+        total: parseFloat(total.toFixed(2)),
+        status: 'pending',
+        guestEmail: validatedData.guestEmail,
+        guestName: validatedData.guestName,
+        guestPhone: validatedData.guestPhone,
+        shippingAddress: validatedData.shippingAddress,
+        shippingCity: validatedData.shippingCity,
+        shippingState: validatedData.shippingState,
+        shippingZipCode: validatedData.shippingZipCode,
+        shippingCountry: validatedData.shippingCountry,
+        shippingMethod: validatedData.shippingMethod,
+        shippingCost: parseFloat(shippingCost.toFixed(2)),
+        taxAmount: parseFloat(taxAmount.toFixed(2)),
+        subtotal: parseFloat(subtotal.toFixed(2)),
+        paymentMethod: validatedData.paymentMethod,
+        paymentIntentId: validatedData.paymentIntentId,
+        paymentStatus: validatedData.paymentIntentId ? 'paid' : 'pending',
+      }
+    });
+    
+    // Create order items
+    const orderItems = await Promise.all(
+      cart.items.map(item =>
+        prisma.orderItem.create({
+          data: {
+            orderId: order.id,
+            productId: item.productId,
+            quantity: item.quantity,
+            price: item.price
+          }
+        })
+      )
+    );
+    
+    // Update product stock
+    await Promise.all(
+      cart.items.map(item =>
+        prisma.product.update({
+          where: { id: item.productId },
+          data: { stock: { decrement: item.quantity } }
+        })
+      )
+    );
+    
+    // Create guest order tracking
+    await prisma.guestOrderTracking.create({
+      data: {
+        orderId: order.id,
+        estimatedDelivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+      }
+    });
+    
+    // Clear cart
+    await prisma.cartItem.deleteMany({
+      where: { cartId: validatedData.cartId }
+    });
+    
+    // Send order confirmation email (implement email service)
+    // await sendOrderConfirmationEmail(order, validatedData.guestEmail);
+    
+    res.status(201).json({
+      success: true,
+      message: 'Order created successfully',
+      order: {
+        id: order.id,
+        orderNumber: order.orderNumber,
+        total: order.total,
+        status: order.status,
+        estimatedDelivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+      }
+    });
+    
+  } catch (error: any) {
+    console.error('Error creating guest order:', error);
+    res.status(500).json({
+      error: 'Failed to create order',
+      message: error.message
+    });
   }
 });
 
-// User: get own orders
-/*router.get('/my', auth, async (req: AuthRequest, res: Response) => {
+// Guest order tracking
+router.get('/guest-track', async (req: Request, res: Response) => {
   try {
-    const orders = await prisma.order.findMany({ where: { userId: req.user.userId }, include: { items: true } });
-    res.json(orders);
-  } catch (err) {
-    console.error('Error fetching orders:', err);
-    res.status(500).json({ error: 'Failed to fetch orders' });
+    const { orderNumber, guestEmail, guestPhone } = guestOrderTrackingSchema.parse(req.query);
+    
+    let order;
+    
+    if (orderNumber) {
+      // Track by order number
+      order = await prisma.order.findUnique({
+        where: { orderNumber: orderNumber as string },
+        include: {
+          items: {
+            include: { product: true }
+          },
+          tracking: true
+        }
+      });
+    } else {
+      // Track by email and phone
+      order = await prisma.order.findFirst({
+        where: {
+          guestEmail,
+          guestPhone
+        },
+        include: {
+          items: {
+            include: { product: true }
+          },
+          tracking: true
+        },
+        orderBy: { createdAt: 'desc' }
+      });
+    }
+    
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+    
+    // Verify guest information
+    if (order.guestEmail !== guestEmail || order.guestPhone !== guestPhone) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+    
+    res.json({
+      success: true,
+      order: {
+        id: order.id,
+        orderNumber: order.orderNumber,
+        status: order.status,
+        total: order.total,
+        createdAt: order.createdAt,
+        shippingAddress: order.shippingAddress,
+        shippingCity: order.shippingCity,
+        shippingState: order.shippingState,
+        shippingZipCode: order.shippingZipCode,
+        items: order.items,
+        tracking: order.tracking
+      }
+    });
+    
+  } catch (error: any) {
+    console.error('Error tracking guest order:', error);
+    res.status(500).json({
+      error: 'Failed to track order',
+      message: error.message
+    });
   }
-});*/
+});
 
-// Admin: get all orders
+// Get all orders (admin only)
 router.get('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     let limit = parseInt(req.query.limit as string) || 20;
     if (limit > 100) limit = 100;
-    const orders = await prisma.order.findMany({ include: { items: true }, take: limit });
+    
+    const orders = await prisma.order.findMany({
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        user: {
+          select: { id: true, email: true, name: true }
+        },
+        items: {
+          include: { product: true }
+        },
+        tracking: true
+      }
+    });
+    
     res.json(orders);
-  } catch (err) {
-    console.error('Error fetching all orders:', err);
-    res.status(500).json({ error: 'Failed to fetch orders' });
+  } catch (err: any) {
+    console.error('Error fetching orders:', err);
+    res.status(500).json({ 
+      error: 'Failed to fetch orders',
+      message: err.message 
+    });
   }
 });
 
-// Admin: get specific order by ID
+// Get order by ID (admin only)
 router.get('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
-    const order = await prisma.order.findUnique({ 
-      where: { id: Number(req.params.id) }, 
-      include: { 
-        items: {
-          include: {
-            product: true
-          }
-        },
+    const orderId = parseInt(req.params.id);
+    
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: {
         user: {
-          select: {
-            id: true,
-            name: true,
-            email: true
-          }
-        }
-      } 
+          select: { id: true, email: true, name: true }
+        },
+        items: {
+          include: { product: true }
+        },
+        tracking: true
+      }
     });
-    if (!order) return res.status(404).json({ error: 'Order not found' });
+    
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+    
     res.json(order);
-  } catch (err) {
+  } catch (err: any) {
     console.error('Error fetching order:', err);
-    res.status(500).json({ error: 'Failed to fetch order' });
+    res.status(500).json({ 
+      error: 'Failed to fetch order',
+      message: err.message 
+    });
   }
 });
 
-// Admin: update order status
-router.put('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+// Update order status (admin only)
+router.put('/:id/status', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
-    const { status } = req.body;
-    const order = await prisma.order.update({ where: { id: Number(req.params.id) }, data: { status } });
-    res.json(order);
-  } catch (err) {
-    console.error('Error updating order:', err);
-    res.status(500).json({ error: 'Failed to update order' });
+    const orderId = parseInt(req.params.id);
+    const { status, trackingNumber, estimatedDelivery } = req.body;
+    
+    if (!status) {
+      return res.status(400).json({ error: 'Status is required' });
+    }
+    
+    const order = await prisma.order.update({
+      where: { id: orderId },
+      data: { status }
+    });
+    
+    // Update tracking information if provided
+    if (trackingNumber || estimatedDelivery) {
+      await prisma.guestOrderTracking.update({
+        where: { orderId },
+        data: {
+          trackingNumber,
+          estimatedDelivery: estimatedDelivery ? new Date(estimatedDelivery) : undefined
+        }
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: 'Order status updated',
+      order
+    });
+    
+  } catch (err: any) {
+    console.error('Error updating order status:', err);
+    res.status(500).json({ 
+      error: 'Failed to update order status',
+      message: err.message 
+    });
   }
 });
 
-// Admin: delete order
+// Delete order (admin only)
 router.delete('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
-    await prisma.order.delete({ where: { id: Number(req.params.id) } });
-    res.json({ success: true });
-  } catch (err) {
+    const orderId = parseInt(req.params.id);
+    
+    await prisma.order.delete({
+      where: { id: orderId }
+    });
+    
+    res.json({
+      success: true,
+      message: 'Order deleted successfully'
+    });
+    
+  } catch (err: any) {
     console.error('Error deleting order:', err);
-    res.status(500).json({ error: 'Failed to delete order' });
-  }
-});
-
-// Admin: get order items
-router.get('/:id/items', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
-  try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
-    const items = await prisma.orderItem.findMany({ 
-      where: { orderId: Number(req.params.id) },
-      include: { product: true }
+    res.status(500).json({ 
+      error: 'Failed to delete order',
+      message: err.message 
     });
-    res.json(items);
-  } catch (err) {
-    console.error('Error fetching order items:', err);
-    res.status(500).json({ error: 'Failed to fetch order items' });
-  }
-});
-
-// Admin: add item to order
-router.post('/:id/items', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
-  try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
-    const { productId, quantity, price } = req.body;
-    const item = await prisma.orderItem.create({
-      data: {
-        orderId: Number(req.params.id),
-        productId,
-        quantity,
-        price
-      },
-      include: { product: true }
-    });
-    
-    // Update order total
-    const orderItems = await prisma.orderItem.findMany({ where: { orderId: Number(req.params.id) } });
-    const newTotal = orderItems.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0);
-    await prisma.order.update({ where: { id: Number(req.params.id) }, data: { total: newTotal } });
-    
-    res.status(201).json(item);
-  } catch (err) {
-    console.error('Error adding order item:', err);
-    res.status(500).json({ error: 'Failed to add order item' });
   }
 });
 

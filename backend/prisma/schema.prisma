@@ -22,6 +22,7 @@ model User {
   refillRequests RefillRequest[]
   transferRequests TransferRequest[]
   patientProfile PatientProfile?
+  carts         Cart[]
 }
 
 model PatientProfile {
@@ -91,18 +92,61 @@ model Product {
   images      ProductImage[]
   variants    ProductVariant[]
   Review      Review[]
+  cartItems   CartItem[]
 }
 
 model Order {
   id        Int         @id @default(autoincrement())
-  userId    Int
+  userId    Int?        // Optional for guest orders
   total     Float
   status    String
   createdAt DateTime    @default(now())
   notified  Boolean     @default(false)
-  user      User        @relation(fields: [userId], references: [id])
+  
+  // Guest order information
+  guestEmail        String?
+  guestName         String?
+  guestPhone        String?
+  shippingAddress   String?
+  shippingCity      String?
+  shippingState     String?
+  shippingZipCode   String?
+  shippingCountry   String? @default("USA")
+  
+  // Order metadata
+  orderNumber       String   @unique // Human-readable order number
+  paymentStatus     String   @default("pending") // pending, paid, failed, refunded
+  paymentMethod     String?  // stripe, paypal, etc.
+  paymentIntentId   String?  // Stripe payment intent ID
+  shippingMethod    String?  // standard, express, overnight
+  shippingCost      Float    @default(0)
+  taxAmount         Float    @default(0)
+  subtotal          Float    // Before tax and shipping
+  
+  // Relationships
+  user      User?        @relation(fields: [userId], references: [id])
   items     OrderItem[]
+  tracking  GuestOrderTracking?
+  
   @@index([notified, createdAt])
+  @@index([orderNumber])
+  @@index([guestEmail])
+  @@index([status, createdAt])
+  @@index([paymentStatus])
+}
+
+model GuestOrderTracking {
+  id          Int      @id @default(autoincrement())
+  orderId     Int      @unique
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  trackingNumber String? // Shipping tracking number
+  estimatedDelivery DateTime?
+  deliveredAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([trackingNumber])
+  @@index([estimatedDelivery])
 }
 
 model OrderItem {
@@ -282,6 +326,33 @@ model NewsletterSubscription {
   @@index([email])
   @@index([isActive])
   @@index([createdAt])
+}
+
+model Cart {
+  id        String     @id @default(cuid()) // Session-based cart ID
+  userId    Int?       // Optional for guest carts
+  user      User?      @relation(fields: [userId], references: [id])
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  expiresAt DateTime   // Cart expiration (24 hours for guests)
+  
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  cartId    String
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float    // Price at time of adding to cart
+  createdAt DateTime @default(now())
+  
+  @@index([cartId])
+  @@index([productId])
 }
 
 enum Role {

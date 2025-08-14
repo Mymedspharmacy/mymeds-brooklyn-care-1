@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 import * as nodemailer from 'nodemailer';
+import { unifiedAdminAuth } from './auth';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -108,7 +109,7 @@ Submitted: ${formData.timestamp || new Date().toISOString()}
 });
 
 // Get all contact forms (admin only)
-router.get('/', async (req, res) => {
+router.get('/', unifiedAdminAuth, async (req, res) => {
   try {
     let limit = parseInt(req.query.limit as string) || 20;
     if (limit > 100) limit = 100;
@@ -131,7 +132,7 @@ router.get('/', async (req, res) => {
 });
 
 // Mark contact as read (admin only)
-router.put('/:id/read', async (req, res) => {
+router.put('/:id/read', unifiedAdminAuth, async (req, res) => {
   try {
     const contactId = parseInt(req.params.id);
     const contact = await prisma.contactForm.update({
@@ -154,7 +155,7 @@ router.put('/:id/read', async (req, res) => {
 });
 
 // Delete contact form (admin only)
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', unifiedAdminAuth, async (req, res) => {
   try {
     const contactId = parseInt(req.params.id);
     await prisma.contactForm.delete({
