@@ -1272,17 +1272,38 @@ export default function Admin() {
         )}
 
         {/* Admin Dashboard Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+          {/* Animated Background Elements */}
+          <div className="absolute inset-0 pointer-events-none">
+            {/* Floating Admin Icons */}
+            <div className="absolute top-10 left-10 text-[#57BBB6]/10 animate-bounce" style={{ animationDelay: '0s' }}>
+              <Settings className="w-6 h-6" />
+            </div>
+            <div className="absolute top-20 right-20 text-[#376F6B]/8 animate-bounce" style={{ animationDelay: '1s' }}>
+              <BarChart3 className="w-5 h-5" />
+            </div>
+            <div className="absolute bottom-20 left-20 text-[#D5C6BC]/12 animate-bounce" style={{ animationDelay: '2s' }}>
+              <TrendingUp className="w-7 h-7" />
+            </div>
+            <div className="absolute bottom-10 right-10 text-[#57BBB6]/9 animate-bounce" style={{ animationDelay: '3s' }}>
+              <Shield className="w-6 h-6" />
+            </div>
+            
+            {/* Animated Particles */}
+            <div className="absolute top-1/3 left-1/4 w-1.5 h-1.5 bg-[#57BBB6]/15 rounded-full animate-ping"></div>
+            <div className="absolute bottom-1/3 right-1/4 w-1 h-1 bg-[#376F6B]/10 rounded-full animate-ping" style={{ animationDelay: '2s' }}></div>
+          </div>
+          
           {/* Admin Header */}
-          <div className="bg-white shadow-sm border-b border-gray-200 rounded-lg mb-8">
+          <div className="bg-white shadow-sm border-b border-gray-200 rounded-lg mb-8 relative z-10 hover:shadow-md transition-shadow duration-300">
             <div className="px-6 py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className="flex-shrink-0">
+                  <div className="flex-shrink-0 group">
                     <img
                       src={logo}
                       alt="My Meds Pharmacy Logo"
-                      className="h-8 w-auto sm:h-10 md:h-12 object-contain"
+                      className="h-8 w-auto sm:h-10 md:h-12 object-contain group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
                   <div className="hidden sm:block">
@@ -1496,10 +1517,10 @@ export default function Admin() {
                 <TabsContent value="dashboard" className="space-y-6">
                   {/* Stats Cards */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <Card>
+                    <Card className="hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
                       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
-                        <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+                        <ShoppingCart className="h-4 w-4 text-muted-foreground group-hover:scale-110 transition-transform duration-300" />
                       </CardHeader>
                       <CardContent>
                         <div className="text-2xl font-bold">{stats.totalOrders}</div>
@@ -1509,10 +1530,10 @@ export default function Admin() {
                       </CardContent>
                     </Card>
 
-                    <Card>
+                    <Card className="hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
                       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Refill Requests</CardTitle>
-                        <Pill className="h-4 w-4 text-muted-foreground" />
+                        <Pill className="h-4 w-4 text-muted-foreground group-hover:scale-110 transition-transform duration-300" />
                       </CardHeader>
                       <CardContent>
                         <div className="text-2xl font-bold">{stats.totalRefills}</div>
@@ -1522,10 +1543,10 @@ export default function Admin() {
                       </CardContent>
                     </Card>
 
-                    <Card>
+                    <Card className="hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
                       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Transfer Requests</CardTitle>
-                        <RefreshCw className="h-4 w-4 text-muted-foreground" />
+                        <RefreshCw className="h-4 w-4 text-muted-foreground group-hover:scale-110 transition-transform duration-300" />
                       </CardHeader>
                       <CardContent>
                         <div className="text-2xl font-bold">{stats.totalTransfers}</div>
@@ -1535,10 +1556,10 @@ export default function Admin() {
                       </CardContent>
                     </Card>
 
-                    <Card>
+                    <Card className="hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
                       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Contact Requests</CardTitle>
-                        <MessageSquare className="h-4 w-4 text-muted-foreground" />
+                        <MessageSquare className="h-4 w-4 text-muted-foreground group-hover:scale-110 transition-transform duration-300" />
                       </CardHeader>
                       <CardContent>
                         <div className="text-2xl font-bold">{stats.totalContacts}</div>

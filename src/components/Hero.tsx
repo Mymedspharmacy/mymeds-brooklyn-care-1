@@ -138,6 +138,21 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
+      {/* Subtle Background Elements */}
+      <div className="absolute inset-0 pointer-events-none z-10">
+        {/* Floating Medical Icons - Reduced */}
+        <div className="absolute top-20 left-10 text-white/10 animate-bounce" style={{ animationDelay: '0s' }}>
+          <Shield className="w-6 h-6" />
+        </div>
+        <div className="absolute bottom-20 right-20 text-white/8 animate-bounce" style={{ animationDelay: '2s' }}>
+          <Heart className="w-5 h-5" />
+        </div>
+        
+        {/* Subtle Particles - Reduced */}
+        <div className="absolute top-1/3 left-1/4 w-1 h-1 bg-white/20 rounded-full animate-ping"></div>
+        <div className="absolute bottom-1/3 right-1/4 w-1 h-1 bg-white/15 rounded-full animate-ping" style={{ animationDelay: '2s' }}></div>
+      </div>
+      
       {/* Background Image Slider */}
       <div className="absolute inset-0 z-0">
         {heroImages.map((image, index) => (
@@ -202,7 +217,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
             {/* Left Column - Main Content */}
             <div className="text-center space-y-6 sm:space-y-8">
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium border border-white/30">
+              <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium border border-white/30 hover:scale-105 transition-transform duration-300 shadow-lg hover:shadow-xl">
                 <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Trusted by Brooklyn Community </span>
                 <span className="sm:hidden">Trusted </span>
@@ -212,7 +227,9 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
               <div className="space-y-4 sm:space-y-6">
                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight">
                   Your Health,
-                  <span className="block text-[#2A5A56]">Our Priority</span>
+                  <span className="block text-[#2A5A56] bg-gradient-to-r from-[#2A5A56] to-[#57BBB6] bg-clip-text text-transparent">
+                    Our Priority
+                  </span>
                 </h1>
                 <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 leading-relaxed max-w-2xl mx-auto px-4 sm:px-0">
                   Professional pharmaceutical care with personalized service. 
@@ -249,16 +266,16 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
 
               {/* Trust Indicators */}
               <div className="flex flex-wrap justify-center gap-4 sm:gap-6 pt-4">
-                <div className="flex items-center gap-2 text-white/80">
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#2A5A56] rounded-full"></div>
+                <div className="flex items-center gap-2 text-white/80 hover:text-white transition-colors duration-300 group">
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#2A5A56] rounded-full group-hover:scale-110 transition-transform duration-300"></div>
                   <span className="text-xs sm:text-sm font-medium">Licensed Pharmacists</span>
                 </div>
-                <div className="flex items-center gap-2 text-white/80">
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#2A5A56] rounded-full"></div>
+                <div className="flex items-center gap-2 text-white/80 hover:text-white transition-colors duration-300 group">
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#2A5A56] rounded-full group-hover:scale-110 transition-transform duration-300"></div>
                   <span className="text-xs sm:text-sm font-medium">Same Day Service</span>
                 </div>
-                <div className="flex items-center gap-2 text-white/80">
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#2A5A56] rounded-full"></div>
+                <div className="flex items-center gap-2 text-white/80 hover:text-white transition-colors duration-300 group">
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#2A5A56] rounded-full group-hover:scale-110 transition-transform duration-300"></div>
                   <span className="text-xs sm:text-sm font-medium">Insurance Accepted</span>
                 </div>
               </div>

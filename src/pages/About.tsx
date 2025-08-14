@@ -1,5 +1,6 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { HowItWorks } from "@/components/HowItWorks";
 import { RefillForm } from "@/components/RefillForm";
 import { AppointmentForm } from "@/components/AppointmentForm";
 import { TransferForm } from "@/components/TransferForm";
@@ -176,8 +177,37 @@ export default function About() {
       
       <div className="pt-20">
         {/* Hero Section */}
-        <div className="bg-[#57BBB6] text-white py-16 sm:py-20 md:py-24">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="bg-[#57BBB6] text-white py-16 sm:py-20 md:py-24 relative overflow-hidden">
+          {/* Animated Background Elements */}
+          <div className="absolute inset-0 pointer-events-none">
+            {/* Floating Medical Icons */}
+            <div className="absolute top-20 left-10 text-white/15 animate-bounce" style={{ animationDelay: '0s' }}>
+              <Heart className="w-8 h-8" />
+            </div>
+            <div className="absolute top-32 right-20 text-white/12 animate-bounce" style={{ animationDelay: '1s' }}>
+              <Shield className="w-6 h-6" />
+            </div>
+            <div className="absolute bottom-32 left-1/4 text-white/18 animate-bounce" style={{ animationDelay: '2s' }}>
+              <Star className="w-7 h-7" />
+            </div>
+            <div className="absolute bottom-20 right-1/3 text-white/14 animate-bounce" style={{ animationDelay: '3s' }}>
+              <Building2 className="w-8 h-8" />
+            </div>
+            
+            {/* Animated Particles */}
+            <div className="absolute top-1/4 left-1/3 w-2 h-2 bg-white/25 rounded-full animate-ping"></div>
+            <div className="absolute top-1/2 right-1/4 w-1.5 h-1.5 bg-white/20 rounded-full animate-ping" style={{ animationDelay: '1.5s' }}></div>
+            <div className="absolute bottom-1/3 left-1/2 w-1 h-1 bg-white/30 rounded-full animate-ping" style={{ animationDelay: '3s' }}></div>
+            
+            {/* Pulse Waves */}
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              <div className="w-48 h-48 border border-white/15 rounded-full animate-ping"></div>
+              <div className="w-48 h-48 border border-white/15 rounded-full animate-ping absolute top-0 left-0" style={{ animationDelay: '1s' }}></div>
+              <div className="w-48 h-48 border border-white/15 rounded-full animate-ping absolute top-0 left-0" style={{ animationDelay: '2s' }}></div>
+            </div>
+          </div>
+          
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
             <div className="max-w-4xl mx-auto">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
                 About My Meds Pharmacy
@@ -185,6 +215,9 @@ export default function About() {
               <p className="text-xl sm:text-2xl text-white/90 leading-relaxed max-w-3xl mx-auto">
                 Your trusted healthcare partner in Brooklyn, delivering exceptional pharmaceutical care with compassion, expertise, and community focus.
               </p>
+              
+              {/* Decorative Underline */}
+              <div className="w-32 h-1 bg-gradient-to-r from-transparent via-white/40 to-transparent mx-auto mt-8 rounded-full animate-pulse"></div>
             </div>
           </div>
         </div>
@@ -249,7 +282,8 @@ export default function About() {
           </div>
         </div>
 
-
+        {/* Interactive How It Works Section */}
+        <HowItWorks />
 
         {/* CTA Section */}
         <div className="bg-[#57BBB6] rounded-3xl p-8 sm:p-12 text-center text-white relative overflow-hidden mx-4 sm:mx-6 lg:mx-8 mb-16">

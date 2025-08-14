@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { HowItWorks } from "@/components/HowItWorks";
 
 export default function SpecialOffers() {
   const navigate = useNavigate();
@@ -295,16 +296,45 @@ export default function SpecialOffers() {
       <div className="pt-20">
         {/* Hero Section */}
         <section className="py-16 sm:py-20 md:py-24 bg-[#57BBB6] text-white relative overflow-hidden">
+          {/* Animated Background Elements */}
+          <div className="absolute inset-0 pointer-events-none">
+            {/* Floating Medical Icons */}
+            <div className="absolute top-20 left-10 text-white/15 animate-bounce" style={{ animationDelay: '0s' }}>
+              <Gift className="w-8 h-8" />
+            </div>
+            <div className="absolute top-32 right-20 text-white/12 animate-bounce" style={{ animationDelay: '1s' }}>
+              <Star className="w-6 h-6" />
+            </div>
+            <div className="absolute bottom-32 left-1/4 text-white/18 animate-bounce" style={{ animationDelay: '2s' }}>
+              <Tag className="w-7 h-7" />
+            </div>
+            <div className="absolute bottom-20 right-1/3 text-white/14 animate-bounce" style={{ animationDelay: '3s' }}>
+              <Zap className="w-8 h-8" />
+            </div>
+            
+            {/* Animated Particles */}
+            <div className="absolute top-1/4 left-1/3 w-2 h-2 bg-white/25 rounded-full animate-ping"></div>
+            <div className="absolute top-1/2 right-1/4 w-1.5 h-1.5 bg-white/20 rounded-full animate-ping" style={{ animationDelay: '1.5s' }}></div>
+            <div className="absolute bottom-1/3 left-1/2 w-1 h-1 bg-white/30 rounded-full animate-ping" style={{ animationDelay: '3s' }}></div>
+            
+            {/* Pulse Waves */}
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              <div className="w-48 h-48 border border-white/15 rounded-full animate-ping"></div>
+              <div className="w-48 h-48 border border-white/15 rounded-full animate-ping absolute top-0 left-0" style={{ animationDelay: '1s' }}></div>
+              <div className="w-48 h-48 border border-white/15 rounded-full animate-ping absolute top-0 left-0" style={{ animationDelay: '2s' }}></div>
+            </div>
+          </div>
+          
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 bg-white text-[#57BBB6] px-6 py-3 rounded-full text-sm font-semibold mb-8 shadow-lg">
-                <Gift className="h-5 w-5" />
+              <div className="inline-flex items-center gap-2 bg-white text-[#57BBB6] px-6 py-3 rounded-full text-sm font-semibold mb-8 shadow-lg hover:scale-105 transition-transform duration-300">
+                <Gift className="h-5 w-5 animate-pulse" />
                 Special Offers
               </div>
               
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-8">
                 Exclusive 
-                <span className="block text-white">
+                <span className="block text-white bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent animate-pulse">
                   Savings & Benefits
                 </span>
               </h1>
@@ -313,13 +343,22 @@ export default function SpecialOffers() {
                 Discover our special offers designed to make quality healthcare more accessible and affordable. 
                 From prescription refills to senior discounts, we have savings for everyone.
               </p>
+              
+              {/* Decorative Underline */}
+              <div className="w-32 h-1 bg-gradient-to-r from-transparent via-white/40 to-transparent mx-auto mt-8 rounded-full animate-pulse"></div>
             </div>
           </div>
         </section>
 
         {/* Offers Grid */}
-        <section className="py-16 sm:py-20 bg-white">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="py-16 sm:py-20 bg-white relative overflow-hidden">
+          {/* Background Decorative Elements */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-0 left-1/4 w-32 h-32 bg-gradient-to-br from-[#57BBB6]/5 to-[#376F6B]/5 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-0 right-1/4 w-40 h-40 bg-gradient-to-tl from-[#D5C6BC]/10 to-[#57BBB6]/5 rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
+          </div>
+          
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#57BBB6] mb-6">
                 Current Offers
@@ -327,6 +366,13 @@ export default function SpecialOffers() {
               <p className="text-lg sm:text-xl text-[#376F6B] max-w-3xl mx-auto">
                 Take advantage of these exclusive offers and start saving on your healthcare today.
               </p>
+              
+              {/* Decorative Dots */}
+              <div className="flex justify-center space-x-2 mt-6">
+                <div className="w-2 h-2 bg-[#57BBB6] rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-[#57BBB6] rounded-full animate-pulse" style={{ animationDelay: '0.3s' }}></div>
+                <div className="w-2 h-2 bg-[#57BBB6] rounded-full animate-pulse" style={{ animationDelay: '0.6s' }}></div>
+              </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
@@ -506,6 +552,9 @@ export default function SpecialOffers() {
           </div>
         </div>
       )}
+
+      {/* Interactive How It Works Section */}
+      <HowItWorks />
 
       <Footer />
     </div>

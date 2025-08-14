@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { HowItWorks } from "@/components/HowItWorks";
 
 export default function Services() {
   const navigate = useNavigate();
@@ -546,22 +547,10 @@ export default function Services() {
                   </div>
                     </div>
 
-                {/* Process */}
-                <div className="mt-16 process-section">
-                  <h2 className="text-3xl font-bold text-[#376F6B] mb-8 text-center">How It Works</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {selectedServiceData.process.map((step, index) => (
-                      <Card key={index} className="text-center border-0 shadow-lg hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2">
-                        <CardContent className="p-6">
-                          <div className="w-16 h-16 bg-[#376F6B] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                            <span className="text-2xl font-bold text-white">{index + 1}</span>
-                          </div>
-                          <p className="text-[#376F6B] leading-relaxed">{step}</p>
-                  </CardContent>
-                </Card>
-              ))}
-                  </div>
-            </div>
+                {/* Interactive How It Works Section */}
+                <div className="mt-16">
+                  <HowItWorks showTitle={false} />
+                </div>
 
             {/* CTA Section */}
                 <div className="bg-[#376F6B] rounded-3xl p-8 sm:p-12 text-center text-white relative overflow-hidden mt-16">

@@ -95,14 +95,21 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
   return (
     <>
       {/* Top Bar - Simple CTA */}
-      <div className="bg-[#376F6B] text-white py-2 px-4">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
-          <p className="text-sm font-semibold text-center sm:text-left">
+      <div className="bg-[#376F6B] text-white py-2 px-4 relative overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-1/4 w-2 h-2 bg-white/20 rounded-full animate-ping"></div>
+          <div className="absolute top-1/2 right-1/3 w-1.5 h-1.5 bg-white/15 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute bottom-0 left-1/2 w-1 h-1 bg-white/25 rounded-full animate-ping" style={{ animationDelay: '2s' }}></div>
+        </div>
+        
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0 relative z-10">
+          <p className="text-sm font-semibold text-center sm:text-left animate-pulse">
             Protect your health, book your consultation now
           </p>
           <Button 
             onClick={onAppointmentClick}
-            className="bg-white text-[#376F6B] hover:bg-gray-100 font-semibold px-4 py-1 text-sm rounded transition-colors w-full sm:w-auto"
+            className="bg-white text-[#376F6B] hover:bg-gray-100 font-semibold px-4 py-1 text-sm rounded transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
           >
             Book Now
           </Button>
@@ -113,15 +120,24 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
       <header className={`bg-white sticky top-0 z-40 transition-all duration-300 ${
         isScrolled ? 'shadow-md' : 'shadow-sm'
       }`}>
-        <div className="container mx-auto px-4 py-4 sm:py-5 md:py-6 flex items-center justify-between gap-4">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-1 h-1 bg-[#57BBB6]/20 rounded-full animate-ping"></div>
+          <div className="absolute top-1/2 right-1/4 w-0.5 h-0.5 bg-[#376F6B]/15 rounded-full animate-ping" style={{ animationDelay: '1.5s' }}></div>
+          <div className="absolute bottom-0 left-1/3 w-1.5 h-1.5 bg-[#D5C6BC]/25 rounded-full animate-ping" style={{ animationDelay: '3s' }}></div>
+        </div>
+        
+        <div className="container mx-auto px-4 py-4 sm:py-5 md:py-6 flex items-center justify-between gap-4 relative z-10">
           
           {/* Left: Logo */}
           <div className="flex items-center">
-            <div onClick={() => navigate('/')} className="cursor-pointer group">
+            <div onClick={() => navigate('/')} className="cursor-pointer group relative">
+              {/* Logo Glow Effect */}
+              <div className="absolute inset-0 bg-[#57BBB6]/20 rounded-full blur-xl scale-0 group-hover:scale-100 transition-transform duration-500"></div>
               <img
                 src={logo}
                 alt="My Meds Pharmacy Logo"
-                className="h-12 w-auto sm:h-16 md:h-20 lg:h-24 object-contain transition-all duration-300 group-hover:scale-105 drop-shadow-lg"
+                className="h-12 w-auto sm:h-16 md:h-20 lg:h-24 object-contain transition-all duration-300 group-hover:scale-105 drop-shadow-lg relative z-10"
               />
             </div>
           </div>
