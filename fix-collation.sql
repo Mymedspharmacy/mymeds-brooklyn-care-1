@@ -40,3 +40,4 @@ JOIN pg_class ON pg_attribute.attrelid = pg_class.oid
 JOIN pg_namespace ON pg_class.relnamespace = pg_namespace.oid
 WHERE attcollation = (SELECT oid FROM pg_collation WHERE collname = 'default')
 LIMIT 5;
+

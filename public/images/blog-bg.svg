@@ -1,44 +1,44 @@
 <svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background -->
-  <rect width="1200" height="800" fill="#F8FAFC"/>
+  <!-- Background - Transparent -->
+  <rect width="1200" height="800" fill="transparent"/>
   
   <!-- Health and Wellness -->
   <g transform="translate(200, 200)">
     <!-- Wellness Tree -->
     <g transform="translate(100, 100)">
       <!-- Tree Trunk -->
-      <rect x="0" y="0" width="20" height="80" fill="#D5C6BC" opacity="0.4"/>
+      <rect x="0" y="0" width="20" height="80" fill="#D5C6BC" opacity="0.2"/>
       
       <!-- Tree Leaves -->
-      <circle cx="10" cy="0" r="40" fill="#57BBB6" opacity="0.2"/>
-      <circle cx="-20" cy="20" r="25" fill="#376F6B" opacity="0.2"/>
-      <circle cx="40" cy="20" r="30" fill="#57BBB6" opacity="0.2"/>
-      <circle cx="10" cy="-30" r="20" fill="#376F6B" opacity="0.2"/>
+      <circle cx="10" cy="0" r="40" fill="#57BBB6" opacity="0.1"/>
+      <circle cx="-20" cy="20" r="25" fill="#376F6B" opacity="0.1"/>
+      <circle cx="40" cy="20" r="30" fill="#57BBB6" opacity="0.1"/>
+      <circle cx="10" cy="-30" r="20" fill="#376F6B" opacity="0.1"/>
     </g>
     
     <!-- Health Symbols -->
     <g transform="translate(50, 50)">
       <!-- Heart -->
-      <path d="M0 20 C-15 0 -15 -15 0 -25 C15 -15 15 0 0 20" fill="#57BBB6" opacity="0.3"/>
+      <path d="M0 20 C-15 0 -15 -15 0 -25 C15 -15 15 0 0 20" fill="#57BBB6" opacity="0.15"/>
     </g>
     
     <g transform="translate(250, 50)">
       <!-- Leaf -->
-      <path d="M0 0 Q20 -20 40 0 Q20 20 0 0" fill="#376F6B" opacity="0.3"/>
+      <path d="M0 0 Q20 -20 40 0 Q20 20 0 0" fill="#376F6B" opacity="0.15"/>
     </g>
     
     <g transform="translate(150, 250)">
       <!-- Sun -->
-      <circle cx="0" cy="0" r="25" fill="#E8DCD4" opacity="0.3"/>
+      <circle cx="0" cy="0" r="25" fill="#E8DCD4" opacity="0.15"/>
       <g>
-        <line x1="0" y1="-35" x2="0" y2="-25" stroke="#57BBB6" stroke-width="2" opacity="0.3"/>
-        <line x1="0" y1="25" x2="0" y2="35" stroke="#57BBB6" stroke-width="2" opacity="0.3"/>
-        <line x1="-35" y1="0" x2="-25" y2="0" stroke="#57BBB6" stroke-width="2" opacity="0.3"/>
-        <line x1="25" y1="0" x2="35" y2="0" stroke="#57BBB6" stroke-width="2" opacity="0.3"/>
-        <line x1="-25" y1="-25" x2="-35" y2="-35" stroke="#57BBB6" stroke-width="2" opacity="0.3"/>
-        <line x1="25" y1="25" x2="35" y2="35" stroke="#57BBB6" stroke-width="2" opacity="0.3"/>
-        <line x1="-25" y1="25" x2="-35" y2="35" stroke="#57BBB6" stroke-width="2" opacity="0.3"/>
-        <line x1="25" y1="-25" x2="35" y2="-35" stroke="#57BBB6" stroke-width="2" opacity="0.3"/>
+        <line x1="0" y1="-35" x2="0" y2="-25" stroke="#57BBB6" stroke-width="2" opacity="0.15"/>
+        <line x1="0" y1="25" x2="0" y2="35" stroke="#57BBB6" stroke-width="2" opacity="0.15"/>
+        <line x1="-35" y1="0" x2="-25" y2="0" stroke="#57BBB6" stroke-width="2" opacity="0.15"/>
+        <line x1="25" y1="0" x2="35" y2="0" stroke="#57BBB6" stroke-width="2" opacity="0.15"/>
+        <line x1="-25" y1="-25" x2="-35" y2="-35" stroke="#57BBB6" stroke-width="2" opacity="0.15"/>
+        <line x1="25" y1="25" x2="35" y2="35" stroke="#57BBB6" stroke-width="2" opacity="0.15"/>
+        <line x1="-25" y1="25" x2="-35" y2="35" stroke="#57BBB6" stroke-width="2" opacity="0.15"/>
+        <line x1="25" y1="-25" x2="35" y2="-35" stroke="#57BBB6" stroke-width="2" opacity="0.15"/>
       </g>
     </g>
   </g>

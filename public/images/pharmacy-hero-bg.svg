@@ -1,93 +1,93 @@
 <svg width="1920" height="1080" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background -->
-  <rect width="1920" height="1080" fill="#F8FAFC"/>
+  <!-- Background - Transparent -->
+  <rect width="1920" height="1080" fill="transparent"/>
   
   <!-- Pharmacy Building Silhouette -->
-  <rect x="100" y="400" width="400" height="600" fill="#57BBB6" opacity="0.1"/>
-  <rect x="120" y="420" width="360" height="560" fill="#376F6B" opacity="0.05"/>
+  <rect x="100" y="400" width="400" height="600" fill="#57BBB6" opacity="0.05"/>
+  <rect x="120" y="420" width="360" height="560" fill="#376F6B" opacity="0.03"/>
   
   <!-- Medical Cross -->
   <g transform="translate(300, 600)">
-    <rect x="-20" y="-60" width="40" height="120" fill="#57BBB6" opacity="0.3"/>
-    <rect x="-60" y="-20" width="120" height="40" fill="#57BBB6" opacity="0.3"/>
+    <rect x="-20" y="-60" width="40" height="120" fill="#57BBB6" opacity="0.15"/>
+    <rect x="-60" y="-20" width="120" height="40" fill="#57BBB6" opacity="0.15"/>
   </g>
   
   <!-- Pill Bottles -->
   <g transform="translate(500, 500)">
-    <rect x="0" y="0" width="60" height="120" rx="8" fill="#D5C6BC" opacity="0.4"/>
-    <rect x="10" y="10" width="40" height="100" rx="4" fill="#E8DCD4" opacity="0.6"/>
-    <rect x="15" y="20" width="30" height="80" fill="#57BBB6" opacity="0.2"/>
+    <rect x="0" y="0" width="60" height="120" rx="8" fill="#D5C6BC" opacity="0.2"/>
+    <rect x="10" y="10" width="40" height="100" rx="4" fill="#E8DCD4" opacity="0.3"/>
+    <rect x="15" y="20" width="30" height="80" fill="#57BBB6" opacity="0.1"/>
   </g>
   
   <g transform="translate(600, 550)">
-    <rect x="0" y="0" width="50" height="100" rx="6" fill="#D5C6BC" opacity="0.4"/>
-    <rect x="8" y="8" width="34" height="84" rx="3" fill="#E8DCD4" opacity="0.6"/>
-    <rect x="12" y="16" width="26" height="68" fill="#376F6B" opacity="0.2"/>
+    <rect x="0" y="0" width="50" height="100" rx="6" fill="#D5C6BC" opacity="0.2"/>
+    <rect x="8" y="8" width="34" height="84" rx="3" fill="#E8DCD4" opacity="0.3"/>
+    <rect x="12" y="16" width="26" height="68" fill="#376F6B" opacity="0.1"/>
   </g>
   
   <!-- Stethoscope -->
   <g transform="translate(700, 600)">
-    <circle cx="0" cy="0" r="25" fill="none" stroke="#57BBB6" stroke-width="3" opacity="0.3"/>
-    <path d="M-25 0 Q-50 -30 -75 0 Q-50 30 -25 0" fill="none" stroke="#57BBB6" stroke-width="2" opacity="0.3"/>
+    <circle cx="0" cy="0" r="25" fill="none" stroke="#57BBB6" stroke-width="3" opacity="0.15"/>
+    <path d="M-25 0 Q-50 -30 -75 0 Q-50 30 -25 0" fill="none" stroke="#57BBB6" stroke-width="2" opacity="0.15"/>
   </g>
   
   <!-- Abstract Medical Symbols -->
   <g transform="translate(1400, 400)">
     <!-- DNA Helix -->
-    <circle cx="0" cy="0" r="8" fill="#57BBB6" opacity="0.2"/>
-    <circle cx="20" cy="30" r="6" fill="#376F6B" opacity="0.2"/>
-    <circle cx="-15" cy="60" r="7" fill="#57BBB6" opacity="0.2"/>
-    <circle cx="25" cy="90" r="5" fill="#376F6B" opacity="0.2"/>
-    <circle cx="-10" cy="120" r="8" fill="#57BBB6" opacity="0.2"/>
+    <circle cx="0" cy="0" r="8" fill="#57BBB6" opacity="0.1"/>
+    <circle cx="20" cy="30" r="6" fill="#376F6B" opacity="0.1"/>
+    <circle cx="-15" cy="60" r="7" fill="#57BBB6" opacity="0.1"/>
+    <circle cx="25" cy="90" r="5" fill="#376F6B" opacity="0.1"/>
+    <circle cx="-10" cy="120" r="8" fill="#57BBB6" opacity="0.1"/>
   </g>
   
   <!-- Molecular Structure -->
   <g transform="translate(1600, 500)">
-    <circle cx="0" cy="0" r="12" fill="#D5C6BC" opacity="0.3"/>
-    <circle cx="40" cy="0" r="10" fill="#E8DCD4" opacity="0.3"/>
-    <circle cx="20" cy="35" r="8" fill="#57BBB6" opacity="0.3"/>
-    <line x1="0" y1="0" x2="40" y2="0" stroke="#376F6B" stroke-width="2" opacity="0.2"/>
-    <line x1="0" y1="0" x2="20" y2="35" stroke="#376F6B" stroke-width="2" opacity="0.2"/>
-    <line x1="40" y1="0" x2="20" y2="35" stroke="#376F6B" stroke-width="2" opacity="0.2"/>
+    <circle cx="0" cy="0" r="12" fill="#D5C6BC" opacity="0.15"/>
+    <circle cx="40" cy="0" r="10" fill="#E8DCD4" opacity="0.15"/>
+    <circle cx="20" cy="35" r="8" fill="#57BBB6" opacity="0.15"/>
+    <line x1="0" y1="0" x2="40" y2="0" stroke="#376F6B" stroke-width="2" opacity="0.1"/>
+    <line x1="0" y1="0" x2="20" y2="35" stroke="#376F6B" stroke-width="2" opacity="0.1"/>
+    <line x1="40" y1="0" x2="20" y2="35" stroke="#376F6B" stroke-width="2" opacity="0.1"/>
   </g>
   
   <!-- Floating Pills -->
   <g transform="translate(800, 300)">
-    <rect x="0" y="0" width="20" height="8" rx="4" fill="#57BBB6" opacity="0.4"/>
+    <rect x="0" y="0" width="20" height="8" rx="4" fill="#57BBB6" opacity="0.2"/>
   </g>
   <g transform="translate(1200, 350)">
-    <rect x="0" y="0" width="16" height="6" rx="3" fill="#376F6B" opacity="0.4"/>
+    <rect x="0" y="0" width="16" height="6" rx="3" fill="#376F6B" opacity="0.2"/>
   </g>
   <g transform="translate(1000, 250)">
-    <rect x="0" y="0" width="18" height="7" rx="3.5" fill="#D5C6BC" opacity="0.4"/>
+    <rect x="0" y="0" width="18" height="7" rx="3.5" fill="#D5C6BC" opacity="0.2"/>
   </g>
   
   <!-- Professional Staff Silhouettes -->
   <g transform="translate(400, 800)">
-    <circle cx="0" cy="0" r="30" fill="#57BBB6" opacity="0.2"/>
-    <rect x="-20" y="30" width="40" height="80" fill="#376F6B" opacity="0.15"/>
+    <circle cx="0" cy="0" r="30" fill="#57BBB6" opacity="0.1"/>
+    <rect x="-20" y="30" width="40" height="80" fill="#376F6B" opacity="0.08"/>
   </g>
   
   <g transform="translate(500, 800)">
-    <circle cx="0" cy="0" r="25" fill="#57BBB6" opacity="0.2"/>
-    <rect x="-15" y="25" width="30" height="70" fill="#376F6B" opacity="0.15"/>
+    <circle cx="0" cy="0" r="25" fill="#57BBB6" opacity="0.1"/>
+    <rect x="-15" y="25" width="30" height="70" fill="#376F6B" opacity="0.08"/>
   </g>
   
   <!-- Decorative Elements -->
   <g transform="translate(150, 200)">
-    <circle cx="0" cy="0" r="15" fill="#57BBB6" opacity="0.1"/>
-    <circle cx="0" cy="0" r="8" fill="#376F6B" opacity="0.15"/>
+    <circle cx="0" cy="0" r="15" fill="#57BBB6" opacity="0.05"/>
+    <circle cx="0" cy="0" r="8" fill="#376F6B" opacity="0.08"/>
   </g>
   
   <g transform="translate(1700, 150)">
-    <circle cx="0" cy="0" r="20" fill="#D5C6BC" opacity="0.1"/>
-    <circle cx="0" cy="0" r="12" fill="#E8DCD4" opacity="0.15"/>
+    <circle cx="0" cy="0" r="20" fill="#D5C6BC" opacity="0.05"/>
+    <circle cx="0" cy="0" r="12" fill="#E8DCD4" opacity="0.08"/>
   </g>
   
   <!-- Subtle Grid Pattern -->
   <defs>
     <pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse">
-      <path d="M 100 0 L 0 0 0 100" fill="none" stroke="#57BBB6" stroke-width="0.5" opacity="0.05"/>
+      <path d="M 100 0 L 0 0 0 100" fill="none" stroke="#57BBB6" stroke-width="0.5" opacity="0.03"/>
     </pattern>
   </defs>
   <rect width="1920" height="1080" fill="url(#grid)"/>

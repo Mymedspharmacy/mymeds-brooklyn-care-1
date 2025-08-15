@@ -79,8 +79,8 @@ const Contact = () => {
                }}
              ></div>
              
-             {/* Balanced Overlay for Text Readability */}
-             <div className="absolute inset-0 bg-black/35 z-10"></div>
+             {/* Subtle Text Enhancement - No Dark Overlay */}
+             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 z-10"></div>
           
           {/* Enhanced Animated Background Elements - All White */}
           <div className="absolute inset-0 pointer-events-none">

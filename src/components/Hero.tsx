@@ -180,10 +180,10 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
         ></div>
       </div>
       
-                   {/* Clean Dark Overlay for Text Readability */}
-             <div className="absolute inset-0 bg-black/40 z-10"></div>
+      {/* Subtle Text Enhancement - No Dark Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 z-10"></div>
 
-              {/* Slide Navigation Dots */}
+      {/* Slide Navigation Dots */}
         <div className="absolute bottom-4 sm:bottom-8 left-1/2 transform -translate-x-1/2 z-30 flex gap-2 sm:gap-3">
         {heroImages.map((_, index) => (
           <button

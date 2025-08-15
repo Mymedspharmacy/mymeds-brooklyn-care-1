@@ -1,23 +1,23 @@
 <svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background -->
-  <rect width="1200" height="800" fill="#F8FAFC"/>
+  <!-- Background - Transparent -->
+  <rect width="1200" height="800" fill="transparent"/>
   
   <!-- Promotional Displays -->
   <g transform="translate(200, 200)">
     <!-- Sale Banner -->
-    <rect x="0" y="0" width="300" height="80" rx="10" fill="#57BBB6" opacity="0.3"/>
-    <rect x="10" y="10" width="280" height="60" rx="8" fill="#E8DCD4" opacity="0.4"/>
+    <rect x="0" y="0" width="300" height="80" rx="10" fill="#57BBB6" opacity="0.15"/>
+    <rect x="10" y="10" width="280" height="60" rx="8" fill="#E8DCD4" opacity="0.2"/>
     
     <!-- Sale Text -->
-    <text x="150" y="35" text-anchor="middle" fill="#376F6B" opacity="0.6" font-size="24" font-weight="bold">SPECIAL OFFER</text>
-    <text x="150" y="55" text-anchor="middle" fill="#376F6B" opacity="0.5" font-size="16">SAVE UP TO 50%</text>
+    <text x="150" y="35" text-anchor="middle" fill="#376F6B" opacity="0.3" font-size="24" font-weight="bold">SPECIAL OFFER</text>
+    <text x="150" y="55" text-anchor="middle" fill="#376F6B" opacity="0.25" font-size="16">SAVE UP TO 50%</text>
     
     <!-- Decorative Elements -->
     <g transform="translate(20, 20)">
-      <circle cx="0" cy="0" r="8" fill="#57BBB6" opacity="0.4"/>
+      <circle cx="0" cy="0" r="8" fill="#57BBB6" opacity="0.2"/>
     </g>
     <g transform="translate(280, 20)">
-      <circle cx="0" cy="0" r="8" fill="#57BBB6" opacity="0.4"/>
+      <circle cx="0" cy="0" r="8" fill="#57BBB6" opacity="0.2"/>
     </g>
   </g>
   
@@ -25,27 +25,27 @@
   <g transform="translate(600, 150)">
     <!-- Discount Tags -->
     <g transform="translate(0, 0)">
-      <path d="M0 0 L30 0 L35 15 L30 30 L0 30 L5 15 Z" fill="#57BBB6" opacity="0.3"/>
-      <text x="17.5" y="20" text-anchor="middle" fill="#376F6B" opacity="0.6" font-size="12" font-weight="bold">20%</text>
-      <circle cx="5" cy="15" r="2" fill="#E8DCD4" opacity="0.5"/>
+      <path d="M0 0 L30 0 L35 15 L30 30 L0 30 L5 15 Z" fill="#57BBB6" opacity="0.15"/>
+      <text x="17.5" y="20" text-anchor="middle" fill="#376F6B" opacity="0.3" font-size="12" font-weight="bold">20%</text>
+      <circle cx="5" cy="15" r="2" fill="#E8DCD4" opacity="0.25"/>
     </g>
     
     <g transform="translate(50, 0)">
-      <path d="M0 0 L30 0 L35 15 L30 30 L0 30 L5 15 Z" fill="#376F6B" opacity="0.3"/>
-      <text x="17.5" y="20" text-anchor="middle" fill="#57BBB6" opacity="0.6" font-size="12" font-weight="bold">30%</text>
-      <circle cx="5" cy="15" r="2" fill="#D5C6BC" opacity="0.5"/>
+      <path d="M0 0 L30 0 L35 15 L30 30 L0 30 L5 15 Z" fill="#376F6B" opacity="0.15"/>
+      <text x="17.5" y="20" text-anchor="middle" fill="#57BBB6" opacity="0.3" font-size="12" font-weight="bold">30%</text>
+      <circle cx="5" cy="15" r="2" fill="#D5C6BC" opacity="0.25"/>
     </g>
     
     <g transform="translate(100, 0)">
-      <path d="M0 0 L30 0 L35 15 L30 30 L0 30 L5 15 Z" fill="#57BBB6" opacity="0.3"/>
-      <text x="17.5" y="20" text-anchor="middle" fill="#376F6B" opacity="0.6" font-size="12" font-weight="bold">40%</text>
-      <circle cx="5" cy="15" r="2" fill="#E8DCD4" opacity="0.5"/>
+      <path d="M0 0 L30 0 L35 15 L30 30 L0 30 L5 15 Z" fill="#57BBB6" opacity="0.15"/>
+      <text x="17.5" y="20" text-anchor="middle" fill="#376F6B" opacity="0.3" font-size="12" font-weight="bold">40%</text>
+      <circle cx="5" cy="15" r="2" fill="#E8DCD4" opacity="0.25"/>
     </g>
     
     <g transform="translate(150, 0)">
-      <path d="M0 0 L30 0 L35 15 L30 30 L0 30 L5 15 Z" fill="#376F6B" opacity="0.3"/>
-      <text x="17.5" y="20" text-anchor="middle" fill="#57BBB6" opacity="0.6" font-size="12" font-weight="bold">50%</text>
-      <circle cx="5" cy="15" r="2" fill="#D5C6BC" opacity="0.5"/>
+      <path d="M0 0 L30 0 L35 15 L30 30 L0 30 L5 15 Z" fill="#376F6B" opacity="0.15"/>
+      <text x="17.5" y="20" text-anchor="middle" fill="#57BBB6" opacity="0.3" font-size="12" font-weight="bold">50%</text>
+      <circle cx="5" cy="15" r="2" fill="#D5C6BC" opacity="0.25"/>
     </g>
   </g>
   
@@ -53,35 +53,35 @@
   <g transform="translate(800, 200)">
     <!-- Happy Customer -->
     <g transform="translate(0, 0)">
-      <circle cx="0" cy="0" r="25" fill="#57BBB6" opacity="0.3"/>
-      <rect x="-20" y="25" width="40" height="60" fill="#376F6B" opacity="0.2"/>
-      <rect x="-15" y="35" width="30" height="40" fill="#E8DCD4" opacity="0.3"/>
+      <circle cx="0" cy="0" r="25" fill="#57BBB6" opacity="0.15"/>
+      <rect x="-20" y="25" width="40" height="60" fill="#376F6B" opacity="0.1"/>
+      <rect x="-15" y="35" width="30" height="40" fill="#E8DCD4" opacity="0.15"/>
       
       <!-- Happy Face -->
       <g transform="translate(-8, -8)">
-        <circle cx="0" cy="0" r="4" fill="#376F6B" opacity="0.4"/>
+        <circle cx="0" cy="0" r="4" fill="#376F6B" opacity="0.2"/>
       </g>
       <g transform="translate(8, -8)">
-        <circle cx="0" cy="0" r="4" fill="#376F6B" opacity="0.4"/>
+        <circle cx="0" cy="0" r="4" fill="#376F6B" opacity="0.2"/>
       </g>
-      <path d="M-8 5 Q0 15 8 5" fill="none" stroke="#376F6B" stroke-width="2" opacity="0.4"/>
+      <path d="M-8 5 Q0 15 8 5" fill="none" stroke="#376F6B" stroke-width="2" opacity="0.2"/>
     </g>
     
     <!-- Satisfaction Stars -->
     <g transform="translate(80, 0)">
-      <path d="M0 -10 L3 -3 L10 -3 L4 2 L6 10 L0 5 L-6 10 L-4 2 L-10 -3 L-3 -3 Z" fill="#57BBB6" opacity="0.4"/>
+      <path d="M0 -10 L3 -3 L10 -3 L4 2 L6 10 L0 5 L-6 10 L-4 2 L-10 -3 L-3 -3 Z" fill="#57BBB6" opacity="0.2"/>
     </g>
     <g transform="translate(100, 0)">
-      <path d="M0 -10 L3 -3 L10 -3 L4 2 L6 10 L0 5 L-6 10 L-4 2 L-10 -3 L-3 -3 Z" fill="#57BBB6" opacity="0.4"/>
+      <path d="M0 -10 L3 -3 L10 -3 L4 2 L6 10 L0 5 L-6 10 L-4 2 L-10 -3 L-3 -3 Z" fill="#57BBB6" opacity="0.2"/>
     </g>
     <g transform="translate(120, 0)">
-      <path d="M0 -10 L3 -3 L10 -3 L4 2 L6 10 L0 5 L-6 10 L-4 2 L-10 -3 L-3 -3 Z" fill="#57BBB6" opacity="0.4"/>
+      <path d="M0 -10 L3 -3 L10 -3 L4 2 L6 10 L0 5 L-6 10 L-4 2 L-10 -3 L-3 -3 Z" fill="#57BBB6" opacity="0.2"/>
     </g>
     <g transform="translate(140, 0)">
-      <path d="M0 -10 L3 -3 L10 -3 L4 2 L6 10 L0 5 L-6 10 L-4 2 L-10 -3 L-3 -3 Z" fill="#57BBB6" opacity="0.4"/>
+      <path d="M0 -10 L3 -3 L10 -3 L4 2 L6 10 L0 5 L-6 10 L-4 2 L-10 -3 L-3 -3 Z" fill="#57BBB6" opacity="0.2"/>
     </g>
     <g transform="translate(160, 0)">
-      <path d="M0 -10 L3 -3 L10 -3 L4 2 L6 10 L0 5 L-6 10 L-4 2 L-10 -3 L-3 -3 Z" fill="#57BBB6" opacity="0.4"/>
+      <path d="M0 -10 L3 -3 L10 -3 L4 2 L6 10 L0 5 L-6 10 L-4 2 L-10 -3 L-3 -3 Z" fill="#57BBB6" opacity="0.2"/>
     </g>
   </g>
   
@@ -90,13 +90,13 @@
     <!-- Money Savings -->
     <g transform="translate(0, 0)">
       <!-- Dollar Sign -->
-      <circle cx="0" cy="0" r="30" fill="#57BBB6" opacity="0.2"/>
-      <text x="0" y="8" text-anchor="middle" fill="#376F6B" opacity="0.6" font-size="24" font-weight="bold">$</text>
+      <circle cx="0" cy="0" r="30" fill="#57BBB6" opacity="0.1"/>
+      <text x="0" y="8" text-anchor="middle" fill="#376F6B" opacity="0.3" font-size="24" font-weight="bold">$</text>
     </g>
     
     <!-- Savings Arrow -->
     <g transform="translate(60, 0)">
-      <path d="M0 20 L20 0 L20 10 L40 10 L40 30 L20 30 L20 40 Z" fill="#376F6B" opacity="0.3"/>
+      <path d="M0 20 L20 0 L20 10 L40 10 L40 30 L20 30 L20 40 Z" fill="#376F6B" opacity="0.15"/>
     </g>
     
     <!-- Percentage -->

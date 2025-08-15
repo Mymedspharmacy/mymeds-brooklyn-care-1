@@ -1,117 +1,117 @@
 <svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background -->
-  <rect width="1200" height="800" fill="#F8FAFC"/>
+  <!-- Background - Transparent -->
+  <rect width="1200" height="800" fill="transparent"/>
   
   <!-- Product Shelves -->
   <g transform="translate(200, 200)">
     <!-- Main Shelf Unit -->
-    <rect x="0" y="0" width="400" height="300" fill="#D5C6BC" opacity="0.3"/>
-    <rect x="20" y="20" width="360" height="260" fill="#E8DCD4" opacity="0.4"/>
+    <rect x="0" y="0" width="400" height="300" fill="#D5C6BC" opacity="0.15"/>
+    <rect x="20" y="20" width="360" height="260" fill="#E8DCD4" opacity="0.2"/>
     
     <!-- Shelf Dividers -->
-    <line x1="20" y1="100" x2="380" y2="100" stroke="#57BBB6" stroke-width="2" opacity="0.2"/>
-    <line x1="20" y1="180" x2="380" y2="180" stroke="#57BBB6" stroke-width="2" opacity="0.2"/>
+    <line x1="20" y1="100" x2="380" y2="100" stroke="#57BBB6" stroke-width="2" opacity="0.1"/>
+    <line x1="20" y1="180" x2="380" y2="180" stroke="#57BBB6" stroke-width="2" opacity="0.1"/>
     
     <!-- Product Bottles Row 1 -->
     <g transform="translate(40, 30)">
-      <rect x="0" y="0" width="25" height="50" rx="4" fill="#57BBB6" opacity="0.3"/>
-      <rect x="2" y="2" width="21" height="46" rx="3" fill="#E8DCD4" opacity="0.4"/>
+      <rect x="0" y="0" width="25" height="50" rx="4" fill="#57BBB6" opacity="0.15"/>
+      <rect x="2" y="2" width="21" height="46" rx="3" fill="#E8DCD4" opacity="0.2"/>
     </g>
     <g transform="translate(80, 30)">
-      <rect x="0" y="0" width="25" height="50" rx="4" fill="#376F6B" opacity="0.3"/>
-      <rect x="2" y="2" width="21" height="46" rx="3" fill="#D5C6BC" opacity="0.4"/>
+      <rect x="0" y="0" width="25" height="50" rx="4" fill="#376F6B" opacity="0.15"/>
+      <rect x="2" y="2" width="21" height="46" rx="3" fill="#D5C6BC" opacity="0.2"/>
     </g>
     <g transform="translate(120, 30)">
-      <rect x="0" y="0" width="25" height="50" rx="4" fill="#57BBB6" opacity="0.3"/>
-      <rect x="2" y="2" width="21" height="46" rx="3" fill="#E8DCD4" opacity="0.4"/>
+      <rect x="0" y="0" width="25" height="50" rx="4" fill="#57BBB6" opacity="0.15"/>
+      <rect x="2" y="2" width="21" height="46" rx="3" fill="#E8DCD4" opacity="0.2"/>
     </g>
     <g transform="translate(160, 30)">
-      <rect x="0" y="0" width="25" height="50" rx="4" fill="#376F6B" opacity="0.3"/>
-      <rect x="2" y="2" width="21" height="46" rx="3" fill="#D5C6BC" opacity="0.4"/>
+      <rect x="0" y="0" width="25" height="50" rx="4" fill="#376F6B" opacity="0.15"/>
+      <rect x="2" y="2" width="21" height="46" rx="3" fill="#D5C6BC" opacity="0.2"/>
     </g>
     <g transform="translate(200, 30)">
-      <rect x="0" y="0" width="25" height="50" rx="4" fill="#57BBB6" opacity="0.3"/>
-      <rect x="2" y="2" width="21" height="46" rx="3" fill="#E8DCD4" opacity="0.4"/>
+      <rect x="0" y="0" width="25" height="50" rx="4" fill="#57BBB6" opacity="0.15"/>
+      <rect x="2" y="2" width="21" height="46" rx="3" fill="#E8DCD4" opacity="0.2"/>
     </g>
     <g transform="translate(240, 30)">
-      <rect x="0" y="0" width="25" height="50" rx="4" fill="#376F6B" opacity="0.3"/>
-      <rect x="2" y="2" width="21" height="46" rx="3" fill="#D5C6BC" opacity="0.4"/>
+      <rect x="0" y="0" width="25" height="50" rx="4" fill="#376F6B" opacity="0.15"/>
+      <rect x="2" y="2" width="21" height="46" rx="3" fill="#D5C6BC" opacity="0.2"/>
     </g>
     <g transform="translate(280, 30)">
-      <rect x="0" y="0" width="25" height="50" rx="4" fill="#57BBB6" opacity="0.3"/>
-      <rect x="2" y="2" width="21" height="46" rx="3" fill="#E8DCD4" opacity="0.4"/>
+      <rect x="0" y="0" width="25" height="50" rx="4" fill="#57BBB6" opacity="0.15"/>
+      <rect x="2" y="2" width="21" height="46" rx="3" fill="#E8DCD4" opacity="0.2"/>
     </g>
     <g transform="translate(320, 30)">
-      <rect x="0" y="0" width="25" height="50" rx="4" fill="#376F6B" opacity="0.3"/>
-      <rect x="2" y="2" width="21" height="46" rx="3" fill="#D5C6BC" opacity="0.4"/>
+      <rect x="0" y="0" width="25" height="50" rx="4" fill="#376F6B" opacity="0.15"/>
+      <rect x="2" y="2" width="21" height="46" rx="3" fill="#D5C6BC" opacity="0.2"/>
     </g>
     
     <!-- Product Bottles Row 2 -->
     <g transform="translate(40, 110)">
-      <rect x="0" y="0" width="25" height="50" rx="4" fill="#376F6B" opacity="0.3"/>
-      <rect x="2" y="2" width="21" height="46" rx="3" fill="#D5C6BC" opacity="0.4"/>
+      <rect x="0" y="0" width="25" height="50" rx="4" fill="#376F6B" opacity="0.15"/>
+      <rect x="2" y="2" width="21" height="46" rx="3" fill="#D5C6BC" opacity="0.2"/>
     </g>
     <g transform="translate(80, 110)">
-      <rect x="0" y="0" width="25" height="50" rx="4" fill="#57BBB6" opacity="0.3"/>
-      <rect x="2" y="2" width="21" height="46" rx="3" fill="#E8DCD4" opacity="0.4"/>
+      <rect x="0" y="0" width="25" height="50" rx="4" fill="#57BBB6" opacity="0.15"/>
+      <rect x="2" y="2" width="21" height="46" rx="3" fill="#E8DCD4" opacity="0.2"/>
     </g>
     <g transform="translate(120, 110)">
-      <rect x="0" y="0" width="25" height="50" rx="4" fill="#376F6B" opacity="0.3"/>
-      <rect x="2" y="2" width="21" height="46" rx="3" fill="#D5C6BC" opacity="0.4"/>
+      <rect x="0" y="0" width="25" height="50" rx="4" fill="#376F6B" opacity="0.15"/>
+      <rect x="2" y="2" width="21" height="46" rx="3" fill="#D5C6BC" opacity="0.2"/>
     </g>
     <g transform="translate(160, 110)">
-      <rect x="0" y="0" width="25" height="50" rx="4" fill="#57BBB6" opacity="0.3"/>
-      <rect x="2" y="2" width="21" height="46" rx="3" fill="#E8DCD4" opacity="0.4"/>
+      <rect x="0" y="0" width="25" height="50" rx="4" fill="#57BBB6" opacity="0.15"/>
+      <rect x="2" y="2" width="21" height="46" rx="3" fill="#E8DCD4" opacity="0.2"/>
     </g>
     <g transform="translate(200, 110)">
-      <rect x="0" y="0" width="25" height="50" rx="4" fill="#376F6B" opacity="0.3"/>
-      <rect x="2" y="2" width="21" height="46" rx="3" fill="#D5C6BC" opacity="0.4"/>
+      <rect x="0" y="0" width="25" height="50" rx="4" fill="#376F6B" opacity="0.15"/>
+      <rect x="2" y="2" width="21" height="46" rx="3" fill="#D5C6BC" opacity="0.2"/>
     </g>
     <g transform="translate(240, 110)">
-      <rect x="0" y="0" width="25" height="50" rx="4" fill="#57BBB6" opacity="0.3"/>
-      <rect x="2" y="2" width="21" height="46" rx="3" fill="#E8DCD4" opacity="0.4"/>
+      <rect x="0" y="0" width="25" height="50" rx="4" fill="#57BBB6" opacity="0.15"/>
+      <rect x="2" y="2" width="21" height="46" rx="3" fill="#E8DCD4" opacity="0.2"/>
     </g>
     <g transform="translate(280, 110)">
-      <rect x="0" y="0" width="25" height="50" rx="4" fill="#376F6B" opacity="0.3"/>
-      <rect x="2" y="2" width="21" height="46" rx="3" fill="#D5C6BC" opacity="0.4"/>
+      <rect x="0" y="0" width="25" height="50" rx="4" fill="#376F6B" opacity="0.15"/>
+      <rect x="2" y="2" width="21" height="46" rx="3" fill="#D5C6BC" opacity="0.2"/>
     </g>
     <g transform="translate(320, 110)">
-      <rect x="0" y="0" width="25" height="50" rx="4" fill="#57BBB6" opacity="0.3"/>
-      <rect x="2" y="2" width="21" height="46" rx="3" fill="#E8DCD4" opacity="0.4"/>
+      <rect x="0" y="0" width="25" height="50" rx="4" fill="#57BBB6" opacity="0.15"/>
+      <rect x="2" y="2" width="21" height="46" rx="3" fill="#E8DCD4" opacity="0.2"/>
     </g>
     
     <!-- Product Bottles Row 3 -->
     <g transform="translate(40, 190)">
-      <rect x="0" y="0" width="25" height="50" rx="4" fill="#57BBB6" opacity="0.3"/>
-      <rect x="2" y="2" width="21" height="46" rx="3" fill="#E8DCD4" opacity="0.4"/>
+      <rect x="0" y="0" width="25" height="50" rx="4" fill="#57BBB6" opacity="0.15"/>
+      <rect x="2" y="2" width="21" height="46" rx="3" fill="#E8DCD4" opacity="0.2"/>
     </g>
     <g transform="translate(80, 190)">
-      <rect x="0" y="0" width="25" height="50" rx="4" fill="#376F6B" opacity="0.3"/>
-      <rect x="2" y="2" width="21" height="46" rx="3" fill="#D5C6BC" opacity="0.4"/>
+      <rect x="0" y="0" width="25" height="50" rx="4" fill="#376F6B" opacity="0.15"/>
+      <rect x="2" y="2" width="21" height="46" rx="3" fill="#D5C6BC" opacity="0.2"/>
     </g>
     <g transform="translate(120, 190)">
-      <rect x="0" y="0" width="25" height="50" rx="4" fill="#57BBB6" opacity="0.3"/>
-      <rect x="2" y="2" width="21" height="46" rx="3" fill="#E8DCD4" opacity="0.4"/>
+      <rect x="0" y="0" width="25" height="50" rx="4" fill="#57BBB6" opacity="0.15"/>
+      <rect x="2" y="2" width="21" height="46" rx="3" fill="#E8DCD4" opacity="0.2"/>
     </g>
     <g transform="translate(160, 190)">
-      <rect x="0" y="0" width="25" height="50" rx="4" fill="#376F6B" opacity="0.3"/>
-      <rect x="2" y="2" width="21" height="46" rx="3" fill="#D5C6BC" opacity="0.4"/>
+      <rect x="0" y="0" width="25" height="50" rx="4" fill="#376F6B" opacity="0.15"/>
+      <rect x="2" y="2" width="21" height="46" rx="3" fill="#D5C6BC" opacity="0.2"/>
     </g>
     <g transform="translate(200, 190)">
-      <rect x="0" y="0" width="25" height="50" rx="4" fill="#57BBB6" opacity="0.3"/>
-      <rect x="2" y="2" width="21" height="46" rx="3" fill="#E8DCD4" opacity="0.4"/>
+      <rect x="0" y="0" width="25" height="50" rx="4" fill="#57BBB6" opacity="0.15"/>
+      <rect x="2" y="2" width="21" height="46" rx="3" fill="#E8DCD4" opacity="0.2"/>
     </g>
     <g transform="translate(240, 190)">
-      <rect x="0" y="0" width="25" height="50" rx="4" fill="#376F6B" opacity="0.3"/>
-      <rect x="2" y="2" width="21" height="46" rx="3" fill="#D5C6BC" opacity="0.4"/>
+      <rect x="0" y="0" width="25" height="50" rx="4" fill="#376F6B" opacity="0.15"/>
+      <rect x="2" y="2" width="21" height="46" rx="3" fill="#D5C6BC" opacity="0.2"/>
     </g>
     <g transform="translate(280, 190)">
-      <rect x="0" y="0" width="25" height="50" rx="4" fill="#57BBB6" opacity="0.3"/>
-      <rect x="2" y="2" width="21" height="46" rx="3" fill="#E8DCD4" opacity="0.4"/>
+      <rect x="0" y="0" width="25" height="50" rx="4" fill="#57BBB6" opacity="0.15"/>
+      <rect x="2" y="2" width="21" height="46" rx="3" fill="#E8DCD4" opacity="0.2"/>
     </g>
     <g transform="translate(320, 190)">
-      <rect x="0" y="0" width="25" height="50" rx="4" fill="#376F6B" opacity="0.3"/>
-      <rect x="2" y="2" width="21" height="46" rx="3" fill="#D5C6BC" opacity="0.4"/>
+      <rect x="0" y="0" width="25" height="50" rx="4" fill="#376F6B" opacity="0.15"/>
+      <rect x="2" y="2" width="21" height="46" rx="3" fill="#D5C6BC" opacity="0.2"/>
     </g>
   </g>
   

@@ -1314,8 +1314,8 @@ export default function Admin() {
                }}
              ></div>
              
-             {/* Balanced Overlay for Text Readability */}
-             <div className="absolute inset-0 bg-black/30 rounded-lg z-10"></div>
+             {/* Subtle Text Enhancement - No Dark Overlay */}
+             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 rounded-lg z-10"></div>
             
             <div className="px-6 py-4 relative z-10">
               <div className="flex items-center justify-between">

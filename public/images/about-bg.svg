@@ -1,31 +1,31 @@
 <svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background -->
-  <rect width="1200" height="800" fill="#F8FAFC"/>
+  <!-- Background - Transparent -->
+  <rect width="1200" height="800" fill="transparent"/>
   
   <!-- Pharmacy Building -->
   <g transform="translate(200, 200)">
     <!-- Main Building -->
-    <rect x="0" y="0" width="300" height="400" fill="#57BBB6" opacity="0.1"/>
-    <rect x="20" y="20" width="260" height="360" fill="#376F6B" opacity="0.05"/>
+    <rect x="0" y="0" width="300" height="400" fill="#57BBB6" opacity="0.05"/>
+    <rect x="20" y="20" width="260" height="360" fill="#376F6B" opacity="0.03"/>
     
     <!-- Windows -->
-    <rect x="50" y="50" width="60" height="80" fill="#E8DCD4" opacity="0.3"/>
-    <rect x="130" y="50" width="60" height="80" fill="#E8DCD4" opacity="0.3"/>
-    <rect x="210" y="50" width="60" height="80" fill="#E8DCD4" opacity="0.3"/>
+    <rect x="50" y="50" width="60" height="80" fill="#E8DCD4" opacity="0.15"/>
+    <rect x="130" y="50" width="60" height="80" fill="#E8DCD4" opacity="0.15"/>
+    <rect x="210" y="50" width="60" height="80" fill="#E8DCD4" opacity="0.15"/>
     
-    <rect x="50" y="150" width="60" height="80" fill="#E8DCD4" opacity="0.3"/>
-    <rect x="130" y="150" width="60" height="80" fill="#E8DCD4" opacity="0.3"/>
-    <rect x="210" y="150" width="60" height="80" fill="#E8DCD4" opacity="0.3"/>
+    <rect x="50" y="150" width="60" height="80" fill="#E8DCD4" opacity="0.15"/>
+    <rect x="130" y="150" width="60" height="80" fill="#E8DCD4" opacity="0.15"/>
+    <rect x="210" y="150" width="60" height="80" fill="#E8DCD4" opacity="0.15"/>
     
-    <rect x="50" y="250" width="60" height="80" fill="#E8DCD4" opacity="0.3"/>
-    <rect x="130" y="250" width="60" height="80" fill="#E8DCD4" opacity="0.3"/>
-    <rect x="210" y="250" width="60" height="80" fill="#E8DCD4" opacity="0.3"/>
+    <rect x="50" y="250" width="60" height="80" fill="#E8DCD4" opacity="0.15"/>
+    <rect x="130" y="250" width="60" height="80" fill="#E8DCD4" opacity="0.15"/>
+    <rect x="210" y="250" width="60" height="80" fill="#E8DCD4" opacity="0.15"/>
     
     <!-- Door -->
-    <rect x="130" y="320" width="40" height="80" fill="#D5C6BC" opacity="0.4"/>
+    <rect x="130" y="320" width="40" height="80" fill="#D5C6BC" opacity="0.2"/>
     
     <!-- Roof -->
-    <path d="M0 0 L150 -50 L300 0" fill="#376F6B" opacity="0.1"/>
+    <path d="M0 0 L150 -50 L300 0" fill="#376F6B" opacity="0.05"/>
   </g>
   
   <!-- Team Collaboration -->
