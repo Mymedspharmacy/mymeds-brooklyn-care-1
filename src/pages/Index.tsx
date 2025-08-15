@@ -8,7 +8,6 @@ import { RefillForm } from "@/components/RefillForm";
 import { AppointmentForm } from "@/components/AppointmentForm";
 import { TransferForm } from "@/components/TransferForm";
 import { OTCSection } from "@/components/OTCSection";
-import { HowItWorks } from "@/components/HowItWorks";
 import { Toaster } from "@/components/ui/toaster";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -70,7 +69,6 @@ const Index = () => {
         </div>
       </section>
       
-      <HowItWorks />
       <Footer />
       <RefillForm isOpen={showRefillForm} onClose={() => setShowRefillForm(false)} />
       <AppointmentForm isOpen={showAppointmentForm} onClose={() => setShowAppointmentForm(false)} />

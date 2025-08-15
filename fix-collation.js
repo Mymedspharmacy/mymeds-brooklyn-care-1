@@ -132,3 +132,4 @@ async function fixCollationIssue() {
 // Run the fix
 fixCollationIssue().catch(console.error);
 
+
