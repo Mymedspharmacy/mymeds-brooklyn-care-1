@@ -187,7 +187,7 @@ export default function About() {
                   <div className="text-white py-16 sm:py-20 md:py-24 relative overflow-hidden">
           {/* Background Image Placeholder - Replace with actual pharmacy team/building image */}
                        <div
-               className="absolute inset-0 opacity-70 pointer-events-none"
+               className="absolute inset-0 opacity-30 pointer-events-none"
                style={{
                  backgroundImage: `url('/images/new/aboutus.jpg')`,
                  backgroundSize: 'cover',
@@ -196,8 +196,8 @@ export default function About() {
                }}
              ></div>
              
-             {/* Balanced Overlay for Text Readability */}
-             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 z-10"></div>
+             {/* Enhanced Overlay for Better Text Readability */}
+             <div className="absolute inset-0 bg-black/60 z-10"></div>
           
           {/* Animated Background Elements */}
           <div className="absolute inset-0 pointer-events-none">
@@ -349,9 +349,9 @@ export default function About() {
         {/* Location Section */}
         <section className="py-16 sm:py-20 bg-white relative overflow-hidden">
           {/* Background Images for Map Section */}
-          <div className="absolute inset-0 opacity-30 pointer-events-none">
+          <div className="absolute inset-0 opacity-15 pointer-events-none">
             <div
-              className="absolute inset-0 opacity-50"
+              className="absolute inset-0 opacity-25"
               style={{
                 backgroundImage: `url('/images/new/contactus.jpg')`,
                 backgroundSize: 'cover',
@@ -360,7 +360,7 @@ export default function About() {
               }}
             ></div>
             <div
-              className="absolute inset-0 opacity-40"
+              className="absolute inset-0 opacity-20"
               style={{
                 backgroundImage: `url('/images/new/service.jpg')`,
                 backgroundSize: 'cover',
@@ -370,6 +370,9 @@ export default function About() {
             ></div>
           </div>
           
+          {/* Enhanced Overlay for Text Readability */}
+          <div className="absolute inset-0 bg-white/80 z-10"></div>
+
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center lg:text-left mb-16">
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#376F6B] mb-6">

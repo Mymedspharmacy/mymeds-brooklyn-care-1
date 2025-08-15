@@ -1305,7 +1305,7 @@ export default function Admin() {
           <div className="bg-white shadow-sm border-b border-gray-200 rounded-lg mb-8 relative z-10 hover:shadow-md transition-shadow duration-300">
             {/* Background Image Placeholder - Replace with actual pharmacy management/analytics image */}
                          <div
-               className="absolute inset-0 opacity-50 pointer-events-none rounded-lg"
+               className="absolute inset-0 opacity-20 pointer-events-none rounded-lg"
                style={{
                  backgroundImage: `url('/images/new/homepage.jpg')`,
                  backgroundSize: 'cover',
@@ -1314,8 +1314,8 @@ export default function Admin() {
                }}
              ></div>
              
-             {/* Subtle Text Enhancement - No Dark Overlay */}
-             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 rounded-lg z-10"></div>
+             {/* Enhanced Overlay for Better Text Readability */}
+             <div className="absolute inset-0 bg-white/80 rounded-lg z-10"></div>
             
             <div className="px-6 py-4 relative z-10">
               <div className="flex items-center justify-between">

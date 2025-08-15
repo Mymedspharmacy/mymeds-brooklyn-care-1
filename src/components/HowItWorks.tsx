@@ -67,7 +67,7 @@ export const HowItWorks = ({ className = '', showTitle = true }: HowItWorksProps
           <section className={`py-16 sm:py-20 md:py-24 relative overflow-hidden ${showTitle ? '' : 'pt-0'}`}>
       {/* Background Image Placeholder - Replace with actual pharmacy process/workflow image */}
                    <div
-               className="absolute inset-0 opacity-60 pointer-events-none"
+               className="absolute inset-0 opacity-20 pointer-events-none"
                style={{
                  backgroundImage: `url('/images/new/homepage.jpg')`,
                  backgroundSize: 'cover',
@@ -76,8 +76,8 @@ export const HowItWorks = ({ className = '', showTitle = true }: HowItWorksProps
                }}
              ></div>
              
-             {/* Balanced Overlay for Text Readability */}
-             <div className="absolute inset-0 bg-black/30 z-10"></div>
+             {/* Enhanced Overlay for Better Text Readability */}
+             <div className="absolute inset-0 bg-black/60 z-10"></div>
       
       {/* Background Blur Elements */}
       <div className="absolute inset-0 overflow-hidden">

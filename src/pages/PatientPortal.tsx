@@ -321,7 +321,7 @@ const PatientPortal = () => {
         <div className="min-h-screen flex flex-col relative overflow-hidden">
           {/* Background Image Placeholder - Replace with actual pharmacy patient care image */}
           <div
-            className="absolute inset-0 opacity-65 pointer-events-none"
+            className="absolute inset-0 opacity-25 pointer-events-none"
             style={{
               backgroundImage: `url('/images/new/service.jpg')`,
               backgroundSize: 'cover',
@@ -330,8 +330,8 @@ const PatientPortal = () => {
             }}
           ></div>
           
-          {/* Subtle Text Enhancement - No Dark Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 z-10"></div>
+          {/* Enhanced Overlay for Better Text Readability */}
+          <div className="absolute inset-0 bg-black/60 z-10"></div>
         
           {/* Animated Background Elements */}
           <div className="absolute inset-0 pointer-events-none">

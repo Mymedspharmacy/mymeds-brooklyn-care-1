@@ -106,7 +106,7 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
       <section id="services" className="py-16 sm:py-20 md:py-24 relative overflow-hidden">
       {/* Background Image Placeholder - Replace with actual pharmacy services image */}
                    <div
-               className="absolute inset-0 opacity-60 pointer-events-none"
+               className="absolute inset-0 opacity-20 pointer-events-none"
                style={{
                  backgroundImage: `url('/images/new/servicess.jpg')`,
                  backgroundSize: 'cover',
@@ -115,8 +115,8 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
                }}
              ></div>
              
-             {/* Balanced Overlay for Text Readability */}
-             <div className="absolute inset-0 bg-black/30 z-10"></div>
+             {/* Enhanced Overlay for Better Text Readability */}
+             <div className="absolute inset-0 bg-black/60 z-10"></div>
       
       {/* Enhanced Background Elements */}
       <div className="absolute inset-0 overflow-hidden">

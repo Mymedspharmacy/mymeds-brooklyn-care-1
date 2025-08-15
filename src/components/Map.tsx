@@ -59,9 +59,9 @@ export const Map = ({ showDetails = true, className = "" }: MapProps) => {
            onMouseLeave={() => setIsHovered(false)}>
         
         {/* Background Images Behind Map */}
-        <div className="absolute inset-0 opacity-40 pointer-events-none">
+        <div className="absolute inset-0 opacity-20 pointer-events-none">
           <div
-            className="absolute inset-0 opacity-60"
+            className="absolute inset-0 opacity-30"
             style={{
               backgroundImage: `url('/images/new/contactus.jpg')`,
               backgroundSize: 'cover',
@@ -70,7 +70,7 @@ export const Map = ({ showDetails = true, className = "" }: MapProps) => {
             }}
           ></div>
           <div
-            className="absolute inset-0 opacity-40"
+            className="absolute inset-0 opacity-20"
             style={{
               backgroundImage: `url('/images/new/service.jpg')`,
               backgroundSize: 'cover',
@@ -80,8 +80,8 @@ export const Map = ({ showDetails = true, className = "" }: MapProps) => {
           ></div>
         </div>
         
-        {/* Subtle Overlay for Map Readability */}
-        <div className="absolute inset-0 bg-black/20 z-10"></div>
+        {/* Enhanced Overlay for Map Readability */}
+        <div className="absolute inset-0 bg-black/50 z-10"></div>
         
         {/* Map Type Selector Tabs */}
         <div className="absolute top-4 right-4 z-30 flex gap-2">

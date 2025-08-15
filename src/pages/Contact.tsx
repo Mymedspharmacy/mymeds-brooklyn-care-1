@@ -70,7 +70,7 @@ const Contact = () => {
                   <section id="contact" className="py-16 sm:py-20 md:py-24 relative overflow-hidden">
           {/* Background Image Placeholder - Replace with actual pharmacy location/staff image */}
                        <div
-               className="absolute inset-0 opacity-65 pointer-events-none"
+               className="absolute inset-0 opacity-25 pointer-events-none"
                style={{
                  backgroundImage: `url('/images/new/contactus.jpg')`,
                  backgroundSize: 'cover',
@@ -79,8 +79,8 @@ const Contact = () => {
                }}
              ></div>
              
-             {/* Subtle Text Enhancement - No Dark Overlay */}
-             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 z-10"></div>
+             {/* Enhanced Overlay for Better Text Readability */}
+             <div className="absolute inset-0 bg-black/60 z-10"></div>
           
           {/* Enhanced Animated Background Elements - All White */}
           <div className="absolute inset-0 pointer-events-none">
@@ -440,9 +440,9 @@ const Contact = () => {
         {/* Enhanced Location Section */}
         <section className="py-16 sm:py-20 bg-gradient-to-br from-[#D5C6BC] via-[#E8DCD4] to-[#D5C6BC] relative overflow-hidden">
           {/* Background Images for Map Section */}
-          <div className="absolute inset-0 opacity-40 pointer-events-none">
+          <div className="absolute inset-0 opacity-20 pointer-events-none">
             <div
-              className="absolute inset-0 opacity-60"
+              className="absolute inset-0 opacity-30"
               style={{
                 backgroundImage: `url('/images/new/contactus.jpg')`,
                 backgroundSize: 'cover',
@@ -451,7 +451,7 @@ const Contact = () => {
               }}
             ></div>
             <div
-              className="absolute inset-0 opacity-50"
+              className="absolute inset-0 opacity-25"
               style={{
                 backgroundImage: `url('/images/new/service.jpg')`,
                 backgroundSize: 'cover',
@@ -460,6 +460,9 @@ const Contact = () => {
               }}
             ></div>
           </div>
+          
+          {/* Enhanced Overlay for Text Readability */}
+          <div className="absolute inset-0 bg-white/60 z-10"></div>
           
           {/* Background Decorative Elements */}
           <div className="absolute inset-0 pointer-events-none z-20">

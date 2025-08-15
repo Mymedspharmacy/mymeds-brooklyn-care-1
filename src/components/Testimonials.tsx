@@ -77,7 +77,7 @@ export const Testimonials = () => {
           <section className="py-16 sm:py-20 md:py-24 relative overflow-hidden">
       {/* Background Image Placeholder - Replace with actual pharmacy patient care image */}
                    <div
-               className="absolute inset-0 opacity-60 pointer-events-none"
+               className="absolute inset-0 opacity-20 pointer-events-none"
                style={{
                  backgroundImage: `url('/images/new/service.jpg')`,
                  backgroundSize: 'cover',
@@ -86,8 +86,8 @@ export const Testimonials = () => {
                }}
              ></div>
              
-             {/* Balanced Overlay for Text Readability */}
-             <div className="absolute inset-0 bg-black/30 z-10"></div>
+             {/* Enhanced Overlay for Better Text Readability */}
+             <div className="absolute inset-0 bg-black/60 z-10"></div>
       
       {/* Enhanced Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
@@ -148,26 +148,26 @@ export const Testimonials = () => {
             Patient Stories
           </div>
           
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-[#57BBB6] to-[#376F6B] bg-clip-text text-transparent">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-[#57BBB6] to-[#376F6B] bg-clip-text text-transparent drop-shadow-lg">
             What Our Patients Say
           </h2>
           
-          <p className="text-lg sm:text-xl text-[#376F6B] max-w-3xl mx-auto font-semibold leading-relaxed mb-8">
+          <p className="text-lg sm:text-xl text-white max-w-3xl mx-auto font-semibold leading-relaxed mb-8 drop-shadow-lg">
             Don't just take our word for it - hear from our satisfied patients about their experience
           </p>
           
           {/* Enhanced Overall Rating */}
-          <div className="flex items-center justify-center gap-4 mb-8 p-4 bg-white/50 backdrop-blur-sm rounded-2xl shadow-lg">
+          <div className="flex items-center justify-center gap-4 mb-8 p-4 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg">
             <div className="flex items-center">
               {[...Array(5)].map((_, i) => (
                 <Star key={i} className="h-7 w-7 text-yellow-400 fill-current animate-pulse" style={{ animationDelay: `${i * 0.1}s` }} />
               ))}
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-[#57BBB6]">4.9</div>
-              <div className="text-[#376F6B] font-medium text-sm">out of 5</div>
+              <div className="text-3xl font-bold text-[#57BBB6] drop-shadow-sm">4.9</div>
+              <div className="text-[#376F6B] font-medium text-sm drop-shadow-sm">out of 5</div>
             </div>
-            <div className="text-[#376F6B] font-medium text-sm">
+            <div className="text-[#376F6B] font-medium text-sm drop-shadow-sm">
               Based on <span className="font-bold">2,847</span> reviews
             </div>
           </div>
@@ -261,10 +261,10 @@ export const Testimonials = () => {
             <div className="absolute bottom-0 right-1/4 w-40 h-40 bg-gradient-to-tl from-[#D5C6BC]/10 to-[#57BBB6]/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
           </div>
           
-          <h3 className="text-2xl sm:text-3xl font-bold text-[#57BBB6] mb-4 relative z-10">
+          <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4 relative z-10 drop-shadow-lg">
             Join Our Satisfied Patients
           </h3>
-          <p className="text-lg text-[#376F6B] mb-8 max-w-2xl mx-auto relative z-10">
+          <p className="text-lg text-white mb-8 max-w-2xl mx-auto relative z-10 drop-shadow-lg">
             Experience the difference that personalized care and professional expertise can make in your healthcare journey
           </p>
           

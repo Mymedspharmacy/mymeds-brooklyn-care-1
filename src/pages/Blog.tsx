@@ -239,7 +239,7 @@ export default function Blog() {
                   <section className="py-16 sm:py-20 md:py-24 text-white relative overflow-hidden">
           {/* Background Image Placeholder - Replace with actual pharmacy health/wellness image */}
                        <div
-               className="absolute inset-0 opacity-60 pointer-events-none"
+               className="absolute inset-0 opacity-25 pointer-events-none"
                style={{
                  backgroundImage: `url('/images/new/blogpage.jpg')`,
                  backgroundSize: 'cover',
@@ -248,8 +248,8 @@ export default function Blog() {
                }}
              ></div>
              
-             {/* Subtle Text Enhancement - No Dark Overlay */}
-             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 z-10"></div>
+             {/* Enhanced Overlay for Better Text Readability */}
+             <div className="absolute inset-0 bg-black/60 z-10"></div>
           
           {/* Animated Background Elements */}
           <div className="absolute inset-0 pointer-events-none">
