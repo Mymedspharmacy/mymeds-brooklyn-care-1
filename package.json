@@ -5,10 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc && vite build",
     "build:dev": "vite build --output public",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview",
+    "fix-collation": "node fix-collation.js",
+    "db-maintenance": "node fix-collation.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
