@@ -42,3 +42,4 @@ WHERE attcollation = (SELECT oid FROM pg_collation WHERE collname = 'default')
 LIMIT 5;
 
 
+
