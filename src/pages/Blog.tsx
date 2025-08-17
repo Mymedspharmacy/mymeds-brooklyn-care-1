@@ -239,7 +239,7 @@ export default function Blog() {
                   <section className="py-16 sm:py-20 md:py-24 text-white relative overflow-hidden">
           {/* Background Image Placeholder - Replace with actual pharmacy health/wellness image */}
                        <div
-               className="absolute inset-0 opacity-25 pointer-events-none"
+               className="absolute inset-0 opacity-60 pointer-events-none"
                style={{
                  backgroundImage: `url('/images/new/blogpage.jpg')`,
                  backgroundSize: 'cover',

@@ -103,13 +103,13 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
           <div className="absolute bottom-0 left-1/2 w-1 h-1 bg-white/25 rounded-full animate-ping" style={{ animationDelay: '2s' }}></div>
         </div>
         
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0 relative z-10">
-          <p className="text-sm font-semibold text-center sm:text-left animate-pulse">
+        <div className="max-w-7xl mx-auto flex items-center justify-center gap-4 relative z-10">
+          <p className="text-base font-semibold text-center">
             Protect your health, book your consultation now
           </p>
           <Button 
             onClick={onAppointmentClick}
-            className="bg-white text-[#376F6B] hover:bg-gray-100 font-semibold px-4 py-1 text-sm rounded transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+            className="bg-white text-[#376F6B] hover:bg-gray-100 font-semibold px-4 py-1 text-sm rounded shadow-lg hover:shadow-xl"
           >
             Book Now
           </Button>

@@ -253,7 +253,7 @@ export default function Shop() {
                   <section className="py-16 sm:py-20 md:py-24 text-white relative overflow-hidden">
           {/* Background Image Placeholder - Replace with actual pharmacy products/shopping image */}
                        <div
-               className="absolute inset-0 opacity-25 pointer-events-none"
+               className="absolute inset-0 opacity-60 pointer-events-none"
                style={{
                  backgroundImage: `url('/images/new/shop1.jpg')`,
                  backgroundSize: 'cover',

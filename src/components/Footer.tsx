@@ -88,8 +88,8 @@ export const Footer = () => {
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Main Footer Content */}
-        <div className="py-16 sm:py-20">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
+        <div className="py-8 sm:py-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 lg:gap-8">
             
             {/* Company Info */}
             <div className="lg:col-span-1">
@@ -141,9 +141,9 @@ export const Footer = () => {
             </div>
 
             {/* Quick Links */}
-            <div className="lg:pl-8 lg:border-l lg:border-[#57BBB6]/20">
+            <div className="lg:pl-8">
               <h3 className="text-sm font-bold uppercase tracking-wider mb-6 text-[#57BBB6]">Quick Links</h3>
-              <ul className="space-y-3">
+              <ul className="space-y-2">
                 {quickLinks.map((item, idx) => (
                   <li key={idx}>
                     <Link 
@@ -190,9 +190,9 @@ export const Footer = () => {
             </div>
 
             {/* Services */}
-            <div className="lg:pl-8 lg:border-l lg:border-[#57BBB6]/20">
+            <div className="lg:pl-8">
               <h3 className="text-sm font-bold uppercase tracking-wider mb-6 text-[#57BBB6]">Our Services</h3>
-              <ul className="space-y-3">
+              <ul className="space-y-2">
                 {servicesLinks.map((s, idx) => (
                   <li key={idx}>
                     <Link
@@ -210,9 +210,9 @@ export const Footer = () => {
             </div>
 
             {/* Contact Info */}
-            <div className="lg:pl-8 lg:pr-8 lg:border-l lg:border-[#57BBB6]/20">
+            <div className="lg:pl-8 lg:pr-8">
               <h3 className="text-sm font-bold uppercase tracking-wider mb-6 text-[#57BBB6]">Contact Info</h3>
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div className="grid grid-cols-[36px,1fr] gap-3 items-center group">
                   <div className="w-9 h-9 shrink-0 bg-gradient-to-r from-[#57BBB6] to-[#376F6B] rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     <Phone className="h-5 w-5 text-white" />
@@ -267,7 +267,7 @@ export const Footer = () => {
             </div>
 
             {/* Business Hours - Separate Column */}
-            <div className="lg:pl-10 lg:border-l lg:border-[#57BBB6]/20 min-w-[320px]">
+            <div className="lg:pl-10 min-w-[320px]">
               <h3 className="text-sm font-bold uppercase tracking-wider mb-6 text-[#57BBB6]">Business Hours</h3>
               <div className="grid grid-cols-[88px,1fr] gap-x-4 text-[#57BBB6] font-semibold text-sm leading-6 mb-8">
                 <span className="text-[#57BBB6] self-start">Pharmacy</span>
@@ -352,7 +352,7 @@ export const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-[#57BBB6]/20 py-6">
+        <div className="border-t border-[#57BBB6]/20 py-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-[#57BBB6] text-sm">
               © {currentYear} My Meds Pharmacy. All rights reserved.

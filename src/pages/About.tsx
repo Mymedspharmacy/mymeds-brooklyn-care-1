@@ -175,7 +175,7 @@ export default function About() {
         description="Learn about My Meds Pharmacy's 15+ years serving Brooklyn. Discover our patient-centered care, community values, and commitment to excellence in pharmaceutical services."
         keywords="Brooklyn pharmacy, about us, pharmacy history, patient care, community pharmacy, pharmaceutical services, Brooklyn healthcare, trusted pharmacy"
       />
-      <div className="min-h-screen bg-[#D5C6BC]">
+      <div className="min-h-screen bg-[#E8F4F3]">
         <Header 
           onRefillClick={onRefillClick}
           onAppointmentClick={onAppointmentClick}
@@ -187,7 +187,7 @@ export default function About() {
                   <div className="text-white py-16 sm:py-20 md:py-24 relative overflow-hidden">
           {/* Background Image Placeholder - Replace with actual pharmacy team/building image */}
                        <div
-               className="absolute inset-0 opacity-30 pointer-events-none"
+               className="absolute inset-0 opacity-80 pointer-events-none"
                style={{
                  backgroundImage: `url('/images/new/aboutus.jpg')`,
                  backgroundSize: 'cover',
@@ -197,7 +197,7 @@ export default function About() {
              ></div>
              
              {/* Enhanced Overlay for Better Text Readability */}
-             <div className="absolute inset-0 bg-black/60 z-10"></div>
+             <div className="absolute inset-0 bg-[#e6d4ab] opacity-60 pointer-events-none z-10"></div>
           
           {/* Animated Background Elements */}
           <div className="absolute inset-0 pointer-events-none">
@@ -276,7 +276,7 @@ export default function About() {
         </div>
 
         {/* Core Values Section */}
-        <div className="py-16 sm:py-20 bg-[#D5C6BC]">
+        <div className="py-16 sm:py-20 bg-[#E8F4F3]">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#57BBB6] mb-6">

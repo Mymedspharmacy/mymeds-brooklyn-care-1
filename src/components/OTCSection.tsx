@@ -83,14 +83,14 @@ export const OTCSection = () => {
             Over-the-Counter
           </div>
           
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#57BBB6] leading-tight mb-6">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight mb-6">
             Complete 
-            <span className="block text-[#57BBB6]">
+            <span className="block text-white">
               Health & Wellness
             </span>
           </h2>
           
-          <p className="text-lg sm:text-xl text-[#376F6B] max-w-3xl mx-auto font-semibold">
+          <p className="text-lg sm:text-xl text-white max-w-3xl mx-auto font-semibold">
             Discover our comprehensive selection of over-the-counter medications, supplements, and health products 
             carefully curated to support your daily wellness journey.
           </p>

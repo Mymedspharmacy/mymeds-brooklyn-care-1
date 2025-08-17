@@ -70,7 +70,7 @@ const Contact = () => {
                   <section id="contact" className="py-16 sm:py-20 md:py-24 relative overflow-hidden">
           {/* Background Image Placeholder - Replace with actual pharmacy location/staff image */}
                        <div
-               className="absolute inset-0 opacity-25 pointer-events-none"
+               className="absolute inset-0 opacity-60 pointer-events-none"
                style={{
                  backgroundImage: `url('/images/new/contactus.jpg')`,
                  backgroundSize: 'cover',
@@ -148,7 +148,7 @@ const Contact = () => {
                   <Heart className="w-4 h-4" />
                 </div>
                 
-                <div className="inline-flex items-center gap-2 bg-white text-[#57BBB6] px-6 py-3 rounded-full text-sm font-semibold shadow-xl hover:scale-105 transition-all duration-300 border-2 border-white/20">
+                                 <div className="inline-flex items-center gap-2 bg-[#57BBB6] text-white px-6 py-3 rounded-full text-sm font-semibold shadow-xl hover:scale-105 transition-all duration-300 border-2 border-white/20">
                   <MessageCircle className="h-5 w-5 animate-pulse" />
                   Get In Touch
                 </div>
@@ -210,7 +210,7 @@ const Contact = () => {
                   <Card className="hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-0 bg-white/95 backdrop-blur-sm group">
                     <CardContent className="p-6">
                       <div className="flex items-start space-x-4">
-                        <div className="w-12 h-12 bg-[#376F6B] rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                        <div className="w-12 h-12 bg-[#57BBB6] rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                           <Phone className="h-6 w-6 text-white" />
                         </div>
                         <div className="min-w-0 flex-1">
@@ -220,7 +220,7 @@ const Contact = () => {
                             variant="outline" 
                             size="sm"
                             onClick={() => window.open('tel:3473126458')}
-                            className="text-[#376F6B] border-[#376F6B] hover:bg-[#376F6B] hover:text-white transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
+                            className="text-[#57BBB6] border-[#57BBB6] hover:bg-[#57BBB6] hover:text-white transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
                           >
                             <Phone className="h-4 w-4 mr-2" />
                             Call Now
@@ -359,11 +359,11 @@ const Contact = () => {
                         </label>
                       </div>
 
-                      <Button 
-                        type="submit"
-                        className="w-full bg-gradient-to-r from-[#57BBB6] to-[#376F6B] hover:from-[#376F6B] hover:to-[#57BBB6] text-white py-3 text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-                        disabled={loading}
-                      >
+                                             <Button 
+                         type="submit"
+                         className="w-full bg-[#57BBB6] hover:bg-[#376F6B] text-white py-3 text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                         disabled={loading}
+                       >
                         {loading ? (
                           <div className="flex items-center">
                             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
@@ -388,7 +388,7 @@ const Contact = () => {
         <HowItWorks />
 
         {/* Enhanced Business Hours Section */}
-        <section className="py-16 sm:py-20 bg-gradient-to-br from-white via-gray-50 to-white relative overflow-hidden">
+                 <section className="py-16 sm:py-20 bg-white relative overflow-hidden">
           {/* Background Decorative Elements */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-0 left-1/4 w-32 h-32 bg-[#57BBB6]/5 rounded-full blur-3xl animate-pulse"></div>
@@ -406,12 +406,12 @@ const Contact = () => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-              <Card className="border-0 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 bg-gradient-to-br from-white to-gray-50 group">
-                <CardContent className="p-8 text-center">
-                  <div className="w-16 h-16 bg-[#57BBB6] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                    <Building2 className="h-8 w-8 text-white" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-[#376F6B] mb-4">Pharmacy Hours</h3>
+                             <Card className="border-0 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 bg-white group">
+                 <CardContent className="p-8 text-center">
+                   <div className="w-16 h-16 bg-[#57BBB6] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                     <Building2 className="h-8 w-8 text-white" />
+                   </div>
+                   <h3 className="text-2xl font-bold text-[#376F6B] mb-4">Pharmacy Hours</h3>
                   <div className="space-y-2 text-gray-600">
                     <p className="font-semibold">Monday - Friday: 10:00 AM - 6:00 PM</p>
                     <p className="font-semibold">Saturday: 10:00 AM - 4:00 PM</p>
@@ -420,12 +420,12 @@ const Contact = () => {
                 </CardContent>
               </Card>
 
-              <Card className="border-0 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 bg-gradient-to-br from-white to-gray-50 group">
-                <CardContent className="p-8 text-center">
-                  <div className="w-16 h-16 bg-[#376F6B] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                    <Clock className="h-8 w-8 text-white" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-[#376F6B] mb-4">Store Hours</h3>
+                             <Card className="border-0 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 bg-white group">
+                 <CardContent className="p-8 text-center">
+                   <div className="w-16 h-16 bg-[#376F6B] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                     <Clock className="h-8 w-8 text-white" />
+                   </div>
+                   <h3 className="text-2xl font-bold text-[#376F6B] mb-4">Store Hours</h3>
                   <div className="space-y-2 text-gray-600">
                     <p className="font-semibold">Monday - Friday: 9:00 AM - 7:00 PM</p>
                     <p className="font-semibold">Saturday: 10:00 AM - 4:00 PM</p>
@@ -438,7 +438,7 @@ const Contact = () => {
         </section>
 
         {/* Enhanced Location Section */}
-        <section className="py-16 sm:py-20 bg-gradient-to-br from-[#D5C6BC] via-[#E8DCD4] to-[#D5C6BC] relative overflow-hidden">
+                 <section className="py-16 sm:py-20 bg-[#D5C6BC] relative overflow-hidden">
           {/* Background Images for Map Section */}
           <div className="absolute inset-0 opacity-20 pointer-events-none">
             <div

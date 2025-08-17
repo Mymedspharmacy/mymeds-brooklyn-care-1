@@ -123,20 +123,20 @@ export const Map = ({ showDetails = true, className = "" }: MapProps) => {
           isHovered ? 'scale-105 shadow-2xl' : 'scale-100'
         }`}>
           <div className="flex items-start gap-4">
-            <div className="bg-gradient-to-br from-[#376F6B] to-[#57BBB6] rounded-full p-3 shadow-lg">
-              <MapPin className="h-6 w-6 text-white" />
-            </div>
+                         <div className="bg-[#57BBB6] rounded-full p-3 shadow-lg">
+               <MapPin className="h-6 w-6 text-white" />
+             </div>
             <div className="flex-1">
               <h3 className="font-bold text-gray-900 text-lg mb-2">My Meds Pharmacy</h3>
               <p className="text-gray-600 text-sm leading-relaxed mb-3">{pharmacyAddress}</p>
               
               {/* Enhanced Action Buttons */}
               <div className="flex flex-col gap-2">
-                <Button 
-                  onClick={handleDirections}
-                  size="sm"
-                  className="bg-gradient-to-r from-[#376F6B] to-[#57BBB6] hover:from-[#57BBB6] hover:to-[#376F6B] text-white text-sm px-4 py-2 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-                >
+                                 <Button 
+                   onClick={handleDirections}
+                   size="sm"
+                   className="bg-[#57BBB6] hover:bg-[#376F6B] text-white text-sm px-4 py-2 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                 >
                   <Car className="h-4 w-4 mr-2" />
                   Get Directions
                 </Button>
@@ -187,12 +187,12 @@ export const Map = ({ showDetails = true, className = "" }: MapProps) => {
       {/* Enhanced Pharmacy Details with Extended Layout */}
       {showDetails && (
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Address */}
-          <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl p-5 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
-            <div className="flex items-center gap-4">
-              <div className="bg-gradient-to-br from-[#376F6B] to-[#57BBB6] rounded-full p-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                <MapPin className="h-6 w-6 text-white" />
-              </div>
+                     {/* Address */}
+           <div className="bg-white rounded-xl p-5 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
+             <div className="flex items-center gap-4">
+               <div className="bg-[#57BBB6] rounded-full p-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                 <MapPin className="h-6 w-6 text-white" />
+               </div>
               <div className="flex-1">
                 <h4 className="font-bold text-gray-900 text-base mb-2">Address</h4>
                 <p className="text-gray-600 text-sm leading-relaxed">{pharmacyAddress}</p>
@@ -200,12 +200,12 @@ export const Map = ({ showDetails = true, className = "" }: MapProps) => {
             </div>
           </div>
 
-          {/* Phone */}
-          <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl p-5 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
-            <div className="flex items-center gap-4">
-              <div className="bg-gradient-to-br from-[#376F6B] to-[#57BBB6] rounded-full p-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                <Phone className="h-6 w-6 text-white" />
-              </div>
+                     {/* Phone */}
+           <div className="bg-white rounded-xl p-5 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
+             <div className="flex items-center gap-4">
+               <div className="bg-[#57BBB6] rounded-full p-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                 <Phone className="h-6 w-6 text-white" />
+               </div>
               <div className="flex-1">
                 <h4 className="font-bold text-gray-900 text-base mb-2">Phone</h4>
                 <p className="text-gray-600 text-sm mb-2">{pharmacyPhone}</p>
@@ -220,12 +220,12 @@ export const Map = ({ showDetails = true, className = "" }: MapProps) => {
             </div>
           </div>
 
-          {/* Email */}
-          <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl p-5 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
-            <div className="flex items-center gap-4">
-              <div className="bg-gradient-to-br from-[#376F6B] to-[#57BBB6] rounded-full p-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                <Mail className="h-6 w-6 text-white" />
-              </div>
+                     {/* Email */}
+           <div className="bg-white rounded-xl p-5 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
+             <div className="flex items-center gap-4">
+               <div className="bg-[#57BBB6] rounded-full p-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                 <Mail className="h-6 w-6 text-white" />
+               </div>
               <div className="flex-1">
                 <h4 className="font-bold text-gray-900 text-base mb-2">Email</h4>
                 <p className="text-gray-600 text-sm mb-2">{pharmacyEmail}</p>
@@ -240,12 +240,12 @@ export const Map = ({ showDetails = true, className = "" }: MapProps) => {
             </div>
           </div>
 
-          {/* Hours */}
-          <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl p-5 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
-            <div className="flex items-center gap-4">
-              <div className="bg-gradient-to-br from-[#376F6B] to-[#57BBB6] rounded-full p-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                <Clock className="h-6 w-6 text-white" />
-              </div>
+                     {/* Hours */}
+           <div className="bg-white rounded-xl p-5 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
+             <div className="flex items-center gap-4">
+               <div className="bg-[#57BBB6] rounded-full p-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                 <Clock className="h-6 w-6 text-white" />
+               </div>
               <div className="flex-1">
                 <h4 className="font-bold text-gray-900 text-base mb-2">Hours</h4>
                 <p className="text-gray-600 text-sm leading-relaxed">{pharmacyHours}</p>
@@ -257,7 +257,7 @@ export const Map = ({ showDetails = true, className = "" }: MapProps) => {
 
       {/* Enhanced CTA Section with Extended Layout */}
       <div className="mt-10 text-center">
-        <div className="bg-gradient-to-br from-[#376F6B] via-[#57BBB6] to-[#2A5A56] rounded-3xl p-8 text-white relative overflow-hidden">
+                 <div className="bg-[#57BBB6] rounded-3xl p-8 text-white relative overflow-hidden">
           {/* Background Decorative Elements */}
           <div className="absolute inset-0">
             <div className="absolute top-0 left-1/4 w-32 h-32 bg-white/5 rounded-full blur-3xl animate-pulse"></div>
@@ -273,7 +273,7 @@ export const Map = ({ showDetails = true, className = "" }: MapProps) => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 onClick={handleDirections}
-                className="bg-white text-[#376F6B] hover:bg-gray-100 font-semibold px-6 py-3 text-base shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                className="bg-[#57BBB6] text-white hover:bg-[#376F6B] font-semibold px-6 py-3 text-base shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               >
                 <Car className="h-5 w-5 mr-2" />
                 Get Directions
@@ -290,9 +290,9 @@ export const Map = ({ showDetails = true, className = "" }: MapProps) => {
             
             {/* Decorative Dots */}
             <div className="flex justify-center space-x-2 mt-6">
-              <div className="w-2 h-2 bg-white/60 rounded-full animate-pulse"></div>
+              <div className="w-2 h-2 bg-[#57BBB6] rounded-full animate-pulse"></div>
               <div className="w-2 h-2 bg-white/60 rounded-full animate-pulse" style={{ animationDelay: '0.3s' }}></div>
-              <div className="w-2 h-2 bg-white/60 rounded-full animate-pulse" style={{ animationDelay: '0.6s' }}></div>
+              <div className="w-2 h-2 bg-[#57BBB6] rounded-full animate-pulse" style={{ animationDelay: '0.6s' }}></div>
             </div>
           </div>
         </div>
