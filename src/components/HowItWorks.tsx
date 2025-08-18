@@ -54,8 +54,8 @@ export const HowItWorks = ({ className = '', showTitle = true }: HowItWorksProps
         }}
       ></div>
       
-      {/* Overlay with #e6d4ab color */}
-      <div className="absolute inset-0 bg-[#e6d4ab] opacity-60 pointer-events-none"></div>
+      {/* Overlay with #d5c6bc beige theme color */}
+      <div className="absolute inset-0 bg-[#d5c6bc] opacity-60 pointer-events-none"></div>
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {showTitle && (

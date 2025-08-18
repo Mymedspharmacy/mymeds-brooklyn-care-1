@@ -317,45 +317,45 @@ export default function SpecialOffers() {
              {/* Light Overlay for Text Readability */}
              <div className="absolute inset-0 bg-black/30 z-10"></div>
           
-          {/* Animated Background Elements */}
+          {/* Static Background Elements */}
           <div className="absolute inset-0 pointer-events-none">
-            {/* Floating Medical Icons */}
-            <div className="absolute top-20 left-10 text-white/15 animate-bounce" style={{ animationDelay: '0s' }}>
+            {/* Static Medical Icons */}
+            <div className="absolute top-20 left-10 text-white/15">
               <Gift className="w-8 h-8" />
             </div>
-            <div className="absolute top-32 right-20 text-white/12 animate-bounce" style={{ animationDelay: '1s' }}>
+            <div className="absolute top-32 right-20 text-white/12">
               <Star className="w-6 h-6" />
             </div>
-            <div className="absolute bottom-32 left-1/4 text-white/18 animate-bounce" style={{ animationDelay: '2s' }}>
+            <div className="absolute bottom-32 left-1/4 text-white/18">
               <Tag className="w-7 h-7" />
             </div>
-            <div className="absolute bottom-20 right-1/3 text-white/14 animate-bounce" style={{ animationDelay: '3s' }}>
+            <div className="absolute bottom-20 right-1/3 text-white/14">
               <Zap className="w-8 h-8" />
             </div>
             
-            {/* Animated Particles */}
-            <div className="absolute top-1/4 left-1/3 w-2 h-2 bg-white/25 rounded-full animate-ping"></div>
-            <div className="absolute top-1/2 right-1/4 w-1.5 h-1.5 bg-white/20 rounded-full animate-ping" style={{ animationDelay: '1.5s' }}></div>
-            <div className="absolute bottom-1/3 left-1/2 w-1 h-1 bg-white/30 rounded-full animate-ping" style={{ animationDelay: '3s' }}></div>
+            {/* Static Particles */}
+            <div className="absolute top-1/4 left-1/3 w-2 h-2 bg-white/25 rounded-full"></div>
+            <div className="absolute top-1/2 right-1/4 w-1.5 h-1.5 bg-white/20 rounded-full"></div>
+            <div className="absolute bottom-1/3 left-1/2 w-1 h-1 bg-white/30 rounded-full"></div>
             
-            {/* Pulse Waves */}
+            {/* Static Circles */}
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <div className="w-48 h-48 border border-white/15 rounded-full animate-ping"></div>
-              <div className="w-48 h-48 border border-white/15 rounded-full animate-ping absolute top-0 left-0" style={{ animationDelay: '1s' }}></div>
-              <div className="w-48 h-48 border border-white/15 rounded-full animate-ping absolute top-0 left-0" style={{ animationDelay: '2s' }}></div>
+              <div className="w-48 h-48 border border-white/15 rounded-full"></div>
+              <div className="w-48 h-48 border border-white/15 rounded-full absolute top-0 left-0"></div>
+              <div className="w-48 h-48 border border-white/15 rounded-full absolute top-0 left-0"></div>
             </div>
           </div>
           
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 bg-white text-[#57BBB6] px-6 py-3 rounded-full text-sm font-semibold mb-8 shadow-lg hover:scale-105 transition-transform duration-300">
-                <Gift className="h-5 w-5 animate-pulse" />
+              <div className="inline-flex items-center gap-2 bg-white text-[#57BBB6] px-6 py-3 rounded-full text-sm font-semibold mb-8 shadow-lg">
+                <Gift className="h-5 w-5" />
                 Special Offers
               </div>
               
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-8">
                 Exclusive 
-                <span className="block text-white bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent animate-pulse">
+                <span className="block text-white bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
                   Savings & Benefits
                 </span>
               </h1>
@@ -366,7 +366,7 @@ export default function SpecialOffers() {
               </p>
               
               {/* Decorative Underline */}
-              <div className="w-32 h-1 bg-gradient-to-r from-transparent via-white/40 to-transparent mx-auto mt-8 rounded-full animate-pulse"></div>
+              <div className="w-32 h-1 bg-gradient-to-r from-transparent via-white/40 to-transparent mx-auto mt-8 rounded-full"></div>
             </div>
           </div>
         </section>
@@ -376,8 +376,8 @@ export default function SpecialOffers() {
 
           {/* Background Decorative Elements */}
           <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-0 left-1/4 w-32 h-32 bg-gradient-to-br from-[#57BBB6]/5 to-[#376F6B]/5 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute bottom-0 right-1/4 w-40 h-40 bg-gradient-to-tl from-[#D5C6BC]/10 to-[#57BBB6]/5 rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
+            <div className="absolute top-0 left-1/4 w-32 h-32 bg-gradient-to-br from-[#57BBB6]/5 to-[#376F6B]/5 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 right-1/4 w-40 h-40 bg-gradient-to-tl from-[#D5C6BC]/10 to-[#57BBB6]/5 rounded-full"></div>
           </div>
           
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -391,9 +391,9 @@ export default function SpecialOffers() {
               
               {/* Decorative Dots */}
               <div className="flex justify-center space-x-2 mt-6">
-                <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                <div className="w-2 h-2 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.3s' }}></div>
-                <div className="w-2 h-2 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.6s' }}></div>
+                <div className="w-2 h-2 bg-white rounded-full"></div>
+                <div className="w-2 h-2 bg-white rounded-full"></div>
+                <div className="w-2 h-2 bg-white rounded-full"></div>
               </div>
             </div>
             
@@ -401,13 +401,13 @@ export default function SpecialOffers() {
               {specialOffers.map((offer) => (
                 <Card 
                   key={offer.id} 
-                  className="group border-0 shadow-lg hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 cursor-pointer"
+                  className="group border-0 shadow-lg hover:shadow-xl cursor-pointer"
                   onClick={() => setSelectedOffer(offer)}
                 >
                   <CardContent className="p-6 flex flex-col h-full">
                     {/* Offer Header */}
                     <div className="text-center mb-6 flex-shrink-0">
-                      <div className="w-20 h-20 bg-[#57BBB6] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                      <div className="w-20 h-20 bg-[#57BBB6] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                         <offer.icon className="h-10 w-10 text-white" />
                       </div>
                       
@@ -415,7 +415,7 @@ export default function SpecialOffers() {
                         {offer.popularity}
                       </Badge>
                       
-                      <CardTitle className="text-xl font-bold text-[#57BBB6] mb-2 group-hover:text-[#376F6B] transition-colors duration-300">
+                      <CardTitle className="text-xl font-bold text-[#57BBB6] mb-2">
                         {offer.title}
                       </CardTitle>
                       
@@ -435,7 +435,7 @@ export default function SpecialOffers() {
                     {/* Action Button - Spacer to push to bottom */}
                     <div className="mt-auto">
                       <Button 
-                        className="w-full bg-[#57BBB6] hover:bg-[#376F6B] text-white font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
+                        className="w-full bg-[#57BBB6] hover:bg-[#376F6B] text-white font-semibold shadow-lg"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleActionClick(offer);
@@ -467,7 +467,7 @@ export default function SpecialOffers() {
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button 
                     onClick={() => handlePersonalizedRecommendations()}
-                    className="bg-white text-[#57BBB6] hover:bg-gray-100 font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg border border-[#57BBB6]"
+                    className="bg-white text-[#57BBB6] hover:bg-gray-100 font-bold px-8 py-4 rounded-xl text-lg shadow-lg border border-[#57BBB6]"
                   >
                     <Package className="w-5 h-5 mr-2" />
                     Get Personalized Recommendations
@@ -476,7 +476,7 @@ export default function SpecialOffers() {
                   <Button 
                     onClick={() => handleContactTeam()}
                     variant="outline"
-                    className="bg-[#57BBB6] text-white hover:bg-[#376F6B] font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 border-white"
+                    className="bg-[#57BBB6] text-white hover:bg-[#376F6B] font-bold px-8 py-4 rounded-xl text-lg border-white"
                   >
                     <ArrowRight className="w-5 h-5 mr-2" />
                     Contact Our Team
@@ -556,7 +556,7 @@ export default function SpecialOffers() {
                     setSelectedOffer(null);
                     handleActionClick(selectedOffer);
                   }}
-                  className="bg-[#57BBB6] text-white hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex-1"
+                                      className="bg-[#57BBB6] text-white hover:shadow-lg flex-1"
                 >
                   <selectedOffer.actionIcon className="w-5 h-5 mr-2" />
                   {selectedOffer.actionButton}

@@ -47,7 +47,7 @@ export const About = () => {
     {
       icon: Truck,
       title: "Convenience",
-      description: "We make healthcare accessible with same-day delivery, 24/7 support, and flexible pickup options."
+              description: "We make healthcare accessible with same-day delivery, Dawn to Dusk support, and flexible pickup options."
     },
     {
       icon: MessageCircle,

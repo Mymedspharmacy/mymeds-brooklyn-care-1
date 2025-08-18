@@ -131,13 +131,11 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
           
           {/* Left: Logo */}
           <div className="flex items-center">
-            <div onClick={() => navigate('/')} className="cursor-pointer group relative">
-              {/* Logo Glow Effect */}
-              <div className="absolute inset-0 bg-[#57BBB6]/20 rounded-full blur-xl scale-0 group-hover:scale-100 transition-transform duration-500"></div>
+            <div onClick={() => navigate('/')} className="cursor-pointer">
               <img
                 src={logo}
                 alt="My Meds Pharmacy Logo"
-                className="h-12 w-auto sm:h-16 md:h-20 lg:h-24 object-contain transition-all duration-300 group-hover:scale-105 drop-shadow-lg relative z-10"
+                className="h-12 w-auto sm:h-16 md:h-20 lg:h-24 object-contain drop-shadow-lg"
               />
             </div>
           </div>
@@ -179,7 +177,7 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
                     </button>
                     <button onClick={() => navigate('/services?service=24-7-support')} className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#57BBB6]/10 transition-colors duration-200 w-full text-left">
                       <MessageCircle className="h-4 w-4 text-[#376F6B]" />
-                      <span className="text-sm text-[#57BBB6]">24/7 Support</span>
+                      <span className="text-sm text-[#57BBB6]">Dawn to Dusk Support</span>
                     </button>
                   </div>
                   <div className="mt-3 pt-3 border-t border-[#57BBB6]/20">

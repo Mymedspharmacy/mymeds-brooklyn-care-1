@@ -9,7 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { useToast } from '../hooks/use-toast';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
-import { HowItWorks } from '../components/HowItWorks';
 import { SEOHead } from '../components/SEOHead';
 import { Map } from '../components/Map';
 import { 
@@ -383,8 +382,7 @@ const Contact = () => {
           </div>
         </section>
 
-        {/* Interactive How It Works Section */}
-        <HowItWorks />
+
 
         {/* Enhanced Business Hours Section */}
                  <section className="py-16 sm:py-20 bg-[#E8F4F3] relative overflow-hidden">

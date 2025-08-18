@@ -89,7 +89,7 @@ const TermsOfService = () => {
                     <li>Medication therapy management</li>
                     <li>Online prescription refills</li>
                     <li>Health and wellness products</li>
-                    <li>24/7 pharmacist consultation</li>
+                    <li>Dawn to Dusk pharmacist consultation</li>
                   </ul>
                 </div>
               </section>

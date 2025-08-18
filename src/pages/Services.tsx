@@ -51,7 +51,7 @@ export default function Services() {
       image: "/images/services/prescription-refill.svg",
       price: "$$",
       duration: "Same day",
-      availability: "24/7",
+      availability: "Dawn to Dusk",
       satisfactionRate: 98,
       patientsServed: 5000,
       avgResponseTime: "2 hours",
@@ -220,7 +220,7 @@ export default function Services() {
       icon: MessageCircle,
       title: "Support",
       description: "Round-the-clock pharmacy support and emergency medication assistance",
-      longDescription: "We understand that health concerns don't always happen during business hours. Our 24/7 support service ensures you have access to professional pharmaceutical advice and emergency medication assistance whenever you need it.",
+              longDescription: "We understand that health concerns don't always happen during business hours. Our Dawn to Dusk Pharmacy Support and Emergency Medication Assistance service ensures you have access to professional pharmaceutical advice and emergency medication assistance whenever you need it.",
       features: [
         "Pharmacist consultation hotline",
         "Emergency medication access and assistance",
@@ -246,7 +246,7 @@ export default function Services() {
       image: "/images/services/24-7-support.svg",
       price: "$$",
       duration: "Varies",
-      availability: "24/7",
+      availability: "Dawn to Dusk",
       satisfactionRate: 94,
       patientsServed: 2500,
       avgResponseTime: "Immediate",
@@ -481,10 +481,10 @@ export default function Services() {
                   </Button>
                   
                   <div className="text-center">
-                    <div className={`inline-flex items-center gap-2 ${selectedServiceData.accent} text-white px-6 py-3 rounded-full text-sm font-semibold mb-8 shadow-lg`}>
-                      <selectedServiceData.icon className="h-5 w-5" />
-                      {selectedServiceData.title}
-                    </div>
+                                      <div className={`inline-flex items-center gap-2 ${selectedServiceData.accent} text-[#376F6B] px-6 py-3 rounded-full text-sm font-semibold mb-8 shadow-lg`}>
+                    <selectedServiceData.icon className="h-5 w-5" />
+                    {selectedServiceData.title}
+                  </div>
 
                     <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-8">
                       {selectedServiceData.title}
@@ -499,20 +499,20 @@ export default function Services() {
                 {/* Service Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
                   <div className="text-center bg-white/10 rounded-2xl p-6 backdrop-blur-sm">
-                    <div className="text-3xl font-bold mb-2">{selectedServiceData.satisfactionRate}%</div>
-                    <div className="text-white/80 text-sm">Satisfaction Rate</div>
+                    <div className="text-3xl font-bold mb-2 text-[#376F6B]">{selectedServiceData.satisfactionRate}%</div>
+                    <div className="text-[#376F6B] text-sm">Satisfaction Rate</div>
                   </div>
                   <div className="text-center bg-white/10 rounded-2xl p-6 backdrop-blur-sm">
-                    <div className="text-3xl font-bold mb-2">{selectedServiceData.patientsServed.toLocaleString()}+</div>
-                    <div className="text-white/80 text-sm">Patients Served</div>
+                    <div className="text-3xl font-bold mb-2 text-[#376F6B]">{selectedServiceData.patientsServed.toLocaleString()}+</div>
+                    <div className="text-[#376F6B] text-sm">Patients Served</div>
                   </div>
                   <div className="text-center bg-white/10 rounded-2xl p-6 backdrop-blur-sm">
-                    <div className="text-3xl font-bold mb-2">{selectedServiceData.avgResponseTime}</div>
-                    <div className="text-white/80 text-sm">Avg Response</div>
+                    <div className="text-3xl font-bold mb-2 text-[#376F6B]">{selectedServiceData.avgResponseTime}</div>
+                    <div className="text-[#376F6B] text-sm">Avg Response</div>
                   </div>
                   <div className="text-center bg-white/10 rounded-2xl p-6 backdrop-blur-sm">
-                    <div className="text-3xl font-bold mb-2">{selectedServiceData.price}</div>
-                    <div className="text-white/80 text-sm">Cost</div>
+                    <div className="text-3xl font-bold mb-2 text-[#376F6B]">{selectedServiceData.price}</div>
+                    <div className="text-[#376F6B] text-sm">Cost</div>
                   </div>
                 </div>
               </div>

@@ -586,7 +586,7 @@ export default function Shop() {
                     <Clock className="h-8 w-8 text-white" />
                   </div>
                   <h3 className="text-xl font-bold text-white mb-2">
-                    24/7 Support
+                    Dawn to Dusk Support
                   </h3>
                   <p className="text-white/90">
                     Our pharmacy team is always available to answer your questions and provide guidance.

@@ -1,0 +1,25 @@
+<svg width="300" height="120" viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Stylized Medical Cross -->
+  <path 
+    d="M30 20 L30 40 L50 40 L50 60 L30 60 L30 80 L10 80 L10 60 L30 60 L30 40 L10 40 L10 20 Z" 
+    fill="#57BBB6" 
+    stroke="#376F6B" 
+    stroke-width="2"
+    rx="3"
+  />
+  
+  <!-- MY MEDS Text -->
+  <text x="70" y="45" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#57BBB6" text-transform="uppercase">
+    MY MEDS
+  </text>
+  
+  <!-- PHARMACY Text -->
+  <text x="70" y="70" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#57BBB6" text-transform="uppercase">
+    PHARMACY
+  </text>
+  
+  <!-- Decorative Elements -->
+  <circle cx="25" cy="50" r="2" fill="#376F6B" opacity="0.6"/>
+  <circle cx="35" cy="50" r="1.5" fill="#376F6B" opacity="0.4"/>
+</svg>
+

@@ -117,7 +117,7 @@ const PatientResources = () => {
     {
       title: 'Poison Control',
       phone: '1-800-222-1222',
-      description: '24/7 emergency poison information'
+              description: 'Dawn to Dusk emergency poison information'
     },
     {
       title: 'Emergency Services',

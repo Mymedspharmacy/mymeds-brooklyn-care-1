@@ -117,7 +117,7 @@ export const Footer = () => {
                     href={s.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-10 h-10 bg-gradient-to-r from-[#57BBB6] to-[#376F6B] rounded-full flex items-center justify-center"
+                    className="w-10 h-10 bg-[#57BBB6] rounded-full flex items-center justify-center"
                     aria-label={`Follow us on ${s.label}`}
                     tabIndex={0}
                     onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.click()}
@@ -214,7 +214,7 @@ export const Footer = () => {
               <h3 className="text-sm font-bold uppercase tracking-wider mb-6 text-[#57BBB6]">Contact Info</h3>
               <div className="space-y-3">
                                   <div className="grid grid-cols-[36px,1fr] gap-3 items-center">
-                    <div className="w-9 h-9 shrink-0 bg-gradient-to-r from-[#57BBB6] to-[#376F6B] rounded-full flex items-center justify-center">
+                    <div className="w-9 h-9 shrink-0 bg-[#57BBB6] rounded-full flex items-center justify-center">
                       <Phone className="h-5 w-5 text-white" />
                     </div>
                     <div className="leading-6 space-y-0.5">
@@ -230,7 +230,7 @@ export const Footer = () => {
                   </div>
 
                                   <div className="grid grid-cols-[36px,1fr] gap-3 items-center">
-                    <div className="w-9 h-9 shrink-0 bg-gradient-to-r from-[#57BBB6] to-[#376F6B] rounded-full flex items-center justify-center">
+                    <div className="w-9 h-9 shrink-0 bg-[#57BBB6] rounded-full flex items-center justify-center">
                       <Mail className="h-5 w-5 text-white" />
                     </div>
                     <div className="leading-6 space-y-0.5">
@@ -246,7 +246,7 @@ export const Footer = () => {
                   </div>
 
                                   <div className="grid grid-cols-[36px,1fr] gap-3 items-center">
-                    <div className="w-9 h-9 shrink-0 bg-gradient-to-r from-[#57BBB6] to-[#376F6B] rounded-full flex items-center justify-center">
+                    <div className="w-9 h-9 shrink-0 bg-[#57BBB6] rounded-full flex items-center justify-center">
                       <MapPin className="h-5 w-5 text-white" />
                     </div>
                     <div className="leading-6 space-y-0.5">
@@ -337,7 +337,7 @@ export const Footer = () => {
                   />
                   <Button 
                     type="submit"
-                    className="bg-gradient-to-r from-[#57BBB6] to-[#376F6B] text-white px-6 py-2 rounded-r-lg border-0 font-semibold"
+                    className="bg-[#57BBB6] text-white px-6 py-2 rounded-r-lg border-0 font-semibold"
                     aria-label="Subscribe to newsletter"
                   >
                     Subscribe
