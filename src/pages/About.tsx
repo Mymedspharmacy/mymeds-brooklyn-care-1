@@ -40,10 +40,10 @@ export default function About() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setAnimatedStats({
-        experience: 15,
-        patients: 10000,
-        satisfaction: 98,
-        community: 25
+        experience: 0,
+        patients: 25,
+        satisfaction: 100,
+        community: 1
       });
     }, 500);
 
@@ -122,39 +122,39 @@ export default function About() {
 
   const milestones = [
     {
-      year: "2009",
-      title: "Pharmacy Founded",
-      description: "My Meds Pharmacy opens its doors in Brooklyn, NY, with a mission to provide personalized pharmaceutical care.",
+      year: "2025",
+      title: "New Beginnings",
+      description: "My Meds Pharmacy opens its doors in Brooklyn, NY, ready to serve our community.",
       icon: Building2
     },
     {
-      year: "2012",
-      title: "Expanded Services",
-      description: "Added immunization services and medication therapy management to better serve our community.",
-      icon: Shield
-    },
-    {
-      year: "2015",
-      title: "Community Recognition",
-      description: "Received Brooklyn Chamber of Commerce Excellence Award for outstanding community service.",
-      icon: Award
-    },
-    {
-      year: "2018",
-      title: "Digital Innovation",
-      description: "Launched online prescription refills and patient portal for enhanced convenience.",
-      icon: Zap
-    },
-    {
-      year: "2021",
-      title: "Pandemic Response",
-      description: "Provided essential services and COVID-19 vaccinations during the global health crisis.",
+      year: "2025",
+      title: "Fresh Start",
+      description: "Starting our journey with a commitment to quality care and community service.",
       icon: Heart
     },
     {
-      year: "2024",
-      title: "Future Forward",
-      description: "Continuing to innovate and expand services to meet evolving healthcare needs.",
+      year: "2025",
+      title: "Building Trust",
+      description: "Establishing relationships with our neighbors and building trust in our community.",
+      icon: Shield
+    },
+    {
+      year: "2025",
+      title: "Modern Approach",
+      description: "Offering contemporary pharmacy services with a focus on convenience and care.",
+      icon: Zap
+    },
+    {
+      year: "2025",
+      title: "Community Focus",
+      description: "Dedicated to becoming a trusted healthcare partner in Brooklyn.",
+      icon: Users
+    },
+    {
+      year: "2025",
+      title: "Growing Together",
+      description: "Looking forward to growing with our community and serving more families.",
       icon: Target
     }
   ];
@@ -249,27 +249,27 @@ export default function About() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               <div className="text-center">
                 <div className="text-4xl md:text-5xl font-bold text-[#57BBB6] mb-2">
-                  {animatedStats.experience}+
+                  {animatedStats.experience}
                 </div>
-                <div className="text-[#57BBB6] font-semibold">Years Experience</div>
+                <div className="text-[#57BBB6] font-semibold">Years of Experience</div>
               </div>
               <div className="text-center">
                 <div className="text-4xl md:text-5xl font-bold text-[#57BBB6] mb-2">
                   {animatedStats.patients.toLocaleString()}+
                 </div>
-                <div className="text-[#57BBB6] font-semibold">Patients Served</div>
+                <div className="text-[#57BBB6] font-semibold">New Patients</div>
               </div>
               <div className="text-center">
                 <div className="text-4xl md:text-5xl font-bold text-[#57BBB6] mb-2">
                   {animatedStats.satisfaction}%
                 </div>
-                <div className="text-[#57BBB6] font-semibold">Satisfaction Rate</div>
+                <div className="text-[#57BBB6] font-semibold">Quality Promise</div>
               </div>
               <div className="text-center">
                 <div className="text-4xl md:text-5xl font-bold text-[#57BBB6] mb-2">
                   {animatedStats.community}
                 </div>
-                <div className="text-[#57BBB6] font-semibold">Community Awards</div>
+                <div className="text-[#57BBB6] font-semibold">Community First</div>
               </div>
             </div>
           </div>
