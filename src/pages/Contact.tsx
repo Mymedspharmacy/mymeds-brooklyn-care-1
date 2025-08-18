@@ -70,7 +70,7 @@ const Contact = () => {
                   <section id="contact" className="py-16 sm:py-20 md:py-24 relative overflow-hidden">
           {/* Background Image Placeholder - Replace with actual pharmacy location/staff image */}
                        <div
-               className="absolute inset-0 opacity-60 pointer-events-none"
+               className="absolute inset-0 opacity-100 pointer-events-none"
                style={{
                  backgroundImage: `url('/images/new/contactus.jpg')`,
                  backgroundSize: 'cover',
@@ -79,8 +79,7 @@ const Contact = () => {
                }}
              ></div>
              
-             {/* Enhanced Overlay for Better Text Readability */}
-             <div className="absolute inset-0 bg-black/60 z-10"></div>
+
           
           {/* Enhanced Animated Background Elements - All White */}
           <div className="absolute inset-0 pointer-events-none">
@@ -388,7 +387,7 @@ const Contact = () => {
         <HowItWorks />
 
         {/* Enhanced Business Hours Section */}
-                 <section className="py-16 sm:py-20 bg-white relative overflow-hidden">
+                 <section className="py-16 sm:py-20 bg-[#E8F4F3] relative overflow-hidden">
           {/* Background Decorative Elements */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-0 left-1/4 w-32 h-32 bg-[#57BBB6]/5 rounded-full blur-3xl animate-pulse"></div>
@@ -422,7 +421,7 @@ const Contact = () => {
 
                              <Card className="border-0 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 bg-white group">
                  <CardContent className="p-8 text-center">
-                   <div className="w-16 h-16 bg-[#376F6B] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                   <div className="w-16 h-16 bg-[#57BBB6] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
                      <Clock className="h-8 w-8 text-white" />
                    </div>
                    <h3 className="text-2xl font-bold text-[#376F6B] mb-4">Store Hours</h3>

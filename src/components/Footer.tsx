@@ -42,7 +42,7 @@ export const Footer = () => {
   };
 
   const handleEmailClick = () => {
-    window.open('mailto:info@mymedspharmacy.com');
+    window.open('mailto:mymedspharmacy@outlook.com');
   };
 
   const handleMapClick = () => {
@@ -73,7 +73,7 @@ export const Footer = () => {
     { to: '/services?service=medication-management', label: 'Medication Management', icon: Shield },
     { to: '/services?service=health-consultations', label: 'Health Consultations', icon: Users },
     { to: '/services?service=immunizations', label: 'Immunizations', icon: Stethoscope },
-    { to: '/services?service=24-7-support', label: '24/7 Support', icon: MessageCircle },
+    { to: '/services?service=24-7-support', label: 'Support', icon: MessageCircle },
   ];
 
   return (
@@ -101,7 +101,7 @@ export const Footer = () => {
                   <img 
                     src={logo} 
                     alt="My Meds Pharmacy Logo" 
-                    className="h-16 w-auto sm:h-20 md:h-24 lg:h-auto transition-all duration-300 ease-in-out group-hover:scale-105"
+                    className="h-16 w-auto sm:h-20 md:h-24 lg:h-auto"
                   />
                 </div>
                 <p className="text-[#57BBB6] leading-relaxed mb-6">
@@ -117,27 +117,27 @@ export const Footer = () => {
                     href={s.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-10 h-10 bg-gradient-to-r from-[#57BBB6] to-[#376F6B] rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 group"
+                    className="w-10 h-10 bg-gradient-to-r from-[#57BBB6] to-[#376F6B] rounded-full flex items-center justify-center"
                     aria-label={`Follow us on ${s.label}`}
                     tabIndex={0}
                     onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.click()}
                   >
-                    <s.icon className="h-5 w-5 text-white group-hover:rotate-12 transition-transform duration-300" />
+                    <s.icon className="h-5 w-5 text-white" />
                   </a>
                 ))}
               </div>
 
               {/* Trust Badges */}
-              <div className="flex items-center gap-4 text-sm text-[#57BBB6]">
-                <div className="flex items-center gap-1 group hover:text-[#376F6B] transition-colors duration-300">
-                  <Shield className="h-4 w-4 text-[#57BBB6] group-hover:scale-110 transition-transform duration-300" />
-                  <span>Licensed</span>
+                              <div className="flex items-center gap-4 text-sm text-[#57BBB6]">
+                  <div className="flex items-center gap-1">
+                    <Shield className="h-4 w-4 text-[#57BBB6]" />
+                    <span>Licensed</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Star className="h-4 w-4 text-[#57BBB6]" />
+                    <span>5-Star Rated</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1 group hover:text-[#376F6B] transition-colors duration-300">
-                  <Star className="h-4 w-4 text-[#57BBB6] group-hover:scale-110 transition-transform duration-300" />
-                  <span>5-Star Rated</span>
-                </div>
-              </div>
             </div>
 
             {/* Quick Links */}
@@ -148,10 +148,10 @@ export const Footer = () => {
                   <li key={idx}>
                     <Link 
                       to={item.to}
-                      className="text-gray-600 hover:text-[#57BBB6] transition-colors duration-300 flex items-center group"
+                      className="text-gray-600 flex items-center"
                       aria-label={`Navigate to ${item.label.toLowerCase()}`}
                     >
-                      <item.icon className="h-4 w-4 mr-2 group-hover:translate-x-1 transition-transform duration-300" />
+                      <item.icon className="h-4 w-4 mr-2" />
                       {item.label}
                     </Link>
                   </li>
@@ -159,10 +159,10 @@ export const Footer = () => {
                 <li>
                   <a 
                     href="#about" 
-                    className="text-gray-600 hover:text-[#57BBB6] transition-colors duration-300 flex items-center group"
+                    className="text-gray-600 flex items-center"
                     aria-label="Scroll to about us section"
                   >
-                    <ArrowRight className="h-4 w-4 mr-2 group-hover:translate-x-1 transition-transform duration-300" />
+                    <ArrowRight className="h-4 w-4 mr-2" />
                     About Us
                   </a>
                 </li>
@@ -197,10 +197,10 @@ export const Footer = () => {
                   <li key={idx}>
                     <Link
                       to={s.to}
-                      className="text-gray-600 hover:text-[#57BBB6] transition-colors duration-300 flex items-center group"
+                      className="text-gray-600 flex items-center"
                       aria-label={`Learn about ${s.label.toLowerCase()}`}
                     >
-                      <s.icon className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
+                      <s.icon className="h-4 w-4 mr-2" />
                       {s.label}
                     </Link>
                   </li>
@@ -213,54 +213,54 @@ export const Footer = () => {
             <div className="lg:pl-8 lg:pr-8">
               <h3 className="text-sm font-bold uppercase tracking-wider mb-6 text-[#57BBB6]">Contact Info</h3>
               <div className="space-y-3">
-                <div className="grid grid-cols-[36px,1fr] gap-3 items-center group">
-                  <div className="w-9 h-9 shrink-0 bg-gradient-to-r from-[#57BBB6] to-[#376F6B] rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <Phone className="h-5 w-5 text-white" />
+                                  <div className="grid grid-cols-[36px,1fr] gap-3 items-center">
+                    <div className="w-9 h-9 shrink-0 bg-gradient-to-r from-[#57BBB6] to-[#376F6B] rounded-full flex items-center justify-center">
+                      <Phone className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="leading-6 space-y-0.5">
+                      <p className="text-[#57BBB6] text-sm">Phone</p>
+                      <button 
+                        onClick={handleCallClick}
+                        className="text-gray-800 font-semibold whitespace-nowrap"
+                        aria-label="Call us at (347) 312-6458"
+                      >
+                        (347) 312-6458
+                      </button>
+                    </div>
                   </div>
-                  <div className="leading-6 space-y-0.5">
-                    <p className="text-[#57BBB6] text-sm">Phone</p>
-                    <button 
-                      onClick={handleCallClick}
-                      className="text-gray-800 font-semibold hover:text-[#57BBB6] transition-colors duration-300 whitespace-nowrap"
-                      aria-label="Call us at (347) 312-6458"
-                    >
-                      (347) 312-6458
-                    </button>
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-[36px,1fr] gap-3 items-center group">
-                  <div className="w-9 h-9 shrink-0 bg-gradient-to-r from-[#57BBB6] to-[#376F6B] rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <Mail className="h-5 w-5 text-white" />
+                                  <div className="grid grid-cols-[36px,1fr] gap-3 items-center">
+                    <div className="w-9 h-9 shrink-0 bg-gradient-to-r from-[#57BBB6] to-[#376F6B] rounded-full flex items-center justify-center">
+                      <Mail className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="leading-6 space-y-0.5">
+                      <p className="text-[#57BBB6] text-sm">Email</p>
+                      <button 
+                        onClick={handleEmailClick}
+                        className="text-gray-800 font-semibold whitespace-nowrap no-underline"
+                        aria-label="Send email to mymedspharmacy@outlook.com"
+                      >
+                        info@mymedspharmacy.com
+                      </button>
+                    </div>
                   </div>
-                  <div className="leading-6 space-y-0.5">
-                    <p className="text-[#57BBB6] text-sm">Email</p>
-                    <button 
-                      onClick={handleEmailClick}
-                      className="text-gray-800 font-semibold hover:text-[#57BBB6] transition-colors duration-300 whitespace-nowrap no-underline"
-                      aria-label="Send email to mymedspharmacy@outlook.com"
-                    >
-                      info@mymedspharmacy.com
-                    </button>
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-[36px,1fr] gap-3 items-center group">
-                  <div className="w-9 h-9 shrink-0 bg-gradient-to-r from-[#57BBB6] to-[#376F6B] rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <MapPin className="h-5 w-5 text-white" />
+                                  <div className="grid grid-cols-[36px,1fr] gap-3 items-center">
+                    <div className="w-9 h-9 shrink-0 bg-gradient-to-r from-[#57BBB6] to-[#376F6B] rounded-full flex items-center justify-center">
+                      <MapPin className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="leading-6 space-y-0.5">
+                      <p className="text-[#57BBB6] text-sm">Location</p>
+                      <button 
+                        onClick={handleMapClick}
+                        className="text-gray-800 font-semibold flex items-center"
+                        aria-label="Open location in maps"
+                      >
+                        J279+5V Brooklyn, NY
+                        <ExternalLink className="h-3 w-3 ml-1" />
+                      </button>
+                    </div>
                   </div>
-                  <div className="leading-6 space-y-0.5">
-                    <p className="text-[#57BBB6] text-sm">Location</p>
-                    <button 
-                      onClick={handleMapClick}
-                      className="text-gray-800 font-semibold hover:text-[#57BBB6] transition-colors duration-300 flex items-center group"
-                      aria-label="Open location in maps"
-                    >
-                      J279+5V Brooklyn, NY
-                      <ExternalLink className="h-3 w-3 ml-1 group-hover:translate-x-0.5 transition-transform duration-300" />
-                    </button>
-                  </div>
-                </div>
 
                 {/* Hours moved under Services column */}
               </div>
@@ -337,7 +337,7 @@ export const Footer = () => {
                   />
                   <Button 
                     type="submit"
-                    className="bg-gradient-to-r from-[#57BBB6] to-[#376F6B] hover:from-[#376F6B] hover:to-[#57BBB6] hover:shadow-lg text-white px-6 py-2 rounded-r-lg transition-all duration-300 transform hover:scale-105 border-0 font-semibold"
+                    className="bg-gradient-to-r from-[#57BBB6] to-[#376F6B] text-white px-6 py-2 rounded-r-lg border-0 font-semibold"
                     aria-label="Subscribe to newsletter"
                   >
                     Subscribe
@@ -360,21 +360,21 @@ export const Footer = () => {
             <div className="flex items-center gap-6 text-sm">
               <Link 
                 to="/privacy-policy"
-                className="text-[#57BBB6] hover:text-[#57BBB6] transition-colors duration-300"
+                className="text-[#57BBB6]"
                 aria-label="Read our privacy policy"
               >
                 Privacy Policy
               </Link>
               <Link 
                 to="/terms-of-service"
-                className="text-[#57BBB6] hover:text-[#57BBB6] transition-colors duration-300"
+                className="text-[#57BBB6]"
                 aria-label="Read our terms of service"
               >
                 Terms of Service
               </Link>
               <Link 
                 to="/hipaa-notice"
-                className="text-[#57BBB6] hover:text-[#57BBB6] transition-colors duration-300"
+                className="text-[#57BBB6]"
                 aria-label="Read our HIPAA notice"
               >
                 HIPAA Notice

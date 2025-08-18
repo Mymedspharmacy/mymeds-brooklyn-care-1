@@ -293,7 +293,7 @@ export default function SpecialOffers() {
         description="Save money with our special pharmacy offers including prescription refills, free shipping, senior discounts, and referral rewards. Limited time deals in Brooklyn."
         keywords="pharmacy discounts, prescription savings, free shipping, senior discount, referral rewards, Brooklyn pharmacy deals, medication savings, pharmacy offers"
       />
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-[#F1EEE9]">
         <Header 
           onRefillClick={() => navigate('/', { state: { openRefillForm: true } })}
           onAppointmentClick={() => navigate('/', { state: { openAppointmentForm: true } })}
@@ -305,7 +305,7 @@ export default function SpecialOffers() {
                   <section className="py-16 sm:py-20 md:py-24 text-white relative overflow-hidden">
           {/* Background Image Placeholder - Replace with actual pharmacy offers/promotions image */}
                        <div
-               className="absolute inset-0 opacity-25 pointer-events-none"
+               className="absolute inset-0 opacity-100 pointer-events-none"
                style={{
                  backgroundImage: `url('/images/new/specialofferspage.jpg')`,
                  backgroundSize: 'cover',
@@ -314,8 +314,8 @@ export default function SpecialOffers() {
                }}
              ></div>
              
-             {/* Enhanced Overlay for Better Text Readability */}
-             <div className="absolute inset-0 bg-black/60 z-10"></div>
+             {/* Light Overlay for Text Readability */}
+             <div className="absolute inset-0 bg-black/30 z-10"></div>
           
           {/* Animated Background Elements */}
           <div className="absolute inset-0 pointer-events-none">
@@ -372,17 +372,8 @@ export default function SpecialOffers() {
         </section>
 
         {/* Offers Grid */}
-        <section className="py-16 sm:py-20 bg-[#376F6B] relative overflow-hidden">
-          {/* Subtle Background Image */}
-                         <div
-                 className="absolute inset-0 opacity-15 pointer-events-none"
-                 style={{
-                   backgroundImage: `url('/images/new/specialofferspage.jpg')`,
-                   backgroundSize: 'cover',
-                   backgroundPosition: 'center',
-                   backgroundRepeat: 'no-repeat'
-                 }}
-               ></div>
+        <section className="py-16 sm:py-20 bg-[#F1EEE9] relative overflow-hidden">
+
           {/* Background Decorative Elements */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-0 left-1/4 w-32 h-32 bg-gradient-to-br from-[#57BBB6]/5 to-[#376F6B]/5 rounded-full blur-3xl animate-pulse"></div>
@@ -391,10 +382,10 @@ export default function SpecialOffers() {
           
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center mb-16">
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#376F6B] mb-6">
                 Current Offers
               </h2>
-              <p className="text-lg sm:text-xl text-white/90 max-w-3xl mx-auto">
+              <p className="text-lg sm:text-xl text-[#376F6B] max-w-3xl mx-auto">
                 Take advantage of these exclusive offers and start saving on your healthcare today.
               </p>
               
@@ -462,7 +453,7 @@ export default function SpecialOffers() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-16 sm:py-20 bg-[#D5C6BC]">
+        <section className="py-16 sm:py-20 bg-[#F1EEE9]">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="bg-[#57BBB6] rounded-3xl p-8 sm:p-12 text-center text-white relative overflow-hidden">
               <div className="relative z-10">

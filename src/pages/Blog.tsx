@@ -36,56 +36,9 @@ interface WordPressCategory {
   description: string;
 }
 
-// Fallback sample posts when WordPress is not available
-const fallbackPosts: WordPressPost[] = [
-  {
-    id: 1,
-    title: { rendered: "Understanding Your Prescription Medications" },
-    content: { rendered: "Learn about the importance of understanding your prescription medications, including dosage, side effects, and interactions..." },
-    excerpt: { rendered: "Essential guide to understanding your prescription medications for better health outcomes." },
-    author: 1,
-    date: new Date().toISOString(),
-    modified: new Date().toISOString(),
-    categories: [1],
-    tags: [],
-    _embedded: {
-      author: [{ name: "Pharmacy Team" }]
-    }
-  },
-  {
-    id: 2,
-    title: { rendered: "Seasonal Health Tips for Spring" },
-    content: { rendered: "Spring brings new health challenges and opportunities. Discover how to stay healthy during allergy season..." },
-    excerpt: { rendered: "Stay healthy this spring with our expert tips for managing seasonal allergies and wellness." },
-    author: 1,
-    date: new Date().toISOString(),
-    modified: new Date().toISOString(),
-    categories: [2],
-    tags: [],
-    _embedded: {
-      author: [{ name: "Pharmacy Team" }]
-    }
-  },
-  {
-    id: 3,
-    title: { rendered: "The Importance of Medication Adherence" },
-    content: { rendered: "Taking your medications as prescribed is crucial for treatment success. Learn strategies to improve adherence..." },
-    excerpt: { rendered: "Why following your medication schedule is essential for your health and recovery." },
-    author: 1,
-    date: new Date().toISOString(),
-    modified: new Date().toISOString(),
-    categories: [1],
-    tags: [],
-    _embedded: {
-      author: [{ name: "Pharmacy Team" }]
-    }
-  }
-];
 
-const fallbackCategories: WordPressCategory[] = [
-  { id: 1, name: "Medication Safety", count: 2, description: "Tips for safe medication use" },
-  { id: 2, name: "Seasonal Health", count: 1, description: "Health advice for different seasons" }
-];
+
+
 
 export default function Blog() {
   const {
@@ -124,11 +77,11 @@ export default function Blog() {
         
         // Check if WordPress API is configured
         if (!import.meta.env.VITE_WORDPRESS_URL) {
-          console.warn('WordPress API not configured, using fallback content');
-          setPosts(fallbackPosts);
-          setCategories(fallbackCategories);
-          setFeaturedPosts(fallbackPosts.slice(0, 2));
-          setRecentPosts(fallbackPosts);
+          console.warn('WordPress API not configured, no content available');
+          setPosts([]);
+          setCategories([]);
+          setFeaturedPosts([]);
+          setRecentPosts([]);
           return;
         }
 
@@ -145,11 +98,11 @@ export default function Blog() {
       } catch (error) {
         console.error('Error fetching posts:', error);
         setError('Unable to load blog posts at this time. Please try again later.');
-        // Use fallback content on error
-        setPosts(fallbackPosts);
-        setCategories(fallbackCategories);
-        setFeaturedPosts(fallbackPosts.slice(0, 2));
-        setRecentPosts(fallbackPosts);
+        // Set empty arrays on error
+        setPosts([]);
+        setCategories([]);
+        setFeaturedPosts([]);
+        setRecentPosts([]);
       } finally {
         setLoading(false);
       }
@@ -239,7 +192,7 @@ export default function Blog() {
                   <section className="py-16 sm:py-20 md:py-24 text-white relative overflow-hidden">
           {/* Background Image Placeholder - Replace with actual pharmacy health/wellness image */}
                        <div
-               className="absolute inset-0 opacity-60 pointer-events-none"
+               className="absolute inset-0 opacity-100 pointer-events-none"
                style={{
                  backgroundImage: `url('/images/new/blogpage.jpg')`,
                  backgroundSize: 'cover',
@@ -248,8 +201,8 @@ export default function Blog() {
                }}
              ></div>
              
-             {/* Enhanced Overlay for Better Text Readability */}
-             <div className="absolute inset-0 bg-black/60 z-10"></div>
+             {/* Light Overlay for Text Readability */}
+             <div className="absolute inset-0 bg-black/30 z-10"></div>
           
           {/* Animated Background Elements */}
           <div className="absolute inset-0 pointer-events-none">
@@ -363,7 +316,7 @@ export default function Blog() {
         </section>
 
         {/* Featured Posts */}
-        <section className="py-16 sm:py-20 bg-white">
+        <section className="py-16 sm:py-20 bg-[#F1EEE9]">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#57BBB6] mb-6">
@@ -446,7 +399,7 @@ export default function Blog() {
         </section>
 
         {/* Recent Posts */}
-        <section className="py-16 sm:py-20 bg-[#D5C6BC]">
+        <section className="py-16 sm:py-20 bg-[#E8F4F3]">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#57BBB6] mb-6">
@@ -529,7 +482,7 @@ export default function Blog() {
         </section>
 
         {/* Newsletter Signup */}
-        <section className="py-16 sm:py-20 bg-white">
+        <section className="py-16 sm:py-20 bg-[#E8F4F3]">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="bg-[#57BBB6] rounded-3xl p-8 sm:p-12 text-center text-white relative overflow-hidden">
               <div className="relative z-10">

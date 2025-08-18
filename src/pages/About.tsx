@@ -104,7 +104,7 @@ export default function About() {
       icon: Shield,
       title: "Safety & Quality",
       description: "We maintain the highest standards of pharmaceutical care, ensuring every medication and service meets rigorous safety and quality requirements.",
-      color: "bg-[#376F6B]"
+      color: "bg-[#57BBB6]"
     },
     {
       icon: Globe,
@@ -116,7 +116,7 @@ export default function About() {
       icon: Star,
       title: "Excellence",
       description: "We strive for excellence in everything we do, from customer service to pharmaceutical expertise and community involvement.",
-      color: "bg-[#376F6B]"
+      color: "bg-[#57BBB6]"
     }
   ];
 
@@ -187,7 +187,7 @@ export default function About() {
                   <div className="text-white py-16 sm:py-20 md:py-24 relative overflow-hidden">
           {/* Background Image Placeholder - Replace with actual pharmacy team/building image */}
                        <div
-               className="absolute inset-0 opacity-80 pointer-events-none"
+               className="absolute inset-0 opacity-100 pointer-events-none"
                style={{
                  backgroundImage: `url('/images/new/aboutus.jpg')`,
                  backgroundSize: 'cover',
@@ -196,8 +196,8 @@ export default function About() {
                }}
              ></div>
              
-             {/* Enhanced Overlay for Better Text Readability */}
-             <div className="absolute inset-0 bg-[#e6d4ab] opacity-60 pointer-events-none z-10"></div>
+             {/* Minimal Overlay for Text Readability */}
+             <div className="absolute inset-0 bg-black/20 pointer-events-none z-10"></div>
           
           {/* Animated Background Elements */}
           <div className="absolute inset-0 pointer-events-none">
@@ -230,10 +230,10 @@ export default function About() {
           
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
             <div className="max-w-4xl mx-auto">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-[#E8F4F3]">
                 About My Meds Pharmacy
               </h1>
-              <p className="text-xl sm:text-2xl text-white/90 leading-relaxed max-w-3xl mx-auto">
+              <p className="text-xl sm:text-2xl text-[#E8F4F3] leading-relaxed max-w-3xl mx-auto">
                 Your trusted healthcare partner in Brooklyn, delivering exceptional pharmaceutical care with compassion, expertise, and community focus.
               </p>
               
@@ -347,7 +347,7 @@ export default function About() {
         </div>
 
         {/* Location Section */}
-        <section className="py-16 sm:py-20 bg-white relative overflow-hidden">
+        <section className="py-16 sm:py-20 bg-[#F1EEE9] relative overflow-hidden">
           {/* Background Images for Map Section */}
           <div className="absolute inset-0 opacity-15 pointer-events-none">
             <div

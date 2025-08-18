@@ -218,11 +218,11 @@ export default function Services() {
     {
       id: '24-7-support',
       icon: MessageCircle,
-      title: "24/7 Support",
+      title: "Support",
       description: "Round-the-clock pharmacy support and emergency medication assistance",
       longDescription: "We understand that health concerns don't always happen during business hours. Our 24/7 support service ensures you have access to professional pharmaceutical advice and emergency medication assistance whenever you need it.",
       features: [
-        "24/7 pharmacist consultation hotline",
+        "Pharmacist consultation hotline",
         "Emergency medication access and assistance",
         "After-hours prescription pickup",
         "Telepharmacy services for remote consultations",
@@ -236,7 +236,7 @@ export default function Services() {
         "Continuity of care outside business hours"
       ],
       process: [
-        "Call our 24/7 hotline for assistance",
+        "Call our hotline for assistance",
         "Speak with a licensed pharmacist",
         "Receive immediate guidance or coordination",
         "Follow up during regular business hours if needed"
@@ -350,7 +350,7 @@ export default function Services() {
         {!selectedService ? (
           <>
             {/* Hero Section */}
-            <section className="py-16 sm:py-20 md:py-24 bg-[#376F6B] text-white relative overflow-hidden">
+            <section className="py-16 sm:py-20 md:py-24 bg-[#F1EEE9] text-[#376F6B] relative overflow-hidden">
               <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div className="text-center mb-16">
                   <div className="inline-flex items-center gap-2 bg-white text-[#376F6B] px-6 py-3 rounded-full text-sm font-semibold mb-8 shadow-lg">
@@ -360,12 +360,12 @@ export default function Services() {
                   
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-8">
                     Comprehensive 
-                    <span className="block text-white">
+                    <span className="block text-[#376F6B]">
                       Pharmaceutical Care
                     </span>
                   </h1>
                   
-                  <p className="text-xl sm:text-2xl text-white/90 max-w-4xl mx-auto font-medium leading-relaxed">
+                  <p className="text-xl sm:text-2xl text-[#376F6B] max-w-4xl mx-auto font-medium leading-relaxed">
                     From prescription management to health consultations, we provide complete pharmaceutical care 
                     tailored to your individual needs with the highest standards of professionalism and compassion.
                   </p>
@@ -376,10 +376,10 @@ export default function Services() {
                   {services.map((service, index) => (
                     <Card 
                       key={index} 
-                      className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-white hover:bg-white/95 cursor-pointer"
+                      className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-white hover:bg-white/95 cursor-pointer h-full flex flex-col"
                       onClick={() => navigate(`/services?service=${service.id}`)}
                     >
-                      <CardContent className="relative p-6 sm:p-8">
+                      <CardContent className="relative p-6 sm:p-8 flex flex-col h-full">
                         {/* Service Icon */}
                         <div className="w-20 h-20 bg-[#376F6B] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 group-hover:shadow-xl transition-all duration-500 group-hover:rotate-3">
                           <service.icon className="h-10 w-10 text-white group-hover:scale-110 transition-transform duration-300" />
@@ -390,7 +390,7 @@ export default function Services() {
                           {service.title}
                         </CardTitle>
                         
-                        <CardDescription className="text-[#376F6B] mb-6 text-base leading-relaxed font-medium group-hover:text-[#376F6B] transition-colors duration-300 text-center">
+                        <CardDescription className="text-[#376F6B] mb-6 text-base leading-relaxed font-medium group-hover:text-[#376F6B] transition-colors duration-300 text-center flex-grow">
                           {service.description}
                         </CardDescription>
 
@@ -410,17 +410,19 @@ export default function Services() {
                           </div>
                         </div>
 
-                        {/* Action Button */}
-                        <Button 
-                          className="w-full bg-[#376F6B] hover:bg-[#2A5A56] text-white font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleActionClick(service);
-                          }}
-                        >
-                          <service.actionIcon className="w-4 h-4 mr-2" />
-                          {service.actionButton}
-                        </Button>
+                        {/* Action Button - Pushed to bottom */}
+                        <div className="mt-auto">
+                          <Button 
+                            className="w-full bg-[#376F6B] hover:bg-[#2A5A56] text-white font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleActionClick(service);
+                            }}
+                          >
+                            <service.actionIcon className="w-4 h-4 mr-2" />
+                            {service.actionButton}
+                          </Button>
+                        </div>
                       </CardContent>
                     </Card>
                   ))}
@@ -429,7 +431,7 @@ export default function Services() {
             </section>
 
             {/* Stats Section */}
-            <section className="py-16 sm:py-20 bg-[#D5C6BC]">
+            <section className="py-16 sm:py-20 bg-[#F1EEE9]">
               <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-16">
                   <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#376F6B] mb-6">
@@ -454,10 +456,10 @@ export default function Services() {
                     <div className="text-[#376F6B] font-semibold">Avg Response Time</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-4xl md:text-5xl font-bold text-[#57BBB6] mb-2">
+                    <div className="text-4xl md:text-5xl font-bold text-[#376F6B] mb-2">
                       {animatedStats.availability}%
                     </div>
-                    <div className="text-[#57BBB6] font-semibold">Availability</div>
+                    <div className="text-[#376F6B] font-semibold">Availability</div>
                   </div>
                 </div>
                       </div>
@@ -466,7 +468,7 @@ export default function Services() {
         ) : (
           <>
             {/* Service Detail Header */}
-            <section className="py-16 sm:py-20 md:py-24 bg-[#376F6B] text-white relative overflow-hidden">
+            <section className="py-16 sm:py-20 md:py-24 bg-[#F1EEE9] text-[#376F6B] relative overflow-hidden">
               <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div className="mb-8">
                   <Button 
@@ -488,7 +490,7 @@ export default function Services() {
                       {selectedServiceData.title}
                     </h1>
                     
-                    <p className="text-xl sm:text-2xl text-white/90 max-w-4xl mx-auto font-medium leading-relaxed">
+                    <p className="text-xl sm:text-2xl text-[#376F6B] max-w-4xl mx-auto font-medium leading-relaxed">
                       {selectedServiceData.longDescription}
                     </p>
                   </div>
@@ -517,7 +519,7 @@ export default function Services() {
             </section>
 
             {/* Service Details */}
-            <section className="py-16 sm:py-20 bg-[#D5C6BC]">
+            <section className="py-16 sm:py-20 bg-[#F1EEE9]">
               <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                   {/* Features */}
