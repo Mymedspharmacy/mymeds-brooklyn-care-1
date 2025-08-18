@@ -108,7 +108,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
               <div className="bg-white border-4 border-white rounded-2xl shadow-sm overflow-hidden">
                 <div className="aspect-[4/3] w-full">
                   <img
-                    src="/src/assets/pharmacy-hero.jpg"
+                    src="/images/new/pharmacy-hero.jpg"
                     alt="Professional pharmacy care and service"
                     className="w-full h-full object-cover"
                   />
