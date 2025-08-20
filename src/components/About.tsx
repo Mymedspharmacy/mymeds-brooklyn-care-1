@@ -15,14 +15,14 @@ export const About = () => {
     },
     {
       icon: Clock,
-      number: "25+",
-      label: "Years Experience",
+      number: "Experience Us",
+      label: "Best Experience in Brooklyn",
       color: "from-[#57BBB6] to-[#376F6B]"
     },
     {
       icon: Star,
-      number: "4.9★",
-      label: "Customer Rating",
+      number: "5.0★",
+      label: "Best Pharmacy in Brooklyn",
       color: "from-[#57BBB6] to-[#376F6B]"
     },
     {
@@ -79,7 +79,7 @@ export const About = () => {
           </h2>
           
           <p className="text-lg sm:text-xl text-[#376F6B] max-w-3xl mx-auto font-semibold">
-            For over 25 years, we've been serving the Brooklyn community with exceptional pharmaceutical care, 
+            We've been serving the Brooklyn community with exceptional pharmaceutical care, 
             building lasting relationships through trust, expertise, and personalized attention to your health needs.
           </p>
         </div>
