@@ -9,26 +9,26 @@ export const About = () => {
   const stats = [
     {
       icon: Users,
-      number: "10,000+",
-      label: "Patients Served",
+      number: "50+",
+      label: "Patients Welcomed",
       color: "from-[#376F6B] to-[#57BBB6]"
     },
     {
       icon: Clock,
-      number: "Experience Us",
-      label: "Best Experience in Brooklyn",
+      number: "Best Service",
+      label: "Fresh Start in Brooklyn",
       color: "from-[#57BBB6] to-[#376F6B]"
     },
     {
       icon: Star,
-      number: "5.0★",
-      label: "Best Pharmacy in Brooklyn",
+      number: "New",
+      label: "Modern Pharmacy in Brooklyn",
       color: "from-[#57BBB6] to-[#376F6B]"
     },
     {
       icon: Heart,
       number: "100%",
-      label: "Patient Satisfaction",
+      label: "Quality Commitment",
       color: "from-[#376F6B] to-[#57BBB6]"
     }
   ];
@@ -79,7 +79,7 @@ export const About = () => {
           </h2>
           
           <p className="text-lg sm:text-xl text-[#376F6B] max-w-3xl mx-auto font-semibold">
-            We've been serving the Brooklyn community with exceptional pharmaceutical care, 
+            We're excited to begin serving the Brooklyn community with exceptional pharmaceutical care, 
             building lasting relationships through trust, expertise, and personalized attention to your health needs.
           </p>
         </div>
