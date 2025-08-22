@@ -550,9 +550,8 @@ export default function Services() {
               <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div className="mb-8">
                   <Button 
-                    variant="outline" 
                     onClick={() => navigate('/services')}
-                    className="border-white text-white hover:bg-white hover:text-[#376F6B] mb-6"
+                    className="bg-[#57BBB6] hover:bg-[#376F6B] text-white border-0 mb-6 transition-all duration-300 transform hover:scale-105 shadow-lg"
                   >
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Back to Services
@@ -574,25 +573,7 @@ export default function Services() {
                   </div>
                 </div>
 
-                {/* Service Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-                  <div className="text-center bg-white/10 rounded-2xl p-6 backdrop-blur-sm">
-                    <div className="text-3xl font-bold mb-2 text-[#376F6B]">{selectedServiceData.satisfactionRate}%</div>
-                    <div className="text-[#376F6B] text-sm">Satisfaction Rate</div>
-                  </div>
-                  <div className="text-center bg-white/10 rounded-2xl p-6 backdrop-blur-sm">
-                    <div className="text-3xl font-bold mb-2 text-[#376F6B]">{selectedServiceData.patientsServed.toLocaleString()}+</div>
-                    <div className="text-[#376F6B] text-sm">Patients Served</div>
-                  </div>
-                  <div className="text-center bg-white/10 rounded-2xl p-6 backdrop-blur-sm">
-                    <div className="text-3xl font-bold mb-2 text-[#376F6B]">{selectedServiceData.avgResponseTime}</div>
-                    <div className="text-[#376F6B] text-sm">Avg Response</div>
-                  </div>
-                  <div className="text-center bg-white/10 rounded-2xl p-6 backdrop-blur-sm">
-                    <div className="text-3xl font-bold mb-2 text-[#376F6B]">{selectedServiceData.price}</div>
-                    <div className="text-[#376F6B] text-sm">Cost</div>
-                  </div>
-                </div>
+                
               </div>
             </section>
 
@@ -600,31 +581,31 @@ export default function Services() {
             <section className="py-16 sm:py-20 bg-[#F1EEE9]">
               <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                  {/* Features */}
-                  <div className="features-section">
-                    <h2 className="text-3xl font-bold text-[#376F6B] mb-8">Key Features</h2>
-                    <div className="space-y-4">
-                      {selectedServiceData.features.map((feature, index) => (
-                        <div key={index} className="flex items-start group">
-                          <div className="w-2 h-2 bg-[#376F6B] rounded-full mr-4 mt-3 flex-shrink-0 group-hover:scale-125 transition-transform duration-300"></div>
-                          <span className="text-[#376F6B] leading-relaxed">{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-                    </div>
+                                     {/* Features */}
+                   <div className="features-section">
+                     <h2 className="text-3xl font-bold text-[#376F6B] mb-8">Key Features</h2>
+                     <div className="space-y-4">
+                       {selectedServiceData.features.map((feature, index) => (
+                         <div key={index} className="flex items-start group">
+                           <div className="w-2 h-2 bg-[#376F6B] rounded-full mr-4 mt-3 flex-shrink-0 group-hover:scale-125 transition-transform duration-300"></div>
+                           <span className="text-[#376F6B] leading-relaxed">{feature}</span>
+                         </div>
+                       ))}
+                     </div>
+                     </div>
 
-                  {/* Benefits */}
-                  <div className="benefits-section">
-                    <h2 className="text-3xl font-bold text-[#376F6B] mb-8">Benefits</h2>
-                    <div className="space-y-4">
-                      {selectedServiceData.benefits.map((benefit, index) => (
-                        <div key={index} className="flex items-start group">
-                          <div className={`w-2 h-2 ${selectedServiceData.accent} rounded-full mr-4 mt-3 flex-shrink-0 group-hover:scale-125 transition-transform duration-300`}></div>
-                          <span className="text-[#57BBB6] leading-relaxed">{benefit}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                   {/* Benefits */}
+                   <div className="benefits-section">
+                     <h2 className="text-3xl font-bold text-[#376F6B] mb-8">Benefits</h2>
+                     <div className="space-y-4">
+                       {selectedServiceData.benefits.map((benefit, index) => (
+                         <div key={index} className="flex items-start group">
+                           <div className="w-2 h-2 bg-[#376F6B] rounded-full mr-4 mt-3 flex-shrink-0 group-hover:scale-125 transition-transform duration-300"></div>
+                           <span className="text-[#376F6B] leading-relaxed">{benefit}</span>
+                         </div>
+                       ))}
+                     </div>
+                   </div>
                     </div>
 
                 {/* Interactive How It Works Section */}
