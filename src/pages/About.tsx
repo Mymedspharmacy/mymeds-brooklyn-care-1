@@ -27,7 +27,7 @@ export default function About() {
     closeAppointmentForm,
     closeTransferForm
   } = useFormHandlers();
-  const [animatedStats, setAnimatedStats] = useState({ experience: 0, patients: 0, satisfaction: 0, community: 0 });
+  const [animatedStats, setAnimatedStats] = useState({ staff: 0, patients: 0, satisfaction: 0, community: 0 });
   const [showValues, setShowValues] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
 
@@ -40,7 +40,7 @@ export default function About() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setAnimatedStats({
-        experience: 0,
+        staff: 8,
         patients: 25,
         satisfaction: 100,
         community: 1
@@ -249,9 +249,9 @@ export default function About() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               <div className="text-center">
                 <div className="text-4xl md:text-5xl font-bold text-[#57BBB6] mb-2">
-                  {animatedStats.experience}
+                  {animatedStats.staff}
                 </div>
-                <div className="text-[#57BBB6] font-semibold">Years of Experience</div>
+                <div className="text-[#57BBB6] font-semibold">Professional Staff</div>
               </div>
               <div className="text-center">
                 <div className="text-4xl md:text-5xl font-bold text-[#57BBB6] mb-2">
