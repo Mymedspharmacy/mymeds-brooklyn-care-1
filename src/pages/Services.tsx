@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useScrollToTop } from '@/hooks/useScrollToTop';
-import { ArrowLeft, Star, Heart, Truck, Shield, Users, Stethoscope, MessageCircle, Pill, Clock, Award, CheckCircle, Zap, Thermometer, Bandage, ShoppingCart, Phone, Mail, MapPin, Calendar, DollarSign, Clock as ClockIcon, TrendingUp, Shield as ShieldIcon, Users as UsersIcon, Activity, Home, ChevronRight } from "lucide-react";
+import { ArrowLeft, Star, Heart, Truck, Shield, Users, Stethoscope, MessageCircle, Pill, Clock, Award, CheckCircle, Zap, Thermometer, Bandage, ShoppingCart, Phone, Mail, MapPin, Calendar, DollarSign, Clock as ClockIcon, TrendingUp, Shield as ShieldIcon, Users as UsersIcon, Activity, Home, ChevronRight, Eye, FileText } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -253,6 +253,84 @@ export default function Services() {
       actionType: "call",
       actionButton: "Call Now",
       actionIcon: Phone
+    },
+    {
+      id: 'vision-test-dmv',
+      icon: Eye,
+      title: "Vision Test for DMV",
+      description: "Official DMV vision screening and certification for driver's license requirements",
+      longDescription: "Get your DMV vision test completed quickly and professionally at our pharmacy. Our certified vision screening meets all New York State DMV requirements for driver's license applications and renewals. We provide accurate testing with immediate results and official documentation.",
+      features: [
+        "Official DMV-approved vision screening",
+        "Immediate test results and certification",
+        "Certified vision testing equipment",
+        "Professional documentation for DMV submission",
+        "Walk-in availability during business hours",
+        "Affordable pricing with no hidden fees"
+      ],
+      benefits: [
+        "Convenient location for DMV requirements",
+        "Quick service with immediate results",
+        "Professional and accurate testing",
+        "Official documentation accepted by DMV"
+      ],
+      process: [
+        "Walk in during business hours",
+        "Complete vision screening test",
+        "Receive immediate results and certification",
+        "Submit documentation to DMV"
+      ],
+      accent: "bg-[#57BBB6]",
+      bgGradient: "bg-[#57BBB6]/10",
+      image: "/images/services/vision-test.svg",
+      price: "$",
+      duration: "15-20 min",
+      availability: "Mon-Sat 9AM-6PM",
+      satisfactionRate: 96,
+      patientsServed: 800,
+      avgResponseTime: "Immediate",
+      actionType: "appointment",
+      actionButton: "Schedule Test",
+      actionIcon: Calendar
+    },
+    {
+      id: 'notary-public',
+      icon: FileText,
+      title: "Notary Public",
+      description: "Professional notary services for legal documents and certifications",
+      longDescription: "Our certified notary public services provide professional document notarization for all your legal needs. We handle a wide variety of documents including affidavits, contracts, power of attorney forms, and more. Our notary services are available during regular business hours with convenient walk-in availability.",
+      features: [
+        "Certified notary public services",
+        "Document notarization and certification",
+        "Wide variety of legal documents accepted",
+        "Professional and confidential service",
+        "Walk-in availability during business hours",
+        "Affordable notary fees"
+      ],
+      benefits: [
+        "Convenient location for notary services",
+        "Professional and reliable service",
+        "Wide range of document types accepted",
+        "Immediate service during business hours"
+      ],
+      process: [
+        "Bring your documents and valid ID",
+        "Complete notarization process",
+        "Receive notarized documents",
+        "Pay applicable notary fees"
+      ],
+      accent: "bg-[#376F6B]",
+      bgGradient: "bg-[#376F6B]/10",
+      image: "/images/services/notary.svg",
+      price: "$",
+      duration: "10-15 min",
+      availability: "Mon-Sat 9AM-6PM",
+      satisfactionRate: 98,
+      patientsServed: 1200,
+      avgResponseTime: "Immediate",
+      actionType: "appointment",
+      actionButton: "Book Notary",
+      actionIcon: Calendar
     }
   ];
 
