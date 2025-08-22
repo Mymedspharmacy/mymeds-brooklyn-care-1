@@ -105,7 +105,7 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
         
         <div className="max-w-7xl mx-auto flex items-center justify-center gap-4 relative z-10">
           <p className="text-base font-semibold text-center">
-            Protect your health, book your consultation now
+            Protect your health, book your consultation 
           </p>
           <Button 
             onClick={onAppointmentClick}
