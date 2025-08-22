@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Calendar, Clock, User, Phone, Mail, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,15 +10,16 @@ import api from '../lib/api';
 interface AppointmentFormProps {
   isOpen: boolean;
   onClose: () => void;
+  selectedService?: string;
 }
 
-export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
+export const AppointmentForm = ({ isOpen, onClose, selectedService }: AppointmentFormProps) => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     phone: '',
     email: '',
-    service: '',
+    service: selectedService || '',
     preferredDate: '',
     preferredTime: '',
     notes: ''
@@ -28,6 +29,16 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  // Update form when selectedService changes
+  useEffect(() => {
+    if (selectedService) {
+      setFormData(prev => ({
+        ...prev,
+        service: selectedService
+      }));
+    }
+  }, [selectedService]);
 
   const timeSlots = [
     '9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
@@ -41,6 +52,8 @@ export const AppointmentForm = ({ isOpen, onClose }: AppointmentFormProps) => {
     'Health Consultation',
     'Blood Pressure Check',
     'Diabetes Management',
+    'Vision Test for DMV',
+    'Notary Public',
     'Other Services'
   ];
 

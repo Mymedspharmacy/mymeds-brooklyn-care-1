@@ -16,6 +16,7 @@ const Index = () => {
   const [showRefillForm, setShowRefillForm] = useState(false);
   const [showAppointmentForm, setShowAppointmentForm] = useState(false);
   const [showTransferForm, setShowTransferForm] = useState(false);
+  const [selectedService, setSelectedService] = useState<string>('');
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -31,6 +32,10 @@ const Index = () => {
         navigate(location.pathname, { replace: true, state: {} });
       } else if (location.state.openAppointmentForm) {
         setShowAppointmentForm(true);
+        // Store selected service info if provided
+        if (location.state.selectedService) {
+          setSelectedService(location.state.selectedService);
+        }
         navigate(location.pathname, { replace: true, state: {} });
       }
     }
@@ -71,7 +76,14 @@ const Index = () => {
       
       <Footer />
       <RefillForm isOpen={showRefillForm} onClose={() => setShowRefillForm(false)} />
-      <AppointmentForm isOpen={showAppointmentForm} onClose={() => setShowAppointmentForm(false)} />
+      <AppointmentForm 
+        isOpen={showAppointmentForm} 
+        onClose={() => {
+          setShowAppointmentForm(false);
+          setSelectedService('');
+        }} 
+        selectedService={selectedService}
+      />
       <TransferForm isOpen={showTransferForm} onClose={() => setShowTransferForm(false)} />
       <Toaster />
     </div>
