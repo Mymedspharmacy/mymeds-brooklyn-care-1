@@ -1,0 +1,16 @@
+name: staging-env
+on:
+  branch:
+    - develop
+  workflow_run:
+    workflows: ["CI/CD Pipeline"]
+    types:
+      - completed
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    environment: staging-env
+    steps:
+      - name: Deploy to staging
+        run: echo "Staging deployment completed"

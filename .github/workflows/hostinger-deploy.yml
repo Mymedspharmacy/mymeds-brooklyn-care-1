@@ -1,0 +1,343 @@
+name: Hostinger VPS Deployment
+
+# This workflow deploys your app to Hostinger VPS with domain support
+# Required secrets:
+# - HOSTINGER_HOST: Your VPS IP address
+# - HOSTINGER_USERNAME: SSH username (usually 'root')
+# - HOSTINGER_SSH_KEY: Your private SSH key
+# - DOMAIN_NAME: Your domain name (e.g., 'mymedspharmacyinc.com')
+# - DB_PASSWORD: MySQL database password
+# - JWT_SECRET: JWT secret key
+# - JWT_REFRESH_SECRET: JWT refresh secret key
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  # Frontend Testing & Building
+  frontend:
+    name: Frontend - Test & Build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run linting
+      run: npm run lint
+      
+    - name: Run tests
+      run: npm run test:ci
+      
+    - name: Build application
+      run: npm run build
+      
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-build
+        path: dist/
+        retention-days: 7
+
+  # Backend Testing & Building
+  backend:
+    name: Backend - Test & Build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+        
+    - name: Install backend dependencies
+      working-directory: ./backend
+      run: npm ci
+      
+    - name: Generate Prisma client
+      working-directory: ./backend
+      run: npx prisma generate
+      
+    - name: Build backend
+      working-directory: ./backend
+      run: npm run build
+      
+    - name: Upload backend build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: backend-build
+        path: backend/dist/
+        retention-days: 7
+
+  # Deploy to Staging (develop branch)
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [frontend, backend]
+    if: github.ref == 'refs/heads/develop'
+    
+    steps:
+    - name: Check required secrets
+      run: |
+        if [ -z "${{ secrets.HOSTINGER_HOST }}" ]; then
+          echo "❌ Error: HOSTINGER_HOST not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.HOSTINGER_USERNAME }}" ]; then
+          echo "❌ Error: HOSTINGER_USERNAME not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.HOSTINGER_SSH_KEY }}" ]; then
+          echo "❌ Error: HOSTINGER_SSH_KEY not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.DOMAIN_NAME }}" ]; then
+          echo "❌ Error: DOMAIN_NAME not set"
+          exit 1
+        fi
+        echo "✅ All required secrets are configured"
+        
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download frontend artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: frontend-build
+        
+    - name: Download backend artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: backend-build
+        
+    - name: Deploy to Hostinger VPS (Staging)
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.HOSTINGER_HOST }}
+        username: ${{ secrets.HOSTINGER_USERNAME }}
+        key: ${{ secrets.HOSTINGER_SSH_KEY }}
+        port: 22
+        script: |
+          echo "🚀 Starting staging deployment..."
+          
+          # Create staging directory if it doesn't exist
+          mkdir -p /var/www/mymeds-staging
+          cd /var/www/mymeds-staging
+          
+          # Pull latest code
+          if [ -d ".git" ]; then
+            git pull origin develop
+          else
+            git clone -b develop https://github.com/${{ github.repository }}.git .
+          fi
+          
+          # Install dependencies
+          npm ci
+          
+          # Install backend dependencies
+          cd backend
+          npm ci
+          
+          # Generate Prisma client
+          npx prisma generate
+          
+          # Build backend
+          npm run build
+          
+          # Create staging environment file
+          cat > .env << EOF
+          NODE_ENV=staging
+          PORT=3001
+          DATABASE_URL="mysql://mymeds_user:${{ secrets.DB_PASSWORD }}@localhost:3306/mymeds_staging"
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}
+          FRONTEND_URL="https://staging.${{ secrets.DOMAIN_NAME }}"
+          BACKEND_URL="https://api-staging.${{ secrets.DOMAIN_NAME }}"
+          EOF
+          
+          # Start staging backend with PM2
+          pm2 delete mymeds-staging 2>/dev/null || true
+          pm2 start dist/index.js --name "mymeds-staging" --env staging
+          pm2 save
+          
+          # Build frontend
+          cd ..
+          npm run build
+          
+          # Copy frontend to Nginx staging directory
+          sudo rm -rf /var/www/html/staging
+          sudo cp -r dist /var/www/html/staging
+          sudo chown -R www-data:www-data /var/www/html/staging
+          
+          # Reload Nginx
+          sudo systemctl reload nginx
+          
+          echo "✅ Staging deployment completed successfully!"
+          echo "🌐 Frontend: https://staging.${{ secrets.DOMAIN_NAME }}"
+          echo "🔧 Backend: https://api-staging.${{ secrets.DOMAIN_NAME }}"
+
+  # Deploy to Production (main branch)
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [frontend, backend]
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+    - name: Check required secrets
+      run: |
+        if [ -z "${{ secrets.HOSTINGER_HOST }}" ]; then
+          echo "❌ Error: HOSTINGER_HOST not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.HOSTINGER_USERNAME }}" ]; then
+          echo "❌ Error: HOSTINGER_USERNAME not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.HOSTINGER_SSH_KEY }}" ]; then
+          echo "❌ Error: HOSTINGER_SSH_KEY not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.DOMAIN_NAME }}" ]; then
+          echo "❌ Error: DOMAIN_NAME not set"
+          exit 1
+        fi
+        echo "✅ All required secrets are configured"
+        
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download frontend artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: frontend-build
+        
+    - name: Download backend artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: backend-build
+        
+    - name: Deploy to Hostinger VPS (Production)
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.HOSTINGER_HOST }}
+        username: ${{ secrets.HOSTINGER_USERNAME }}
+        key: ${{ secrets.HOSTINGER_SSH_KEY }}
+        port: 22
+        script: |
+          echo "🚀 Starting production deployment..."
+          
+          # Create production directory if it doesn't exist
+          mkdir -p /var/www/mymeds-production
+          cd /var/www/mymeds-production
+          
+          # Pull latest code
+          if [ -d ".git" ]; then
+            git pull origin main
+          else
+            git clone -b main https://github.com/${{ github.repository }}.git .
+          fi
+          
+          # Install dependencies
+          npm ci
+          
+          # Install backend dependencies
+          cd backend
+          npm ci
+          
+          # Generate Prisma client
+          npx prisma generate
+          
+          # Build backend
+          npm run build
+          
+          # Create production environment file
+          cat > .env << EOF
+          NODE_ENV=production
+          PORT=3000
+          DATABASE_URL="mysql://mymeds_user:${{ secrets.DB_PASSWORD }}@localhost:3306/mymeds_production"
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}
+          FRONTEND_URL="https://${{ secrets.DOMAIN_NAME }}"
+          BACKEND_URL="https://api.${{ secrets.DOMAIN_NAME }}"
+          EOF
+          
+          # Run database migrations
+          npx prisma db push
+          
+          # Start production backend with PM2
+          pm2 delete mymeds-production 2>/dev/null || true
+          pm2 start dist/index.js --name "mymeds-production" --env production
+          pm2 save
+          
+          # Build frontend
+          cd ..
+          npm run build
+          
+          # Copy frontend to Nginx production directory
+          sudo rm -rf /var/www/html/production
+          sudo cp -r dist /var/www/html/production
+          sudo chown -R www-data:www-data /var/www/html/production
+          
+          # Reload Nginx
+          sudo systemctl reload nginx
+          
+          echo "✅ Production deployment completed successfully!"
+          echo "🌐 Frontend: https://${{ secrets.DOMAIN_NAME }}"
+          echo "🔧 Backend: https://api.${{ secrets.DOMAIN_NAME }}"
+          
+    - name: Notify deployment success
+      if: success()
+      run: |
+        echo "🚀 Production deployment successful!"
+        echo "Frontend: https://${{ secrets.DOMAIN_NAME }}"
+        echo "Backend: https://api.${{ secrets.DOMAIN_NAME }}"
+        
+    - name: Notify deployment failure
+      if: failure()
+      run: |
+        echo "❌ Production deployment failed!"
+        echo "Check the logs for more details."
+
+  # Notifications
+  notify:
+    name: Notify Team
+    runs-on: ubuntu-latest
+    needs: [deploy-production]
+    if: always()
+    
+    steps:
+    - name: Create deployment summary
+      if: always()
+      run: |
+        echo "## 🚀 Hostinger VPS Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "**Status:** ${{ needs.deploy-production.result || 'Skipped' }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Environment:** Production (Hostinger KVM 1)" >> $GITHUB_STEP_SUMMARY
+        echo "**Domain:** ${{ secrets.DOMAIN_NAME }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Server:** ${{ secrets.HOSTINGER_HOST }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+
+

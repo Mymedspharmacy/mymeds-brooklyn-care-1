@@ -131,15 +131,12 @@ router.post('/transfer', upload.single('file'), async (req: Request, res: Respon
   try {
     const { firstName, lastName, phone, email, prescriptionNumber, medication, currentPharmacy, notes } = req.body;
     
-    // Validate required fields
-    if (!firstName || !lastName || !phone || !prescriptionNumber || !medication || !currentPharmacy) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    // Validate required fields (only essential patient and medication info)
+    if (!firstName || !lastName || !phone || !medication) {
+      return res.status(400).json({ error: 'Missing required fields: First name, last name, phone, and medication are required' });
     }
 
-    // Validate file upload
-    if (!req.file) {
-      return res.status(400).json({ error: 'Prescription file is required' });
-    }
+    // File upload is now optional
 
     // Get or create default user for public requests
     let defaultUser = await prisma.user.findFirst({ where: { role: 'ADMIN' } });
@@ -157,12 +154,12 @@ router.post('/transfer', upload.single('file'), async (req: Request, res: Respon
       });
     }
 
-    // Create prescription request with file information
+    // Create prescription request with optional file and pharmacy information
     const prescription = await prisma.prescription.create({
       data: {
         userId: defaultUser.id,
         medication: `TRANSFER REQUEST: ${medication}`,
-        dosage: `Patient: ${firstName} ${lastName}\nPhone: ${phone}\nEmail: ${email || 'Not provided'}\nPrescription #: ${prescriptionNumber}\nCurrent Pharmacy: ${currentPharmacy}\nNotes: ${notes || 'None'}\nFile: ${req.file.filename}`,
+        dosage: `Patient: ${firstName} ${lastName}\nPhone: ${phone}\nEmail: ${email || 'Not provided'}\nPrescription #: ${prescriptionNumber || 'Not provided'}\nCurrent Pharmacy: ${currentPharmacy || 'Not provided'}\nNotes: ${notes || 'None'}\nFile: ${req.file ? req.file.filename : 'Not uploaded'}`,
         instructions: 'PENDING_TRANSFER'
       }
     });
@@ -174,7 +171,7 @@ router.post('/transfer', upload.single('file'), async (req: Request, res: Respon
           from: process.env.EMAIL_USER,
           to: emailRecipient,
           subject: `New Prescription Transfer Request from ${firstName} ${lastName}`,
-          text: `Patient: ${firstName} ${lastName}\nPhone: ${phone}\nEmail: ${email}\nPrescription #: ${prescriptionNumber}\nMedication: ${medication}\nCurrent Pharmacy: ${currentPharmacy}\nNotes: ${notes}`
+          text: `Patient: ${firstName} ${lastName}\nPhone: ${phone}\nEmail: ${email || 'Not provided'}\nPrescription #: ${prescriptionNumber || 'Not provided'}\nMedication: ${medication}\nCurrent Pharmacy: ${currentPharmacy || 'Not provided'}\nNotes: ${notes || 'None'}\nFile: ${req.file ? req.file.filename : 'Not uploaded'}`
         });
       }
     } catch (emailError) {
@@ -185,7 +182,7 @@ router.post('/transfer', upload.single('file'), async (req: Request, res: Respon
       success: true, 
       message: 'Transfer request submitted successfully',
       prescriptionId: prescription.id,
-      fileName: req.file.filename
+      fileName: req.file ? req.file.filename : null
     });
   } catch (err) {
     console.error('Error creating transfer request:', err);

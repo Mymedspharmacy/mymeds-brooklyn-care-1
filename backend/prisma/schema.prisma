@@ -3,9 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -86,6 +85,7 @@ model Product {
   stock       Int
   imageUrl    String? // legacy, keep for now
   createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
   categoryId  Int
   category    Category         @relation(fields: [categoryId], references: [id])
   orders      OrderItem[]
@@ -101,6 +101,7 @@ model Order {
   total     Float
   status    String
   createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
   notified  Boolean     @default(false)
   
   // Guest order information
@@ -224,6 +225,7 @@ model Blog {
   content   String
   author    String
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model ContactForm {
@@ -301,6 +303,7 @@ model WooCommerceSettings {
   consumerSecret  String?
   webhookSecret   String?
   lastSync        DateTime?
+  lastError       String?
   updatedAt       DateTime @updatedAt
 }
 
@@ -311,6 +314,7 @@ model WordPressSettings {
   username        String?
   applicationPassword String?
   lastSync        DateTime?
+  lastError       String?
   updatedAt       DateTime @updatedAt
 }
 

@@ -1,0 +1,102 @@
+name: Upload Files to VPS
+
+on:
+  workflow_dispatch:
+    inputs:
+      file_path:
+        description: 'Path to file/folder to upload (relative to repo root)'
+        required: true
+        default: 'uploads/'
+      destination:
+        description: 'Destination path on VPS'
+        required: true
+        default: '/var/www/mymeds-production/uploads/'
+      environment:
+        description: 'Deploy to which environment?'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+        - production
+        - staging
+
+jobs:
+  upload-files:
+    name: Upload Files to VPS
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Check required secrets
+      run: |
+        if [ -z "${{ secrets.HOSTINGER_HOST }}" ]; then
+          echo "❌ Error: HOSTINGER_HOST not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.HOSTINGER_USERNAME }}" ]; then
+          echo "❌ Error: HOSTINGER_USERNAME not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.HOSTINGER_SSH_KEY }}" ]; then
+          echo "❌ Error: HOSTINGER_SSH_SSH_KEY not set"
+          exit 1
+        fi
+        
+    - name: Create upload package
+      run: |
+        # Create a tar.gz of the specified path
+        tar -czf uploads.tar.gz -C . "${{ github.event.inputs.file_path }}"
+        
+    - name: Upload files to VPS
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.HOSTINGER_HOST }}
+        username: ${{ secrets.HOSTINGER_USERNAME }}
+        key: ${{ secrets.HOSTINGER_SSH_KEY }}
+        port: 22
+        source: "uploads.tar.gz"
+        target: "/tmp/"
+        
+    - name: Extract and deploy files on VPS
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.HOSTINGER_HOST }}
+        username: ${{ secrets.HOSTINGER_USERNAME }}
+        key: ${{ secrets.HOSTINGER_SSH_KEY }}
+        port: 22
+        script: |
+          echo "📁 Extracting uploaded files..."
+          
+          # Set destination based on environment
+          if [ "${{ github.event.inputs.environment }}" = "staging" ]; then
+            DEST="/var/www/mymeds-staging"
+          else
+            DEST="/var/www/mymeds-production"
+          fi
+          
+          # Create destination directory
+          mkdir -p "${{ github.event.inputs.destination }}"
+          
+          # Extract files
+          cd /tmp
+          tar -xzf uploads.tar.gz -C "${{ github.event.inputs.destination }}"
+          
+          # Set proper permissions
+          chown -R www-data:www-data "${{ github.event.inputs.destination }}"
+          chmod -R 755 "${{ github.event.inputs.destination }}"
+          
+          # Clean up
+          rm uploads.tar.gz
+          
+          echo "✅ Files uploaded successfully to ${{ github.event.inputs.destination }}"
+          echo "🌍 Environment: ${{ github.event.inputs.environment }}"
+          echo "📂 Destination: ${{ github.event.inputs.destination }}"
+          
+    - name: Notify completion
+      run: |
+        echo "📁 File upload completed!"
+        echo "File/Folder: ${{ github.event.inputs.file_path }}"
+        echo "Destination: ${{ github.event.inputs.destination }}"
+        echo "Environment: ${{ github.event.inputs.environment }}"

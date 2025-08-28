@@ -1,0 +1,503 @@
+name: CI/CD Pipeline - VPS KVM1 Deployment
+
+# This workflow deploys your app to Hostinger VPS KVM1
+# Required secrets:
+# - HOSTINGER_HOST: Your VPS IP address
+# - HOSTINGER_USERNAME: SSH username (usually 'root')
+# - HOSTINGER_SSH_KEY: Your private SSH key
+# - DB_PASSWORD: MySQL database password
+# - JWT_SECRET: JWT secret key
+# - JWT_REFRESH_SECRET: JWT refresh secret key
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  # Frontend Testing & Building
+  frontend:
+    name: Frontend - Test & Build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run linting
+      run: npm run lint
+      
+    - name: Run tests
+      run: npm run test:ci
+      
+    - name: Build application
+      run: npm run build
+      
+    - name: Upload test coverage
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage/lcov.info
+        flags: frontend
+        name: frontend-coverage
+        
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-build
+        path: dist/
+        retention-days: 7
+
+  # Backend Testing
+  backend-test:
+    name: Backend - Test
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: mymeds_test
+        options: >-
+          --health-cmd "mysqladmin ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 3306:3306
+          
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+        
+    - name: Install backend dependencies
+      working-directory: ./backend
+      run: npm ci
+      
+    - name: Setup test environment
+      working-directory: ./backend
+      run: |
+        echo "DATABASE_URL=mysql://root:root@localhost:3306/mymeds_test" > .env.test
+        echo "NODE_ENV=test" >> .env.test
+        echo "JWT_SECRET=test-jwt-secret-key-for-testing-only" >> .env.test
+        echo "JWT_REFRESH_SECRET=test-jwt-refresh-secret-key-for-testing-only" >> .env.test
+        
+    - name: Generate Prisma client
+      working-directory: ./backend
+      run: npx prisma generate
+      
+    - name: Run database migrations
+      working-directory: ./backend
+      run: npx prisma db push --accept-data-loss
+      
+    - name: Run backend tests
+      working-directory: ./backend
+      run: npm run test:ci
+      
+    - name: Upload backend test coverage
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./backend/coverage/lcov.info
+        flags: backend
+        name: backend-coverage
+
+  # Backend Building
+  backend-build:
+    name: Backend - Build
+    runs-on: ubuntu-latest
+    needs: backend-test
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+        
+    - name: Install backend dependencies
+      working-directory: ./backend
+      run: npm ci
+      
+    - name: Generate Prisma client
+      working-directory: ./backend
+      run: npx prisma generate
+      
+    - name: Build backend
+      working-directory: ./backend
+      run: npm run build
+      
+    - name: Upload backend build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: backend-build
+        path: backend/dist/
+        retention-days: 7
+
+  # Security Scanning
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+        
+    - name: Run npm audit
+      run: |
+        npm audit --audit-level=moderate
+        cd backend && npm audit --audit-level=moderate
+
+  # Deploy to Staging (develop branch)
+  deploy-staging:
+    name: Deploy to Staging (VPS KVM1)
+    runs-on: ubuntu-latest
+    needs: [frontend, backend-build, security]
+    if: github.ref == 'refs/heads/develop'
+    steps:
+    - name: Check required secrets
+      run: |
+        if [ -z "${{ secrets.HOSTINGER_HOST }}" ]; then
+          echo "❌ Error: HOSTINGER_HOST not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.HOSTINGER_USERNAME }}" ]; then
+          echo "❌ Error: HOSTINGER_USERNAME not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.HOSTINGER_SSH_KEY }}" ]; then
+          echo "❌ Error: HOSTINGER_SSH_KEY not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.DB_PASSWORD }}" ]; then
+          echo "❌ Error: DB_PASSWORD not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.JWT_SECRET }}" ]; then
+          echo "❌ Error: JWT_SECRET not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.JWT_REFRESH_SECRET }}" ]; then
+          echo "❌ Error: JWT_REFRESH_SECRET not set"
+          exit 1
+        fi
+        echo "✅ All required secrets are configured"
+        
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download frontend artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: frontend-build
+        
+    - name: Download backend artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: backend-build
+        
+    - name: Deploy to Hostinger VPS KVM1 (Staging)
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.HOSTINGER_HOST }}
+        username: ${{ secrets.HOSTINGER_USERNAME }}
+        key: ${{ secrets.HOSTINGER_SSH_KEY }}
+        port: 22
+        script: |
+          echo "🚀 Starting staging deployment to VPS KVM1..."
+          
+          # Create staging directory if it doesn't exist
+          mkdir -p /var/www/mymeds-staging
+          cd /var/www/mymeds-staging
+          
+          # Pull latest code
+          if [ -d ".git" ]; then
+            git pull origin develop
+          else
+            git clone -b develop https://github.com/${{ github.repository }}.git .
+          fi
+          
+          # Install dependencies
+          npm ci
+          
+          # Install backend dependencies
+          cd backend
+          npm ci
+          
+          # Generate Prisma client
+          npx prisma generate
+          
+          # Build backend
+          npm run build
+          
+          # Create staging environment file
+          cat > .env << EOF
+          NODE_ENV=staging
+          PORT=3001
+          DATABASE_URL="mysql://mymeds_user:${{ secrets.DB_PASSWORD }}@localhost:3306/mymeds_staging"
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}
+          FRONTEND_URL="https://staging.mymedspharmacyinc.com"
+          BACKEND_URL="https://api-staging.mymedspharmacyinc.com"
+          EOF
+          
+          # Start staging backend with PM2
+          pm2 delete mymeds-staging 2>/dev/null || true
+          pm2 start dist/index.js --name "mymeds-staging" --env staging
+          pm2 save
+          
+          # Build frontend
+          cd ..
+          npm run build
+          
+          # Copy frontend to Nginx staging directory
+          sudo rm -rf /var/www/html/staging
+          sudo cp -r dist /var/www/html/staging
+          sudo chown -R www-data:www-data /var/www/html/staging
+          
+          # Reload Nginx
+          sudo systemctl reload nginx
+          
+          echo "✅ Staging deployment completed successfully on VPS KVM1!"
+          echo "🌐 Frontend: https://staging.mymedspharmacyinc.com"
+          echo "🔧 Backend: https://api-staging.mymedspharmacyinc.com"
+
+  # Deploy to Production (main branch)
+  deploy-production:
+    name: Deploy to Production (VPS KVM1)
+    runs-on: ubuntu-latest
+    needs: [frontend, backend-build, security]
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+    - name: Check required secrets
+      run: |
+        if [ -z "${{ secrets.HOSTINGER_HOST }}" ]; then
+          echo "❌ Error: HOSTINGER_HOST not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.HOSTINGER_USERNAME }}" ]; then
+          echo "❌ Error: HOSTINGER_USERNAME not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.HOSTINGER_SSH_KEY }}" ]; then
+          echo "❌ Error: HOSTINGER_SSH_KEY not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.DB_PASSWORD }}" ]; then
+          echo "❌ Error: DB_PASSWORD not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.JWT_SECRET }}" ]; then
+          echo "❌ Error: JWT_SECRET not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.JWT_REFRESH_SECRET }}" ]; then
+          echo "❌ Error: JWT_REFRESH_SECRET not set"
+          exit 1
+        fi
+        echo "✅ All required secrets are configured"
+        
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download frontend artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: frontend-build
+        
+    - name: Download backend artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: backend-build
+        
+    - name: Deploy to Hostinger VPS KVM1 (Production)
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.HOSTINGER_HOST }}
+        username: ${{ secrets.HOSTINGER_USERNAME }}
+        key: ${{ secrets.HOSTINGER_SSH_KEY }}
+        port: 22
+        script: |
+          echo "🚀 Starting production deployment to VPS KVM1..."
+          
+          # Create production directory if it doesn't exist
+          mkdir -p /var/www/mymeds-production
+          cd /var/www/mymeds-production
+          
+          # Pull latest code
+          if [ -d ".git" ]; then
+            git pull origin main
+          else
+            git clone -b main https://github.com/${{ github.repository }}.git .
+          fi
+          
+          # Install dependencies
+          npm ci
+          
+          # Install backend dependencies
+          cd backend
+          npm ci
+          
+          # Generate Prisma client
+          npx prisma generate
+          
+          # Build backend
+          npm run build
+          
+          # Create production environment file
+          cat > .env << EOF
+          NODE_ENV=production
+          PORT=3000
+          DATABASE_URL="mysql://mymeds_user:${{ secrets.DB_PASSWORD }}@localhost:3306/mymeds_production"
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}
+          FRONTEND_URL="https://www.mymedspharmacyinc.com"
+          BACKEND_URL="https://api.mymedspharmacyinc.com"
+          EOF
+          
+          # Run database migrations
+          npx prisma db push
+          
+          # Start production backend with PM2
+          pm2 delete mymeds-production 2>/dev/null || true
+          pm2 start dist/index.js --name "mymeds-production" --env production
+          pm2 save
+          
+          # Build frontend
+          cd ..
+          npm run build
+          
+          # Copy frontend to Nginx production directory
+          sudo rm -rf /var/www/html/production
+          sudo cp -r dist /var/www/html/production
+          sudo chown -R www-data:www-data /var/www/html/production
+          
+          # Reload Nginx
+          sudo systemctl reload nginx
+          
+          echo "✅ Production deployment completed successfully on VPS KVM1!"
+          echo "🌐 Frontend: https://www.mymedspharmacyinc.com"
+          echo "🔧 Backend: https://api.mymedspharmacyinc.com"
+          
+    - name: Notify deployment success
+      if: success()
+      run: |
+        echo "🚀 Production deployment successful on VPS KVM1!"
+        echo "Frontend: https://www.mymedspharmacyinc.com"
+        echo "Backend: https://api.mymedspharmacyinc.com"
+        
+    - name: Notify deployment failure
+      if: failure()
+      run: |
+        echo "❌ Production deployment failed on VPS KVM1!"
+        echo "Check the logs for more details."
+
+  # Performance Testing
+  performance:
+    name: Performance Testing
+    runs-on: ubuntu-latest
+    needs: [frontend, backend-build]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run Lighthouse CI
+      uses: treosh/lighthouse-ci-action@v10
+      with:
+        configPath: './.lighthouserc.js'
+        uploadArtifacts: true
+        temporaryPublicStorage: true
+        
+    - name: Run Load Tests
+      run: |
+        npm install -g artillery
+        artillery run load-tests/artillery-config.yml
+        
+    - name: Upload performance results
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-results
+        path: |
+          .lighthouseci/
+          artillery-report.json
+        retention-days: 30
+
+  # Notifications
+  notify:
+    name: Notify Team
+    runs-on: ubuntu-latest
+    needs: [deploy-production, performance]
+    if: always()
+    
+    steps:
+    - name: Notify Slack
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        channel: '#deployments'
+        webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+        text: 'Deployment ${{ job.status }} for VPS KVM1'
+        username: 'GitHub Actions'
+        icon_emoji: ':rocket:'
+        fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+        
+    - name: Create deployment summary
+      if: always()
+      run: |
+        echo "## 🚀 VPS KVM1 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "**Status:** ${{ needs.deploy-production.result || 'Skipped' }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Environment:** Production (VPS KVM1)" >> $GITHUB_STEP_SUMMARY
+        echo "**Server:** Hostinger VPS KVM1" >> $GITHUB_STEP_SUMMARY
+        echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
