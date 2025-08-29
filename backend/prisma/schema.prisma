@@ -22,6 +22,10 @@ model User {
   transferRequests TransferRequest[]
   patientProfile PatientProfile?
   carts         Cart[]
+  
+  @@index([email])
+  @@index([role])
+  @@index([createdAt])
 }
 
 model PatientProfile {
@@ -93,6 +97,12 @@ model Product {
   variants    ProductVariant[]
   Review      Review[]
   cartItems   CartItem[]
+  
+  @@index([categoryId])
+  @@index([price])
+  @@index([stock])
+  @@index([createdAt])
+  @@index([name])
 }
 
 model Order {
@@ -158,6 +168,9 @@ model OrderItem {
   price     Float
   order     Order   @relation(fields: [orderId], references: [id])
   product   Product @relation(fields: [productId], references: [id])
+  
+  @@index([orderId])
+  @@index([productId])
 }
 
 model Prescription {
@@ -268,6 +281,12 @@ model Review {
   text      String
   status    String   @default("pending") // or "approved"
   createdAt DateTime @default(now())
+  
+  @@index([productId])
+  @@index([userId])
+  @@index([rating])
+  @@index([status])
+  @@index([createdAt])
 }
 
 model Settings {
@@ -333,27 +352,25 @@ model NewsletterSubscription {
 }
 
 model Cart {
-  id        String     @id @default(cuid()) // Session-based cart ID
+  id        Int        @id @default(autoincrement())
   userId    Int?       // Optional for guest carts
-  user      User?      @relation(fields: [userId], references: [id])
-  items     CartItem[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
-  expiresAt DateTime   // Cart expiration (24 hours for guests)
+  items     CartItem[]
+  user      User?      @relation(fields: [userId], references: [id])
   
   @@index([userId])
-  @@index([expiresAt])
+  @@index([createdAt])
 }
 
 model CartItem {
-  id        Int      @id @default(autoincrement())
-  cartId    String
-  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  id        Int     @id @default(autoincrement())
+  cartId    Int
   productId Int
-  product   Product  @relation(fields: [productId], references: [id])
   quantity  Int
-  price     Float    // Price at time of adding to cart
-  createdAt DateTime @default(now())
+  price     Float
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
   
   @@index([cartId])
   @@index([productId])

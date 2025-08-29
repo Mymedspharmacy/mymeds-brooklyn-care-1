@@ -98,12 +98,98 @@ io.on('connection', (socket) => {
 // Export io for use in other files
 export { io };
 
-const prisma = new PrismaClient();
+// 🚀 SCALABILITY IMPROVEMENT: Enhanced Prisma Client with Connection Pooling
+// Optimized for VPS KVM1 Hostinger deployment
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL || '',
+    },
+  },
+  // Query performance optimization
+  log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+  errorFormat: 'pretty',
+});
+
+// 🚀 SCALABILITY IMPROVEMENT: Enhanced Memory Management
+const MEMORY_THRESHOLDS = {
+  WARNING: 1024,    // 1GB
+  CRITICAL: 2048,   // 2GB
+  MAX: 3072         // 3GB
+};
+
+// 🚀 SCALABILITY IMPROVEMENT: Basic In-Memory Caching
+class BasicCache {
+  private cache = new Map<string, { data: any; timestamp: number; ttl: number }>();
+  private maxSize = 1000; // Maximum cache entries
+  private cleanupInterval = 5 * 60 * 1000; // 5 minutes
+
+  constructor() {
+    // Start cleanup interval
+    setInterval(() => this.cleanup(), this.cleanupInterval);
+  }
+
+  set(key: string, data: any, ttl: number = 300000): void { // Default 5 minutes
+    if (this.cache.size >= this.maxSize) {
+      // Remove oldest entries when cache is full
+      const oldestKey = this.cache.keys().next().value;
+      if (oldestKey !== undefined) {
+        this.cache.delete(oldestKey);
+      }
+    }
+
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now(),
+      ttl
+    });
+  }
+
+  get(key: string): any | null {
+    const item = this.cache.get(key);
+    if (!item) return null;
+
+    if (Date.now() - item.timestamp > item.ttl) {
+      this.cache.delete(key);
+      return null;
+    }
+
+    return item.data;
+  }
+
+  delete(key: string): boolean {
+    return this.cache.delete(key);
+  }
+
+  clear(): void {
+    this.cache.clear();
+  }
+
+  size(): number {
+    return this.cache.size;
+  }
+
+  private cleanup(): void {
+    const now = Date.now();
+    for (const [key, item] of this.cache.entries()) {
+      if (now - item.timestamp > item.ttl) {
+        this.cache.delete(key);
+      }
+    }
+  }
+}
+
+// Initialize cache instance
+const cache = new BasicCache();
+
+// Export cache for use in other files
+export { cache };
 
 // Test database connection on startup
 prisma.$connect()
   .then(() => {
     console.log('✅ Database connected successfully');
+    console.log('🚀 Database connection pooling enabled');
   })
   .catch((err) => {
     console.error('❌ Failed to connect to database:');
@@ -273,6 +359,7 @@ app.get('/api/health', async (req: Request, res: Response) => {
       database: string;
       memory: string;
       disk: string;
+      cache?: { size: number; status: string };
     };
     responseTime?: number;
   } = {
@@ -297,7 +384,7 @@ app.get('/api/health', async (req: Request, res: Response) => {
     healthStatus.status = 'degraded';
   }
 
-  // Memory usage check
+  // 🚀 SCALABILITY IMPROVEMENT: Enhanced Memory Usage Check
   const memUsage = process.memoryUsage();
   const memUsageMB = {
     rss: Math.round(memUsage.rss / 1024 / 1024),
@@ -306,11 +393,21 @@ app.get('/api/health', async (req: Request, res: Response) => {
     external: Math.round(memUsage.external / 1024 / 1024)
   };
 
-  if (memUsageMB.heapUsed > 500) { // 500MB threshold
+  // Enhanced memory threshold checking
+  if (memUsageMB.heapUsed > MEMORY_THRESHOLDS.CRITICAL) {
+    healthStatus.checks.memory = 'critical';
+    healthStatus.status = 'degraded';
+  } else if (memUsageMB.heapUsed > MEMORY_THRESHOLDS.WARNING) {
     healthStatus.checks.memory = 'warning';
   } else {
     healthStatus.checks.memory = 'healthy';
   }
+
+  // Add cache status to health check
+  healthStatus.checks.cache = {
+    size: cache.size(),
+    status: cache.size() > 0 ? 'active' : 'empty'
+  };
 
   healthStatus.responseTime = Date.now() - startTime;
   

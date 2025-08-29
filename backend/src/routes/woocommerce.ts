@@ -893,127 +893,75 @@ router.get('/products', async (req: Request, res: Response) => {
   }
 });
 
-// Admin: create WooCommerce order
-router.post('/orders', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+// Create WooCommerce order
+router.post('/orders', async (req: Request, res: Response) => {
   try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
-    
-    const { 
-      customer_id, 
-      line_items, 
-      billing, 
-      shipping, 
-      payment_method, 
-      payment_method_title,
-      status = 'processing'
-    } = req.body;
-
-    if (!line_items || !Array.isArray(line_items) || line_items.length === 0) {
-      return res.status(400).json({ error: 'Line items are required' });
-    }
-
     const settings = await prisma.wooCommerceSettings.findUnique({
       where: { id: 1 }
     });
 
     if (!settings || !settings.enabled) {
-      return res.status(400).json({ error: 'WooCommerce integration is not enabled' });
+      return res.status(503).json({ error: 'WooCommerce is not configured or enabled' });
     }
 
-    // Validate line items and check stock
-    for (const item of line_items) {
-      const product = await prisma.product.findUnique({
-        where: { id: item.product_id }
-      });
-
-      if (!product) {
-        return res.status(400).json({ error: `Product with ID ${item.product_id} not found` });
-      }
-
-      if (product.stock < item.quantity) {
-        return res.status(400).json({ 
-          error: `Insufficient stock for ${product.name}. Available: ${product.stock}, Requested: ${item.quantity}` 
-        });
-      }
-    }
-
-    // Create order in WooCommerce
-    const orderData = {
-      customer_id: customer_id || 0,
+    const {
+      billing,
+      shipping,
       line_items,
-      billing: billing || {},
-      shipping: shipping || {},
       payment_method,
       payment_method_title,
-      status,
-      set_paid: false
+      set_paid,
+      customer_note
+    } = req.body;
+
+    // Validate required fields
+    if (!billing || !shipping || !line_items || !line_items.length) {
+      return res.status(400).json({ error: 'Missing required order information' });
+    }
+
+    // Prepare order data for WooCommerce
+    const orderData = {
+      billing,
+      shipping,
+      line_items,
+      payment_method: payment_method || 'bacs',
+      payment_method_title: payment_method_title || 'Direct Bank Transfer',
+      set_paid: set_paid || false,
+      customer_note: customer_note || '',
+      status: 'pending'
     };
 
-    const response = await makeWooCommerceRequest(
-      `${settings.storeUrl}/wp-json/wc/v3/orders`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(orderData)
-      }
-    );
-
-    if (!response) {
-      throw new Error('Failed to create WooCommerce order');
-    }
-
-    const wooOrder = await response.json();
-
-    // Update local inventory
-    for (const item of line_items) {
-      await prisma.product.update({
-        where: { id: item.product_id },
-        data: {
-          stock: {
-            decrement: item.quantity
-          }
-        }
-      });
-    }
-
-    // Create local order record
-    const localOrder = await prisma.order.create({
-      data: {
-        orderNumber: `WC-${wooOrder.id}`,
-        total: parseFloat(wooOrder.total),
-        status: wooOrder.status,
-        paymentStatus: wooOrder.payment_status || 'pending',
-        paymentMethod: payment_method,
-        subtotal: parseFloat(wooOrder.subtotal),
-        taxAmount: parseFloat(wooOrder.total_tax),
-        shippingCost: parseFloat(wooOrder.shipping_total),
-        items: {
-          create: line_items.map((item: any) => ({
-            productId: item.product_id,
-            quantity: item.quantity,
-            price: parseFloat(item.price)
-          }))
-        }
-      }
+    // Create order in WooCommerce
+    const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/orders`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(orderData)
     });
 
-    // Clear cache
-    clearProductCache();
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `WooCommerce API error: ${response.status}`);
+    }
+
+    const order = await response.json();
+
+    // Log successful order creation
+    console.log(`✅ WooCommerce order created: ${order.id}`);
 
     res.json({
       success: true,
-      message: 'Order created successfully',
       order: {
-        id: wooOrder.id,
-        number: wooOrder.number,
-        status: wooOrder.status,
-        total: wooOrder.total,
-        localOrderId: localOrder.id
+        id: order.id,
+        order_number: order.order_number,
+        status: order.status,
+        total: order.total,
+        created_at: order.created_at
       }
     });
+
   } catch (err: any) {
     console.error('Error creating WooCommerce order:', err);
     res.status(500).json({ 
@@ -1023,82 +971,49 @@ router.post('/orders', unifiedAdminAuth, async (req: AuthRequest, res: Response)
   }
 });
 
-// Admin: get WooCommerce orders
-router.get('/orders', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+// Get WooCommerce order by ID
+router.get('/orders/:id', async (req: Request, res: Response) => {
   try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
-    
-    const { page = 1, per_page = 20, status, customer_id } = req.query;
-    
+    const { id } = req.params;
     const settings = await prisma.wooCommerceSettings.findUnique({
       where: { id: 1 }
     });
 
     if (!settings || !settings.enabled) {
-      return res.status(400).json({ error: 'WooCommerce integration is not enabled' });
+      return res.status(503).json({ error: 'WooCommerce is not configured or enabled' });
     }
 
-    // Build query parameters
-    const params = new URLSearchParams({
-      page: page.toString(),
-      per_page: per_page.toString()
+    const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/orders/${id}`, {
+      headers: {
+        'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`,
+        'Content-Type': 'application/json'
+      }
     });
 
-    if (status) params.append('status', status.toString());
-    if (customer_id) params.append('customer_id', customer_id.toString());
-
-    const response = await makeWooCommerceRequest(
-      `${settings.storeUrl}/wp-json/wc/v3/orders?${params.toString()}`,
-      {
-        headers: {
-          'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
-
-    if (!response) {
-      throw new Error('Failed to fetch WooCommerce orders');
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `WooCommerce API error: ${response.status}`);
     }
 
-    const orders = await response.json();
-    const totalOrders = response.headers.get('X-WP-Total');
-    const totalPages = response.headers.get('X-WP-TotalPages');
+    const order = await response.json();
 
     res.json({
-      orders: orders.map((order: any) => ({
-        id: order.id,
-        number: order.number,
-        status: order.status,
-        total: order.total,
-        customer_id: order.customer_id,
-        date_created: order.date_created,
-        line_items: order.line_items,
-        billing: order.billing,
-        shipping: order.shipping,
-        payment_status: order.payment_status
-      })),
-      pagination: {
-        page: parseInt(page.toString()),
-        per_page: parseInt(per_page.toString()),
-        total: parseInt(totalOrders || '0'),
-        total_pages: parseInt(totalPages || '0')
-      }
+      success: true,
+      order
     });
+
   } catch (err: any) {
-    console.error('Error fetching WooCommerce orders:', err);
+    console.error(`Error fetching WooCommerce order ${req.params.id}:`, err);
     res.status(500).json({ 
-      error: 'Failed to fetch orders',
+      error: 'Failed to fetch order',
       details: process.env.NODE_ENV === 'development' ? err.message : undefined
     });
   }
 });
 
-// Admin: update order status
-router.put('/orders/:id/status', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+// Update WooCommerce order status
+router.put('/orders/:id/status', async (req: Request, res: Response) => {
   try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
-    
     const { id } = req.params;
     const { status } = req.body;
 
@@ -1111,51 +1026,38 @@ router.put('/orders/:id/status', unifiedAdminAuth, async (req: AuthRequest, res:
     });
 
     if (!settings || !settings.enabled) {
-      return res.status(400).json({ error: 'WooCommerce integration is not enabled' });
+      return res.status(503).json({ error: 'WooCommerce is not configured or enabled' });
     }
 
-    // Update order status in WooCommerce
-    const response = await makeWooCommerceRequest(
-      `${settings.storeUrl}/wp-json/wc/v3/orders/${id}`,
-      {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ status })
-      }
-    );
-
-    if (!response) {
-      throw new Error('Failed to update WooCommerce order');
-    }
-
-    const updatedOrder = await response.json();
-
-    // Update local order if exists
-    const localOrder = await prisma.order.findFirst({
-      where: { orderNumber: `WC-${id}` }
+    const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/orders/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ status })
     });
 
-    if (localOrder) {
-      await prisma.order.update({
-        where: { id: localOrder.id },
-        data: { status }
-      });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `WooCommerce API error: ${response.status}`);
     }
+
+    const order = await response.json();
+
+    console.log(`✅ WooCommerce order ${id} status updated to: ${status}`);
 
     res.json({
       success: true,
-      message: 'Order status updated successfully',
       order: {
-        id: updatedOrder.id,
-        number: updatedOrder.number,
-        status: updatedOrder.status
+        id: order.id,
+        status: order.status,
+        updated_at: order.date_modified
       }
     });
+
   } catch (err: any) {
-    console.error('Error updating order status:', err);
+    console.error(`Error updating WooCommerce order ${req.params.id} status:`, err);
     res.status(500).json({ 
       error: 'Failed to update order status',
       details: process.env.NODE_ENV === 'development' ? err.message : undefined

@@ -481,15 +481,24 @@ jobs:
     
     steps:
     - name: Notify Slack
-      uses: 8398a7/action-slack@v3
+      uses: slackapi/slack-github-action@v1.24.0
       with:
-        status: ${{ job.status }}
-        channel: '#deployments'
-        webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
-        text: 'Deployment ${{ job.status }} for VPS KVM1'
-        username: 'GitHub Actions'
-        icon_emoji: ':rocket:'
-        fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+        payload: |
+          {
+            "text": "🚀 VPS KVM1 Deployment ${{ needs.deploy-production.result || 'Skipped' }}",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "*VPS KVM1 Deployment Status*\n• Status: ${{ needs.deploy-production.result || 'Skipped' }}\n• Environment: Production\n• Server: Hostinger VPS KVM1\n• Commit: ${{ github.sha }}\n• Branch: ${{ github.ref_name }}\n• Triggered by: ${{ github.actor }}"
+                }
+              }
+            ]
+          }
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
         
     - name: Create deployment summary
       if: always()

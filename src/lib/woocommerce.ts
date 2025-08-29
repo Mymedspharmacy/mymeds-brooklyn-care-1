@@ -248,6 +248,112 @@ export const wooCommerceAPI = {
       keys: Array.from(productCache.keys()),
       timestamp: Date.now()
     };
+  },
+
+  // Create order in WooCommerce
+  createOrder: async (orderData: {
+    customer_id?: number;
+    billing: {
+      first_name: string;
+      last_name: string;
+      email: string;
+      phone?: string;
+      address_1: string;
+      city: string;
+      state: string;
+      postcode: string;
+      country: string;
+    };
+    shipping: {
+      first_name: string;
+      last_name: string;
+      address_1: string;
+      city: string;
+      state: string;
+      postcode: string;
+      country: string;
+    };
+    line_items: Array<{
+      product_id: number;
+      quantity: number;
+    }>;
+    payment_method: string;
+    payment_method_title: string;
+    set_paid: boolean;
+    customer_note?: string;
+  }) => {
+    try {
+      console.log('🛒 Creating order in WooCommerce...');
+      
+      const response = await woocommerce.post('/orders', orderData);
+      
+      if (response.data) {
+        console.log('✅ Order created successfully:', response.data.id);
+        return response.data;
+      } else {
+        throw new Error('No response data received from WooCommerce');
+      }
+    } catch (error: any) {
+      console.error('Error creating WooCommerce order:', error);
+      throw new Error(`Failed to create order: ${error.message}`);
+    }
+  },
+
+  // Get order by ID
+  getOrder: async (orderId: number) => {
+    try {
+      console.log(`📦 Fetching order ${orderId} from WooCommerce...`);
+      
+      const response = await woocommerce.get(`/orders/${orderId}`);
+      
+      if (response.data) {
+        return response.data;
+      } else {
+        throw new Error('No response data received from WooCommerce');
+      }
+    } catch (error: any) {
+      console.error(`Error fetching order ${orderId}:`, error);
+      throw new Error(`Failed to fetch order: ${error.message}`);
+    }
+  },
+
+  // Update order status
+  updateOrderStatus: async (orderId: number, status: string) => {
+    try {
+      console.log(`📝 Updating order ${orderId} status to ${status}...`);
+      
+      const response = await woocommerce.put(`/orders/${orderId}`, {
+        status: status
+      });
+      
+      if (response.data) {
+        console.log(`✅ Order ${orderId} status updated to ${status}`);
+        return response.data;
+      } else {
+        throw new Error('No response data received from WooCommerce');
+      }
+    } catch (error: any) {
+      console.error(`Error updating order ${orderId} status:`, error);
+      throw new Error(`Failed to update order status: ${error.message}`);
+    }
+  },
+
+  // Get available payment gateways
+  getPaymentGateways: async () => {
+    try {
+      console.log('💳 Fetching payment gateways from WooCommerce...');
+      
+      const response = await woocommerce.get('/payment_gateways');
+      
+      if (response.data) {
+        return response.data;
+      } else {
+        throw new Error('No response data received from WooCommerce');
+      }
+    } catch (error: any) {
+      console.error('Error fetching payment gateways:', error);
+      throw new Error(`Failed to fetch payment gateways: ${error.message}`);
+    }
   }
 };
 

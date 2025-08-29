@@ -9,11 +9,9 @@ import { Footer } from "@/components/Footer";
 import { NewsTicker } from "@/components/NewsTicker";
 import { SEOHead } from "@/components/SEOHead";
 import { wooCommerceAPI } from "@/lib/woocommerce";
-import { loadStripe } from '@stripe/stripe-js';
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { WooCommerceCheckoutForm } from "@/components/WooCommerceCheckoutForm";
 
-// Load Stripe
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_...');
+// WooCommerce checkout configuration
 
 interface WooCommerceProduct {
   id: number;
@@ -36,97 +34,11 @@ interface CartItem {
   quantity: number;
 }
 
-// Stripe Checkout Component
-const CheckoutForm = ({ cart, total, onSuccess, onCancel }: { 
-  cart: CartItem[], 
-  total: number, 
-  onSuccess: () => void, 
-  onCancel: () => void 
-}) => {
-  const stripe = useStripe();
-  const elements = useElements();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!stripe || !elements) return;
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      // Create payment intent
-      const response = await fetch('/api/payments/create-payment-intent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: total, currency: 'usd' })
-      });
-
-      const { clientSecret } = await response.json();
-
-      // Confirm payment
-      const { error: paymentError } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: elements.getElement(CardElement)!,
-          billing_details: {
-            name: 'Customer Name', // You can add a form for this
-          },
-        }
-      });
-
-      if (paymentError) {
-        setError(paymentError.message || 'Payment failed');
-      } else {
-        onSuccess();
-      }
-    } catch (err) {
-      setError('Payment failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="border rounded-lg p-4">
-        <CardElement 
-          options={{
-            style: {
-              base: {
-                fontSize: '16px',
-                color: '#424770',
-                '::placeholder': { color: '#aab7c4' },
-              },
-              invalid: { color: '#9e2146' },
-            },
-          }}
-        />
-      </div>
-      
-      {error && (
-        <div className="text-red-600 text-sm">{error}</div>
-      )}
-      
-      <div className="flex gap-2">
-        <Button 
-          type="submit" 
-          disabled={!stripe || loading} 
-          className="flex-1 bg-[#57BBB6] hover:bg-[#376F6B]"
-        >
-          {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-          Pay ${total.toFixed(2)}
-        </Button>
-        <Button 
-          type="button" 
-          variant="outline" 
-          onClick={onCancel}
-        >
-          Cancel
-        </Button>
-      </div>
-    </form>
-  );
+// WooCommerce checkout success handler
+const handleCheckoutSuccess = (orderId: number) => {
+  alert(`Order placed successfully! Your order number is: ${orderId}`);
+  setCart([]);
+  setShowCheckout(false);
 };
 
 export default function Shop() {
@@ -209,11 +121,7 @@ export default function Shop() {
     return matchesSearch && matchesCategory;
   });
 
-  const handleCheckoutSuccess = () => {
-    alert('Payment successful! Your order has been placed.');
-    setCart([]);
-    setShowCheckout(false);
-  };
+
 
   if (loading) {
     return (
@@ -535,15 +443,13 @@ export default function Shop() {
                 </div>
               </div>
 
-              {/* Stripe Payment Form */}
-              <Elements stripe={stripePromise}>
-                <CheckoutForm 
-                  cart={cart}
-                  total={cartTotal}
-                  onSuccess={handleCheckoutSuccess}
-                  onCancel={() => setShowCheckout(false)}
-                />
-              </Elements>
+              {/* WooCommerce Checkout Form */}
+              <WooCommerceCheckoutForm 
+                cart={cart}
+                total={cartTotal}
+                onSuccess={handleCheckoutSuccess}
+                onCancel={() => setShowCheckout(false)}
+              />
             </div>
           </div>
         )}
