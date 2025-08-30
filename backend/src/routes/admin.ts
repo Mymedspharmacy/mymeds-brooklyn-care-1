@@ -4,9 +4,11 @@ import {
   adminLogin, 
   ensureAdminUser, 
   changeAdminPassword, 
+  changeAdminPasswordWithUserId,
   validateAdminSession, 
   getAdminInfo, 
-  adminLogout 
+  adminLogout,
+  adminLogoutDirect
 } from '../adminAuth';
 
 const router = Router();
@@ -61,7 +63,7 @@ router.post('/login', async (req: Request, res: Response) => {
 // Admin logout endpoint
 router.post('/logout', adminAuthMiddleware, async (req: Request, res: Response) => {
   try {
-    const result = adminLogout();
+    const result = adminLogoutDirect();
     res.json(result);
   } catch (error: any) {
     console.error('Admin logout error:', error);
@@ -105,7 +107,7 @@ router.post('/change-password', adminAuthMiddleware, async (req: Request, res: R
       });
     }
 
-    const result = await changeAdminPassword(userId, currentPassword, newPassword);
+    const result = await changeAdminPasswordWithUserId(userId, currentPassword, newPassword);
     
     res.json({
       ...result,

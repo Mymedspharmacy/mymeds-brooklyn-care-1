@@ -1,50 +1,125 @@
 import { Router } from 'express';
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
 import nodemailer from 'nodemailer';
 import { Request, Response, NextFunction } from 'express';
+import { validate, userSchemas } from '../middleware/validation';
 
 const router = Router();
 const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET;
 
-if (!JWT_SECRET) {
-  console.error('❌ JWT_SECRET environment variable is not set!');
-  console.error('Please set a strong JWT_SECRET in your environment variables.');
+// JWT secret validation
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET || JWT_SECRET.length < 32) {
+  console.error('❌ JWT_SECRET must be at least 32 characters long');
   process.exit(1);
 }
-
-// TypeScript assertion - we know JWT_SECRET is defined after the check above
 const JWT_SECRET_ASSERTED = JWT_SECRET as string;
 
-// Register
-router.post('/register', async (req, res) => {
+// Register with validation
+router.post('/register', validate(userSchemas.register), async (req, res) => {
   try {
     const { email, password, name } = req.body;
-    if (!email || !password || !name) return res.status(400).json({ error: 'Missing fields' });
+    
+    // Check if user already exists
     const exists = await prisma.user.findUnique({ where: { email } });
     if (exists) return res.status(409).json({ error: 'Email already registered' });
-    const hash = await bcrypt.hash(password, 10);
-    const user = await prisma.user.create({ data: { email, password: hash, name } });
-    res.status(201).json({ id: user.id, email: user.email, name: user.name });
+    
+    // Hash password with increased salt rounds for production
+    const hash = await bcrypt.hash(password, 12);
+    
+    // Create user with validated data
+    const user = await prisma.user.create({ 
+      data: { 
+        email, 
+        password: hash, 
+        name,
+        isActive: true,
+        emailVerified: false,
+        role: 'CUSTOMER'
+      } 
+    });
+    
+    // Don't send password in response
+    res.status(201).json({ 
+      id: user.id, 
+      email: user.email, 
+      name: user.name,
+      role: user.role,
+      message: 'User registered successfully. Please verify your email.'
+    });
   } catch (err) {
     console.error('Error registering user:', err);
     res.status(500).json({ error: 'Registration failed' });
   }
 });
 
-// Login
-router.post('/login', async (req, res) => {
+// Login with validation
+router.post('/login', validate(userSchemas.login), async (req, res) => {
   try {
     const { email, password } = req.body;
-    if (!email || !password) return res.status(400).json({ error: 'Missing fields' });
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) return res.status(401).json({ error: 'Invalid credentials' });
+    
+    // Find user and include password for comparison
+    const user = await prisma.user.findUnique({ 
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        password: true,
+        role: true,
+        isActive: true,
+        emailVerified: true,
+        lastLoginAt: true
+      }
+    });
+    
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    
+    if (!user.isActive) {
+      return res.status(401).json({ error: 'Account is deactivated' });
+    }
+    
+    // Verify password
     const valid = await bcrypt.compare(password, user.password);
-    if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
-    const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET_ASSERTED, { expiresIn: '7d' });
-    res.json({ token, user: { id: user.id, email: user.email, name: user.name, role: user.role } });
+    if (!valid) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    
+    // Update last login time
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() }
+    });
+    
+    // Generate JWT token
+    const token = jwt.sign(
+      { 
+        userId: user.id, 
+        role: user.role,
+        email: user.email 
+      }, 
+      JWT_SECRET_ASSERTED, 
+      { 
+        expiresIn: '7d',
+        issuer: 'mymeds-pharmacy',
+        audience: 'mymeds-users'
+      }
+    );
+    
+    res.json({ 
+      token, 
+      user: { 
+        id: user.id, 
+        email: user.email, 
+        name: user.name, 
+        role: user.role,
+        emailVerified: user.emailVerified
+      } 
+    });
   } catch (err) {
     console.error('Error logging in:', err);
     res.status(500).json({ error: 'Login failed' });

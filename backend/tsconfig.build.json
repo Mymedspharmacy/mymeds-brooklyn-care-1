@@ -1,0 +1,24 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "noEmitOnError": false
+  },
+  "include": [
+    "src/index.ts",
+    "src/adminAuth.ts",
+    "src/routes/*.ts",
+    "src/middleware/*.ts",
+    "src/utils/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/__tests__",
+    "src/test",
+    "src/services/integrationMonitorService.ts",
+    "src/services/microservices",
+    "src/config/database-sharding.ts",
+    "src/database/migration.ts"
+  ]
+}

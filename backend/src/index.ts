@@ -3,6 +3,49 @@ require('newrelic');
 
 import dotenv from 'dotenv';
 dotenv.config();
+
+// 🚨 CRITICAL: Environment validation before anything else
+const validateEnvironment = () => {
+  const requiredVars = [
+    'DATABASE_URL',
+    'JWT_SECRET',
+    'NODE_ENV'
+  ];
+
+  const missing = requiredVars.filter(varName => !process.env[varName]);
+  
+  if (missing.length > 0) {
+    console.error('❌ Missing required environment variables:');
+    missing.forEach(varName => console.error(`   - ${varName}`));
+    process.exit(1);
+  }
+
+  // Validate JWT_SECRET strength
+  if (process.env.JWT_SECRET!.length < 32) {
+    console.error('❌ JWT_SECRET must be at least 32 characters long');
+    process.exit(1);
+  }
+
+  // Validate DATABASE_URL format
+  if (!process.env.DATABASE_URL!.startsWith('mysql://') && 
+      !process.env.DATABASE_URL!.startsWith('postgresql://')) {
+    console.error('❌ DATABASE_URL must be a valid MySQL or PostgreSQL connection string');
+    process.exit(1);
+  }
+
+  // Validate NODE_ENV
+  const validEnvs = ['development', 'staging', 'production'];
+  if (!validEnvs.includes(process.env.NODE_ENV!)) {
+    console.error(`❌ NODE_ENV must be one of: ${validEnvs.join(', ')}`);
+    process.exit(1);
+  }
+
+  console.log('✅ Environment validation passed');
+};
+
+// Run validation immediately
+validateEnvironment();
+
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
