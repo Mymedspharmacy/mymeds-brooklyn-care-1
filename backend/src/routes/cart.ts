@@ -66,8 +66,13 @@ router.get('/', async (req: Request, res: Response) => {
       }
     } else if (cartId) {
       // Guest cart
+      const cartIdNum = parseInt(cartId as string);
+      if (isNaN(cartIdNum)) {
+        return res.status(400).json({ error: 'Invalid cart ID' });
+      }
+      
       cart = await prisma.cart.findUnique({
-        where: { id: cartId },
+        where: { id: cartIdNum },
         include: {
           items: {
             include: {
@@ -88,7 +93,7 @@ router.get('/', async (req: Request, res: Response) => {
       
       // Check if cart is expired
       if (cart.expiresAt < new Date()) {
-        await prisma.cart.delete({ where: { id: cartId } });
+        await prisma.cart.delete({ where: { id: cartIdNum } });
         return res.status(410).json({ error: 'Cart expired' });
       }
     } else {
@@ -165,8 +170,13 @@ router.post('/add', async (req: Request, res: Response) => {
     }
     
     // Get or create cart
+    const cartIdNum = parseInt(cartId as string);
+    if (isNaN(cartIdNum)) {
+      return res.status(400).json({ error: 'Invalid cart ID' });
+    }
+    
     let cart = await prisma.cart.findUnique({
-      where: { id: cartId }
+      where: { id: cartIdNum }
     });
     
     if (!cart) {
@@ -328,9 +338,13 @@ router.delete('/remove/:itemId', async (req: Request, res: Response) => {
 router.delete('/clear/:cartId', async (req: Request, res: Response) => {
   try {
     const { cartId } = req.params;
+    const cartIdNum = parseInt(cartId);
+    if (isNaN(cartIdNum)) {
+      return res.status(400).json({ error: 'Invalid cart ID' });
+    }
     
     await prisma.cartItem.deleteMany({
-      where: { cartId }
+      where: { cartId: cartIdNum }
     });
     
     res.json({
@@ -351,9 +365,13 @@ router.delete('/clear/:cartId', async (req: Request, res: Response) => {
 router.get('/summary/:cartId', async (req: Request, res: Response) => {
   try {
     const { cartId } = req.params;
+    const cartIdNum = parseInt(cartId);
+    if (isNaN(cartIdNum)) {
+      return res.status(400).json({ error: 'Invalid cart ID' });
+    }
     
     const cart = await prisma.cart.findUnique({
-      where: { id: cartId },
+      where: { id: cartIdNum },
       include: { items: true }
     });
     
@@ -367,8 +385,8 @@ router.get('/summary/:cartId', async (req: Request, res: Response) => {
       });
     }
     
-    const totalItems = cart.items.reduce((sum, item) => sum + item.quantity, 0);
-    const subtotal = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const totalItems = cart.items.reduce((sum: number, item: any) => sum + item.quantity, 0);
+    const subtotal = cart.items.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0);
     
     res.json({
       success: true,

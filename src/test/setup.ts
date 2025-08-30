@@ -1,21 +1,20 @@
 import '@testing-library/jest-dom';
-import { server } from './mocks/server';
 
-// Establish API mocking before all tests
-beforeAll(() => server.listen());
+// Mock fetch for API calls
+global.fetch = jest.fn();
 
-// Reset any request handlers that we may add during the tests
-afterEach(() => server.resetHandlers());
-
-// Clean up after the tests are finished
-afterAll(() => server.close());
+// Mock IntersectionObserver
 
 // Mock IntersectionObserver
 global.IntersectionObserver = class IntersectionObserver {
-  constructor() {}
+  constructor(callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {}
   disconnect() {}
   observe() {}
   unobserve() {}
+  takeRecords() { return []; }
+  readonly root: Element | null = null;
+  readonly rootMargin: string = '';
+  readonly thresholds: ReadonlyArray<number> = [];
 };
 
 // Mock ResizeObserver

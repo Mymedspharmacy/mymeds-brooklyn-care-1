@@ -76,8 +76,13 @@ router.post('/guest-checkout', async (req: Request, res: Response) => {
     const validatedData = guestCheckoutSchema.parse(req.body);
     
     // Get cart and validate
+    const cartIdNum = parseInt(validatedData.cartId as string);
+    if (isNaN(cartIdNum)) {
+      return res.status(400).json({ error: 'Invalid cart ID' });
+    }
+    
     const cart = await prisma.cart.findUnique({
-      where: { id: validatedData.cartId },
+      where: { id: cartIdNum },
       include: {
         items: {
           include: { product: true }
@@ -169,7 +174,7 @@ router.post('/guest-checkout', async (req: Request, res: Response) => {
     
     // Clear cart
     await prisma.cartItem.deleteMany({
-      where: { cartId: validatedData.cartId }
+      where: { cartId: cartIdNum }
     });
     
     // Send order confirmation email (implement email service)

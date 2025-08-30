@@ -30,7 +30,7 @@ config:
     metrics-by-endpoint: {}
     expect: {}
     
-  processor: './load-tests/processors.js'
+  processor: './processors.cjs'
   
   environments:
     staging:

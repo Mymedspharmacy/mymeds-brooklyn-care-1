@@ -13,7 +13,15 @@ model User {
   password      String
   name          String
   role          Role           @default(CUSTOMER)
+  isActive      Boolean        @default(true)
+  emailVerified Boolean        @default(false)
+  permissions   String?        // JSON string of permissions
+  lastLoginAt   DateTime?
+  passwordChangedAt DateTime?
+  resetPasswordToken String?
+  resetPasswordExpires DateTime?
   createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   appointments  Appointment[]
   orders        Order[]
   prescriptions Prescription[]
@@ -26,6 +34,8 @@ model User {
   @@index([email])
   @@index([role])
   @@index([createdAt])
+  @@index([isActive])
+  @@index([emailVerified])
 }
 
 model PatientProfile {
@@ -108,6 +118,7 @@ model Product {
 model Order {
   id        Int         @id @default(autoincrement())
   userId    Int?        // Optional for guest orders
+  cartId    Int?        // Reference to cart if order was created from cart
   total     Float
   status    String
   createdAt DateTime    @default(now())
@@ -136,6 +147,7 @@ model Order {
   
   // Relationships
   user      User?        @relation(fields: [userId], references: [id])
+  cart      Cart?        @relation(fields: [cartId], references: [id])
   items     OrderItem[]
   tracking  GuestOrderTracking?
   
@@ -144,6 +156,7 @@ model Order {
   @@index([guestEmail])
   @@index([status, createdAt])
   @@index([paymentStatus])
+  @@index([cartId])
 }
 
 model GuestOrderTracking {
@@ -356,11 +369,14 @@ model Cart {
   userId    Int?       // Optional for guest carts
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+  expiresAt DateTime   @default(dbgenerated("(NOW() + INTERVAL 30 DAY)")) // Cart expires in 30 days
   items     CartItem[]
   user      User?      @relation(fields: [userId], references: [id])
+  orders    Order[]    // Orders created from this cart
   
   @@index([userId])
   @@index([createdAt])
+  @@index([expiresAt])
 }
 
 model CartItem {
