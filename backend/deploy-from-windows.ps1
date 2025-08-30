@@ -60,7 +60,7 @@ scp verify-deployment.sh "${VPS_USER}@${VPS_IP}:${VPS_PATH}/"
 
 Write-Host ""
 Write-Host "🚀 Executing deployment on VPS..." -ForegroundColor Blue
-ssh "${VPS_USER}@${VPS_IP}" "cd ${VPS_PATH} && chmod +x deploy.sh && ./deploy.sh"
+ssh "${VPS_USER}@${VPS_IP}" "cd ${VPS_PATH}; chmod +x deploy.sh; ./deploy.sh"
 
 Write-Host ""
 Write-Host "✅ Deployment completed!" -ForegroundColor Green
