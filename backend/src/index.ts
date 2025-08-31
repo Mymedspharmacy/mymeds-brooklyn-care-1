@@ -630,3 +630,6 @@ process.on('SIGTERM', () => {
     prisma.$disconnect();
   });
 }); 
+
+// Export app for testing
+export { app }; 

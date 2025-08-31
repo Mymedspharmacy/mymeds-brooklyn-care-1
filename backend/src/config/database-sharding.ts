@@ -146,10 +146,14 @@ export class DatabaseShardingManager {
         shardId = this.getListShard(rule.shards, value);
         break;
       default:
-        shardId = this.getDefaultShard().id;
+        shardId = 'shard-0';
     }
 
-    return this.shards.get(shardId) || this.getDefaultShard();
+    const shard = this.shards.get(shardId);
+    if (!shard) {
+      return this.getDefaultShard();
+    }
+    return shard;
   }
 
   private getHashShard(shards: string[], value: string): string {
@@ -173,9 +177,12 @@ export class DatabaseShardingManager {
     return shards[shardIndex];
   }
 
-  private getDefaultShard(): PrismaClient {
-    // Return primary shard as default
-    return this.shards.get('shard-0') || this.shards.values().next().value;
+  public getDefaultShard(): PrismaClient {
+    const defaultShard = this.shards.get('shard-0');
+    if (!defaultShard) {
+      throw new Error('Default shard not found');
+    }
+    return defaultShard;
   }
 
   private hashString(str: string): number {
@@ -257,4 +264,4 @@ export class DatabaseShardingManager {
 export const shardingManager = new DatabaseShardingManager();
 
 // Export types for external use
-export type { ShardConfig, ShardRule };
+// Types already exported above

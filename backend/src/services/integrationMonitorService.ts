@@ -434,7 +434,7 @@ export class IntegrationMonitorService {
         outOfStockCount: outOfStockProducts.length,
         totalStockValue,
         stockTurnoverRate: 0, // Would need historical data to calculate
-        categoryDistribution,
+        categoryDistribution: categoryDistribution as any[],
         stockAlerts: lowStockProducts.map(p => ({
           id: p.id,
           name: p.name,
@@ -497,8 +497,8 @@ export class IntegrationMonitorService {
         ordersThisWeek,
         ordersThisMonth,
         averageOrderValue,
-        topSellingProducts,
-        orderStatusDistribution
+        topSellingProducts: topSellingProducts as any[],
+        orderStatusDistribution: orderStatusDistribution as any[]
       });
 
       logger.info('Order metrics collected successfully');
@@ -634,7 +634,12 @@ export class IntegrationMonitorService {
         errorCount: 0,
         responseTime: 0,
         cacheStatus: 'empty',
-        recommendations: ['Service not configured or monitoring not available']
+        recommendations: ['Service not configured or monitoring not available'],
+        performance: {
+          responseTime: 0,
+          throughput: 0,
+          errorRate: 0
+        }
       };
     }
     return this.healthChecks;
@@ -648,7 +653,12 @@ export class IntegrationMonitorService {
         failedSyncs: 0,
         averageSyncTime: 0,
         lastSyncDuration: 0,
-        dataVolume: 0
+        dataVolume: 0,
+        performance: {
+          responseTime: 0,
+          throughput: 0,
+          errorRate: 0
+        }
       };
     }
     return this.metrics;
