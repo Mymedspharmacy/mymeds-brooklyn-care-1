@@ -8,7 +8,7 @@ set -e  # Exit on any error
 echo "🚀 Starting MyMeds Pharmacy VPS KVM1 Hostinger Deployment..."
 
 # Configuration
-VPS_IP="your-vps-ip"
+VPS_IP="72.60.116.253"
 VPS_USER="root"
 PROJECT_NAME="mymeds-pharmacy"
 BACKEND_DIR="/var/www/mymeds-backend"
@@ -91,7 +91,7 @@ if [ -d "$PROJECT_NAME" ]; then
     git pull origin main
 else
     print_status "Cloning repository..."
-    git clone https://github.com/your-username/$PROJECT_NAME.git
+    git clone https://github.com/MyMedspharmacy/mymeds-brooklyn-care-1.git
     cd $PROJECT_NAME
 fi
 

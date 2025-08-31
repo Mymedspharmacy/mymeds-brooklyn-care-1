@@ -1,187 +1,162 @@
-# 📚 MyMeds Pharmacy - Complete Documentation Index
+# 📚 MyMeds Pharmacy - Complete Documentation
 
-## 🎯 **Project Overview**
-MyMeds Pharmacy is a comprehensive pharmacy management system with WooCommerce integration, patient portals, admin panels, and advanced monitoring capabilities.
+## 🎯 **Welcome to MyMeds Pharmacy Documentation**
+
+This comprehensive guide covers everything you need to develop, deploy, and maintain the MyMeds Pharmacy system.
 
 ---
 
 ## 🚀 **Quick Start Guides**
 
-### **Deployment & Setup**
-- **[VPS KVM1 Hostinger Deployment Guide](VPS_KVM1_HOSTINGER_DEPLOYMENT_GUIDE.md)** - Complete VPS deployment guide
-- **[VPS KVM1 Deployment Guide](VPS_KVM1_DEPLOYMENT_GUIDE.md)** - Detailed VPS setup instructions
-- **[VPS Deployment Quick Start](VPS_DEPLOYMENT_QUICK_START.md)** - Fast deployment checklist
-- **[Production Configuration Guide](PRODUCTION_CONFIGURATION_GUIDE.md)** - Production environment setup
-- **[Final Deployment Script](FINAL_DEPLOYMENT_SCRIPT.md)** - Automated deployment script
+### **For New Developers**
+- **[🆕 Developer Onboarding Guide](developer/ONBOARDING.md)** - Complete setup for new team members
+- **[⚡ Quick Start Guide](developer/QUICK_START.md)** - Get running in 5 minutes
+- **[🔧 Development Environment Setup](developer/ENVIRONMENT_SETUP.md)** - Local development configuration
 
-### **Core Features Setup**
-- **[WooCommerce Payment Setup](WOOCOMMERCE_PAYMENT_SETUP.md)** - WooCommerce integration guide
-- **[WooCommerce WordPress Setup](WOOCOMMERCE_WORDPRESS_SETUP.md)** - WordPress integration
-- **[Guest Checkout Production Guide](GUEST_CHECKOUT_PRODUCTION_GUIDE.md)** - Checkout system setup
+### **For Deployment**
+- **[🚀 Production Deployment Guide](deployment/PRODUCTION_DEPLOYMENT.md)** - Complete production setup
+- **[☁️ VPS Deployment](deployment/VPS_DEPLOYMENT.md)** - Hostinger KVM1 setup
+- **[🔐 SSL & Security Setup](deployment/SECURITY_SETUP.md)** - HTTPS and security configuration
 
 ---
 
-## 🔧 **Technical Implementation**
+## 📖 **Core Documentation**
 
-### **Database & Backend**
-- **[Prisma Database Analysis Report](PRISMA_DATABASE_ANALYSIS_REPORT.md)** - Database schema analysis
-- **[Migration Summary](MIGRATION_SUMMARY.md)** - Database migration guide
-- **[Collation Fix README](COLLATION_FIX_README.md)** - Database collation fixes
+### **🏗️ Architecture & Design**
+- **[🏛️ System Architecture](architecture/OVERVIEW.md)** - High-level system design
+- **[🗄️ Database Design](architecture/DATABASE.md)** - Database schema and relationships
+- **[🔌 API Architecture](architecture/API_DESIGN.md)** - REST API design principles
+- **[🔐 Security Architecture](architecture/SECURITY.md)** - Security model and implementation
 
-### **Security & Performance**
-- **[Security Setup Guide](SECURITY_SETUP_GUIDE.md)** - Security implementation
-- **[Rate Limiting Fix](RATE_LIMITING_FIX.md)** - API rate limiting
-- **[SSL Certificate Setup](SSL_CERTIFICATE_SETUP.md)** - SSL configuration
-- **[SSL and Monitoring Implementation](SSL_AND_MONITORING_IMPLEMENTATION_SUMMARY.md)** - SSL and monitoring setup
+### **💻 Development Guides**
+- **[🔧 Backend Development](development/BACKEND.md)** - Node.js/Express development
+- **[⚛️ Frontend Development](development/FRONTEND.md)** - React/TypeScript development
+- **[🗄️ Database Operations](development/DATABASE.md)** - Prisma ORM usage
+- **[🧪 Testing Guide](development/TESTING.md)** - Testing strategies and implementation
 
-### **Integration & APIs**
-- **[Integration Implementation Guide](INTEGRATION_IMPLEMENTATION_GUIDE.md)** - Complete integration guide
-- **[Integration Implementation Summary](INTEGRATION_IMPLEMENTATION_SUMMARY.md)** - Integration overview
-- **[OpenFDA Integration Guide](OPENFDA_INTEGRATION_GUIDE.md)** - FDA API integration
-- **[OpenFDA Implementation Summary](OPENFDA_IMPLEMENTATION_SUMMARY.md)** - FDA integration status
-- **[Webhook Setup Guide](WEBHOOK_SETUP_GUIDE.md)** - Webhook configuration
+### **🔌 API Documentation**
+- **[📡 API Reference](api/REFERENCE.md)** - Complete API endpoint documentation
+- **[🔐 Authentication](api/AUTHENTICATION.md)** - JWT and user management
+- **[👥 User Management](api/USERS.md)** - User CRUD operations
+- **[💊 Pharmacy Operations](api/PHARMACY.md)** - Prescriptions, orders, inventory
+- **[🛒 E-commerce](api/ECOMMERCE.md)** - WooCommerce integration
+- **[📝 Content Management](api/CONTENT.md)** - WordPress integration
 
----
-
-## 📱 **Frontend & User Experience**
-
-### **Mobile & Responsiveness**
-- **[Mobile Responsiveness Implementation](MOBILE_RESPONSIVENESS_IMPLEMENTATION.md)** - Mobile optimization
-- **[Mobile Responsiveness Final Summary](MOBILE_RESPONSIVENESS_FINAL_SUMMARY.md)** - Mobile implementation status
-- **[Mobile Improvements Test](MOBILE_IMPROVEMENTS_TEST.md)** - Mobile testing results
-- **[Device Compatibility Report](DEVICE_COMPATIBILITY_REPORT.md)** - Device testing results
-- **[Responsive Design Test Script](RESPONSIVE_DESIGN_TEST_SCRIPT.md)** - Responsiveness testing
-
-### **User Interface**
-- **[Visual Enhancement Plan](VISUAL_ENHANCEMENT_PLAN.md)** - UI improvement roadmap
-- **[Background Images Guide](BACKGROUND_IMAGES_GUIDE.md)** - Image optimization
-- **[Image Placeholders Guide](IMAGE_PLACEHOLDERS_GUIDE.md)** - Image handling
-- **[How It Works Implementation](HOW_IT_WORKS_IMPLEMENTATION_REPORT.md)** - Feature explanations
+### **🏥 Feature Guides**
+- **[👤 Patient Portal](features/PATIENT_PORTAL.md)** - Patient account management
+- **[💊 Prescription Management](features/PRESCRIPTIONS.md)** - Rx workflow and refills
+- **[📅 Appointment System](features/APPOINTMENTS.md)** - Scheduling and management
+- **[🛒 E-commerce Integration](features/ECOMMERCE.md)** - WooCommerce setup
+- **[📝 Blog & Content](features/CONTENT.md)** - WordPress integration
+- **[🔔 Notifications](features/NOTIFICATIONS.md)** - Email and SMS alerts
 
 ---
 
-## 👥 **Patient & Admin Features**
+## 🚀 **Deployment & Operations**
 
-### **Patient Portal**
-- **[Patient Portal Functionality Report](PATIENT_PORTAL_FUNCTIONALITY_REPORT.md)** - Patient features overview
-- **[Patient Portal Backend Integration](PATIENT_PORTAL_BACKEND_INTEGRATION_REPORT.md)** - Backend integration
-- **[Patient Account Creation Final Report](PATIENT_ACCOUNT_CREATION_FINAL_REPORT.md)** - Account creation system
-- **[Rx Refill Form Validation Test](RX_REFILL_FORM_VALIDATION_TEST.md)** - Prescription form testing
+### **🌐 Production Deployment**
+- **[🚀 Production Checklist](deployment/CHECKLIST.md)** - Pre-deployment requirements
+- **[☁️ VPS Setup](deployment/VPS_SETUP.md)** - Server configuration
+- **[🔐 SSL Configuration](deployment/SSL_SETUP.md)** - HTTPS setup
+- **[📊 Monitoring Setup](deployment/MONITORING.md)** - Health checks and alerts
 
-### **Admin Panel**
-- **[Admin Panel Integration](ADMIN_PANEL_INTEGRATION.md)** - Admin system setup
-- **[Admin Panel Completion Report](ADMIN_PANEL_COMPLETION_REPORT.md)** - Admin panel status
-- **[Admin Panel Issues Report](ADMIN_PANEL_ISSUES_REPORT.md)** - Admin panel troubleshooting
-- **[Data Flow and Admin Panel Report](DATA_FLOW_AND_ADMIN_PANEL_REPORT.md)** - Admin data flow
+### **🔧 Maintenance & Operations**
+- **[📊 System Monitoring](operations/MONITORING.md)** - Health monitoring and alerts
+- **[💾 Backup Strategies](operations/BACKUP.md)** - Database and file backups
+- **[🔒 Security Maintenance](operations/SECURITY.md)** - Security updates and audits
+- **[📈 Performance Optimization](operations/PERFORMANCE.md)** - Optimization strategies
 
 ---
 
 ## 🧪 **Testing & Quality Assurance**
 
-### **Testing Guides**
-- **[Testing Setup Guide](TESTING_SETUP_GUIDE.md)** - Testing environment setup
-- **[API Testing Checklist](API_TESTING_CHECKLIST.md)** - API testing procedures
-- **[Final App Testing Checklist](FINAL_APP_TESTING_CHECKLIST.md)** - Complete testing checklist
-- **[Business Logic Test Report](BUSINESS_LOGIC_TEST_REPORT.md)** - Business logic testing
-- **[Newsletter Functionality Test](NEWSLETTER_FUNCTIONALITY_TEST.md)** - Newsletter testing
+### **🧪 Testing Strategies**
+- **[🧪 Testing Overview](testing/OVERVIEW.md)** - Testing philosophy and strategy
+- **[🔧 Unit Testing](testing/UNIT.md)** - Component and function testing
+- **[🔗 Integration Testing](testing/INTEGRATION.md)** - API and service testing
+- **[🌐 E2E Testing](testing/E2E.md)** - End-to-end user workflows
+- **[📱 Mobile Testing](testing/MOBILE.md)** - Responsive design testing
 
-### **Quality Reports**
-- **[Implementation Status Report](IMPLEMENTATION_STATUS_REPORT.md)** - Overall implementation status
-- **[Pharmacy Improvements Implementation Report](PHARMACY_IMPROVEMENTS_IMPLEMENTATION_REPORT.md)** - Feature improvements
-- **[Services Navigation Integration Report](SERVICES_NAVIGATION_INTEGRATION_REPORT.md)** - Navigation integration
-- **[Unhandled Exceptions Report](UNHANDLED_EXCEPTIONS_REPORT.md)** - Error handling status
-
----
-
-## 📊 **Monitoring & Maintenance**
-
-### **System Monitoring**
-- **[Monitoring and Backup Strategy](MONITORING_AND_BACKUP_STRATEGY.md)** - Complete monitoring guide
-- **[Automated Sync Setup Guide](AUTOMATED_SYNC_SETUP_GUIDE.md)** - Sync automation
-- **[Notification Sound Status Report](NOTIFICATION_SOUND_STATUS_REPORT.md)** - Notification system status
-
-### **Production & Deployment**
-- **[Production Readiness Final Checklist](PRODUCTION_READINESS_FINAL_CHECKLIST.md)** - Production checklist
-- **[Production Readiness Audit Report](PRODUCTION_READINESS_AUDIT_REPORT.md)** - Production audit
-- **[Production Deployment Status](PRODUCTION_DEPLOYMENT_STATUS.md)** - Deployment status
-- **[Production Fixes Summary](PRODUCTION_FIXES_SUMMARY.md)** - Production fixes
-- **[Deployment Checklist](DEPLOYMENT_CHECKLIST.md)** - Deployment checklist
+### **📊 Quality Assurance**
+- **[📋 QA Checklist](qa/CHECKLIST.md)** - Quality assurance procedures
+- **[🔍 Code Review](qa/CODE_REVIEW.md)** - Code review guidelines
+- **[📈 Performance Testing](qa/PERFORMANCE.md)** - Load and stress testing
+- **[🔒 Security Testing](qa/SECURITY.md)** - Security audit procedures
 
 ---
 
-## 🔧 **Development & Maintenance**
+## 🔧 **Troubleshooting & Support**
 
-### **Code Quality**
-- **[TypeScript Errors Fixed](TYPESCRIPT_ERRORS_FIXED.md)** - TypeScript fixes
-- **[Dummy Logic Fixes Report](DUMMY_LOGIC_FIXES_REPORT.md)** - Code cleanup
-- **[Updated At Migration README](UPDATED_AT_MIGRATION_README.md)** - Migration updates
+### **🐛 Common Issues**
+- **[🚨 Error Codes](troubleshooting/ERROR_CODES.md)** - Common error solutions
+- **[🔧 Debugging Guide](troubleshooting/DEBUGGING.md)** - Debugging techniques
+- **[📱 Mobile Issues](troubleshooting/MOBILE.md)** - Mobile-specific problems
+- **[🗄️ Database Issues](troubleshooting/DATABASE.md)** - Database problems and solutions
 
-### **Environment & Configuration**
-- **[Environment Variables Guide](ENVIRONMENT_VARIABLES_GUIDE.md)** - Environment configuration
-- **[GitHub Actions Setup](GITHUB_ACTIONS_SETUP.md)** - CI/CD setup
-
----
-
-## 📧 **Communication & Notifications**
-
-### **Email & SMTP**
-- **[SMTP Service Status Report](SMTP_SERVICE_STATUS_REPORT.md)** - SMTP service status
-- **[SMTP Service Testing Guide](SMTP_SERVICE_TESTING_GUIDE.md)** - SMTP testing
-- **[README SMTP Testing](README_SMTP_TESTING.md)** - SMTP testing overview
+### **📞 Support Resources**
+- **[📧 Contact Information](support/CONTACT.md)** - How to get help
+- **[📚 FAQ](support/FAQ.md)** - Frequently asked questions
+- **[🔍 Search Guide](support/SEARCH.md)** - How to find information quickly
 
 ---
 
-## 🎯 **Quick Navigation by Category**
+## 📚 **Reference Materials**
 
-### **🚀 Start Here (New Users)**
-1. [VPS KVM1 Hostinger Deployment Guide](VPS_KVM1_HOSTINGER_DEPLOYMENT_GUIDE.md)
-2. [Production Configuration Guide](PRODUCTION_CONFIGURATION_GUIDE.md)
-3. [WooCommerce Payment Setup](WOOCOMMERCE_PAYMENT_SETUP.md)
+### **🔧 Technical Reference**
+- **[📋 Environment Variables](reference/ENVIRONMENT.md)** - Complete environment configuration
+- **[🗄️ Database Schema](reference/DATABASE_SCHEMA.md)** - Complete database structure
+- **[🔌 API Endpoints](reference/API_ENDPOINTS.md)** - All available API endpoints
+- **[🔐 Security Config](reference/SECURITY_CONFIG.md)** - Security settings and policies
 
-### **🔧 Developers & DevOps**
-1. [Integration Implementation Guide](INTEGRATION_IMPLEMENTATION_GUIDE.md)
-2. [Monitoring and Backup Strategy](MONITORING_AND_BACKUP_STRATEGY.md)
-3. [Production Readiness Final Checklist](PRODUCTION_READINESS_FINAL_CHECKLIST.md)
-
-### **📱 Frontend & UX**
-1. [Mobile Responsiveness Implementation](MOBILE_RESPONSIVENESS_IMPLEMENTATION.md)
-2. [Visual Enhancement Plan](VISUAL_ENHANCEMENT_PLAN.md)
-3. [Responsive Design Test Script](RESPONSIVE_DESIGN_TEST_SCRIPT.md)
-
-### **👥 Admin & Patient Features**
-1. [Admin Panel Integration](ADMIN_PANEL_INTEGRATION.md)
-2. [Patient Portal Functionality Report](PATIENT_PORTAL_FUNCTIONALITY_REPORT.md)
-3. [Rx Refill Form Validation Test](RX_REFILL_FORM_VALIDATION_TEST.md)
-
-### **🧪 Testing & Quality**
-1. [Testing Setup Guide](TESTING_SETUP_GUIDE.md)
-2. [Final App Testing Checklist](FINAL_APP_TESTING_CHECKLIST.md)
-3. [API Testing Checklist](API_TESTING_CHECKLIST.md)
+### **📖 Style Guides**
+- **[💻 Code Style](style/CODE.md)** - Coding standards and conventions
+- **[🎨 UI/UX Guidelines](style/UI_UX.md)** - Design system and guidelines
+- **[📝 Documentation Style](style/DOCUMENTATION.md)** - How to write documentation
 
 ---
 
-## 📋 **Documentation Status**
+## 🎯 **How to Use This Documentation**
 
-- **Total Documents:** 60+
-- **Last Updated:** August 2025
-- **Coverage:** 100% of current features
-- **Status:** Production Ready ✅
+### **👤 For New Developers**
+1. Start with **[Developer Onboarding](developer/ONBOARDING.md)**
+2. Set up your environment with **[Environment Setup](developer/ENVIRONMENT_SETUP.md)**
+3. Run the **[Quick Start Guide](developer/QUICK_START.md)**
 
----
+### **🔍 Looking for Specific Information**
+- **API Documentation**: Check the **[API Reference](api/REFERENCE.md)**
+- **Feature Implementation**: Browse the **[Feature Guides](features/)** section
+- **Deployment Help**: Use the **[Deployment Guides](deployment/)** section
+- **Troubleshooting**: Check the **[Troubleshooting](troubleshooting/)** section
 
-## 🆘 **Need Help?**
-
-### **Common Issues:**
-- **Deployment Issues:** Check [VPS Deployment Quick Start](VPS_DEPLOYMENT_QUICK_START.md)
-- **WooCommerce Setup:** See [WooCommerce Payment Setup](WOOCOMMERCE_PAYMENT_SETUP.md)
-- **Mobile Issues:** Review [Mobile Responsiveness Implementation](MOBILE_RESPONSIVENESS_IMPLEMENTATION.md)
-- **Testing:** Follow [Testing Setup Guide](TESTING_SETUP_GUIDE.md)
-
-### **Production Checklist:**
-- [Production Readiness Final Checklist](PRODUCTION_READINESS_FINAL_CHECKLIST.md)
-- [Production Configuration Guide](PRODUCTION_CONFIGURATION_GUIDE.md)
-- [Security Setup Guide](SECURITY_SETUP_GUIDE.md)
+### **📝 Contributing to Documentation**
+- Follow the **[Documentation Style Guide](style/DOCUMENTATION.md)**
+- Keep documentation up-to-date with code changes
+- Use clear, concise language with examples
 
 ---
 
-**🎉 Your MyMeds Pharmacy system is production-ready with comprehensive documentation!**
+## 🔗 **Quick Navigation**
+
+| Category | Description | Key Documents |
+|----------|-------------|---------------|
+| **🚀 Quick Start** | Get running fast | [Onboarding](developer/ONBOARDING.md), [Quick Start](developer/QUICK_START.md) |
+| **🏗️ Architecture** | System design & structure | [Overview](architecture/OVERVIEW.md), [API Design](architecture/API_DESIGN.md) |
+| **💻 Development** | Coding guides & practices | [Backend](development/BACKEND.md), [Frontend](development/FRONTEND.md) |
+| **🔌 API** | Complete API reference | [API Reference](api/REFERENCE.md), [Authentication](api/AUTHENTICATION.md) |
+| **🚀 Deployment** | Production deployment | [Production](deployment/PRODUCTION_DEPLOYMENT.md), [VPS](deployment/VPS_DEPLOYMENT.md) |
+| **🧪 Testing** | Testing strategies | [Testing Overview](testing/OVERVIEW.md), [QA Checklist](qa/CHECKLIST.md) |
+
+---
+
+## 📞 **Need Help?**
+
+- **🐛 Bug Reports**: Create an issue in the repository
+- **📚 Documentation Issues**: Submit a pull request
+- **💬 General Questions**: Check the [FAQ](support/FAQ.md) first
+- **🚨 Urgent Issues**: Contact the development team
+
+---
+
+**📚 Last Updated**: December 2024  
+**🔧 Version**: 2.0.0  
+**👥 Maintained By**: MyMeds Development Team
