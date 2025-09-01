@@ -124,20 +124,71 @@ npm install --production
 # Create environment file
 print_status "Creating environment configuration..."
 sudo tee $BACKEND_DIR/.env > /dev/null <<EOF
+# Application Configuration
 NODE_ENV=production
 PORT=4000
-DATABASE_URL=mysql://username:password@localhost/mymeds_db
-JWT_SECRET=your-super-secret-jwt-key-here
-WOOCOMMERCE_STORE_URL=https://your-store.com
-WOOCOMMERCE_CONSUMER_KEY=your-consumer-key
-WOOCOMMERCE_CONSUMER_SECRET=your-consumer-secret
-STRIPE_SECRET_KEY=your-stripe-secret-key
-STRIPE_WEBHOOK_SECRET=your-stripe-webhook-secret
-SMTP_HOST=your-smtp-host
+HOST=0.0.0.0
+
+# Database Configuration (Local MySQL)
+DATABASE_URL=mysql://mymeds_user:SecurePassword123!@localhost:3306/mymeds_pharmacy
+
+# JWT Configuration
+JWT_SECRET=tUR6SRh+Yq3WGVGIzKRpboweC+FmGV6fTazBwocbSFIcAwN2Dfk42ZZin1bxxWhP/1nyAjDbSdwSTLTy/y+YJg==
+JWT_REFRESH_SECRET=zpcXKVVvojf67zrXT4+vfsTLqBjz0eh8I6cnpoc23yLLk5EcW6yVegdySlAUo+P/7rDlfMe6BPZBGn0ymAvVxg==
+
+# Admin Configuration
+ADMIN_EMAIL=mymedspharmacyinc@gmail.com
+ADMIN_NAME=MYMEDSPHARMACY
+ADMIN_PASSWORD=Pharm23-medS-2024!
+
+# Contact Configuration
+CONTACT_RECEIVER=mymedspharmacyinc@gmail.com
+
+# Frontend Configuration
+FRONT_END=https://www.mymedspharmacyinc.com
+FRONTEND_URL=https://www.mymedspharmacyinc.com
+
+# CORS Configuration
+CORS_ORIGINS=https://www.mymedspharmacyinc.com,http://localhost:3000,http://localhost:5173
+
+# Security Configuration
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=100
+
+# Email Configuration
+SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
-SMTP_USER=your-smtp-user
-SMTP_PASS=your-smtp-password
-NEWRELIC_LICENSE_KEY=your-newrelic-key
+SMTP_USER=mymedspharmacyinc@gmail.com
+SMTP_PASS=your-app-password-here
+EMAIL_USER=mymedspharmacyinc@gmail.com
+EMAIL_PASS=your-app-password-here
+
+# Stripe Configuration
+STRIPE_SECRET_KEY=your-stripe-secret-key
+STRIPE_WEBHOOK_SECRET=your-webhook-secret
+
+# WooCommerce Configuration
+WOOCOMMERCE_URL=https://www.mymedspharmacyinc.com/shop
+WOOCOMMERCE_CONSUMER_KEY=ck_215d1f427cf938eaf75efe70783172120c0de603
+WOOCOMMERCE_CONSUMER_SECRET=cs_003e628c8b849c674eda5c51f292d6fd59bdf0d0
+
+# WordPress Configuration
+WORDPRESS_URL=https://www.mymedspharmacyinc.com/blog
+WORDPRESS_USERNAME=root
+WORDPRESS_PASSWORD=cF!6PUZvz!7a3fLCIXMy
+
+# Database Sharding
+DATABASE_HOST=localhost
+DATABASE_PORT=3306
+DATABASE_NAME=mymeds_pharmacy
+DATABASE_USER=mymeds_user
+DATABASE_PASSWORD=SecurePassword123!
+
+# Logging
+LOG_LEVEL=info
+
+# Webhook
+WEBHOOK_URL=https://www.mymedspharmacyinc.com/webhook
 EOF
 
 # Set proper permissions for environment file
@@ -146,9 +197,9 @@ sudo chmod 600 $BACKEND_DIR/.env
 
 # Configure MySQL
 print_status "Configuring MySQL database..."
-sudo mysql -e "CREATE DATABASE IF NOT EXISTS mymeds_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-sudo mysql -e "CREATE USER IF NOT EXISTS 'mymeds_user'@'localhost' IDENTIFIED BY 'your-secure-password';"
-sudo mysql -e "GRANT ALL PRIVILEGES ON mymeds_db.* TO 'mymeds_user'@'localhost';"
+sudo mysql -e "CREATE DATABASE IF NOT EXISTS mymeds_pharmacy CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+sudo mysql -e "CREATE USER IF NOT EXISTS 'mymeds_user'@'localhost' IDENTIFIED BY 'SecurePassword123!';"
+sudo mysql -e "GRANT ALL PRIVILEGES ON mymeds_pharmacy.* TO 'mymeds_user'@'localhost';"
 sudo mysql -e "FLUSH PRIVILEGES;"
 
 # Configure Redis
@@ -213,7 +264,7 @@ EOF
 
 # Setup SSL certificate with Let's Encrypt
 print_status "Setting up SSL certificate..."
-sudo certbot --nginx -d $(hostname -f) --non-interactive --agree-tos --email your-email@example.com
+sudo certbot --nginx -d www.mymedspharmacyinc.com -d mymedspharmacyinc.com --non-interactive --agree-tos --email mymedspharmacyinc@gmail.com
 
 # Create monitoring script
 print_status "Creating monitoring script..."
@@ -280,7 +331,7 @@ BACKUP_FILE="mymeds_backup_$DATE.tar.gz"
 mkdir -p $BACKUP_DIR
 
 # Backup database
-mysqldump -u mymeds_user -p'your-secure-password' mymeds_db > $BACKUP_DIR/database_$DATE.sql
+mysqldump -u mymeds_user -p'SecurePassword123!' mymeds_pharmacy > $BACKUP_DIR/database_$DATE.sql
 
 # Backup application files
 tar -czf $BACKUP_DIR/$BACKUP_FILE -C /var/www .
@@ -324,7 +375,7 @@ echo ""
 echo "📋 Deployment Summary:"
 echo "   • Frontend: $FRONTEND_DIR"
 echo "   • Backend: $BACKEND_DIR"
-echo "   • Database: MySQL (mymeds_db)"
+echo "   • Database: MySQL (mymeds_pharmacy)"
 echo "   • Cache: Redis"
 echo "   • Process Manager: PM2 (2 instances)"
 echo "   • Web Server: Nginx with SSL"
