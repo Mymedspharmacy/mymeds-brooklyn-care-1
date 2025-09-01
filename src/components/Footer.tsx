@@ -42,7 +42,7 @@ export const Footer = () => {
   };
 
   const handleEmailClick = () => {
-    window.open('mailto:mymedspharmacy@outlook.com');
+    window.open('mailto:mymedspharmacyinc@gmail.com');
   };
 
   const handleMapClick = () => {
@@ -238,9 +238,9 @@ export const Footer = () => {
                       <button 
                         onClick={handleEmailClick}
                         className="text-gray-800 font-semibold whitespace-nowrap no-underline"
-                        aria-label="Send email to mymedspharmacy@outlook.com"
+                        aria-label="Send email to mymedspharmacyinc@gmail.com"
                       >
-                        info@mymedspharmacy.com
+                        mymedspharmacyinc@gmail.com
                       </button>
                     </div>
                   </div>
@@ -256,7 +256,7 @@ export const Footer = () => {
                         className="text-gray-800 font-semibold flex items-center"
                         aria-label="Open location in maps"
                       >
-                        J279+5V Brooklyn, NY
+                        2242 65th St, Brooklyn, NY 11204
                         <ExternalLink className="h-3 w-3 ml-1" />
                       </button>
                     </div>
