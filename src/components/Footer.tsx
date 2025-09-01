@@ -178,7 +178,7 @@ export const Footer = () => {
                 </li>
                 <li>
                   <Link 
-                    to="/admin"
+                    to="/admin-signin"
                     className="text-gray-600 hover:text-[#57BBB6] transition-colors duration-300 flex items-center group"
                     aria-label="Access admin panel"
                   >
