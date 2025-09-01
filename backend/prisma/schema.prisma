@@ -369,7 +369,7 @@ model Cart {
   userId    Int?       // Optional for guest carts
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
-  expiresAt DateTime   @default(dbgenerated("(NOW() + INTERVAL 30 DAY)")) // Cart expires in 30 days
+  expiresAt DateTime   @default(now()) // Cart expires in 30 days
   items     CartItem[]
   user      User?      @relation(fields: [userId], references: [id])
   orders    Order[]    // Orders created from this cart

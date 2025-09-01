@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { border-color: green; background-color: #f0fff0; }
+        .error { border-color: red; background-color: #fff0f0; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        .result { margin-top: 10px; padding: 10px; background: #f9f9f9; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Simple API Test</h1>
+    <p>Frontend Port: <strong id="frontend-port"></strong></p>
+    <p>Backend URL: <strong>http://localhost:4000/api</strong></p>
+    
+    <div class="test" id="health-test">
+        <h3>🏥 Health Check</h3>
+        <button onclick="testHealth()">Test Health</button>
+        <div class="result" id="health-result">Click to test...</div>
+    </div>
+
+    <div class="test" id="products-test">
+        <h3>📦 Products</h3>
+        <button onclick="testProducts()">Test Products</button>
+        <div class="result" id="products-result">Click to test...</div>
+    </div>
+
+    <div class="test" id="auth-test">
+        <h3>🔐 Auth</h3>
+        <button onclick="testAuth()">Test Login</button>
+        <div class="result" id="auth-result">Click to test...</div>
+    </div>
+
+    <div class="test">
+        <h3>🚀 Test All</h3>
+        <button onclick="testAll()">Run All Tests</button>
+        <div class="result" id="all-result">Click to test all...</div>
+    </div>
+
+    <script>
+        // Get current frontend port
+        const currentPort = window.location.port || '3002';
+        document.getElementById('frontend-port').textContent = currentPort;
+        
+        const API_BASE = 'http://localhost:4000/api';
+        
+        function updateTest(testId, success, message, data = null) {
+            const element = document.getElementById(testId);
+            element.className = `test ${success ? 'success' : 'error'}`;
+            const result = element.querySelector('.result');
+            result.textContent = message;
+            if (data) {
+                result.textContent += '\n\n' + JSON.stringify(data, null, 2);
+            }
+        }
+        
+        async function testHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    updateTest('health-test', true, '✅ Health Check PASSED', data);
+                } else {
+                    updateTest('health-test', false, `❌ Health Check FAILED: ${response.status}`, data);
+                }
+            } catch (error) {
+                updateTest('health-test', false, `❌ Connection Error: ${error.message}`);
+            }
+        }
+        
+        async function testProducts() {
+            try {
+                const response = await fetch(`${API_BASE}/products`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    updateTest('products-test', true, `✅ Products Loaded (${data.length} products)`, data.slice(0, 2));
+                } else {
+                    updateTest('products-test', false, `❌ Products Failed: ${response.status}`, data);
+                }
+            } catch (error) {
+                updateTest('products-test', false, `❌ Connection Error: ${error.message}`);
+            }
+        }
+        
+        async function testAuth() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'mymedspharmacyinc@gmail.com',
+                        password: 'MyMeds2024!@Pharm'
+                    })
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    updateTest('auth-test', true, '✅ Login Successful', {
+                        user: data.user?.name,
+                        role: data.user?.role,
+                        hasToken: !!data.token
+                    });
+                } else {
+                    updateTest('auth-test', false, `❌ Login Failed: ${response.status}`, data);
+                }
+            } catch (error) {
+                updateTest('auth-test', false, `❌ Connection Error: ${error.message}`);
+            }
+        }
+        
+        async function testAll() {
+            document.getElementById('all-result').textContent = '🔄 Running all tests...';
+            
+            await testHealth();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testProducts();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testAuth();
+            
+            document.getElementById('all-result').textContent = '✅ All tests completed!';
+        }
+        
+        // Auto-run health check on load
+        window.onload = function() {
+            setTimeout(testHealth, 1000);
+        };
+    </script>
+</body>
+</html>

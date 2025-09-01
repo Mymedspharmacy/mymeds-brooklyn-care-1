@@ -9,6 +9,8 @@
     "build:js": "babel src --out-dir dist --extensions \".ts,.js\" --copy-files || cp -r src/* dist/",
     "build:ts": "tsc --noEmitOnError false",
     "start": "node dist/index.js",
+    "setup": "node setup-database.js",
+    "setup:db": "node setup-database.js",
     "prisma:migrate": "prisma migrate deploy",
     "prisma:generate": "prisma generate",
     "postinstall": "npm run build",

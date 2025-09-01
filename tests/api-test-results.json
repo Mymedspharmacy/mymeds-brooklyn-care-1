@@ -1,0 +1,256 @@
+{
+  "summary": {
+    "passed": 0,
+    "failed": 35,
+    "total": 35,
+    "successRate": "0.0"
+  },
+  "results": [
+    {
+      "endpoint": "/health",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "",
+      "timestamp": "2025-09-01T20:52:21.969Z"
+    },
+    {
+      "endpoint": "/health/db",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "Database connection failed (expected in dev)",
+      "timestamp": "2025-09-01T20:52:21.974Z"
+    },
+    {
+      "endpoint": "/auth/register",
+      "method": "POST",
+      "status": "FAIL",
+      "message": "Registration failed (may already exist)",
+      "timestamp": "2025-09-01T20:52:21.976Z"
+    },
+    {
+      "endpoint": "/auth/login",
+      "method": "POST",
+      "status": "FAIL",
+      "message": "Login failed",
+      "timestamp": "2025-09-01T20:52:21.978Z"
+    },
+    {
+      "endpoint": "/auth/logout",
+      "method": "POST",
+      "status": "FAIL",
+      "message": "Logout failed",
+      "timestamp": "2025-09-01T20:52:21.980Z"
+    },
+    {
+      "endpoint": "/users/profile",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "Profile retrieval failed",
+      "timestamp": "2025-09-01T20:52:21.981Z"
+    },
+    {
+      "endpoint": "/users/profile",
+      "method": "PUT",
+      "status": "FAIL",
+      "message": "Profile update failed",
+      "timestamp": "2025-09-01T20:52:21.983Z"
+    },
+    {
+      "endpoint": "/products",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "Products retrieval failed",
+      "timestamp": "2025-09-01T20:52:21.985Z"
+    },
+    {
+      "endpoint": "/products/1",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "Product retrieval failed",
+      "timestamp": "2025-09-01T20:52:21.987Z"
+    },
+    {
+      "endpoint": "/products/search",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "Product search failed",
+      "timestamp": "2025-09-01T20:52:21.989Z"
+    },
+    {
+      "endpoint": "/orders",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "User orders retrieval failed",
+      "timestamp": "2025-09-01T20:52:21.991Z"
+    },
+    {
+      "endpoint": "/prescriptions",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "Prescriptions retrieval failed",
+      "timestamp": "2025-09-01T20:52:21.992Z"
+    },
+    {
+      "endpoint": "/appointments",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "Appointments retrieval failed",
+      "timestamp": "2025-09-01T20:52:22.002Z"
+    },
+    {
+      "endpoint": "/blogs",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "Blogs retrieval failed",
+      "timestamp": "2025-09-01T20:52:22.005Z"
+    },
+    {
+      "endpoint": "/blogs/1",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "Blog retrieval failed",
+      "timestamp": "2025-09-01T20:52:22.008Z"
+    },
+    {
+      "endpoint": "/contact",
+      "method": "POST",
+      "status": "FAIL",
+      "message": "Contact form submission failed",
+      "timestamp": "2025-09-01T20:52:22.011Z"
+    },
+    {
+      "endpoint": "/newsletter/subscribe",
+      "method": "POST",
+      "status": "FAIL",
+      "message": "Newsletter subscription failed",
+      "timestamp": "2025-09-01T20:52:22.012Z"
+    },
+    {
+      "endpoint": "/newsletter/unsubscribe",
+      "method": "POST",
+      "status": "FAIL",
+      "message": "Newsletter unsubscription failed",
+      "timestamp": "2025-09-01T20:52:22.013Z"
+    },
+    {
+      "endpoint": "/payments/methods",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "Payment methods retrieval failed",
+      "timestamp": "2025-09-01T20:52:22.014Z"
+    },
+    {
+      "endpoint": "/reviews",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "Reviews retrieval failed",
+      "timestamp": "2025-09-01T20:52:22.016Z"
+    },
+    {
+      "endpoint": "/cart",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "Cart retrieval failed",
+      "timestamp": "2025-09-01T20:52:22.017Z"
+    },
+    {
+      "endpoint": "/refill-requests",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "Refill requests retrieval failed",
+      "timestamp": "2025-09-01T20:52:22.019Z"
+    },
+    {
+      "endpoint": "/transfer-requests",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "Transfer requests retrieval failed",
+      "timestamp": "2025-09-01T20:52:22.020Z"
+    },
+    {
+      "endpoint": "/notifications",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "Notifications retrieval failed",
+      "timestamp": "2025-09-01T20:52:22.021Z"
+    },
+    {
+      "endpoint": "/analytics",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "Analytics retrieval failed",
+      "timestamp": "2025-09-01T20:52:22.022Z"
+    },
+    {
+      "endpoint": "/patient/profile",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "Patient profile retrieval failed",
+      "timestamp": "2025-09-01T20:52:22.023Z"
+    },
+    {
+      "endpoint": "/settings",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "Settings retrieval failed",
+      "timestamp": "2025-09-01T20:52:22.025Z"
+    },
+    {
+      "endpoint": "/monitoring/status",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "System status retrieval failed",
+      "timestamp": "2025-09-01T20:52:22.026Z"
+    },
+    {
+      "endpoint": "/monitoring/performance",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "Performance metrics retrieval failed",
+      "timestamp": "2025-09-01T20:52:22.027Z"
+    },
+    {
+      "endpoint": "/openfda/search",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "Drug search failed",
+      "timestamp": "2025-09-01T20:52:22.028Z"
+    },
+    {
+      "endpoint": "/openfda/drug/aspirin",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "Drug details retrieval failed",
+      "timestamp": "2025-09-01T20:52:22.029Z"
+    },
+    {
+      "endpoint": "/woocommerce/products",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "WooCommerce products retrieval failed",
+      "timestamp": "2025-09-01T20:52:22.030Z"
+    },
+    {
+      "endpoint": "/woocommerce/orders",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "WooCommerce orders retrieval failed",
+      "timestamp": "2025-09-01T20:52:22.031Z"
+    },
+    {
+      "endpoint": "/wordpress/posts",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "WordPress posts retrieval failed",
+      "timestamp": "2025-09-01T20:52:22.032Z"
+    },
+    {
+      "endpoint": "/wordpress/pages",
+      "method": "GET",
+      "status": "FAIL",
+      "message": "WordPress pages retrieval failed",
+      "timestamp": "2025-09-01T20:52:22.033Z"
+    }
+  ],
+  "timestamp": "2025-09-01T20:52:22.034Z"
+}

@@ -28,8 +28,9 @@ const validateEnvironment = () => {
 
   // Validate DATABASE_URL format
   if (!process.env.DATABASE_URL!.startsWith('mysql://') && 
-      !process.env.DATABASE_URL!.startsWith('postgresql://')) {
-    console.error('❌ DATABASE_URL must be a valid MySQL or PostgreSQL connection string');
+      !process.env.DATABASE_URL!.startsWith('postgresql://') &&
+      !process.env.DATABASE_URL!.startsWith('file:')) {
+    console.error('❌ DATABASE_URL must be a valid MySQL, PostgreSQL, or SQLite connection string');
     process.exit(1);
   }
 
@@ -109,6 +110,8 @@ const allowedOrigins = [
   'http://localhost:5173', // Vite dev server
   'http://localhost:3000',  // Common dev port
   'http://localhost:3001',   // Additional dev port
+  'http://localhost:3002',   // Frontend port
+  'http://localhost:3003',   // Frontend port (current)
   'http://localhost:4000'   // Backend port
 ];
 
@@ -303,7 +306,9 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Length', 'X-Total-Count'],
+  maxAge: 86400 // 24 hours
 }));
 app.options('*', cors()); // Handles preflight requests
 app.use(express.json({ limit: '2mb' }));
