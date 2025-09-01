@@ -5,7 +5,7 @@
   "type": "commonjs",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "powershell -Command \"New-Item -ItemType Directory -Force -Path 'dist'; Copy-Item -Path 'src/*' -Destination 'dist/' -Recurse -Force\"",
+    "build": "mkdir -p dist && cp -r src/* dist/",
     "build:js": "babel src --out-dir dist --extensions \".ts,.js\" --copy-files || cp -r src/* dist/",
     "build:ts": "tsc --noEmitOnError false",
     "start": "node dist/index.js",
