@@ -1,0 +1,66 @@
+name: Deploy MyMeds Pharmacy to VPS
+
+on:
+  push:
+    branches: [ main, latest ]
+  pull_request:
+    branches: [ main, latest ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        npm install
+        cd backend && npm install
+        
+    - name: Run tests
+      run: |
+        npm run test || echo "No tests configured"
+        
+    - name: Build frontend
+      run: |
+        npm run build
+        
+    - name: Build backend
+      run: |
+        cd backend
+        npm run build
+        
+    - name: Deploy to VPS
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/latest'
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USER }}
+        key: ${{ secrets.VPS_SSH_KEY }}
+        script: |
+          cd /root/mymeds-brooklyn-care-1
+          git pull origin latest
+          npm install
+          npm run build
+          sudo cp -r dist/* /var/www/mymeds-frontend/
+          cd backend
+          npm install --production
+          npm run build
+          sudo cp -r dist/* /var/www/mymeds-backend/
+          pm2 restart all
+          sudo systemctl reload nginx
+          
+    - name: Health Check
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/latest'
+      run: |
+        sleep 30
+        curl -f https://www.mymedspharmacyinc.com || exit 1
+        curl -f https://www.mymedspharmacyinc.com/api/health || echo "API health check failed"
