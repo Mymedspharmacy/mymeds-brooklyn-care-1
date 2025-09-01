@@ -42,9 +42,10 @@ jobs:
       if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/latest'
       uses: appleboy/ssh-action@v1.0.0
       with:
-        host: ${{ secrets.VPS_HOST }}
-        username: ${{ secrets.VPS_USER }}
-        key: ${{ secrets.VPS_SSH_KEY }}
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: 22
         script: |
           cd /root/mymeds-brooklyn-care-1
           git pull origin latest
