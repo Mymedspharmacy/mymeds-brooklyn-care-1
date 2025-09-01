@@ -104,9 +104,12 @@ const allowedOrigins = [
   'http://192.168.18.56:8080',
   'http://192.168.18.56:8081',
   'https://www.mymedspharmacyinc.com',
+  'https://mymedspharmacyinc.com',
+  'http://72.60.116.253', // VPS IP address
   'http://localhost:5173', // Vite dev server
   'http://localhost:3000',  // Common dev port
-  'http://localhost:3001'   // Additional dev port
+  'http://localhost:3001',   // Additional dev port
+  'http://localhost:4000'   // Backend port
 ];
 
 // ✅ IMPLEMENTED: WebSocket server setup
