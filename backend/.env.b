@@ -1,10 +1,10 @@
-﻿# Application Configuration
-NODE_ENV=production
+# Application Configuration
+NODE_ENV=development
 PORT=4000
 HOST=0.0.0.0
 
 # Database Configuration (Local MySQL)
-DATABASE_URL=mysql://mymeds_user:SecurePassword123!@localhost:3306/mymeds_pharmacy
+DATABASE_URL="file:./dev.db"
 
 # JWT Configuration
 JWT_SECRET=tUR6SRh+Yq3WGVGIzKRpboweC+FmGV6fTazBwocbSFIcAwN2Dfk42ZZin1bxxWhP/1nyAjDbSdwSTLTy/y+YJg==
@@ -22,10 +22,10 @@ CONTACT_RECEIVER=mymedspharmacyinc@gmail.com
 
 # Frontend Configuration
 FRONT_END=https://mymedspharmacyinc.com
-FRONTEND_URL=https://mymedspharmacyinc.com
+FRONTEND_URL=http://localhost:3002
 
 # CORS Configuration
-CORS_ORIGINS=https://mymedspharmacyinc.com,http://localhost:3000,http://localhost:5173,http://72.60.116.253
+CORS_ORIGINS=https://mymedspharmacyinc.com,http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:5173,http://72.60.116.253
 
 # Security Configuration
 RATE_LIMIT_WINDOW_MS=900000
@@ -85,4 +85,5 @@ BACKUP_DIR=./backups
 BACKUP_RETENTION_DAYS=30
 
 # Test Database (for development)
-TEST_DATABASE_URL=mysql://mymeds_user:SecurePassword123!@localhost:3306/mymeds_pharmacy_test
+TEST_DATABASE_URL="file:./dev.db"_test
+DISABLE_RATE_LIMIT=true
