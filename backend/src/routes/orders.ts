@@ -22,8 +22,8 @@ const guestCheckoutSchema = z.object({
   shippingZipCode: z.string().min(5, 'Valid ZIP code is required'),
   shippingCountry: z.string().default('USA'),
   shippingMethod: z.enum(['standard', 'express', 'overnight']).default('standard'),
-  paymentMethod: z.enum(['stripe', 'paypal']).default('stripe'),
-  paymentIntentId: z.string().optional(), // Stripe payment intent ID
+  paymentMethod: z.enum(['woocommerce', 'paypal']).default('woocommerce'),
+paymentIntentId: z.string().optional(), // WooCommerce order ID
   notes: z.string().optional(),
 });
 

@@ -77,12 +77,8 @@ export default function Blog() {
         
         // Check if WordPress API is configured
         if (!import.meta.env.VITE_WORDPRESS_URL) {
-          console.warn('WordPress API not configured, no content available');
-          setPosts([]);
-          setCategories([]);
-          setFeaturedPosts([]);
-          setRecentPosts([]);
-          return;
+          console.warn('WordPress API not configured, showing fallback content');
+          setError('WordPress blog not configured. Showing sample content.');
         }
 
         const [postsData, categoriesData, featuredData] = await Promise.all([
@@ -95,10 +91,15 @@ export default function Blog() {
         setCategories(categoriesData);
         setFeaturedPosts(featuredData);
         setRecentPosts(postsData.slice(0, 6));
+        
+        // Clear error if we successfully got data
+        if (postsData.length > 0) {
+          setError(null);
+        }
       } catch (error) {
         console.error('Error fetching posts:', error);
         setError('Unable to load blog posts at this time. Please try again later.');
-        // Set empty arrays on error
+        // Set empty arrays on error - fallback content will be provided by the API
         setPosts([]);
         setCategories([]);
         setFeaturedPosts([]);
@@ -174,14 +175,38 @@ export default function Blog() {
       <div className="pt-20">
         {/* Error Banner */}
         {error && (
-          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+          <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4 mx-4 sm:mx-6 lg:mx-8">
             <div className="flex">
               <div className="flex-shrink-0">
-                <AlertCircle className="h-5 w-5 text-yellow-400" />
+                <AlertCircle className="h-5 w-5 text-blue-400" />
               </div>
               <div className="ml-3">
-                <p className="text-sm text-yellow-700">
+                <p className="text-sm text-blue-700">
                   {error}
+                </p>
+                {!import.meta.env.VITE_WORDPRESS_URL && (
+                  <p className="text-xs text-blue-600 mt-1">
+                    To connect your WordPress blog, set the VITE_WORDPRESS_URL environment variable.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* WordPress Status Indicator */}
+        {!import.meta.env.VITE_WORDPRESS_URL && (
+          <div className="bg-gray-50 border-l-4 border-gray-400 p-4 mb-4 mx-4 sm:mx-6 lg:mx-8">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-gray-600">
+                  <span className="font-medium">WordPress Status:</span> Not configured
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Currently showing sample content. Configure VITE_WORDPRESS_URL to connect your blog.
                 </p>
               </div>
             </div>

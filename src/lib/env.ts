@@ -16,7 +16,7 @@ export const env = {
   ENABLE_ANALYTICS: import.meta.env.VITE_ENABLE_ANALYTICS === 'true',
   
   // External services
-  STRIPE_PUBLIC_KEY: import.meta.env.VITE_STRIPE_PUBLIC_KEY || '',
+  WOOCOMMERCE_STORE_URL: import.meta.env.VITE_WOOCOMMERCE_STORE_URL || '',
   SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL || '',
   SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
   

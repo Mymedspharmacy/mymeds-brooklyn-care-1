@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { StripeProvider } from "@/components/StripeProvider";
+// WooCommerce checkout replaces Stripe
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { setupGlobalErrorHandling } from "@/utils/errorHandling";
@@ -62,7 +62,7 @@ const queryClient = new QueryClient({
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
-      <StripeProvider>
+      {/* WooCommerce checkout replaces Stripe */}
         <TooltipProvider>
           <Toaster />
           <Sonner />
@@ -94,7 +94,7 @@ const App = () => (
             </Suspense>
           </BrowserRouter>
         </TooltipProvider>
-      </StripeProvider>
+              {/* WooCommerce checkout replaces Stripe */}
     </QueryClientProvider>
   </ErrorBoundary>
 );

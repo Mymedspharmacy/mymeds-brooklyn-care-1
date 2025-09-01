@@ -173,7 +173,7 @@ export const orderSchemas = {
         zipCode: z.string().regex(/^\d{5}(-\d{4})?$/, 'Invalid ZIP code format'),
         country: z.string().min(2, 'Country too short').max(100, 'Country too long')
       }).optional(),
-      paymentMethod: z.enum(['credit_card', 'debit_card', 'paypal', 'stripe']),
+      paymentMethod: z.enum(['credit_card', 'debit_card', 'paypal', 'woocommerce']),
       customerNotes: z.string().max(500, 'Customer notes too long').optional()
     })
   })

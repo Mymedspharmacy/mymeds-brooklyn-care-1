@@ -173,13 +173,13 @@ const securityHeaders = helmet({
     directives: {
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      scriptSrc: ["'self'", "https://js.stripe.com", "https://checkout.stripe.com"],
+      scriptSrc: ["'self'"],
       imgSrc: ["'self'", "data:", "https:", "https://images.unsplash.com"],
-      connectSrc: ["'self'", "https://api.stripe.com", "https://checkout.stripe.com"],
+      connectSrc: ["'self'"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
-      frameSrc: ["'self'", "https://js.stripe.com", "https://checkout.stripe.com"],
+      frameSrc: ["'self'"],
       workerSrc: ["'self'"],
       manifestSrc: ["'self'"]
     },
@@ -190,7 +190,7 @@ const securityHeaders = helmet({
     includeSubDomains: true,
     preload: true
   },
-  crossOriginEmbedderPolicy: false, // Disable for Stripe compatibility
+  crossOriginEmbedderPolicy: true, // Enable for better security
   crossOriginResourcePolicy: { policy: "cross-origin" }, // Allow external resources
   dnsPrefetchControl: { allow: false },
   frameguard: { action: "deny" },

@@ -65,7 +65,7 @@ import contactRoutes from './routes/contact';
 import newsletterRoutes from './routes/newsletter';
 import rateLimit from 'express-rate-limit';
 import { AuthRequest } from './types/express';
-import paymentsRoutes from './routes/payments';
+import wooCommercePaymentsRoutes from './routes/woocommerce-payments';
 import { adminAuthMiddleware } from './adminAuth';
 import reviewsRoutes from './routes/reviews';
 import settingsRoutes from './routes/settings';
@@ -85,7 +85,7 @@ import hpp from 'hpp';
 import mongoSanitize from 'express-mongo-sanitize';
 // @ts-ignore
 import xss from 'xss-clean';
-import statusMonitor from 'express-status-monitor';
+// Removed express-status-monitor due to security vulnerabilities
 import logger from './utils/logger';
 
 console.log('Starting MyMeds backend...');
@@ -95,7 +95,7 @@ console.log('DATABASE_URL:', process.env.DATABASE_URL ? '***configured***' : '**
 
 const app = express();
 
-// Trust proxy for Railway deployment
+// Trust proxy for VPS deployment
 app.set('trust proxy', 1);
 
 // Define allowed origins for CORS
@@ -314,21 +314,37 @@ app.options('*', cors()); // Handles preflight requests
 app.use(express.json({ limit: '2mb' }));
 app.use(morgan('combined'));
 
-// Status monitoring
-app.use(statusMonitor({
-  title: 'MyMeds Pharmacy Status',
-  path: '/status',
-  spans: [{
-    interval: 1,
-    retention: 60
-  }, {
-    interval: 5,
-    retention: 60
-  }, {
-    interval: 15,
-    retention: 60
-  }]
-}));
+// Custom status monitoring endpoint (replaced express-status-monitor for security)
+app.get('/status', (req: Request, res: Response) => {
+  const memUsage = process.memoryUsage();
+  const memUsageMB = {
+    rss: Math.round(memUsage.rss / 1024 / 1024),
+    heapTotal: Math.round(memUsage.heapTotal / 1024 / 1024),
+    heapUsed: Math.round(memUsage.heapUsed / 1024 / 1024),
+    external: Math.round(memUsage.external / 1024 / 1024)
+  };
+
+  const statusData = {
+    title: 'MyMeds Pharmacy Status',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV,
+    version: process.env.npm_package_version || '1.0.0',
+    memory: memUsageMB,
+    cache: {
+      size: cache.size(),
+      status: cache.size() > 0 ? 'active' : 'empty'
+    },
+    database: 'connected', // Will be updated by health check
+    endpoints: {
+      health: '/api/health',
+      database: '/api/health/db',
+      status: '/status'
+    }
+  };
+
+  res.json(statusData);
+});
 
 // Enhanced logging middleware
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -523,7 +539,7 @@ app.use('/api/appointments', currentLimiter, appointmentRoutes);
 app.use('/api/blogs', currentLimiter, blogRoutes);
 app.use('/api/contact', currentContactLimiter, contactRoutes);
 app.use('/api/newsletter', currentLimiter, newsletterRoutes);
-app.use('/api/payments', currentLimiter, paymentsRoutes);
+app.use('/api/woocommerce-payments', currentLimiter, wooCommercePaymentsRoutes);
 app.use('/api/reviews', currentLimiter, reviewsRoutes);
 app.use('/api/settings', currentLimiter, settingsRoutes);
 app.use('/api/refill-requests', currentLimiter, refillRequestRoutes);

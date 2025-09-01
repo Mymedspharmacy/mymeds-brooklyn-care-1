@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { wordPressAPI } from '@/lib/wordpress';
 
 interface BlogPost {
   id: number;
@@ -25,13 +26,11 @@ const BlogSection: React.FC = () => {
     const fetchPosts = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/wp-json/wp/v2/posts?_embed&per_page=6');
-        if (!response.ok) {
-          throw new Error('Failed to fetch blog posts');
-        }
-        const data = await response.json();
-        setPosts(data);
         setError(null);
+        
+        // Use the improved WordPress API with fallback content
+        const postsData = await wordPressAPI.getRecentPosts(6);
+        setPosts(postsData);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
         console.error('Error fetching blog posts:', err);
@@ -98,46 +97,19 @@ const BlogSection: React.FC = () => {
             )}
             
             <div className="p-6">
-              <div className="text-sm text-gray-500 mb-2">
-                {formatDate(post.date)}
-              </div>
-              
-              <h3 className="text-xl font-semibold text-gray-900 mb-3 line-clamp-2">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
                 {post.title.rendered}
               </h3>
-              
-              <div 
-                className="text-gray-600 mb-4 line-clamp-3"
-                dangerouslySetInnerHTML={{ __html: post.excerpt.rendered }}
-              />
-              
-              <a
-                href={`/blog/${post.slug}`}
-                className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium"
-              >
-                Read More
-                <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </a>
+              <p className="text-gray-600 mb-4 line-clamp-3">
+                {post.excerpt.rendered.replace(/<[^>]*>/g, '')}
+              </p>
+              <div className="text-sm text-gray-500">
+                {formatDate(post.date)}
+              </div>
             </div>
           </article>
         ))}
       </div>
-
-      {posts.length > 0 && (
-        <div className="text-center mt-12">
-          <a
-            href="/blog"
-            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200"
-          >
-            View All Posts
-            <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </a>
-        </div>
-      )}
     </div>
   );
 };

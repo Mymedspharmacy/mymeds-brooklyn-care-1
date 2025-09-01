@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import railwayAuth from '../lib/railwayAuth';
+import adminAuth from '../lib/adminAuth';
 
 import { Eye, EyeOff, Loader2, ArrowLeft, Lock, Mail, X } from 'lucide-react';
 import { Header } from "@/components/Header";
@@ -26,7 +26,7 @@ export default function AdminSignIn() {
     setMounted(true);
     
     // Check if user is already authenticated
-    if (railwayAuth.isAuthenticated()) {
+    if (adminAuth.isAuthenticated()) {
       navigate('/admin');
     }
     
@@ -40,13 +40,13 @@ export default function AdminSignIn() {
     setError('');
     
     try {
-      // Railway Auth sign in
-      const { token, user } = await railwayAuth.login({
+      // Admin Auth sign in
+      const { token, user } = await adminAuth.login({
         email: username,
         password
       });
       
-      console.log('Railway login successful!', { user });
+      console.log('Admin login successful!', { user });
       
       if (rememberMe) {
         localStorage.setItem('admin-remember', 'true');
@@ -73,8 +73,8 @@ export default function AdminSignIn() {
     setResetMessage('');
     setResetError('');
     try {
-      // Use Railway backend password reset
-      await railwayAuth.requestPasswordReset({ email: resetEmail });
+      // Use backend password reset
+      await adminAuth.requestPasswordReset({ email: resetEmail });
       setResetMessage('If this email is registered as admin, you will receive a reset link.');
     } catch (error) {
       setResetError(error.message || 'Failed to send reset email.');

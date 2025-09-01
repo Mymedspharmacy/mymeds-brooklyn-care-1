@@ -138,8 +138,8 @@ model Order {
   // Order metadata
   orderNumber       String   @unique // Human-readable order number
   paymentStatus     String   @default("pending") // pending, paid, failed, refunded
-  paymentMethod     String?  // stripe, paypal, etc.
-  paymentIntentId   String?  // Stripe payment intent ID
+  paymentMethod     String?  // woocommerce, paypal, etc.
+  paymentIntentId   String?  // WooCommerce order ID
   shippingMethod    String?  // standard, express, overnight
   shippingCost      Float    @default(0)
   taxAmount         Float    @default(0)

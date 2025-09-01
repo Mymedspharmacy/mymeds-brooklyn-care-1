@@ -30,7 +30,7 @@ class SecurityMonitor {
     const sensitiveVars = [
       'JWT_SECRET',
       'DATABASE_URL',
-      'STRIPE_SECRET_KEY'
+      'WOOCOMMERCE_CONSUMER_SECRET'
     ];
 
     // Check required variables

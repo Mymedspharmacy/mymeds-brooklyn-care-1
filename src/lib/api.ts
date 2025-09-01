@@ -1,39 +1,69 @@
 import axios from 'axios';
 
+// API configuration
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+
+// Create axios instance
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:4000/api',
+  baseURL: `${API_BASE_URL}/api`,
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// On load, set the admin token if present
-const adminToken = localStorage.getItem('railway-admin-token');
-if (adminToken) {
-  api.defaults.headers.common['Authorization'] = `Bearer ${adminToken}`;
-}
-
-// Attach token to all requests if present
+// Add request interceptor to include auth token
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('railway-admin-token');
-  if (token) {
-    config.headers['Authorization'] = `Bearer ${token}`;
+  const adminToken = localStorage.getItem('admin-token');
+  if (adminToken) {
+    config.headers.Authorization = `Bearer ${adminToken}`;
   }
   return config;
 });
 
-
-// Debug: Log all outgoing requests and responses
-api.interceptors.request.use((config) => {
-  console.log('API Request:', config.method, config.url, config.headers, config.data);
-  return config;
-});
+// Add response interceptor for token refresh
 api.interceptors.response.use(
-  response => {
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      
+      const token = localStorage.getItem('admin-token');
+      if (token) {
+        try {
+          // Try to refresh the token
+          const refreshResponse = await axios.post(`${API_BASE_URL}/api/auth/refresh`, {
+            token: token
+          });
+          
+          const newToken = refreshResponse.data.token;
+          localStorage.setItem('admin-token', newToken);
+          api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+          originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+          
+          return api(originalRequest);
+        } catch (refreshError) {
+          // If refresh fails, clear the token and redirect to login
+          localStorage.removeItem('admin-token');
+          window.location.href = '/admin-signin';
+          return Promise.reject(refreshError);
+        }
+      }
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor for better error handling
+api.interceptors.response.use(
+  (response) => {
     console.log('API Response:', response.config.url, response.status, response.data);
     return response;
   },
-  error => {
+  (error) => {
     // Handle authentication errors more gracefully
     if (error.response && (error.response.status === 401 || error.response.status === 403)) {
       console.log('API Auth Error:', error.response.status, error.config?.url);
@@ -45,9 +75,9 @@ api.interceptors.response.use(
         console.log('Auth error detected, clearing tokens');
         
         // Clear tokens but don't redirect automatically
-        localStorage.removeItem('railway-admin-token');
-        localStorage.removeItem('railway-admin-auth');
-        localStorage.removeItem('railway-admin-user');
+        localStorage.removeItem('admin-token');
+        localStorage.removeItem('admin-auth');
+        localStorage.removeItem('admin-user');
         
         // Don't redirect here - let the component handle it
         // This prevents conflicts with the component's authentication flow
@@ -63,8 +93,8 @@ export default api;
 // Helper to set token (for login/register)
 export function setAuthToken(token: string | null) {
   if (token) {
-    localStorage.setItem('railway-admin-token', token);
+    localStorage.setItem('admin-token', token);
   } else {
-    localStorage.removeItem('railway-admin-token');
+    localStorage.removeItem('admin-token');
   }
 } 

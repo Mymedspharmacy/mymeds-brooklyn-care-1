@@ -20,7 +20,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import api from '../lib/api';
-import railwayAuth from '../lib/railwayAuth';
+import adminAuth from '../lib/adminAuth';
 import { AnalyticsDashboard } from '../components/analytics/AnalyticsDashboard';
 import { EnhancedNotifications } from '../components/notifications/EnhancedNotifications';
 import { ExportManager } from '../components/export/ExportManager';
@@ -132,7 +132,7 @@ export default function Admin() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const isAuth = await railwayAuth.isAuthenticated();
+        const isAuth = await adminAuth.isAuthenticated();
         if (!isAuth) {
           navigate('/admin-signin');
         } else {
@@ -151,7 +151,7 @@ export default function Admin() {
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
-        const isAuth = await railwayAuth.isAuthenticated();
+        const isAuth = await adminAuth.isAuthenticated();
         if (!isAuth && !checkingAuth) {
           console.log('Authentication lost, redirecting to signin');
           navigate('/admin-signin');
@@ -172,7 +172,7 @@ export default function Admin() {
     if (!checkingAuth) {
       const startDataFetching = async () => {
         // Check authentication before starting data fetching
-        const isAuth = await railwayAuth.isAuthenticated();
+        const isAuth = await adminAuth.isAuthenticated();
         if (!isAuth) {
           console.log('Not authenticated, stopping data fetching');
           return;
@@ -180,7 +180,7 @@ export default function Admin() {
         
         fetchDashboardData();
         const interval = setInterval(async () => {
-          const stillAuth = await railwayAuth.isAuthenticated();
+          const stillAuth = await adminAuth.isAuthenticated();
           if (stillAuth) {
             fetchDashboardData();
           } else {
@@ -199,7 +199,7 @@ export default function Admin() {
   async function fetchDashboardData() {
     try {
       // Check authentication before making API calls
-      const isAuth = await railwayAuth.isAuthenticated();
+      const isAuth = await adminAuth.isAuthenticated();
       if (!isAuth) {
         console.log('Not authenticated, skipping API calls');
         return;
@@ -226,7 +226,7 @@ export default function Admin() {
   async function fetchOrders() {
     try {
       // Check authentication before making API call
-      const isAuth = await railwayAuth.isAuthenticated();
+      const isAuth = await adminAuth.isAuthenticated();
       if (!isAuth) {
         console.log('Not authenticated, skipping orders fetch');
         return;
@@ -251,7 +251,7 @@ export default function Admin() {
   async function fetchRefillRequests() {
     try {
       // Check authentication before making API call
-      const isAuth = await railwayAuth.isAuthenticated();
+      const isAuth = await adminAuth.isAuthenticated();
       if (!isAuth) {
         console.log('Not authenticated, skipping refill requests fetch');
         return;
@@ -276,7 +276,7 @@ export default function Admin() {
   async function fetchTransferRequests() {
     try {
       // Check authentication before making API call
-      const isAuth = await railwayAuth.isAuthenticated();
+      const isAuth = await adminAuth.isAuthenticated();
       if (!isAuth) {
         console.log('Not authenticated, skipping transfer requests fetch');
         return;
@@ -301,7 +301,7 @@ export default function Admin() {
   async function fetchContacts() {
     try {
       // Check authentication before making API call
-      const isAuth = await railwayAuth.isAuthenticated();
+      const isAuth = await adminAuth.isAuthenticated();
       if (!isAuth) {
         console.log('Not authenticated, skipping contacts fetch');
         return;
@@ -326,7 +326,7 @@ export default function Admin() {
   async function fetchNotifications() {
     try {
       // Check authentication before making API call
-      const isAuth = await railwayAuth.isAuthenticated();
+      const isAuth = await adminAuth.isAuthenticated();
       if (!isAuth) {
         console.log('Not authenticated, skipping notifications fetch');
         return;
@@ -351,7 +351,7 @@ export default function Admin() {
   async function fetchIntegrationStatus() {
     try {
       // Check authentication before making API call
-      const isAuth = await railwayAuth.isAuthenticated();
+      const isAuth = await adminAuth.isAuthenticated();
       if (!isAuth) {
         console.log('Not authenticated, skipping integration status fetch');
         return;
@@ -376,7 +376,7 @@ export default function Admin() {
   async function fetchSettings() {
     try {
       // Check authentication before making API call
-      const isAuth = await railwayAuth.isAuthenticated();
+      const isAuth = await adminAuth.isAuthenticated();
       if (!isAuth) {
         console.log('Not authenticated, skipping settings fetch');
         return;
@@ -495,7 +495,7 @@ export default function Admin() {
 
   async function logout() {
     try {
-      await railwayAuth.logout();
+      await adminAuth.logout();
       navigate('/admin-signin');
     } catch (error) {
       console.error('Logout error:', error);
@@ -1117,7 +1117,7 @@ export default function Admin() {
   }
 
   // Additional check to ensure we have valid user data
-  const currentUser = railwayAuth.getUser();
+  const currentUser = adminAuth.getUser();
   if (!currentUser || !currentUser.role || currentUser.role !== 'ADMIN') {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -1130,7 +1130,7 @@ export default function Admin() {
   }
 
   // Prevent API calls if not authenticated
-  const isAuthenticated = railwayAuth.isAuthenticatedSync();
+  const isAuthenticated = adminAuth.isAuthenticatedSync();
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -1148,7 +1148,7 @@ export default function Admin() {
   // Add logout confirmation dialog
   const handleLogout = async () => {
     try {
-      await railwayAuth.logout();
+      await adminAuth.logout();
       navigate('/admin-signin');
     } catch (error) {
       console.error('Logout failed:', error);
@@ -1191,7 +1191,7 @@ export default function Admin() {
   // Extend session
   const extendSession = async () => {
     try {
-      await railwayAuth.getCurrentUser(); // This will refresh the token
+      await adminAuth.getCurrentUser(); // This will refresh the token
       setShowSessionWarning(false);
     } catch (error) {
       console.error('Failed to extend session:', error);
