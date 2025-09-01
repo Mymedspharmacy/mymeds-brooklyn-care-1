@@ -55,7 +55,7 @@
     "schema": "./prisma/schema.prisma"
   },
   "dependencies": {
-    "@prisma/client": "^6.14.0",
+    "@prisma/client": "^6.15.0",
     "@supabase/supabase-js": "^2.52.0",
     "@types/multer": "^2.0.0",
     "archiver": "^7.0.1",
