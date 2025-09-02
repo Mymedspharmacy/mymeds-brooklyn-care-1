@@ -296,3 +296,4 @@ export const WooCommerceCheckout: React.FC<WooCommerceCheckoutProps> = ({
     </Card>
   );
 };
+
