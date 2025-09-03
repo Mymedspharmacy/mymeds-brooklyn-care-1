@@ -3,7 +3,13 @@ import '@testing-library/jest-dom';
 // Mock fetch for API calls
 global.fetch = jest.fn();
 
-// Mock IntersectionObserver
+// Mock TextEncoder and TextDecoder for Node.js environment
+if (typeof global.TextEncoder === 'undefined') {
+  global.TextEncoder = require('util').TextEncoder;
+}
+if (typeof global.TextDecoder === 'undefined') {
+  global.TextDecoder = require('util').TextDecoder;
+}
 
 // Mock IntersectionObserver
 global.IntersectionObserver = class IntersectionObserver {

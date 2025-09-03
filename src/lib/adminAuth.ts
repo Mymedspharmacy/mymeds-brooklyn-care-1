@@ -115,11 +115,15 @@ class AdminAuth {
       return false;
     }
 
+    // Set the token in API headers for the request
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
     // Validate token with backend using admin profile endpoint
     try {
       const response = await api.get('/admin/profile');
       if (response.status === 200 && response.data.user) {
         this.user = response.data.user;
+        this.token = token;
         return true;
       }
       return false;

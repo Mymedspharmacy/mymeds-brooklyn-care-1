@@ -60,8 +60,8 @@ ssh $VPS_USER@$VPS_IP "cd /var/www/mymeds/backend && npm ci --production"
 # Setup database
 Write-Host "Setting up database..." -ForegroundColor Yellow
 ssh $VPS_USER@$VPS_IP "mysql -e 'CREATE DATABASE IF NOT EXISTS mymeds_production;'"
-ssh $VPS_USER@$VPS_IP "mysql -e \"CREATE USER IF NOT EXISTS 'mymeds_user'@'localhost' IDENTIFIED BY 'mymeds_secure_password_2024';\""
-ssh $VPS_USER@$VPS_IP "mysql -e \"GRANT ALL PRIVILEGES ON mymeds_production.* TO 'mymeds_user'@'localhost';\""
+ssh $VPS_USER@$VPS_IP 'mysql -e "CREATE USER IF NOT EXISTS '\''mymeds_user'\''@'\''localhost'\'' IDENTIFIED BY '\''mymeds_secure_password_2024'\'';"'
+ssh $VPS_USER@$VPS_IP 'mysql -e "GRANT ALL PRIVILEGES ON mymeds_production.* TO '\''mymeds_user'\''@'\''localhost'\'';"'
 ssh $VPS_USER@$VPS_IP "mysql -e 'FLUSH PRIVILEGES;'"
 
 # Run database migrations

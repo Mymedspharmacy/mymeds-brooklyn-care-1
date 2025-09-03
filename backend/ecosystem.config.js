@@ -11,12 +11,17 @@ module.exports = {
       },
       env_production: {
         NODE_ENV: 'production',
-        PORT: 4000
+        PORT: 4000,
+        DATABASE_URL: 'mysql://mymeds_user:pMyMedsSecurePassword2024!@localhost:3306/mymeds_production',
+        JWT_SECRET: 'DOSMTw5frDK/1OvogpVCgq0vOaZTzugIqm8tlbc2K8sMxN+GgBjXbuO5AaJ2ou7xWKrn uVcZ5scf1atJV6NiPQ==',
+        JWT_REFRESH_SECRET: 'uaGHoo9cMIuo0njL8JVNHwDsvJYRI2k5Ku97Rwjti8es12FmJwQB9y3KG47+ xeMT8w3rQW7MFH15XXO9NUe8yQ==',
+        NEW_RELIC_ENABLED: 'false',
+        NEW_RELIC_APP_NAME: 'mymeds-backend'
       },
       // Logging
-      log_file: './logs/combined.log',
-      out_file: './logs/out.log',
-      error_file: './logs/error.log',
+      log_file: '/var/log/mymeds/combined.log',
+      out_file: '/var/log/mymeds/out.log',
+      error_file: '/var/log/mymeds/error.log',
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
       
       // Performance
@@ -33,10 +38,7 @@ module.exports = {
       min_uptime: '10s',
       
       // Health check
-      health_check_grace_period: 3000,
-      
-      // Environment variables
-      env_file: '.env'
+      health_check_grace_period: 3000
     }
   ],
   

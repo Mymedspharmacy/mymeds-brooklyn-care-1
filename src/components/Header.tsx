@@ -306,6 +306,9 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
                     <button onClick={() => { navigate('/shop'); setIsMenuOpen(false); }} className="block text-sm text-[#376F6B] hover:text-[#D5C6BC] py-2 px-3 rounded-lg hover:bg-[#57BBB6]/10 transition-all duration-200 text-left w-full">
                       Shop Products
                     </button>
+                    <button onClick={() => { navigate('/admin-signin'); setIsMenuOpen(false); }} className="block text-sm text-[#376F6B] hover:text-[#D5C6BC] py-2 px-3 rounded-lg hover:bg-[#57BBB6]/10 transition-all duration-200 text-left w-full">
+                      Admin Panel
+                    </button>
                   </div>
                 </div>
               </div>

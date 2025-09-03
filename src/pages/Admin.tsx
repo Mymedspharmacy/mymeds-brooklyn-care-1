@@ -132,14 +132,30 @@ export default function Admin() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        // First check if we have a token locally
+        const token = localStorage.getItem('admin-token');
+        const auth = localStorage.getItem('admin-auth');
+        
+        if (!token || auth !== 'true') {
+          // No local auth, redirect immediately
+          navigate('/admin-signin');
+          return;
+        }
+
+        // We have local auth, now validate with backend
         const isAuth = await adminAuth.isAuthenticated();
         if (!isAuth) {
+          // Backend says we're not authenticated, clear local auth and redirect
+          await adminAuth.logout();
           navigate('/admin-signin');
         } else {
+          // We're authenticated, stop checking
           setCheckingAuth(false);
         }
       } catch (error) {
         console.error('Authentication check failed:', error);
+        // On error, clear auth and redirect
+        await adminAuth.logout();
         navigate('/admin-signin');
       }
     };
@@ -158,12 +174,15 @@ export default function Admin() {
         }
       } catch (error) {
         console.error('Auth status check failed:', error);
-        navigate('/admin-signin');
+        // Only redirect if we're not already checking auth
+        if (!checkingAuth) {
+          navigate('/admin-signin');
+        }
       }
     };
 
-    // Check auth status every 30 seconds
-    const authInterval = setInterval(checkAuthStatus, 30000);
+    // Check auth status every 60 seconds instead of 30 to reduce API calls
+    const authInterval = setInterval(checkAuthStatus, 60000);
     
     return () => clearInterval(authInterval);
   }, [navigate, checkingAuth]);
@@ -1107,10 +1126,11 @@ export default function Admin() {
   // Show loading state while checking authentication
   if (checkingAuth) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#D5C6BC] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-lg">Verifying authentication...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#376F6B] border-t-transparent mx-auto mb-4"></div>
+          <p className="text-[#376F6B] text-lg font-medium">Loading Admin Dashboard...</p>
+          <p className="text-[#376F6B]/70 text-sm mt-2">Please wait while we verify your access</p>
         </div>
       </div>
     );
