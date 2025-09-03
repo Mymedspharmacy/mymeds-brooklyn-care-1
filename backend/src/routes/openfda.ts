@@ -5,6 +5,32 @@ import logger from '../utils/logger';
 
 const router = Router();
 
+// Health check endpoint - PUBLIC ROUTE
+router.get('/health', async (req: Request, res: Response) => {
+  try {
+    const health = await openfdaService.healthCheck();
+    
+    res.json({
+      success: true,
+      data: health,
+      meta: {
+        timestamp: new Date().toISOString()
+      }
+    });
+
+  } catch (error: any) {
+    logger.error('OpenFDA: Health check failed', { 
+      error: error.message 
+    });
+    
+    res.status(500).json({
+      error: 'Health check failed',
+      message: error.message,
+      code: 'HEALTH_CHECK_FAILED'
+    });
+  }
+});
+
 // Search drugs using OpenFDA API - PUBLIC ROUTE (no authentication required)
 router.get('/search', async (req: Request, res: Response) => {
   try {

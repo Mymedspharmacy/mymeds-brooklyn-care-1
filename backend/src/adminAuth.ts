@@ -124,7 +124,7 @@ export async function adminLogin(email: string, password: string) {
       throw new Error('Invalid credentials');
     }
 
-    const isValidPassword = await bcrypt.compare(password, await bcrypt.hash(ADMIN_CONFIG.ADMIN_PASSWORD, 10));
+    const isValidPassword = password === ADMIN_CONFIG.ADMIN_PASSWORD;
     if (!isValidPassword) {
       throw new Error('Invalid credentials');
     }
@@ -138,8 +138,7 @@ export async function adminLogin(email: string, password: string) {
         email: ADMIN_CONFIG.ADMIN_EMAIL, 
         role: 'ADMIN',
         name: ADMIN_CONFIG.ADMIN_NAME,
-        iat: Date.now(),
-        exp: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+        iat: Date.now()
       },
       ADMIN_CONFIG.JWT_SECRET,
       { 

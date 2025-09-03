@@ -1,7 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
-import * as nodemailer from 'nodemailer';
 import { unifiedAdminAuth } from './auth';
 
 const router = Router();
@@ -25,16 +24,7 @@ const contactSchema = z.object({
   timestamp: z.string().optional()
 });
 
-// Configure nodemailer for Outlook SMTP
-const transporter = nodemailer.createTransport({
-  host: 'smtp.office365.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
+// Email functionality temporarily disabled
 
 router.post('/', async (req: Request, res: Response) => {
   try {
@@ -57,42 +47,8 @@ router.post('/', async (req: Request, res: Response) => {
       } 
     });
     
-    // Try to send email notification (optional)
-    try {
-      if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-        const emailContent = `
-New Contact Form Submission
-
-Name: ${formData.firstName} ${formData.lastName}
-Email: ${formData.email}
-Phone: ${formData.phone}
-Subject: ${formData.subject}
-
-Message:
-${formData.message}
-
-Additional Information:
-- Service Type: ${formData.serviceType || 'Not specified'}
-- Urgency Level: ${formData.urgency || 'Normal'}
-- Preferred Contact Method: ${formData.preferredContact || 'Email'}
-- Best Time to Contact: ${formData.bestTimeToContact || 'Not specified'}
-- Marketing Consent: ${formData.allowMarketing ? 'Yes' : 'No'}
-
-Submitted: ${formData.timestamp || new Date().toISOString()}
-        `;
-
-        await transporter.sendMail({
-          from: process.env.EMAIL_USER,
-          to: process.env.CONTACT_RECEIVER || process.env.EMAIL_USER,
-          subject: `New Contact Form Submission: ${formData.subject}`,
-          text: emailContent,
-          html: emailContent.replace(/\n/g, '<br>')
-        });
-      }
-    } catch (emailError: any) {
-      console.log('Email notification failed (optional):', emailError.message);
-      // Don't fail the request if email fails
-    }
+    // Email notifications temporarily disabled due to SMTP configuration issues
+    // TODO: Configure proper SMTP credentials for email notifications
     
     res.status(201).json({
       success: true,

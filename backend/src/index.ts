@@ -1,5 +1,5 @@
 // New Relic monitoring - must be first
-require('newrelic');
+// require('newrelic');
 
 import dotenv from 'dotenv';
 dotenv.config();

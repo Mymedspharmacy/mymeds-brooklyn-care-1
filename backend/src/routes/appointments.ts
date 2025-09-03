@@ -1,7 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
-import nodemailer from 'nodemailer';
 import { unifiedAdminAuth } from './auth';
 
 interface AuthRequest extends Request {
@@ -11,16 +10,7 @@ interface AuthRequest extends Request {
 const router = Router();
 const prisma = new PrismaClient();
 
-const emailRecipient = process.env.CONTACT_RECEIVER || process.env.EMAIL_USER;
-const emailTransporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.office365.com',
-  port: Number(process.env.SMTP_PORT) || 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
+// Email functionality temporarily disabled
 
 // Public: create appointment request (no auth required)
 router.post('/request', async (req: Request, res: Response) => {
@@ -58,19 +48,7 @@ router.post('/request', async (req: Request, res: Response) => {
       }
     });
     
-    // Send notification email
-    try {
-      if (emailRecipient) {
-        await emailTransporter.sendMail({
-          from: process.env.EMAIL_USER,
-          to: emailRecipient,
-          subject: `New Appointment Request from ${firstName} ${lastName}`,
-          text: `Patient: ${firstName} ${lastName}\nPhone: ${phone}\nEmail: ${email}\nService: ${service}\nPreferred Date: ${preferredDate}\nPreferred Time: ${preferredTime}\nNotes: ${notes}`
-        });
-      }
-    } catch (emailError) {
-      console.error('Failed to send appointment notification email:', emailError);
-    }
+    // Email notifications temporarily disabled
 
     res.status(201).json({ 
       success: true, 

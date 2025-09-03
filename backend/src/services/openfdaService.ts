@@ -49,6 +49,8 @@ class OpenFDAService {
   private baseUrl = 'https://api.fda.gov';
   private cache = new Map<string, { data: any; timestamp: number }>();
   private cacheTimeout = 30 * 60 * 1000; // 30 minutes
+  private rateLimitDelay = 1000; // 1 second between requests
+  private lastRequestTime = 0;
 
   /**
    * Search for drugs using OpenFDA API
@@ -65,9 +67,17 @@ class OpenFDAService {
     try {
       logger.info('OpenFDA: Searching for drugs', { query, limit });
       
+      // Rate limiting
+      const now = Date.now();
+      const timeSinceLastRequest = now - this.lastRequestTime;
+      if (timeSinceLastRequest < this.rateLimitDelay) {
+        await new Promise(resolve => setTimeout(resolve, this.rateLimitDelay - timeSinceLastRequest));
+      }
+      this.lastRequestTime = Date.now();
+      
       const response = await axios.get(`${this.baseUrl}/drug/label.json`, {
         params: {
-          search: `openfda.brand_name:"${query}" OR openfda.generic_name:"${query}" OR openfda.substance_name:"${query}"`,
+          search: query,
           limit,
           sort: 'openfda.brand_name:asc'
         },
@@ -90,8 +100,20 @@ class OpenFDAService {
       logger.error('OpenFDA: Search failed', { 
         query, 
         error: error.message,
-        status: error.response?.status 
+        status: error.response?.status,
+        response: error.response?.data 
       });
+      
+      // Handle specific error cases
+      if (error.response?.status === 404) {
+        throw new Error(`No drugs found matching query: ${query}`);
+      } else if (error.response?.status === 429) {
+        throw new Error('OpenFDA API rate limit exceeded. Please try again later.');
+      } else if (error.code === 'ECONNABORTED') {
+        throw new Error('OpenFDA API request timed out. Please try again.');
+      } else if (error.code === 'ENOTFOUND') {
+        throw new Error('Unable to connect to OpenFDA API. Please check your internet connection.');
+      }
       
       throw new Error(`Failed to search drugs: ${error.message}`);
     }
@@ -112,9 +134,45 @@ class OpenFDAService {
     try {
       logger.info('OpenFDA: Fetching drug details', { drugId });
       
-      const response = await axios.get(`${this.baseUrl}/drug/label/${drugId}.json`, {
-        timeout: 10000
-      });
+      // Rate limiting
+      const now = Date.now();
+      const timeSinceLastRequest = now - this.lastRequestTime;
+      if (timeSinceLastRequest < this.rateLimitDelay) {
+        await new Promise(resolve => setTimeout(resolve, this.rateLimitDelay - timeSinceLastRequest));
+      }
+      this.lastRequestTime = Date.now();
+      
+      // Try to get drug details using search first, then by ID
+      let response;
+      try {
+        // First try to get by ID
+        response = await axios.get(`${this.baseUrl}/drug/label/${drugId}.json`, {
+          timeout: 10000
+        });
+      } catch (idError: any) {
+        if (idError.response?.status === 404) {
+          // If ID not found, try searching for the drug
+          logger.info('OpenFDA: Drug ID not found, trying search', { drugId });
+          response = await axios.get(`${this.baseUrl}/drug/label.json`, {
+            params: {
+              search: drugId,
+              limit: 1
+            },
+            timeout: 10000
+          });
+          
+          if (response.data.results && response.data.results.length > 0) {
+            const result = response.data.results[0] as OpenFDADrug;
+            this.cache.set(cacheKey, { data: result, timestamp: Date.now() });
+            logger.info('OpenFDA: Drug details fetched via search', { drugId });
+            return result;
+          } else {
+            throw new Error(`No drug found with ID: ${drugId}`);
+          }
+        } else {
+          throw idError;
+        }
+      }
 
       const result = response.data as OpenFDADrug;
       
@@ -130,6 +188,15 @@ class OpenFDAService {
         error: error.message,
         status: error.response?.status 
       });
+      
+      // Handle specific error cases
+      if (error.response?.status === 404) {
+        throw new Error(`Drug not found: ${drugId}`);
+      } else if (error.response?.status === 429) {
+        throw new Error('OpenFDA API rate limit exceeded. Please try again later.');
+      } else if (error.code === 'ECONNABORTED') {
+        throw new Error('OpenFDA API request timed out. Please try again.');
+      }
       
       throw new Error(`Failed to fetch drug details: ${error.message}`);
     }
@@ -211,6 +278,30 @@ class OpenFDAService {
       size: this.cache.size,
       keys: Array.from(this.cache.keys())
     };
+  }
+
+  /**
+   * Health check for OpenFDA API
+   */
+  async healthCheck(): Promise<{ status: string; message: string; timestamp: string }> {
+    try {
+      const response = await axios.get(`${this.baseUrl}/drug/label.json`, {
+        params: { limit: 1 },
+        timeout: 5000
+      });
+
+      return {
+        status: 'healthy',
+        message: 'OpenFDA API is accessible',
+        timestamp: new Date().toISOString()
+      };
+    } catch (error: any) {
+      return {
+        status: 'unhealthy',
+        message: `OpenFDA API error: ${error.message}`,
+        timestamp: new Date().toISOString()
+      };
+    }
   }
 }
 

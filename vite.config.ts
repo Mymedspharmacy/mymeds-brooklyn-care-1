@@ -30,8 +30,9 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost:4000',
-        changeOrigin: true
+        target: 'https://mymedspharmacyinc.com',
+        changeOrigin: true,
+        secure: true
       }
     }
   }

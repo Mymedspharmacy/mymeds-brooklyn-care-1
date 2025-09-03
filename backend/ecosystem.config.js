@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'mymeds-backend',
-      script: 'dist/index.js',
+      script: 'backend/dist/index.js',
       instances: 'max',
       exec_mode: 'cluster',
       env: {
@@ -12,7 +12,7 @@ module.exports = {
       env_production: {
         NODE_ENV: 'production',
         PORT: 4000,
-        DATABASE_URL: 'mysql://mymeds_user:pMyMedsSecurePassword2024!@localhost:3306/mymeds_production',
+        DATABASE_URL: 'mysql://mymeds_user:MyMedsSecurePassword2024!@localhost:3306/mymeds_production',
         JWT_SECRET: 'DOSMTw5frDK/1OvogpVCgq0vOaZTzugIqm8tlbc2K8sMxN+GgBjXbuO5AaJ2ou7xWKrn uVcZ5scf1atJV6NiPQ==',
         JWT_REFRESH_SECRET: 'uaGHoo9cMIuo0njL8JVNHwDsvJYRI2k5Ku97Rwjti8es12FmJwQB9y3KG47+ xeMT8w3rQW7MFH15XXO9NUe8yQ==',
         NEW_RELIC_ENABLED: 'false',
