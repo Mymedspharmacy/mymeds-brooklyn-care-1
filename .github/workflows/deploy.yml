@@ -1,352 +1,158 @@
-name: 🚀 Deploy MyMeds Pharmacy to VPS
+name: Deploy MyMeds Pharmacy
 
 on:
   push:
-    branches: [ main, latest ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ main, latest ]
-
-env:
-  NODE_VERSION: '18'
-  VPS_HOST: ${{ secrets.VPS_HOST }}
-  VPS_USER: ${{ secrets.VPS_USER }}
-  VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
-  DOMAIN: ${{ secrets.DOMAIN }}
-  SSL_EMAIL: ${{ secrets.SSL_EMAIL }}
+    branches: [ main, master ]
 
 jobs:
-  # =============================================================================
-  # TESTING & BUILD JOB
-  # =============================================================================
-  test-and-build:
-    name: 🧪 Test & Build Application
+  test:
     runs-on: ubuntu-latest
     
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-
-      - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: 📦 Install Frontend Dependencies
-        run: npm install
-
-      - name: 📦 Install Backend Dependencies
-        run: |
-          cd backend
-          npm install
-
-      - name: 🧪 Run Frontend Tests
-        run: npm run test:ci
-
-      - name: 🧪 Run Backend Tests
-        run: |
-          cd backend
-          npm run test:ci
-
-      - name: 🔍 Lint Frontend
-        run: npm run lint
-
-      - name: 🔍 Lint Backend
-        run: |
-          cd backend
-          npm run lint
-
-      - name: 🏗️ Build Frontend
-        run: npm run build
-
-      - name: 🏗️ Build Backend
-        run: |
-          cd backend
-          npm run build
-
-      - name: 📤 Upload Frontend Build
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-build
-          path: dist/
-          retention-days: 1
-
-      - name: 📤 Upload Backend Build
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-build
-          path: backend/dist/
-          retention-days: 1
-
-  # =============================================================================
-  # DEPLOYMENT JOB
-  # =============================================================================
-  deploy:
-    name: 🚀 Deploy to VPS
-    needs: test-and-build
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/latest'
-    
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-
-      - name: 📥 Download Frontend Build
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-build
-          path: dist/
-
-      - name: 📥 Download Backend Build
-        uses: actions/download-artifact@v4
-        with:
-          name: backend-build
-          path: backend/dist/
-
-      - name: 🔑 Setup SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ env.VPS_SSH_KEY }}
-
-      - name: 📋 Create Deployment Script
-        run: |
-          cat > deploy.sh << 'EOF'
-          #!/bin/bash
-          set -e
-          
-          echo "🚀 Starting MyMeds Pharmacy deployment..."
-          
-          # Variables
-          DEPLOY_DIR="/var/www/mymeds"
-          BACKUP_DIR="/var/backups/mymeds"
-          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-          
-          # Create backup
-          echo "📦 Creating backup..."
-          if [ -d "$DEPLOY_DIR" ]; then
-            sudo mkdir -p "$BACKUP_DIR"
-            sudo tar -czf "$BACKUP_DIR/backup_$TIMESTAMP.tar.gz" -C "$DEPLOY_DIR" .
-            echo "✅ Backup created: backup_$TIMESTAMP.tar.gz"
-          fi
-          
-          # Stop services
-          echo "⏹️ Stopping services..."
-          sudo pm2 stop mymeds-backend || true
-          sudo systemctl stop nginx || true
-          
-          # Create deployment directory
-          echo "📁 Preparing deployment directory..."
-          sudo mkdir -p "$DEPLOY_DIR"
-          sudo chown -R $USER:www-data "$DEPLOY_DIR"
-          
-          # Clean deployment directory
-          sudo rm -rf "$DEPLOY_DIR"/*
-          
-          echo "✅ Deployment preparation completed"
-          EOF
-          
-          chmod +x deploy.sh
-
-      - name: 🚀 Deploy to VPS
-        run: |
-          # Copy files to VPS
-          echo "📤 Copying files to VPS..."
-          rsync -avz --delete \
-            --exclude='.git' \
-            --exclude='node_modules' \
-            --exclude='.env*' \
-            --exclude='*.log' \
-            --exclude='dist/' \
-            --exclude='backend/dist/' \
-            ./ ${{ env.VPS_USER }}@${{ env.VPS_HOST }}:/tmp/mymeds-deploy/
-          
-          # Copy built files
-          rsync -avz dist/ ${{ env.VPS_USER }}@${{ env.VPS_HOST }}:/tmp/mymeds-deploy/dist/
-          rsync -avz backend/dist/ ${{ env.VPS_USER }}@${{ env.VPS_HOST }}:/tmp/mymeds-deploy/backend/dist/
-          
-          # Copy deployment script
-          scp deploy.sh ${{ env.VPS_USER }}@${{ env.VPS_HOST }}:/tmp/mymeds-deploy/
-          
-          # Execute deployment on VPS
-          ssh ${{ env.VPS_USER }}@${{ env.VPS_HOST }} << 'EOF'
-            set -e
-            
-            echo "🚀 Starting deployment on VPS..."
-            
-            # Variables
-            DEPLOY_DIR="/var/www/mymeds"
-            BACKUP_DIR="/var/backups/mymeds"
-            TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-            
-            # Create backup
-            echo "📦 Creating backup..."
-            if [ -d "$DEPLOY_DIR" ]; then
-              sudo mkdir -p "$BACKUP_DIR"
-              sudo tar -czf "$BACKUP_DIR/backup_$TIMESTAMP.tar.gz" -C "$DEPLOY_DIR" .
-              echo "✅ Backup created: backup_$TIMESTAMP.tar.gz"
-            fi
-            
-            # Stop services
-            echo "⏹️ Stopping services..."
-            sudo pm2 stop mymeds-backend || true
-            
-            # Create deployment directory
-            echo "📁 Preparing deployment directory..."
-            sudo mkdir -p "$DEPLOY_DIR"
-            sudo chown -R $USER:www-data "$DEPLOY_DIR"
-            
-            # Clean deployment directory
-            sudo rm -rf "$DEPLOY_DIR"/*
-            
-            # Copy new files
-            echo "📋 Copying new files..."
-            sudo cp -r /tmp/mymeds-deploy/* "$DEPLOY_DIR/"
-            
-            # Set permissions
-            echo "🔐 Setting permissions..."
-            sudo chown -R www-data:www-data "$DEPLOY_DIR"
-            sudo chmod -R 755 "$DEPLOY_DIR"
-            sudo chmod -R 644 "$DEPLOY_DIR/dist"
-            
-            # Install backend dependencies
-            echo "📦 Installing backend dependencies..."
-            cd "$DEPLOY_DIR/backend"
-            npm ci --production
-            
-            # Run database migrations
-            echo "🗄️ Running database migrations..."
-            npx prisma migrate deploy
-            
-            # Generate Prisma client
-            npx prisma generate
-            
-            # Start services
-            echo "▶️ Starting services..."
-            sudo pm2 start ecosystem.config.js --env production
-            sudo pm2 save
-            
-            # Restart nginx
-            sudo systemctl restart nginx
-            
-            # Health check
-            echo "🏥 Performing health check..."
-            sleep 10
-            if curl -f http://localhost:4000/api/health; then
-              echo "✅ Backend health check passed"
-            else
-              echo "❌ Backend health check failed"
-              exit 1
-            fi
-            
-            if curl -f http://localhost:80; then
-              echo "✅ Frontend health check passed"
-            else
-              echo "❌ Frontend health check failed"
-              exit 1
-            fi
-            
-            # Cleanup
-            rm -rf /tmp/mymeds-deploy
-            
-            echo "🎉 Deployment completed successfully!"
-            echo "🌐 Application is live at: https://${{ env.DOMAIN }}"
-          EOF
-
-      - name: 🏥 Health Check
-        run: |
-          echo "🏥 Performing final health check..."
-          sleep 30
-          
-          # Check if the application is responding
-          if curl -f "https://${{ env.DOMAIN }}/api/health"; then
-            echo "✅ Application is healthy and responding"
-          else
-            echo "❌ Application health check failed"
-            exit 1
-          fi
-
-      - name: 📢 Notify Deployment Status
-        if: always()
-        run: |
-          if [ "${{ job.status }}" == "success" ]; then
-            echo "🎉 Deployment to ${{ env.DOMAIN }} completed successfully!"
-            echo "🌐 Frontend: https://${{ env.DOMAIN }}"
-            echo "🔧 Backend API: https://${{ env.DOMAIN }}/api"
-            echo "👤 Admin Panel: https://${{ env.DOMAIN }}/admin"
-          else
-            echo "❌ Deployment failed. Check the logs above for details."
-            exit 1
-          fi
-
-  # =============================================================================
-  # SECURITY SCAN JOB
-  # =============================================================================
-  security-scan:
-    name: 🔒 Security Scan
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-
-      - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: 📦 Install Dependencies
-        run: |
-          npm install
-          cd backend && npm install
-
-      - name: 🔍 Run Security Audit
-        run: |
-          npm audit --audit-level=moderate
-          cd backend && npm audit --audit-level=moderate
-
-      - name: 🔒 Run CodeQL Analysis
-        uses: github/codeql-action/init@v3
-        with:
-          languages: javascript
-
-      - name: 🔍 Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-
-  # =============================================================================
-  # PERFORMANCE TEST JOB
-  # =============================================================================
-  performance-test:
-    name: ⚡ Performance Test
-    needs: deploy
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/latest'
-    
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-
-      - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: 📦 Install Artillery
-        run: npm install -g artillery
-
-      - name: ⚡ Run Performance Tests
-        run: |
-          # Wait for deployment to be ready
-          sleep 60
-          
-          # Run load tests
-          artillery run load-tests/artillery-config.yml --environment production
+    services:
+      mysql:
+        image: mysql:8.0
         env:
-          TARGET_URL: https://${{ env.DOMAIN }}
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: mymeds_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
-      - name: 📊 Upload Performance Results
-        uses: actions/upload-artifact@v4
-        with:
-          name: performance-results
-          path: artillery-report.json
-          retention-days: 30
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install frontend dependencies
+      run: npm ci
+    
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        npm ci
+    
+    - name: Setup database
+      run: |
+        cd backend
+        echo "DATABASE_URL=mysql://root:root@localhost:3306/mymeds_test" > .env
+        npx prisma generate
+        npx prisma migrate deploy
+    
+    - name: Run frontend tests
+      run: npm test
+    
+    - name: Run backend tests
+      run: |
+        cd backend
+        npm test
+    
+    - name: Build frontend
+      run: npm run build
+    
+    - name: Build backend
+      run: |
+        cd backend
+        npm run build
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: |
+        npm ci
+        cd backend && npm ci
+    
+    - name: Build application
+      run: |
+        npm run build
+        cd backend && npm run build
+    
+    - name: Deploy to VPS
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USERNAME }}
+        key: ${{ secrets.VPS_SSH_KEY }}
+        script: |
+          # Create deployment directory
+          mkdir -p /var/www/mymeds
+          
+          # Stop existing processes
+          pm2 stop mymeds-backend || true
+          pm2 delete mymeds-backend || true
+          
+          # Backup current deployment
+          if [ -d "/var/www/mymeds/current" ]; then
+            cp -r /var/www/mymeds/current /var/backups/mymeds/$(date +%Y%m%d_%H%M%S)
+          fi
+    
+    - name: Copy files to VPS
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USERNAME }}
+        key: ${{ secrets.VPS_SSH_KEY }}
+        source: "dist/*,backend/dist/*,backend/prisma/*,backend/package.json,backend/ecosystem.config.js"
+        target: "/var/www/mymeds/current"
+    
+    - name: Setup production environment
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USERNAME }}
+        key: ${{ secrets.VPS_SSH_KEY }}
+        script: |
+          cd /var/www/mymeds/current
+          
+          # Install production dependencies
+          npm ci --production
+          cd backend && npm ci --production
+          
+          # Setup environment variables
+          cat > backend/.env << EOF
+          NODE_ENV=production
+          PORT=4000
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}
+          ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
+          CORS_ORIGINS=https://mymedspharmacyinc.com,http://localhost:3000
+          SMTP_HOST=smtp.gmail.com
+          SMTP_PORT=587
+          SMTP_USER=mymedspharmacyinc@gmail.com
+          SMTP_PASS=${{ secrets.SMTP_PASS }}
+          FRONTEND_URL=https://mymedspharmacyinc.com
+          EOF
+          
+          # Run database migrations
+          cd backend
+          npx prisma generate
+          npx prisma migrate deploy
+          
+          # Start application with PM2
+          pm2 start ecosystem.config.js
+          pm2 save
+          
+          # Reload Nginx
+          nginx -t && systemctl reload nginx
+          
+          # Health check
+          sleep 10
+          curl -f http://localhost:4000/api/health || exit 1

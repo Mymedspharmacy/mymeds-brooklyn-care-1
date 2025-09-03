@@ -1065,6 +1065,61 @@ router.put('/orders/:id/status', async (req: Request, res: Response) => {
   }
 });
 
+// Public: get WooCommerce status
+router.get('/status', async (req: Request, res: Response) => {
+  try {
+    const settings = await prisma.wooCommerceSettings.findUnique({
+      where: { id: 1 }
+    });
+
+    if (!settings || !settings.enabled) {
+      return res.json({
+        enabled: false,
+        status: 'not_configured',
+        message: 'WooCommerce is not configured or enabled'
+      });
+    }
+
+    // Test connection to WooCommerce
+    try {
+      const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/products?per_page=1`, {
+        headers: {
+          'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`
+        }
+      });
+
+      if (response.ok) {
+        res.json({
+          enabled: true,
+          status: 'connected',
+          message: 'WooCommerce is connected and working',
+          storeUrl: settings.storeUrl
+        });
+      } else {
+        res.json({
+          enabled: true,
+          status: 'error',
+          message: 'WooCommerce connection failed',
+          error: `HTTP ${response.status}`
+        });
+      }
+    } catch (error) {
+      res.json({
+        enabled: true,
+        status: 'error',
+        message: 'WooCommerce connection failed',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  } catch (err: any) {
+    console.error('Error checking WooCommerce status:', err);
+    res.status(500).json({ 
+      error: 'Failed to check WooCommerce status',
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+  }
+});
+
 // Admin: get WooCommerce sync status
 router.get('/sync-status', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {

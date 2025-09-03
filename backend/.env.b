@@ -1,89 +1,236 @@
-# Application Configuration
-NODE_ENV=development
+# 🚀 PRODUCTION ENVIRONMENT CONFIGURATION
+# This file contains production-specific environment variables for VPS deployment
+
+# =============================================================================
+# CORE APPLICATION SETTINGS
+# =============================================================================
+NODE_ENV=production
 PORT=4000
 HOST=0.0.0.0
 
-# Database Configuration (Local MySQL)
-DATABASE_URL="file:./dev.db"
-
-# JWT Configuration
-JWT_SECRET=tUR6SRh+Yq3WGVGIzKRpboweC+FmGV6fTazBwocbSFIcAwN2Dfk42ZZin1bxxWhP/1nyAjDbSdwSTLTy/y+YJg==
-JWT_REFRESH_SECRET=zpcXKVVvojf67zrXT4+vfsTLqBjz0eh8I6cnpoc23yLLk5EcW6yVegdySlAUo+P/7rDlfMe6BPZBGn0ymAvVxg==
-JWT_EXPIRES_IN=24h
-JWT_REFRESH_EXPIRES_IN=7d
-
-# Admin Configuration
-ADMIN_EMAIL=mymedspharmacyinc@gmail.com
-ADMIN_NAME=MYMEDSPHARMACY
-ADMIN_PASSWORD=MyMeds2024!@Pharm
-
-# Contact Configuration
-CONTACT_RECEIVER=mymedspharmacyinc@gmail.com
-
-# Frontend Configuration
-FRONT_END=https://mymedspharmacyinc.com
-FRONTEND_URL=http://localhost:3002
-
-# CORS Configuration
-CORS_ORIGINS=https://mymedspharmacyinc.com,http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:5173,http://72.60.116.253
-
-# Security Configuration
-RATE_LIMIT_WINDOW_MS=900000
-RATE_LIMIT_MAX_REQUESTS=100
-
-# Email Configuration
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=mymedspharmacyinc@gmail.com
-SMTP_PASS=your-app-password-here
-EMAIL_USER=mymedspharmacyinc@gmail.com
-EMAIL_PASS=your-app-password-here
-EMAIL_FROM=noreply@mymedspharmacyinc.com
-
-# Stripe Configuration
-STRIPE_SECRET_KEY=your-stripe-secret-key
-STRIPE_WEBHOOK_SECRET=your-webhook-secret
-
-# WooCommerce Configuration
-WOOCOMMERCE_URL=https://mymedspharmacyinc.com/shop
-WOOCOMMERCE_CONSUMER_KEY=ck_215d1f427cf938eaf75efe70783172120c0de603
-WOOCOMMERCE_CONSUMER_SECRET=cs_003e628c8b849c674eda5c51f292d6fd59bdf0d0
-WOOCOMMERCE_VERSION=wc/v3
-
-# WordPress Configuration
-WORDPRESS_URL=https://mymedspharmacyinc.com/blog
-WORDPRESS_USERNAME=root
-WORDPRESS_PASSWORD=cF!6PUZvz!7a3fLCIXMy
-
-# Database Sharding Configuration
+# =============================================================================
+# DATABASE CONFIGURATION (MySQL for VPS)
+# =============================================================================
+# MySQL database for production VPS
+DATABASE_URL="mysql://mymeds_user:MyMedsSecurePassword2024!@localhost:3306/mymeds_production"
 DATABASE_HOST=localhost
 DATABASE_PORT=3306
-DATABASE_NAME=mymeds_pharmacy
+DATABASE_NAME=mymeds_production
 DATABASE_USER=mymeds_user
-DATABASE_PASSWORD=SecurePassword123!
-SHARD_COUNT=3
+DATABASE_PASSWORD=MyMedsSecurePassword2024!
+SHARD_COUNT=1
 
-# Logging Configuration
+# =============================================================================
+# SECURITY & AUTHENTICATION
+# =============================================================================
+# JWT Secret for production (generate a strong 64-character secret)
+JWT_SECRET=prod_jwt_secret_key_64_chars_minimum_required_for_production_environment_2024
+JWT_REFRESH_SECRET=prod_refresh_secret_key_64_chars_minimum_required_for_production_2024
+JWT_EXPIRES_IN=7d
+JWT_REFRESH_EXPIRES_IN=30d
+
+# Admin user credentials for production
+ADMIN_EMAIL=admin@mymedspharmacyinc.com
+ADMIN_PASSWORD=AdminPassword123!
+ADMIN_NAME=Production Admin
+
+# Password policy (strict for production)
+PASSWORD_MIN_LENGTH=12
+PASSWORD_REQUIRE_UPPERCASE=true
+PASSWORD_REQUIRE_LOWERCASE=true
+PASSWORD_REQUIRE_NUMBERS=true
+PASSWORD_REQUIRE_SPECIAL_CHARS=true
+
+# Session settings
+SESSION_SECRET=prod_session_secret_64_chars_minimum_required_for_production_2024
+SESSION_TIMEOUT=3600000
+
+# =============================================================================
+# CORS & SECURITY
+# =============================================================================
+# Allowed origins for production
+CORS_ORIGINS=https://www.mymedspharmacyinc.com,https://mymedspharmacyinc.com,https://api.mymedspharmacyinc.com
+
+# Contact receiver
+CONTACT_RECEIVER=mymedspharmacyinc@gmail.com
+
+# Security headers (strict for production)
+HELMET_ENABLED=true
+CONTENT_SECURITY_POLICY_STRICT=true
+HSTS_MAX_AGE=31536000
+HSTS_INCLUDE_SUBDOMAINS=true
+HSTS_PRELOAD=true
+
+# =============================================================================
+# RATE LIMITING
+# =============================================================================
+# Enable rate limiting in production
+RATE_LIMITING_ENABLED=true
+DISABLE_RATE_LIMIT=false
+
+# Rate limit settings (strict for production)
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=200
+RATE_LIMIT_AUTH_MAX=10
+RATE_LIMIT_AUTH_WINDOW=900000
+RATE_LIMIT_API_MAX=1000
+RATE_LIMIT_API_WINDOW=900000
+RATE_LIMIT_CONTACT_MAX=20
+RATE_LIMIT_CONTACT_WINDOW=3600000
+DISABLE_RATE_LIMIT=false
+
+# =============================================================================
+# PAYMENT PROCESSING (WOOCOMMERCE)
+# =============================================================================
+# WooCommerce live settings for production
+WOOCOMMERCE_STORE_URL=https://mymedspharmacyinc.com/shop
+WOOCOMMERCE_CONSUMER_KEY=ck_production_key_here
+WOOCOMMERCE_CONSUMER_SECRET=cs_production_secret_here
+WOOCOMMERCE_VERSION=wc/v3
+
+# WooCommerce settings
+WOOCOMMERCE_CURRENCY=usd
+WOOCOMMERCE_PAYMENT_METHODS=card,paypal
+WOOCOMMERCE_WEBHOOK_SECRET=prod_webhook_secret_here
+
+# =============================================================================
+# EMAIL CONFIGURATION (SMTP)
+# =============================================================================
+# SMTP server settings for production
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=true
+SMTP_USER=mymedspharmacyinc@gmail.com
+SMTP_PASS=your_production_app_password_here
+EMAIL_USER=mymedspharmacyinc@gmail.com
+EMAIL_PASS=your_production_app_password_here
+EMAIL_FROM=mymedspharmacyinc@gmail.com
+
+# Email settings (enabled for production)
+EMAIL_VERIFICATION_ENABLED=true
+EMAIL_RESET_PASSWORD_ENABLED=true
+EMAIL_NOTIFICATIONS_ENABLED=true
+
+# =============================================================================
+# EXTERNAL SERVICES
+# =============================================================================
+# OpenFDA API (no key required for basic usage)
+OPENFDA_API_URL=https://api.fda.gov
+
+# WordPress integration
+WORDPRESS_URL=https://mymedspharmacyinc.com/blog
+WORDPRESS_USERNAME=prod_root
+WORDPRESS_PASSWORD=prod_password_here
+
+# =============================================================================
+# MONITORING & LOGGING
+# =============================================================================
+# New Relic monitoring
+NEW_RELIC_APP_NAME=MyMeds Pharmacy Production
+NEW_RELIC_LICENSE_KEY=your_new_relic_license_key_here
+
+# Logging configuration
 LOG_LEVEL=info
-
-# Webhook Configuration
-WEBHOOK_URL=https://mymedspharmacyinc.com/webhook
-
-# File Upload Configuration
-UPLOAD_DIR=./uploads
-MAX_FILE_SIZE=10485760
-
-# Redis Configuration (if you want caching)
-REDIS_URL=redis://localhost:6379
-
-# Monitoring Configuration
+LOG_FILE_PATH=/var/log/mymeds/application.log
+LOG_ERROR_PATH=/var/log/mymeds/error.log
 ENABLE_MONITORING=true
 METRICS_PORT=9090
 
-# Backup Configuration
-BACKUP_DIR=./backups
-BACKUP_RETENTION_DAYS=30
+# =============================================================================
+# PERFORMANCE & SCALABILITY
+# =============================================================================
+# Database connection pooling
+DB_POOL_MIN=5
+DB_POOL_MAX=20
+DB_POOL_ACQUIRE=30000
+DB_POOL_IDLE=10000
 
-# Test Database (for development)
-TEST_DATABASE_URL="file:./dev.db"_test
-DISABLE_RATE_LIMIT=true
+# Cache settings
+CACHE_TTL=300000
+CACHE_MAX_SIZE=1000
+
+# Redis (Optional for caching)
+REDIS_URL=redis://localhost:6379
+
+# File upload settings
+MAX_FILE_SIZE=10485760
+UPLOAD_PATH=/var/www/mymeds/uploads
+
+# =============================================================================
+# BACKUP & MAINTENANCE
+# =============================================================================
+# Backup settings
+BACKUP_ENABLED=true
+BACKUP_SCHEDULE=0 2 * * *
+BACKUP_RETENTION_DAYS=30
+BACKUP_PATH=/var/backups/mymeds
+
+# Maintenance mode
+MAINTENANCE_MODE=false
+MAINTENANCE_MESSAGE=System is under maintenance. Please try again later.
+
+# =============================================================================
+# SSL & SECURITY
+# =============================================================================
+# SSL configuration
+SSL_ENABLED=true
+SSL_CERT_PATH=/etc/ssl/certs/mymedspharmacyinc.com.crt
+SSL_KEY_PATH=/etc/ssl/private/mymedspharmacyinc.com.key
+
+# Security settings
+BCRYPT_ROUNDS=12
+PASSWORD_HISTORY_SIZE=5
+ACCOUNT_LOCKOUT_THRESHOLD=5
+ACCOUNT_LOCKOUT_DURATION=300000
+
+# =============================================================================
+# API RATE LIMITING & THROTTLING
+# =============================================================================
+# API throttling
+API_THROTTLE_ENABLED=true
+API_THROTTLE_LIMIT=1000
+API_THROTTLE_WINDOW=900000
+
+# Webhook rate limiting
+WEBHOOK_RATE_LIMIT=100
+WEBHOOK_RATE_WINDOW=3600000
+
+# Webhook URL
+WEBHOOK_URL=https://mymedspharmacyinc.com/webhook
+
+# =============================================================================
+# DATABASE MAINTENANCE
+# =============================================================================
+# Database maintenance settings
+DB_MAINTENANCE_ENABLED=true
+DB_MAINTENANCE_SCHEDULE=0 3 * * 0
+DB_OPTIMIZE_ENABLED=true
+DB_BACKUP_ENABLED=true
+
+# =============================================================================
+# HEALTH CHECKS
+# =============================================================================
+# Health check settings
+HEALTH_CHECK_ENABLED=true
+HEALTH_CHECK_INTERVAL=30000
+HEALTH_CHECK_TIMEOUT=5000
+
+# =============================================================================
+# ERROR HANDLING
+# =============================================================================
+# Error handling settings
+ERROR_REPORTING_ENABLED=true
+ERROR_NOTIFICATION_EMAIL=errors@mymedspharmacyinc.com
+ERROR_LOG_LEVEL=error
+
+# =============================================================================
+# FEATURE FLAGS
+# =============================================================================
+# Feature flags for production
+FEATURE_WOOCOMMERCE_ENABLED=true
+FEATURE_WORDPRESS_ENABLED=true
+FEATURE_EMAIL_VERIFICATION=true
+FEATURE_TWO_FACTOR_AUTH=false
+FEATURE_ANALYTICS=true
+FEATURE_BACKUP=true
+FEATURE_MONITORING=true
