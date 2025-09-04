@@ -1,0 +1,106 @@
+{
+  "timestamp": "2025-09-04T12:31:49.836Z",
+  "summary": {
+    "total": 15,
+    "passed": 14,
+    "failed": 1,
+    "errors": 0
+  },
+  "results": [
+    {
+      "category": "WooCommerce Settings",
+      "test": "WooCommerce Backend API Status",
+      "status": "FAIL",
+      "timestamp": "2025-09-04T12:31:49.829Z"
+    },
+    {
+      "category": "WooCommerce Settings",
+      "test": "WooCommerce Settings Model",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:31:49.831Z"
+    },
+    {
+      "category": "WooCommerce Settings",
+      "test": "WooCommerce Routes Available",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:31:49.831Z"
+    },
+    {
+      "category": "WooCommerce Settings",
+      "test": "WooCommerce Frontend Library",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:31:49.831Z"
+    },
+    {
+      "category": "WooCommerce Settings",
+      "test": "WooCommerce Shop Page",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:31:49.832Z"
+    },
+    {
+      "category": "WordPress Settings",
+      "test": "WordPress Backend Routes",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:31:49.832Z"
+    },
+    {
+      "category": "WordPress Settings",
+      "test": "WordPress Frontend Library",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:31:49.833Z"
+    },
+    {
+      "category": "WordPress Settings",
+      "test": "WordPress Blog Page",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:31:49.833Z"
+    },
+    {
+      "category": "WordPress Settings",
+      "test": "WordPress Settings Model",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:31:49.833Z"
+    },
+    {
+      "category": "Frontend Integration",
+      "test": "WooCommerce Checkout Components",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:31:49.834Z"
+    },
+    {
+      "category": "Frontend Integration",
+      "test": "Shop Section Component",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:31:49.834Z"
+    },
+    {
+      "category": "Frontend Integration",
+      "test": "Package.json WooCommerce Dependencies",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:31:49.834Z"
+    },
+    {
+      "category": "Environment Variables",
+      "test": "Production WooCommerce Config",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:31:49.835Z"
+    },
+    {
+      "category": "Environment Variables",
+      "test": "Production WordPress Config",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:31:49.835Z"
+    },
+    {
+      "category": "Environment Variables",
+      "test": "Frontend Environment Config",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:31:49.836Z"
+    }
+  ],
+  "recommendations": [
+    "Configure WooCommerce integration: Set up store URL, consumer key, and consumer secret in environment variables",
+    "Add WooCommerceSettings model to Prisma schema if missing",
+    "Ensure WooCommerce backend routes are properly configured"
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "timestamp": "2025-09-04T12:43:57.131Z",
+  "deploymentLog": [
+    "[2025-09-04T12:43:41.638Z] INFO: Validating production environment...",
+    "[2025-09-04T12:43:41.639Z] INFO: Environment validation passed",
+    "[2025-09-04T12:43:41.640Z] INFO: Setting up MySQL database...",
+    "[2025-09-04T12:43:41.641Z] INFO: MySQL setup script created: mysql-setup.sql",
+    "[2025-09-04T12:43:41.641Z] INFO: Run: mysql -u root -p < mysql-setup.sql",
+    "[2025-09-04T12:43:41.641Z] INFO: Configuring Prisma for production...",
+    "[2025-09-04T12:43:41.643Z] INFO: Production schema copied to main schema",
+    "[2025-09-04T12:43:41.645Z] INFO: Production environment file copied to .env",
+    "[2025-09-04T12:43:41.645Z] INFO: Generating Prisma client...",
+    "[2025-09-04T12:43:44.165Z] INFO: Prisma production configuration completed",
+    "[2025-09-04T12:43:44.165Z] INFO: Building frontend for production...",
+    "[2025-09-04T12:43:44.166Z] INFO: Frontend production environment file created",
+    "[2025-09-04T12:43:44.166Z] INFO: Building frontend...",
+    "[2025-09-04T12:43:57.099Z] INFO: Frontend production build completed",
+    "[2025-09-04T12:43:57.099Z] INFO: Configuring security settings...",
+    "[2025-09-04T12:43:57.100Z] INFO: CORS configuration created",
+    "[2025-09-04T12:43:57.100Z] INFO: Security configuration created",
+    "[2025-09-04T12:43:57.101Z] INFO: Setting up file uploads...",
+    "[2025-09-04T12:43:57.103Z] INFO: File uploads setup completed",
+    "[2025-09-04T12:43:57.103Z] INFO: Creating production scripts...",
+    "[2025-09-04T12:43:57.129Z] INFO: Production scripts added to package.json",
+    "[2025-09-04T12:43:57.130Z] INFO: Production scripts created",
+    "[2025-09-04T12:43:57.130Z] INFO: Performing final validation...",
+    "[2025-09-04T12:43:57.131Z] INFO: Final validation passed"
+  ],
+  "errors": [],
+  "success": true,
+  "summary": {
+    "totalSteps": 24,
+    "errors": 0,
+    "warnings": 0
+  }
+}

@@ -17,8 +17,6 @@ export const env = {
   
   // External services
   WOOCOMMERCE_STORE_URL: import.meta.env.VITE_WOOCOMMERCE_STORE_URL || '',
-  SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL || '',
-  SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
   
   // WordPress integration
   WORDPRESS_URL: import.meta.env.VITE_WORDPRESS_URL || '',

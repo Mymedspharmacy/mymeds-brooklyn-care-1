@@ -1,90 +1,182 @@
-# 🏥 MyMeds Pharmacy - Brooklyn Care
+# 🏥 MyMeds Pharmacy - Modern Healthcare Platform
 
-## 🚀 **Production-Ready Pharmacy Management System**
+A comprehensive pharmacy management system built with React, Node.js, and TypeScript.
 
-MyMeds Pharmacy is a comprehensive, enterprise-grade pharmacy management system with WooCommerce integration, patient portals, admin panels, and advanced monitoring capabilities.
+## 🏗️ Architecture
 
----
+```
+mymeds-brooklyn-care-1-1/
+├── 📱 Frontend (React + Vite + TypeScript)
+├── 🔧 Backend (Node.js + Express + Prisma)
+├── 🚀 Deployment (Docker + PM2 + Nginx)
+└── 📚 Documentation
+```
 
-## ✨ **Key Features**
+## 🚀 Quick Start
 
-- **🛒 WooCommerce Shop Integration** - Complete e-commerce solution
-- **👥 Patient Portal** - Account management and prescription refills
-- **⚙️ Admin Panel** - Comprehensive pharmacy management
-- **📱 Mobile Responsive** - Optimized for all devices
-- **🔐 Enterprise Security** - JWT authentication, rate limiting, SSL
-- **📊 Advanced Monitoring** - Real-time system health tracking
-- **🔄 Automated Sync** - WooCommerce and WordPress integration
-- **📧 SMTP Service** - Professional email communication
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
+- MySQL 8.0+
+- Git
 
----
+### Development Setup
 
-## 🎯 **Quick Start**
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd mymeds-brooklyn-care-1-1
+   ```
 
-### **1. View Documentation**
-📚 **[Complete Documentation →](documentation/README.md)**
+2. **Install dependencies**
+   ```bash
+   # Frontend dependencies
+   npm install
+   
+   # Backend dependencies
+   cd backend
+   npm install
+   cd ..
+   ```
 
-### **2. Production Deployment**
-🚀 **[VPS Setup Guide →](documentation/VPS_SETUP_GUIDE.md)**
+3. **Environment setup**
+   ```bash
+   # Copy environment files
+   cp frontend.env.production .env.local
+   cp backend/env.production backend/.env
+   ```
 
-### **3. Core Setup**
-⚙️ **[WooCommerce Setup →](documentation/WOOCOMMERCE_PAYMENT_SETUP.md)**
+4. **Database setup**
+   ```bash
+   cd backend
+   npx prisma generate
+   npx prisma migrate dev
+   cd ..
+   ```
 
-### **4. Scripts & Testing**
-🛠️ **[Scripts Directory →](scripts/README.md)**  
-🧪 **[Test Suite →](tests/README.md)**
+5. **Start development servers**
+   ```bash
+   # Frontend (port 3000)
+   npm run dev
+   
+   # Backend (port 4000)
+   cd backend
+   npm run dev
+   ```
 
----
+## 🏗️ Project Structure
 
-## 🏗️ **Architecture**
+### Frontend (`src/`)
+- `components/` - Reusable React components
+- `pages/` - Page components
+- `hooks/` - Custom React hooks
+- `lib/` - Utilities and configurations
+- `main.tsx` - Application entry point
 
-- **Frontend:** React 18 + TypeScript + Vite
-- **Backend:** Node.js + Express + Prisma ORM
-- **Database:** MySQL with connection pooling
-- **Payment:** WooCommerce integration
-- **Deployment:** VPS with Nginx
-- **Process Manager:** PM2 clustering
-- **Web Server:** Nginx with SSL
-- **Monitoring:** Advanced health checks
+### Backend (`backend/src/`)
+- `routes/` - API route handlers
+- `middleware/` - Express middleware
+- `services/` - Business logic
+- `config/` - Configuration files
+- `database/` - Database setup
+- `types/` - TypeScript type definitions
+- `utils/` - Utility functions
 
----
+### Deployment (`deployment/`)
+- `docker/` - Docker configurations
+- `nginx/` - Web server configurations
+- `scripts/` - Deployment scripts
 
-## 📋 **Production Status**
+### Documentation (`docs/`)
+- `DEPLOYMENT.md` - Deployment guide
+- `API.md` - API documentation
+- `DEVELOPMENT.md` - Development guide
 
-✅ **100% Production Ready**  
-✅ **All Features Implemented**  
-✅ **Security Hardened**  
-✅ **Performance Optimized**  
-✅ **Mobile Responsive**  
-✅ **Comprehensive Testing**  
-✅ **Full Documentation**  
+## 🛠️ Available Scripts
 
----
+### Frontend
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run preview      # Preview production build
+npm run lint         # Run ESLint
+npm run type-check   # Run TypeScript checks
+```
 
-## 🔗 **Quick Links**
+### Backend
+```bash
+cd backend
+npm run dev          # Start development server
+npm run build        # Build TypeScript
+npm run start        # Start production server
+npm run prisma:generate  # Generate Prisma client
+npm run prisma:migrate    # Run database migrations
+```
 
-- **[📚 Documentation Index](documentation/README.md)**
-- **[🚀 VPS Setup Guide](documentation/VPS_SETUP_GUIDE.md)**
-- **[⚙️ Production Checklist](documentation/PRODUCTION_READINESS_FINAL_CHECKLIST.md)**
-- **[🔐 Security Setup](documentation/SECURITY_SETUP_GUIDE.md)**
-- **[📱 Mobile Testing](documentation/MOBILE_RESPONSIVENESS_IMPLEMENTATION.md)**
-- **[🛠️ Scripts & Utilities](scripts/README.md)**
-- **[🧪 Test Suite](tests/README.md)**
+### Deployment
+```bash
+npm run deploy:prod  # Deploy to production
+npm run deploy:docker    # Deploy with Docker
+npm run update:vps   # Update VPS deployment
+```
 
----
+## 🚀 Deployment
 
-## 🎉 **Ready for Production**
+### VPS Deployment
+```bash
+# Update VPS configuration
+nano deployment/vps-config.json
 
-Your MyMeds Pharmacy system is **enterprise-grade** and ready to serve real customers with:
+# Deploy to VPS
+npm run update:vps
+```
 
-- **Zero dummy code** - All implementations are production-ready
-- **Enterprise security** - Military-grade encryption and protection
-- **High performance** - Optimized for thousands of concurrent users
-- **Full scalability** - Can handle exponential growth
-- **Professional monitoring** - 24/7 system health tracking
+### Docker Deployment
+```bash
+# Build and run with Docker Compose
+cd deployment/docker
+docker-compose -f docker-compose.prod.yml up -d
+```
 
----
+## 📚 Documentation
 
-**🏥 MyMeds Pharmacy - Professional Healthcare Solutions**  
-**📧 Contact:** mymedspharmacyinc@gmail.com  
-**🌐 Website:** https://www.mymedspharmacyinc.com
+- [Deployment Guide](docs/DEPLOYMENT.md)
+- [API Documentation](docs/API.md)
+- [Development Guide](docs/DEVELOPMENT.md)
+- [Clean Architecture](CLEAN_ARCHITECTURE.md)
+
+## 🔧 Configuration
+
+### Environment Variables
+
+**Frontend** (`.env.local`)
+```env
+VITE_API_URL=http://localhost:4000
+VITE_BACKEND_URL=http://localhost:4000
+```
+
+**Backend** (`backend/.env`)
+```env
+DATABASE_URL=mysql://user:password@localhost:3306/mymeds
+JWT_SECRET=your-jwt-secret
+JWT_REFRESH_SECRET=your-refresh-secret
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run tests and linting
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+## 🆘 Support
+
+For support and questions:
+- Check the [documentation](docs/)
+- Open an issue on GitHub
+- Contact the development team

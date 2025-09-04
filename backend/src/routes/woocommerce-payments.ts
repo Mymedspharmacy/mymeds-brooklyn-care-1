@@ -106,11 +106,11 @@ router.post('/create-order', authenticateToken, async (req: Request, res: Respon
     const dbOrder = await prisma.order.create({
       data: {
         userId: (req as any).user.id,
-        totalAmount,
+        total: totalAmount,
         status: 'pending',
         paymentMethod: 'woocommerce',
         paymentIntentId: order.id.toString(),
-        shippingAddress: customerInfo.address,
+        shippingAddress: `${customerInfo.address.address1 || ''} ${customerInfo.address.address2 || ''} ${customerInfo.address.city || ''} ${customerInfo.address.state || ''} ${customerInfo.address.postcode || ''} ${customerInfo.address.country || ''}`.trim(),
         items: {
           create: items.map(item => ({
             productId: item.productId,

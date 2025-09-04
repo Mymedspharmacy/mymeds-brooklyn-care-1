@@ -1,1 +1,0 @@
-{"root":["./src/index.ts","./src/routes/appointments.ts","./src/routes/auth.ts","./src/routes/blogs.ts","./src/routes/contact.ts","./src/routes/orders.ts","./src/routes/prescriptions.ts","./src/routes/products.ts","./src/routes/users.ts"],"errors":true,"version":"5.8.3"}

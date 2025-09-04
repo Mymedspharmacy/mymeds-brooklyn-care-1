@@ -1,0 +1,91 @@
+{
+  "timestamp": "2025-09-04T12:24:08.518Z",
+  "summary": {
+    "total": 12,
+    "passed": 4,
+    "failed": 8,
+    "errors": 0
+  },
+  "results": [
+    {
+      "category": "WordPress Blog",
+      "test": "WordPress API Connection Test",
+      "status": "FAIL",
+      "timestamp": "2025-09-04T12:24:08.485Z"
+    },
+    {
+      "category": "WordPress Blog",
+      "test": "WordPress Categories Test",
+      "status": "FAIL",
+      "timestamp": "2025-09-04T12:24:08.492Z"
+    },
+    {
+      "category": "WordPress Blog",
+      "test": "WordPress Featured Posts Test",
+      "status": "FAIL",
+      "timestamp": "2025-09-04T12:24:08.494Z"
+    },
+    {
+      "category": "WordPress Blog",
+      "test": "WordPress Search Test",
+      "status": "FAIL",
+      "timestamp": "2025-09-04T12:24:08.496Z"
+    },
+    {
+      "category": "WooCommerce Shop",
+      "test": "WooCommerce Products API Test",
+      "status": "FAIL",
+      "timestamp": "2025-09-04T12:24:08.507Z"
+    },
+    {
+      "category": "WooCommerce Shop",
+      "test": "WooCommerce Categories Test",
+      "status": "FAIL",
+      "timestamp": "2025-09-04T12:24:08.510Z"
+    },
+    {
+      "category": "WooCommerce Shop",
+      "test": "WooCommerce Product Search Test",
+      "status": "FAIL",
+      "timestamp": "2025-09-04T12:24:08.512Z"
+    },
+    {
+      "category": "WooCommerce Shop",
+      "test": "WooCommerce Product by Category Test",
+      "status": "FAIL",
+      "timestamp": "2025-09-04T12:24:08.515Z"
+    },
+    {
+      "category": "Frontend Integration",
+      "test": "Frontend WordPress Library Test",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:24:08.516Z"
+    },
+    {
+      "category": "Frontend Integration",
+      "test": "Frontend WooCommerce Library Test",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:24:08.516Z"
+    },
+    {
+      "category": "Frontend Integration",
+      "test": "Blog Page Integration Test",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:24:08.517Z"
+    },
+    {
+      "category": "Frontend Integration",
+      "test": "Shop Page Integration Test",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:24:08.518Z"
+    }
+  ],
+  "recommendations": [
+    "WordPress blog is not fetching live data - check WordPress site configuration",
+    "Verify WordPress REST API is enabled and accessible",
+    "Check WordPress credentials and permissions",
+    "WooCommerce shop is not fetching live data - check WooCommerce store configuration",
+    "Verify WooCommerce REST API credentials",
+    "Check WooCommerce store URL and API permissions"
+  ]
+}

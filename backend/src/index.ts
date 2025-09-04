@@ -1,5 +1,5 @@
 // New Relic monitoring - must be first
-// require('newrelic');
+
 
 import dotenv from 'dotenv';
 dotenv.config();
@@ -293,12 +293,8 @@ app.use(cors({
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-    // Allow requests from your Vercel domain
+    // Allow requests from your production domain
     if (process.env.NODE_ENV === 'production' && origin === 'https://www.mymedspharmacyinc.com') {
-      return callback(null, true);
-    }
-    // Allow requests from any Vercel subdomain
-    if (process.env.NODE_ENV === 'production' && origin && origin.includes('vercel.app')) {
       return callback(null, true);
     }
     console.log('CORS blocked origin:', origin);
@@ -412,6 +408,17 @@ console.log('- Disable rate limit:', process.env.DISABLE_RATE_LIMIT === 'true' ?
 console.log('- Auth limit:', process.env.DISABLE_RATE_LIMIT === 'true' ? 'DISABLED' : '20 requests/15min');
 console.log('- General limit:', process.env.DISABLE_RATE_LIMIT === 'true' ? 'DISABLED' : 
   (process.env.NODE_ENV === 'production' ? '1000 requests/15min' : '5000 requests/15min'));
+
+// Server Status endpoint
+app.get('/api/status', async (req: Request, res: Response) => {
+  res.json({
+    status: 'running',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV,
+    version: process.env.npm_package_version || '1.0.0'
+  });
+});
 
 // Enhanced Health Check
 app.get('/api/health', async (req: Request, res: Response) => {

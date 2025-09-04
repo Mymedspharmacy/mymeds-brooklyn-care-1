@@ -12,8 +12,7 @@ interface AuthRequest extends Request {
 const router = Router();
 const prisma = new PrismaClient();
 
-// Supabase is no longer used - migrated to Railway
-const SUPABASE_BUCKET = 'product-images';
+// File upload configuration
 const upload = multer({ storage: multer.memoryStorage() });
 
 // Public: list products
@@ -82,13 +81,13 @@ router.delete('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) 
   }
 });
 
-// Upload product image (Supabase storage disabled - migrated to Railway)
+// Upload product image
 router.post('/:id/images', unifiedAdminAuth, upload.single('file'), async (req: AuthRequest, res: Response) => {
   try {
     const productId = Number(req.params.id);
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
     
-    // TODO: Implement file upload to Railway or cloud storage
+    // TODO: Implement file upload to cloud storage
     // For now, return a placeholder response
     res.status(501).json({ error: 'File upload not implemented yet' });
   } catch (err) {
@@ -97,14 +96,14 @@ router.post('/:id/images', unifiedAdminAuth, upload.single('file'), async (req: 
   }
 });
 
-// Delete product image (Supabase storage disabled - migrated to Railway)
+// Delete product image
 router.delete('/images/:imageId', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
     const imageId = Number(req.params.imageId);
     const image = await prisma.productImage.findUnique({ where: { id: imageId } });
     if (!image) return res.status(404).json({ error: 'Image not found' });
     
-    // TODO: Implement file deletion from Railway or cloud storage
+    // TODO: Implement file deletion from cloud storage
     // For now, just delete from database
     await prisma.productImage.delete({ where: { id: imageId } });
     res.json({ success: true });

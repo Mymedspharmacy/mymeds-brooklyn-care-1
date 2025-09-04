@@ -1,0 +1,77 @@
+{
+  "timestamp": "2025-09-04T12:16:02.140Z",
+  "summary": {
+    "total": 11,
+    "passed": 11,
+    "failed": 0,
+    "errors": 0
+  },
+  "results": [
+    {
+      "category": "Admin Authentication",
+      "test": "Admin Sign-In Page Load",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:15:38.050Z"
+    },
+    {
+      "category": "Admin Authentication",
+      "test": "Admin Login Form Validation",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:15:42.711Z"
+    },
+    {
+      "category": "Admin Authentication",
+      "test": "Admin Login with Valid Credentials",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:15:45.584Z"
+    },
+    {
+      "category": "Patient Forms",
+      "test": "Homepage Load",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:15:45.949Z"
+    },
+    {
+      "category": "Patient Forms",
+      "test": "Refill Form Modal Open",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:15:51.264Z"
+    },
+    {
+      "category": "Patient Forms",
+      "test": "Transfer Form Modal Open",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:15:56.528Z"
+    },
+    {
+      "category": "Patient Forms",
+      "test": "Appointment Form Modal Open",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:15:59.993Z"
+    },
+    {
+      "category": "API Endpoints",
+      "test": "Backend Health Check",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:15:59.999Z"
+    },
+    {
+      "category": "API Endpoints",
+      "test": "Admin Login API",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:16:00.004Z"
+    },
+    {
+      "category": "Error Handling",
+      "test": "404 Page Handling",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:16:02.135Z"
+    },
+    {
+      "category": "Error Handling",
+      "test": "Network Error Handling",
+      "status": "PASS",
+      "timestamp": "2025-09-04T12:16:02.139Z"
+    }
+  ]
+}

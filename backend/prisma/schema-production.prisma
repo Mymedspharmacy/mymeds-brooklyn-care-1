@@ -1,0 +1,345 @@
+// =============================================================================
+// PRODUCTION PRISMA SCHEMA - MySQL DATABASE
+// =============================================================================
+// MyMeds Pharmacy Inc. - Production Database Schema
+// Generated: September 4, 2025
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// USER MANAGEMENT
+// =============================================================================
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  phone     String?
+  role      Role     @default(CUSTOMER)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  prescriptions RefillRequest[]
+  transfers    TransferRequest[]
+  appointments Appointment[]
+  reviews      Review[]
+  cart         Cart[]
+  orders       Order[]
+
+  @@index([email])
+  @@index([role])
+  @@index([isActive])
+  @@index([createdAt])
+}
+
+enum Role {
+  ADMIN
+  CUSTOMER
+  PHARMACIST
+  STAFF
+}
+
+// =============================================================================
+// PRESCRIPTION MANAGEMENT
+// =============================================================================
+
+model RefillRequest {
+  id                 Int      @id @default(autoincrement())
+  userId             Int?
+  firstName          String
+  lastName           String
+  email              String
+  phone              String
+  prescriptionNumber String
+  medication         String
+  notes              String?
+  status             RefillStatus @default(PENDING)
+  filePath           String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([email])
+}
+
+model TransferRequest {
+  id              Int      @id @default(autoincrement())
+  userId          Int?
+  firstName       String
+  lastName        String
+  email           String
+  phone           String
+  currentPharmacy String
+  newPharmacy     String
+  medication      String
+  notes           String?
+  status          TransferStatus @default(PENDING)
+  filePath        String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([email])
+}
+
+enum RefillStatus {
+  PENDING
+  PROCESSING
+  APPROVED
+  REJECTED
+  COMPLETED
+  CANCELLED
+}
+
+enum TransferStatus {
+  PENDING
+  PROCESSING
+  APPROVED
+  REJECTED
+  COMPLETED
+  CANCELLED
+}
+
+// =============================================================================
+// APPOINTMENT MANAGEMENT
+// =============================================================================
+
+model Appointment {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  firstName String
+  lastName  String
+  email     String
+  phone     String
+  date      String
+  time      String
+  service   String
+  notes     String?
+  status    AppointmentStatus @default(SCHEDULED)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([date])
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+// =============================================================================
+// REVIEWS & FEEDBACK
+// =============================================================================
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([rating])
+  @@index([createdAt])
+}
+
+// =============================================================================
+// SHOPPING CART
+// =============================================================================
+
+model Cart {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  productId Int
+  quantity  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([productId])
+  @@index([createdAt])
+}
+
+// =============================================================================
+// ORDER MANAGEMENT
+// =============================================================================
+
+model Order {
+  id            Int           @id @default(autoincrement())
+  userId        Int
+  orderNumber   String        @unique
+  totalAmount   Decimal       @db.Decimal(10, 2)
+  status        OrderStatus   @default(PENDING)
+  paymentStatus PaymentStatus @default(PENDING)
+  items         OrderItem[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([orderNumber])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id       Int     @id @default(autoincrement())
+  orderId  Int
+  productId Int
+  quantity Int
+  price    Decimal @db.Decimal(10, 2)
+  name     String
+
+  // Relations
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  PARTIAL_REFUND
+}
+
+// =============================================================================
+// INTEGRATION SETTINGS
+// =============================================================================
+
+model WooCommerceSettings {
+  id              Int      @id @default(autoincrement())
+  enabled         Boolean  @default(false)
+  storeUrl        String   @default("")
+  consumerKey     String   @default("")
+  consumerSecret  String   @default("")
+  webhookSecret   String   @default("")
+  updatedAt       DateTime @updatedAt
+
+  @@index([enabled])
+  @@index([updatedAt])
+}
+
+model WordPressSettings {
+  id                  Int      @id @default(autoincrement())
+  enabled             Boolean  @default(false)
+  siteUrl             String   @default("")
+  username            String   @default("")
+  applicationPassword String   @default("")
+  updatedAt           DateTime @updatedAt
+
+  @@index([enabled])
+  @@index([updatedAt])
+}
+
+// =============================================================================
+// SYSTEM LOGS & AUDIT
+// =============================================================================
+
+model SystemLog {
+  id        Int      @id @default(autoincrement())
+  level     LogLevel @default(INFO)
+  message   String   @db.Text
+  context   Json?
+  userId    Int?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([level])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+enum LogLevel {
+  ERROR
+  WARN
+  INFO
+  DEBUG
+}
+
+// =============================================================================
+// CACHE & SESSIONS
+// =============================================================================
+
+model Session {
+  id        String   @id
+  userId    Int?
+  data      Json
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+// =============================================================================
+// FILE UPLOADS
+// =============================================================================
+
+model FileUpload {
+  id          Int      @id @default(autoincrement())
+  filename    String
+  originalName String
+  mimeType    String
+  size         Int
+  path         String
+  uploadedBy   Int?
+  createdAt    DateTime @default(now())
+
+  @@index([uploadedBy])
+  @@index([createdAt])
+  @@index([mimeType])
+}

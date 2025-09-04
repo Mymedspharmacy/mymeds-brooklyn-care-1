@@ -14,8 +14,6 @@
   "exclude": [
     "node_modules",
     "dist",
-    "src/__tests__",
-    "src/test",
     "src/services/integrationMonitorService.ts",
     "src/services/microservices",
     "src/config/database-sharding.ts",

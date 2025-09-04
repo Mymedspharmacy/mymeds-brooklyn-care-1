@@ -1,0 +1,65 @@
+{
+  "timestamp": "2025-09-04T11:51:03.524Z",
+  "summary": {
+    "total": 9,
+    "passed": 9,
+    "failed": 0,
+    "errors": 0
+  },
+  "results": [
+    {
+      "category": "Health Check",
+      "test": "Server Health Check",
+      "status": "PASS",
+      "timestamp": "2025-09-04T11:50:57.142Z"
+    },
+    {
+      "category": "Health Check",
+      "test": "Server Status",
+      "status": "PASS",
+      "timestamp": "2025-09-04T11:50:57.145Z"
+    },
+    {
+      "category": "Admin Authentication",
+      "test": "Admin Login Endpoint Available",
+      "status": "PASS",
+      "timestamp": "2025-09-04T11:50:57.150Z"
+    },
+    {
+      "category": "Admin Authentication",
+      "test": "Admin Login with Invalid Credentials",
+      "status": "PASS",
+      "timestamp": "2025-09-04T11:50:57.153Z"
+    },
+    {
+      "category": "Admin Authentication",
+      "test": "Admin Login Missing Credentials",
+      "status": "PASS",
+      "timestamp": "2025-09-04T11:50:57.155Z"
+    },
+    {
+      "category": "Prescription Endpoints",
+      "test": "Prescription Refill Endpoint Available",
+      "status": "PASS",
+      "timestamp": "2025-09-04T11:50:57.162Z"
+    },
+    {
+      "category": "Prescription Endpoints",
+      "test": "Prescription Transfer Endpoint Available",
+      "status": "PASS",
+      "timestamp": "2025-09-04T11:51:03.518Z"
+    },
+    {
+      "category": "Error Handling",
+      "test": "404 Error Handling",
+      "status": "PASS",
+      "timestamp": "2025-09-04T11:51:03.520Z"
+    },
+    {
+      "category": "Error Handling",
+      "test": "Method Not Allowed",
+      "status": "PASS",
+      "timestamp": "2025-09-04T11:51:03.523Z"
+    }
+  ]
+}
