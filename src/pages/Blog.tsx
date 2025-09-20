@@ -84,8 +84,8 @@ export default function Blog() {
         
         // Check if WordPress API is configured
         if (!import.meta.env.VITE_WORDPRESS_URL) {
-          console.warn('WordPress API not configured, showing fallback content');
-          setError('WordPress blog not configured. Showing sample content.');
+          console.warn('WordPress API not configured');
+          setError('WordPress blog not configured. Please configure VITE_WORDPRESS_URL to show blog posts.');
         }
 
         const [postsData, categoriesData, featuredData] = await Promise.all([
@@ -107,6 +107,8 @@ export default function Blog() {
         // Clear error if we successfully got data
         if (typedPostsData.length > 0) {
           setError(null);
+        } else if (import.meta.env.VITE_WORDPRESS_URL) {
+          setError('No blog posts found. Please add posts in your WordPress admin panel.');
         }
       } catch (error) {
         console.error('Error fetching posts:', error);
@@ -197,6 +199,22 @@ export default function Blog() {
                   {error}
                 </p>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!loading && !error && posts.length === 0 && (
+          <div className="py-16 text-center">
+            <div className="max-w-md mx-auto">
+              <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No Blog Posts Yet</h3>
+              <p className="text-gray-600 mb-4">
+                Blog posts will appear here once they are published in your WordPress admin panel.
+              </p>
+              <p className="text-sm text-gray-500">
+                Make sure your WordPress site is configured and you have published posts.
+              </p>
             </div>
           </div>
         )}

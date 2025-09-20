@@ -105,64 +105,7 @@ wordpress.interceptors.response.use(
   }
 );
 
-// Fallback content when WordPress is not available
-const getFallbackContent = () => {
-  const fallbackPosts = [
-    {
-      id: 1,
-      title: { rendered: 'Welcome to Our Health Blog' },
-      content: { rendered: '<p>We are currently setting up our blog content. Please check back soon for health tips, medication guides, and wellness advice from our pharmacy team.</p>' },
-      excerpt: { rendered: 'Stay tuned for expert health articles and wellness tips from our experienced pharmacy team.' },
-      author: 1,
-      date: new Date().toISOString(),
-      modified: new Date().toISOString(),
-      categories: [1],
-      tags: [],
-      _embedded: {
-        author: [{ name: 'MyMeds Pharmacy Team' }],
-        'wp:featuredmedia': []
-      }
-    },
-    {
-      id: 2,
-      title: { rendered: 'Coming Soon: Health & Wellness Articles' },
-      content: { rendered: '<p>Our team is working hard to bring you valuable health information, medication safety tips, and wellness guidance. We\'ll be sharing expert insights soon!</p>' },
-      excerpt: { rendered: 'Expert health articles and wellness guidance coming soon from our pharmacy professionals.' },
-      author: 1,
-      date: new Date().toISOString(),
-      modified: new Date().toISOString(),
-      categories: [1],
-      tags: [],
-      _embedded: {
-        author: [{ name: 'MyMeds Pharmacy Team' }],
-        'wp:featuredmedia': []
-      }
-    },
-    {
-      id: 3,
-      title: { rendered: 'Your Health Journey Starts Here' },
-      content: { rendered: '<p>We believe in empowering our patients with knowledge. Soon you\'ll find comprehensive guides on medication management, health tips, and wellness strategies.</p>' },
-      excerpt: { rendered: 'Comprehensive health guides and medication management tips coming soon.' },
-      author: 1,
-      date: new Date().toISOString(),
-      modified: new Date().toISOString(),
-      categories: [1],
-      tags: [],
-      _embedded: {
-        author: [{ name: 'MyMeds Pharmacy Team' }],
-        'wp:featuredmedia': []
-      }
-    }
-  ];
-
-  const fallbackCategories = [
-    { id: 1, name: 'Health Tips', count: 3 },
-    { id: 2, name: 'Medication Safety', count: 0 },
-    { id: 3, name: 'Wellness', count: 0 }
-  ];
-
-  return { posts: fallbackPosts, categories: fallbackCategories };
-};
+// No fallback content - only show real WordPress posts
 
 // WordPress API methods
 export const wordPressAPI = {
@@ -179,9 +122,8 @@ export const wordPressAPI = {
 
       // Check if WordPress is configured
       if (!WORDPRESS_URL) {
-        console.log('📝 Returning fallback posts (WordPress not configured)');
-        const fallback = getFallbackContent();
-        return fallback.posts;
+        console.log('📝 WordPress not configured - returning empty posts array');
+        return [];
       }
 
       console.log('🔄 Fetching posts from WordPress...');
@@ -196,9 +138,8 @@ export const wordPressAPI = {
       return posts;
     } catch (error: unknown) {
       console.error('Error fetching posts:', error);
-      console.log('📝 Returning fallback posts due to error');
-      const fallback = getFallbackContent();
-      return fallback.posts;
+      console.log('📝 Error fetching posts - returning empty array');
+      return [];
     }
   },
 
@@ -246,9 +187,8 @@ export const wordPressAPI = {
 
       // Check if WordPress is configured
       if (!WORDPRESS_URL) {
-        console.log('📝 Returning fallback categories (WordPress not configured)');
-        const fallback = getFallbackContent();
-        return fallback.categories;
+        console.log('📝 WordPress not configured - returning empty categories array');
+        return [];
       }
 
       console.log('🔄 Fetching categories from WordPress...');
@@ -260,9 +200,8 @@ export const wordPressAPI = {
       return categories;
     } catch (error: unknown) {
       console.error('Error fetching categories:', error);
-      console.log('📝 Returning fallback categories due to error');
-      const fallback = getFallbackContent();
-      return fallback.categories;
+      console.log('📝 Error fetching categories - returning empty array');
+      return [];
     }
   },
 
@@ -345,9 +284,8 @@ export const wordPressAPI = {
 
       // Check if WordPress is configured
       if (!WORDPRESS_URL) {
-        console.log('📝 Returning fallback featured posts (WordPress not configured)');
-        const fallback = getFallbackContent();
-        return fallback.posts.slice(0, 3); // Return first 3 as featured
+        console.log('📝 WordPress not configured - returning empty featured posts array');
+        return [];
       }
 
       console.log('🔄 Fetching featured posts from WordPress...');
@@ -363,9 +301,8 @@ export const wordPressAPI = {
       return posts;
     } catch (error: unknown) {
       console.error('Error fetching featured posts:', error);
-      console.log('📝 Returning fallback featured posts due to error');
-      const fallback = getFallbackContent();
-      return fallback.posts.slice(0, 3); // Return first 3 as featured
+      console.log('📝 Error fetching featured posts - returning empty array');
+      return [];
     }
   },
 
@@ -382,9 +319,8 @@ export const wordPressAPI = {
 
       // Check if WordPress is configured
       if (!WORDPRESS_URL) {
-        console.log(`📝 Returning fallback recent posts (${limit}) (WordPress not configured)`);
-        const fallback = getFallbackContent();
-        return fallback.posts.slice(0, limit);
+        console.log(`📝 WordPress not configured - returning empty recent posts array`);
+        return [];
       }
 
       console.log(`🔄 Fetching recent posts (${limit}) from WordPress...`);
@@ -400,9 +336,8 @@ export const wordPressAPI = {
       return posts;
     } catch (error: unknown) {
       console.error('Error fetching recent posts:', error);
-      console.log(`📝 Returning fallback recent posts (${limit}) due to error`);
-      const fallback = getFallbackContent();
-      return fallback.posts.slice(0, limit);
+      console.log(`📝 Error fetching recent posts - returning empty array`);
+      return [];
     }
   },
 

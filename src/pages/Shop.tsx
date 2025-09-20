@@ -284,6 +284,26 @@ export default function Shop() {
           </div>
         </section>
 
+        {/* Empty State */}
+        {!loading && products.length === 0 && (
+          <section className="py-16 sm:py-20 bg-white">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center">
+                <div className="max-w-md mx-auto">
+                  <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No Products Yet</h3>
+                  <p className="text-gray-600 mb-4">
+                    Products will appear here once they are added in your WooCommerce admin panel.
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    Make sure your WooCommerce store is configured and you have published products.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Products Grid */}
         <section className="py-16 sm:py-20 bg-white">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">

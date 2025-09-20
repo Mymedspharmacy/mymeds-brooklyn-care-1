@@ -101,32 +101,7 @@ const BlogPost = () => {
             setError('Post not found');
           }
         } else {
-          if (import.meta.env.MODE !== 'production') {
-            // Only use mock data in non-production
-            const mockListResp = await fetch('/api/mock-blog/');
-            const mockList = await mockListResp.json();
-            const mockPost = mockList.find((p: any) => p.id === parseInt(id));
-            if (mockPost) {
-              setPost({
-                id: mockPost.id,
-                title: { rendered: mockPost.title },
-                content: { rendered: mockPost.content },
-                excerpt: { rendered: mockPost.excerpt },
-                date: mockPost.createdAt,
-                author: 1,
-                categories: mockPost.categories || [],
-                tags: mockPost.tags || [],
-                featured_media: 0,
-                slug: mockPost.slug
-              });
-              setAuthor({ id: 1, name: mockPost.author, slug: 'author' });
-            } else {
-              setError('Post not found');
-            }
-          } else {
-            // In production, do not use mock data
-            setError('Post not found');
-          }
+          setError('Post not found');
         }
       } catch (err: any) {
         console.error('Error fetching post:', err);
