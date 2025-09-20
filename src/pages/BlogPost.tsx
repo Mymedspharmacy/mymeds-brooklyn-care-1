@@ -105,7 +105,7 @@ const BlogPost = () => {
             // Only use mock data in non-production
             const mockListResp = await fetch('/api/mock-blog/');
             const mockList = await mockListResp.json();
-            const mockPost = mockList.find((p: any) => p.slug === slug);
+            const mockPost = mockList.find((p: any) => p.id === parseInt(id));
             if (mockPost) {
               setPost({
                 id: mockPost.id,
@@ -137,7 +137,7 @@ const BlogPost = () => {
     };
 
     fetchPost();
-  }, [slug]);
+  }, [id]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
