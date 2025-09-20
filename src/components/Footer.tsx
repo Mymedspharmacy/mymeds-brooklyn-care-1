@@ -24,14 +24,17 @@ import {
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
 import logo from "@/assets/logo.png";
+import { getPhoneNumber, getEmail, getTelLink, getMailtoLink, getGoogleMapsUrl } from "@/lib/contact";
 
 export const Footer = () => {
   const navigate = useNavigate();
   const [isSubscribed, setIsSubscribed] = useState(false);
   
+  const phoneNumber = getPhoneNumber();
+  const email = getEmail();
+
   const handleCallClick = () => {
-    const phoneNumber = '3473126458';
-    const telLink = `tel:${phoneNumber}`;
+    const telLink = getTelLink(phoneNumber);
     if (navigator.userAgent.match(/iPhone|iPad|iPod|Android/i)) {
       window.location.href = telLink;
     } else {
@@ -42,21 +45,21 @@ export const Footer = () => {
   };
 
   const handleEmailClick = () => {
-    window.open('mailto:mymedspharmacyinc@gmail.com');
+    window.open(getMailtoLink(email));
   };
 
   const handleMapClick = () => {
-    window.open('https://maps.app.goo.gl/gXSVqF25sAB7r6m76', '_blank');
+    window.open(getGoogleMapsUrl(), '_blank');
   };
 
   const currentYear = new Date().getFullYear();
 
   // Config-driven data (does not change behavior)
   const socialLinks = [
-    { icon: Facebook, url: "https://facebook.com/mymedspharmacy", label: "Facebook" },
-    { icon: Twitter, url: "https://twitter.com/mymedspharmacy", label: "Twitter" },
-    { icon: Instagram, url: "https://instagram.com/mymedspharmacy", label: "Instagram" },
-    { icon: Linkedin, url: "https://linkedin.com/company/mymedspharmacy", label: "LinkedIn" }
+    { icon: Facebook, url: import.meta.env.VITE_FACEBOOK_URL || "#", label: "Facebook" },
+    { icon: Twitter, url: import.meta.env.VITE_TWITTER_URL || "#", label: "Twitter" },
+    { icon: Instagram, url: import.meta.env.VITE_INSTAGRAM_URL || "#", label: "Instagram" },
+    { icon: Linkedin, url: import.meta.env.VITE_LINKEDIN_URL || "#", label: "LinkedIn" }
   ];
 
   const quickLinks = [

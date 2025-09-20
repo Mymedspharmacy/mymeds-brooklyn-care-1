@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Phone, Truck, Clock, ArrowRight, Shield, Heart, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { getPhoneNumber, getTelLink } from "@/lib/contact";
 
 interface HeroProps {
   onRefillClick: () => void;
@@ -8,10 +9,10 @@ interface HeroProps {
 
 export const Hero = ({ onRefillClick }: HeroProps) => {
   const navigate = useNavigate();
+  const phoneNumber = getPhoneNumber();
 
   const handleCallClick = () => {
-    const phoneNumber = '3473126458';
-    const telLink = `tel:${phoneNumber}`;
+    const telLink = getTelLink(phoneNumber);
     
     if (navigator.userAgent.match(/iPhone|iPad|iPod|Android/i)) {
       window.location.href = telLink;
@@ -97,7 +98,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
                 className="text-[#376F6B] hover:bg-[#376F6B]/10 text-lg"
               >
                 <Phone className="mr-2 h-5 w-5" />
-                (347) 312-6458
+                {phoneNumber.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3')}
               </Button>
             </div>
           </div>

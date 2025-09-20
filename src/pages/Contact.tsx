@@ -193,7 +193,7 @@ const Contact = () => {
                           <Button 
                             variant="outline" 
                             size="sm"
-                            onClick={() => window.open('https://maps.app.goo.gl/gXSVqF25sAB7r6m76', '_blank')}
+                            onClick={() => window.open(import.meta.env.VITE_GOOGLE_MAPS_URL || 'https://maps.google.com', '_blank')}
                             className="text-[#57BBB6] border-[#57BBB6] hover:bg-[#57BBB6] hover:text-white transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
                           >
                             <MapPin className="h-4 w-4 mr-2" />

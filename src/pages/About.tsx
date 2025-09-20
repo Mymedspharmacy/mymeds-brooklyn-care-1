@@ -90,7 +90,7 @@ export default function About() {
   };
 
   const handleMapClick = () => {
-    window.open('https://maps.app.goo.gl/gXSVqF25sAB7r6m76', '_blank');
+    window.open(import.meta.env.VITE_GOOGLE_MAPS_URL || 'https://maps.google.com', '_blank');
   };
 
   const coreValues = [

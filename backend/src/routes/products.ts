@@ -88,8 +88,8 @@ router.post('/:id/images', unifiedAdminAuth, upload.single('file'), async (req: 
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
     
     // TODO: Implement file upload to cloud storage
-    // For now, return a placeholder response
-    res.status(501).json({ error: 'File upload not implemented yet' });
+    // This endpoint needs proper file storage implementation
+    res.status(501).json({ error: 'File upload functionality needs implementation' });
   } catch (err) {
     console.error('Error uploading product image:', err);
     res.status(500).json({ error: 'Failed to upload product image' });

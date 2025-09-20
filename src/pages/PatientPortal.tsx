@@ -188,12 +188,13 @@ const PatientPortal = () => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Mock successful login
+      // TODO: Implement actual patient authentication
+      // This should connect to backend API for patient login
       setIsLoggedIn(true);
       setUser({
-        name: 'John Doe',
-        email: 'john.doe@example.com',
-        memberSince: '2023-01-15'
+        name: 'Patient User',
+        email: 'patient@example.com',
+        memberSince: new Date().toISOString().split('T')[0]
       });
       
       // Fetch user data

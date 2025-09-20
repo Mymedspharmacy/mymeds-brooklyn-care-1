@@ -18,7 +18,7 @@ export const Map = ({ showDetails = true, className = "" }: MapProps) => {
 
   const handleDirections = () => {
     // Use the exact Google Maps location provided
-    window.open('https://maps.app.goo.gl/tHL4EmozjnnwQqF3A', '_blank');
+    window.open(import.meta.env.VITE_GOOGLE_MAPS_URL || 'https://maps.google.com', '_blank');
   };
 
   const handleCall = () => {
