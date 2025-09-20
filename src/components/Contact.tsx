@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import api from '../lib/api';
 import { safeClipboard } from "@/utils/errorHandling";
+import { getPhoneNumber, getEmail, getTelLink, getMailtoLink } from "@/lib/contact";
 
 export const Contact = () => {
   const [formData, setFormData] = useState({
@@ -176,9 +177,11 @@ export const Contact = () => {
     setCurrentStep(prev => Math.max(prev - 1, 1));
   };
 
+  const phoneNumber = getPhoneNumber();
+  const email = getEmail();
+
   const handleCallClick = () => {
-    const phoneNumber = '3473126458';
-    const telLink = `tel:${phoneNumber}`;
+    const telLink = getTelLink(phoneNumber);
     if (navigator.userAgent.match(/iPhone|iPad|iPod|Android/i)) {
       window.location.href = telLink;
     } else {

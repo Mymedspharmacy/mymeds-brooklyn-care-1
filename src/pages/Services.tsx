@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { HowItWorks } from "@/components/HowItWorks";
+import { getPhoneNumber, getEmail, getTelLink, getMailtoLink } from "@/lib/contact";
 
 export default function Services() {
   const navigate = useNavigate();
@@ -377,9 +378,10 @@ export default function Services() {
 
   const selectedServiceData = services.find(service => service.id === selectedService);
 
+  const phoneNumber = getPhoneNumber();
+
   const handleCallClick = () => {
-    const phoneNumber = '3473126458';
-    const telLink = `tel:${phoneNumber}`;
+    const telLink = getTelLink(phoneNumber);
     if (navigator.userAgent.match(/iPhone|iPad|iPod|Android/i)) {
       window.location.href = telLink;
     } else {
@@ -390,7 +392,7 @@ export default function Services() {
   };
 
   const handleEmailClick = () => {
-    window.open('mailto:mymedspharmacy@outlook.com');
+    window.open(getMailtoLink(getEmail()));
   };
 
   const handleMapClick = () => {

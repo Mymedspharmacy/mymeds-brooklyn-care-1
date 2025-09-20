@@ -13,6 +13,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFormHandlers } from "@/hooks/useFormHandlers";
 import logo from "@/assets/logo.png";
+import { getPhoneNumber, getEmail, getTelLink, getMailtoLink } from "@/lib/contact";
 
 export default function About() {
   const navigate = useNavigate();
@@ -73,9 +74,10 @@ export default function About() {
     return () => observer.disconnect();
   }, []);
 
+  const phoneNumber = getPhoneNumber();
+
   const handleCallClick = () => {
-    const phoneNumber = '3473126458';
-    const telLink = `tel:${phoneNumber}`;
+    const telLink = getTelLink(phoneNumber);
     if (navigator.userAgent.match(/iPhone|iPad|iPod|Android/i)) {
       window.location.href = telLink;
     } else {
@@ -86,7 +88,7 @@ export default function About() {
   };
 
   const handleEmailClick = () => {
-    window.open('mailto:mymedspharmacy@outlook.com');
+    window.open(getMailtoLink(getEmail()));
   };
 
   const handleMapClick = () => {

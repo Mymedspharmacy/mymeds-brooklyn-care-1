@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { HowItWorks } from "@/components/HowItWorks";
+import { getPhoneNumber, getEmail, getTelLink, getMailtoLink } from "@/lib/contact";
 import { SEOHead } from "@/components/SEOHead";
 
 export default function SpecialOffers() {
@@ -213,9 +214,10 @@ export default function SpecialOffers() {
     }
   ];
 
+  const phoneNumber = getPhoneNumber();
+
   const handleCallClick = () => {
-    const phoneNumber = '3473126458';
-    const telLink = `tel:${phoneNumber}`;
+    const telLink = getTelLink(phoneNumber);
     if (navigator.userAgent.match(/iPhone|iPad|iPod|Android/i)) {
       window.location.href = telLink;
     } else {
@@ -226,7 +228,7 @@ export default function SpecialOffers() {
   };
 
   const handleEmailClick = () => {
-    window.open('mailto:mymedspharmacy@outlook.com');
+    window.open(getMailtoLink(getEmail()));
   };
 
   const handleMapClick = () => {
