@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -41,6 +42,7 @@ interface WordPressCategory {
 
 
 export default function Blog() {
+  const navigate = useNavigate();
   const {
     showRefillForm,
     showAppointmentForm,
@@ -64,6 +66,11 @@ export default function Blog() {
     // The search is already handled by the searchQuery state and useEffect
     // This function can be used for additional search logic if needed
     console.log('Searching for:', searchQuery);
+  };
+
+  const handleReadMore = (postId: number) => {
+    // Navigate to individual blog post page
+    navigate(`/blog/${postId}`);
   };
   const [featuredPosts, setFeaturedPosts] = useState<WordPressPost[]>([]);
   const [recentPosts, setRecentPosts] = useState<WordPressPost[]>([]);
@@ -392,6 +399,7 @@ export default function Blog() {
                       {/* Read More Button */}
                       <Button 
                         variant="outline" 
+                        onClick={() => handleReadMore(post.id)}
                         className="border-[#57BBB6] text-[#57BBB6] hover:bg-[#57BBB6] hover:text-white rounded-full px-3 py-1 text-xs transition-all duration-300"
                       >
                         <ArrowRight className="h-3 w-3" />
@@ -475,6 +483,7 @@ export default function Blog() {
                       {/* Read More Button */}
                       <Button 
                         variant="outline" 
+                        onClick={() => handleReadMore(post.id)}
                         className="border-[#376F6B] text-[#376F6B] hover:bg-[#376F6B] hover:text-white rounded-full px-3 py-1 text-xs transition-all duration-300"
                       >
                         <ArrowRight className="h-3 w-3" />

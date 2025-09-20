@@ -30,6 +30,7 @@ const PatientPortal = lazy(() => import("./pages/PatientPortal"));
 const PatientAccountCreation = lazy(() => import("./pages/PatientAccountCreation"));
 const ProductView = lazy(() => import("./pages/ProductView"));
 const MedicationInteractionChecker = lazy(() => import("./components/MedicationInteractionChecker"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
 
 // Loading component
 const PageLoader = () => (
@@ -76,6 +77,7 @@ const App = () => (
                 <Route path="/services" element={<Services />} />
                 <Route path="/special-offers" element={<SpecialOffers />} />
                 <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:id" element={<BlogPost />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/admin" element={<Admin />} />

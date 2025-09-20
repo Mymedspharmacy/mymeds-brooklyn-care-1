@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Calendar, User, Clock, Tag } from 'lucide-react';
-import { wordPressAPI } from '@/lib/wordpress-api';
+import { wordPressAPI } from '@/lib/wordpress';
 
 interface BlogPost {
   id: number;
@@ -39,7 +39,7 @@ interface Tag {
 }
 
 const BlogPost = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [post, setPost] = useState<BlogPost | null>(null);
   const [author, setAuthor] = useState<Author | null>(null);
@@ -50,7 +50,7 @@ const BlogPost = () => {
 
   useEffect(() => {
     const fetchPost = async () => {
-      if (!slug) return;
+      if (!id) return;
       
       try {
         setLoading(true);
@@ -58,9 +58,8 @@ const BlogPost = () => {
 
         // Try to fetch from WordPress first
         if (import.meta.env.VITE_WORDPRESS_URL) {
-          const posts = await wordPressAPI.getPosts({ slug });
-          if (posts.length > 0) {
-            const postData = posts[0];
+          const postData = await wordPressAPI.getPost(parseInt(id));
+          if (postData) {
             setPost(postData);
 
             // Fetch author
