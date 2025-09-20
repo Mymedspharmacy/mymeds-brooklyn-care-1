@@ -1123,43 +1123,25 @@ export default function Admin() {
     }).format(amount);
   }
 
-  // Show loading state while checking authentication
+  // Redirect to sign-in if not authenticated (no loading screen)
   if (checkingAuth) {
-    return (
-      <div className="min-h-screen bg-[#D5C6BC] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#376F6B] border-t-transparent mx-auto mb-4"></div>
-          <p className="text-[#376F6B] text-lg font-medium">Loading Admin Dashboard...</p>
-          <p className="text-[#376F6B]/70 text-sm mt-2">Please wait while we verify your access</p>
-        </div>
-      </div>
-    );
+    // Don't show loading screen, just redirect immediately
+    navigate('/admin-signin');
+    return null;
   }
 
   // Additional check to ensure we have valid user data
   const currentUser = adminAuth.getUser();
   if (!currentUser || !currentUser.role || currentUser.role !== 'ADMIN') {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-600 text-lg mb-4">Admin access required</div>
-          <p className="text-gray-600">Redirecting to sign in...</p>
-        </div>
-      </div>
-    );
+    navigate('/admin-signin');
+    return null;
   }
 
   // Prevent API calls if not authenticated
   const isAuthenticated = adminAuth.isAuthenticatedSync();
   if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-600 text-lg mb-4">Authentication required</div>
-          <p className="text-gray-600">Please sign in to continue...</p>
-        </div>
-      </div>
-    );
+    navigate('/admin-signin');
+    return null;
   }
 
   // Show user info in the header

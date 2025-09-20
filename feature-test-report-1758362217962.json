@@ -1,0 +1,66 @@
+{
+  "timestamp": "2025-09-20T09:56:53.084Z",
+  "summary": {
+    "total": 11,
+    "passed": 9,
+    "failed": 2,
+    "errors": 0
+  },
+  "tests": [
+    {
+      "name": "Main Page Load",
+      "status": "PASSED",
+      "details": "Status: 200, Content-Type: text/html"
+    },
+    {
+      "name": "Admin Panel Page",
+      "status": "PASSED",
+      "details": "Status: 200, Content-Type: text/html"
+    },
+    {
+      "name": "Shop Page",
+      "status": "PASSED",
+      "details": "Status: 200, Content-Type: text/html"
+    },
+    {
+      "name": "Blog Page",
+      "status": "PASSED",
+      "details": "Status: 200, Content-Type: text/html"
+    },
+    {
+      "name": "Database Health Check",
+      "status": "PASSED",
+      "details": "Status: 200, Health check: healthy"
+    },
+    {
+      "name": "Admin API Endpoint",
+      "status": "PASSED",
+      "details": "Status: 200, Auth required: false"
+    },
+    {
+      "name": "WooCommerce Status",
+      "status": "PASSED",
+      "details": "Status: 200, Data: {\"enabled\":true,\"status\":\"connected\",\"message\":\"WooCommerce is connected and working\",\"storeUrl\":\"https://www.mymedspharmacyinc.com\"}"
+    },
+    {
+      "name": "WooCommerce Products API",
+      "status": "PASSED",
+      "details": "Status: 200, Products count: 1"
+    },
+    {
+      "name": "WooCommerce Categories API",
+      "status": "FAILED",
+      "details": "Status: 404, Categories count: 0"
+    },
+    {
+      "name": "WordPress Status",
+      "status": "PASSED",
+      "details": "Status: 200, Data: {\"enabled\":false,\"status\":\"not_configured\",\"message\":\"WordPress is not configured or enabled\"}"
+    },
+    {
+      "name": "WordPress Posts API",
+      "status": "FAILED",
+      "details": "Status: 200, Posts count: 0"
+    }
+  ]
+}

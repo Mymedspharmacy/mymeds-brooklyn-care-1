@@ -1,77 +1,78 @@
 {
-  "timestamp": "2025-09-04T12:16:02.140Z",
+  "timestamp": "2025-09-20T10:08:14.821Z",
   "summary": {
     "total": 11,
-    "passed": 11,
+    "passed": 10,
     "failed": 0,
-    "errors": 0
+    "errors": 1
   },
   "results": [
     {
       "category": "Admin Authentication",
       "test": "Admin Sign-In Page Load",
       "status": "PASS",
-      "timestamp": "2025-09-04T12:15:38.050Z"
+      "timestamp": "2025-09-20T10:07:52.864Z"
     },
     {
       "category": "Admin Authentication",
       "test": "Admin Login Form Validation",
-      "status": "PASS",
-      "timestamp": "2025-09-04T12:15:42.711Z"
+      "status": "ERROR",
+      "error": "Cannot read properties of null (reading 'evaluate')",
+      "timestamp": "2025-09-20T10:07:55.575Z"
     },
     {
       "category": "Admin Authentication",
       "test": "Admin Login with Valid Credentials",
       "status": "PASS",
-      "timestamp": "2025-09-04T12:15:45.584Z"
+      "timestamp": "2025-09-20T10:07:58.138Z"
     },
     {
       "category": "Patient Forms",
       "test": "Homepage Load",
       "status": "PASS",
-      "timestamp": "2025-09-04T12:15:45.949Z"
+      "timestamp": "2025-09-20T10:07:58.527Z"
     },
     {
       "category": "Patient Forms",
       "test": "Refill Form Modal Open",
       "status": "PASS",
-      "timestamp": "2025-09-04T12:15:51.264Z"
+      "timestamp": "2025-09-20T10:08:03.852Z"
     },
     {
       "category": "Patient Forms",
       "test": "Transfer Form Modal Open",
       "status": "PASS",
-      "timestamp": "2025-09-04T12:15:56.528Z"
+      "timestamp": "2025-09-20T10:08:09.165Z"
     },
     {
       "category": "Patient Forms",
       "test": "Appointment Form Modal Open",
       "status": "PASS",
-      "timestamp": "2025-09-04T12:15:59.993Z"
+      "timestamp": "2025-09-20T10:08:12.624Z"
     },
     {
       "category": "API Endpoints",
       "test": "Backend Health Check",
       "status": "PASS",
-      "timestamp": "2025-09-04T12:15:59.999Z"
+      "timestamp": "2025-09-20T10:08:12.637Z"
     },
     {
       "category": "API Endpoints",
       "test": "Admin Login API",
       "status": "PASS",
-      "timestamp": "2025-09-04T12:16:00.004Z"
+      "timestamp": "2025-09-20T10:08:12.657Z"
     },
     {
       "category": "Error Handling",
       "test": "404 Page Handling",
       "status": "PASS",
-      "timestamp": "2025-09-04T12:16:02.135Z"
+      "timestamp": "2025-09-20T10:08:14.814Z"
     },
     {
       "category": "Error Handling",
       "test": "Network Error Handling",
       "status": "PASS",
-      "timestamp": "2025-09-04T12:16:02.139Z"
+      "timestamp": "2025-09-20T10:08:14.821Z"
     }
   ]
 }

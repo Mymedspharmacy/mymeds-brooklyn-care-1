@@ -1,9 +1,9 @@
 {
-  "timestamp": "2025-09-04T12:05:00.453Z",
+  "timestamp": "2025-09-20T10:01:55.002Z",
   "summary": {
     "total": 7,
-    "passed": 1,
-    "failed": 5,
+    "passed": 0,
+    "failed": 6,
     "errors": 1
   },
   "results": [
@@ -11,44 +11,44 @@
       "category": "Form Submissions",
       "test": "Refill Form Complete Submission",
       "status": "FAIL",
-      "timestamp": "2025-09-04T12:04:39.803Z"
+      "timestamp": "2025-09-20T10:01:26.992Z"
     },
     {
       "category": "Form Submissions",
       "test": "Transfer Form Complete Submission",
       "status": "FAIL",
-      "timestamp": "2025-09-04T12:04:45.164Z"
+      "timestamp": "2025-09-20T10:01:32.394Z"
     },
     {
       "category": "Form Submissions",
       "test": "Appointment Form Complete Submission",
       "status": "FAIL",
-      "timestamp": "2025-09-04T12:04:54.387Z"
+      "timestamp": "2025-09-20T10:01:41.657Z"
     },
     {
       "category": "Admin Dashboard",
       "test": "Admin Dashboard Access",
       "status": "ERROR",
-      "error": "Node is detached from document",
-      "timestamp": "2025-09-04T12:04:57.199Z"
+      "error": "Node is either not clickable or not an Element",
+      "timestamp": "2025-09-20T10:01:44.447Z"
     },
     {
       "category": "Admin Dashboard",
       "test": "Admin Dashboard Navigation",
       "status": "FAIL",
-      "timestamp": "2025-09-04T12:05:00.324Z"
+      "timestamp": "2025-09-20T10:01:47.595Z"
     },
     {
       "category": "API Integration",
       "test": "Form Data Reaches Backend",
       "status": "FAIL",
-      "timestamp": "2025-09-04T12:05:00.381Z"
+      "timestamp": "2025-09-20T10:01:50.778Z"
     },
     {
       "category": "API Integration",
       "test": "Admin Authentication Works",
-      "status": "PASS",
-      "timestamp": "2025-09-04T12:05:00.453Z"
+      "status": "FAIL",
+      "timestamp": "2025-09-20T10:01:55.002Z"
     }
   ]
 }

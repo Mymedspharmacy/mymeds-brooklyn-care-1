@@ -87,13 +87,18 @@ export default function Blog() {
           wordPressAPI.getFeaturedPosts({ per_page: 3 })
         ]);
         
-        setPosts(postsData);
-        setCategories(categoriesData);
-        setFeaturedPosts(featuredData);
-        setRecentPosts(postsData.slice(0, 6));
+        // Type assertions to fix TypeScript errors
+        const typedPostsData = postsData as WordPressPost[];
+        const typedCategoriesData = categoriesData as WordPressCategory[];
+        const typedFeaturedData = featuredData as WordPressPost[];
+        
+        setPosts(typedPostsData);
+        setCategories(typedCategoriesData);
+        setFeaturedPosts(typedFeaturedData);
+        setRecentPosts(typedPostsData.slice(0, 6));
         
         // Clear error if we successfully got data
-        if (postsData.length > 0) {
+        if (typedPostsData.length > 0) {
           setError(null);
         }
       } catch (error) {
@@ -184,34 +189,11 @@ export default function Blog() {
                 <p className="text-sm text-blue-700">
                   {error}
                 </p>
-                {!import.meta.env.VITE_WORDPRESS_URL && (
-                  <p className="text-xs text-blue-600 mt-1">
-                    To connect your WordPress blog, set the VITE_WORDPRESS_URL environment variable.
-                  </p>
-                )}
               </div>
             </div>
           </div>
         )}
 
-        {/* WordPress Status Indicator */}
-        {!import.meta.env.VITE_WORDPRESS_URL && (
-          <div className="bg-gray-50 border-l-4 border-gray-400 p-4 mb-4 mx-4 sm:mx-6 lg:mx-8">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-gray-600">
-                  <span className="font-medium">WordPress Status:</span> Not configured
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  Currently showing sample content. Configure VITE_WORDPRESS_URL to connect your blog.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Hero Section */}
                   <section className="py-16 sm:py-20 md:py-24 text-white relative overflow-hidden">

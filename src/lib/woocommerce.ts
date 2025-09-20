@@ -1,15 +1,5 @@
 import axios from 'axios';
-
-// WooCommerce API configuration
-const WOOCOMMERCE_URL = import.meta.env.VITE_WOOCOMMERCE_URL;
-const WOOCOMMERCE_CONSUMER_KEY = import.meta.env.VITE_WOOCOMMERCE_CONSUMER_KEY;
-const WOOCOMMERCE_CONSUMER_SECRET = import.meta.env.VITE_WOOCOMMERCE_CONSUMER_SECRET;
-
-// Validate required environment variables
-if (!WOOCOMMERCE_URL || !WOOCOMMERCE_CONSUMER_KEY || !WOOCOMMERCE_CONSUMER_SECRET) {
-  console.error('❌ WooCommerce environment variables are not configured!');
-  console.error('Please set: VITE_WOOCOMMERCE_URL, VITE_WOOCOMMERCE_CONSUMER_KEY, VITE_WOOCOMMERCE_CONSUMER_SECRET');
-}
+import api from './api';
 
 // In-memory cache for products (in production, use a more robust solution)
 const productCache = new Map();
@@ -35,22 +25,11 @@ const clearProductCache = () => {
   productCache.clear();
 };
 
-// Enhanced error handling with retry logic
-const makeWooCommerceRequest = async (url: string, params = {}, retries = 3) => {
+// Enhanced error handling with retry logic via backend API
+const makeWooCommerceRequest = async (url: string, params: Record<string, unknown> = {}, retries = 3) => {
   for (let i = 0; i < retries; i++) {
     try {
-      const response = await axios.get(url, {
-        params,
-        auth: {
-          username: WOOCOMMERCE_CONSUMER_KEY,
-          password: WOOCOMMERCE_CONSUMER_SECRET,
-        },
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        timeout: 10000, // 10 second timeout
-      });
-      
+      const response = await api.get(`/woocommerce${url}`, { params });
       return response.data;
     } catch (error: any) {
       if (i === retries - 1) throw error;
@@ -63,19 +42,9 @@ const makeWooCommerceRequest = async (url: string, params = {}, retries = 3) => 
   }
 };
 
-const woocommerce = axios.create({
-  baseURL: `${WOOCOMMERCE_URL}/wp-json/wc/v3`,
-  auth: {
-    username: WOOCOMMERCE_CONSUMER_KEY,
-    password: WOOCOMMERCE_CONSUMER_SECRET,
-  },
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  timeout: 10000, // 10 second timeout
-});
+const woocommerce = axios.create();
 
-// Add response interceptor for better error handling
+// Add response interceptor for better error handling (backend-proxied responses)
 woocommerce.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -84,8 +53,8 @@ woocommerce.interceptors.response.use(
       const { status, data } = error.response;
       let errorMessage = `WooCommerce API Error (${status})`;
       
-      if (data && data.message) {
-        errorMessage += `: ${data.message}`;
+      if (data && (data.message || data.error)) {
+        errorMessage += `: ${data.message || data.error}`;
       } else if (status === 401) {
         errorMessage = 'Authentication failed. Please check your WooCommerce credentials.';
       } else if (status === 404) {
@@ -121,7 +90,8 @@ export const wooCommerceAPI = {
       }
 
       console.log('🔄 Fetching products from WooCommerce...');
-      const products = await makeWooCommerceRequest('/products', params);
+      const data = await makeWooCommerceRequest('/products', params);
+      const products = data.products ?? data;
       
       // Cache the results
       setCachedProducts(cacheKey, products);
@@ -145,7 +115,8 @@ export const wooCommerceAPI = {
       }
 
       console.log(`🔄 Fetching product ${id} from WooCommerce...`);
-      const product = await makeWooCommerceRequest(`/products/${id}`);
+      const data = await makeWooCommerceRequest(`/products/${id}`);
+      const product = data?.product ?? data;
       
       // Cache the result
       setCachedProducts(cacheKey, product);
@@ -169,7 +140,8 @@ export const wooCommerceAPI = {
       }
 
       console.log('🔄 Fetching categories from WooCommerce...');
-      const categories = await makeWooCommerceRequest('/products/categories');
+      const data = await makeWooCommerceRequest('/categories');
+      const categories = data.categories ?? data;
       
       // Cache the results
       setCachedProducts(cacheKey, categories);
@@ -193,10 +165,11 @@ export const wooCommerceAPI = {
       }
 
       console.log(`🔍 Searching products for "${searchTerm}"...`);
-      const products = await makeWooCommerceRequest('/products', {
+      const data = await makeWooCommerceRequest('/products', {
         search: searchTerm,
         ...params,
       });
+      const products = Array.isArray(data) ? data : (data.products ?? data);
       
       // Cache the results
       setCachedProducts(cacheKey, products);
@@ -220,10 +193,11 @@ export const wooCommerceAPI = {
       }
 
       console.log(`🔄 Fetching products for category ${categoryId}...`);
-      const products = await makeWooCommerceRequest('/products', {
+      const data = await makeWooCommerceRequest('/products', {
         category: categoryId,
         ...params,
       });
+      const products = Array.isArray(data) ? data : (data.products ?? data);
       
       // Cache the results
       setCachedProducts(cacheKey, products);
@@ -285,14 +259,10 @@ export const wooCommerceAPI = {
     try {
       console.log('🛒 Creating order in WooCommerce...');
       
-      const response = await woocommerce.post('/orders', orderData);
-      
-      if (response.data) {
-        console.log('✅ Order created successfully:', response.data.id);
-        return response.data;
-      } else {
-        throw new Error('No response data received from WooCommerce');
-      }
+      const { data } = await api.post('/woocommerce/orders', orderData);
+      if (!data) throw new Error('No response data received from WooCommerce');
+      console.log('✅ Order created successfully:', data.id);
+      return data;
     } catch (error: any) {
       console.error('Error creating WooCommerce order:', error);
       throw new Error(`Failed to create order: ${error.message}`);
@@ -304,13 +274,9 @@ export const wooCommerceAPI = {
     try {
       console.log(`📦 Fetching order ${orderId} from WooCommerce...`);
       
-      const response = await woocommerce.get(`/orders/${orderId}`);
-      
-      if (response.data) {
-        return response.data;
-      } else {
-        throw new Error('No response data received from WooCommerce');
-      }
+      const { data } = await api.get(`/woocommerce/orders/${orderId}`);
+      if (!data) throw new Error('No response data received from WooCommerce');
+      return data;
     } catch (error: any) {
       console.error(`Error fetching order ${orderId}:`, error);
       throw new Error(`Failed to fetch order: ${error.message}`);
@@ -322,16 +288,10 @@ export const wooCommerceAPI = {
     try {
       console.log(`📝 Updating order ${orderId} status to ${status}...`);
       
-      const response = await woocommerce.put(`/orders/${orderId}`, {
-        status: status
-      });
-      
-      if (response.data) {
-        console.log(`✅ Order ${orderId} status updated to ${status}`);
-        return response.data;
-      } else {
-        throw new Error('No response data received from WooCommerce');
-      }
+      const { data } = await api.put(`/woocommerce/orders/${orderId}`, { status });
+      if (!data) throw new Error('No response data received from WooCommerce');
+      console.log(`✅ Order ${orderId} status updated to ${status}`);
+      return data;
     } catch (error: any) {
       console.error(`Error updating order ${orderId} status:`, error);
       throw new Error(`Failed to update order status: ${error.message}`);
@@ -343,13 +303,9 @@ export const wooCommerceAPI = {
     try {
       console.log('💳 Fetching payment gateways from WooCommerce...');
       
-      const response = await woocommerce.get('/payment_gateways');
-      
-      if (response.data) {
-        return response.data;
-      } else {
-        throw new Error('No response data received from WooCommerce');
-      }
+      const { data } = await api.get('/woocommerce/payment_gateways');
+      if (!data) throw new Error('No response data received from WooCommerce');
+      return data;
     } catch (error: any) {
       console.error('Error fetching payment gateways:', error);
       throw new Error(`Failed to fetch payment gateways: ${error.message}`);

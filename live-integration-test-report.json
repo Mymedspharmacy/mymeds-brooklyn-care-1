@@ -1,83 +1,83 @@
 {
-  "timestamp": "2025-09-04T12:24:08.518Z",
+  "timestamp": "2025-09-20T10:05:47.443Z",
   "summary": {
     "total": 12,
-    "passed": 4,
-    "failed": 8,
+    "passed": 6,
+    "failed": 6,
     "errors": 0
   },
   "results": [
     {
       "category": "WordPress Blog",
       "test": "WordPress API Connection Test",
-      "status": "FAIL",
-      "timestamp": "2025-09-04T12:24:08.485Z"
+      "status": "PASS",
+      "timestamp": "2025-09-20T10:05:47.406Z"
     },
     {
       "category": "WordPress Blog",
       "test": "WordPress Categories Test",
       "status": "FAIL",
-      "timestamp": "2025-09-04T12:24:08.492Z"
+      "timestamp": "2025-09-20T10:05:47.412Z"
     },
     {
       "category": "WordPress Blog",
       "test": "WordPress Featured Posts Test",
       "status": "FAIL",
-      "timestamp": "2025-09-04T12:24:08.494Z"
+      "timestamp": "2025-09-20T10:05:47.416Z"
     },
     {
       "category": "WordPress Blog",
       "test": "WordPress Search Test",
       "status": "FAIL",
-      "timestamp": "2025-09-04T12:24:08.496Z"
+      "timestamp": "2025-09-20T10:05:47.419Z"
     },
     {
       "category": "WooCommerce Shop",
       "test": "WooCommerce Products API Test",
       "status": "FAIL",
-      "timestamp": "2025-09-04T12:24:08.507Z"
+      "timestamp": "2025-09-20T10:05:47.431Z"
     },
     {
       "category": "WooCommerce Shop",
       "test": "WooCommerce Categories Test",
-      "status": "FAIL",
-      "timestamp": "2025-09-04T12:24:08.510Z"
+      "status": "PASS",
+      "timestamp": "2025-09-20T10:05:47.434Z"
     },
     {
       "category": "WooCommerce Shop",
       "test": "WooCommerce Product Search Test",
       "status": "FAIL",
-      "timestamp": "2025-09-04T12:24:08.512Z"
+      "timestamp": "2025-09-20T10:05:47.437Z"
     },
     {
       "category": "WooCommerce Shop",
       "test": "WooCommerce Product by Category Test",
       "status": "FAIL",
-      "timestamp": "2025-09-04T12:24:08.515Z"
+      "timestamp": "2025-09-20T10:05:47.441Z"
     },
     {
       "category": "Frontend Integration",
       "test": "Frontend WordPress Library Test",
       "status": "PASS",
-      "timestamp": "2025-09-04T12:24:08.516Z"
+      "timestamp": "2025-09-20T10:05:47.442Z"
     },
     {
       "category": "Frontend Integration",
       "test": "Frontend WooCommerce Library Test",
       "status": "PASS",
-      "timestamp": "2025-09-04T12:24:08.516Z"
+      "timestamp": "2025-09-20T10:05:47.442Z"
     },
     {
       "category": "Frontend Integration",
       "test": "Blog Page Integration Test",
       "status": "PASS",
-      "timestamp": "2025-09-04T12:24:08.517Z"
+      "timestamp": "2025-09-20T10:05:47.443Z"
     },
     {
       "category": "Frontend Integration",
       "test": "Shop Page Integration Test",
       "status": "PASS",
-      "timestamp": "2025-09-04T12:24:08.518Z"
+      "timestamp": "2025-09-20T10:05:47.443Z"
     }
   ],
   "recommendations": [

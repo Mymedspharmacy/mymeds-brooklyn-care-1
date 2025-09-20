@@ -98,21 +98,31 @@ const app = express();
 // Trust proxy for VPS deployment
 app.set('trust proxy', 1);
 
-// Define allowed origins for CORS
+// Define allowed origins for CORS - Production Ready
 const allowedOrigins = [
-  'http://localhost:8080',
-  'http://localhost:8081',
-  'http://192.168.18.56:8080',
-  'http://192.168.18.56:8081',
+  // Production Domains
   'https://www.mymedspharmacyinc.com',
   'https://mymedspharmacyinc.com',
-  'http://72.60.116.253', // VPS IP address
-  'http://localhost:5173', // Vite dev server
-  'http://localhost:3000',  // Common dev port
-  'http://localhost:3001',   // Additional dev port
-  'http://localhost:3002',   // Frontend port
-  'http://localhost:3003',   // Frontend port (current)
-  'http://localhost:4000'   // Backend port
+  
+  // VPS Deployment (Production)
+  'https://72.60.116.253',
+  'http://72.60.116.253',
+  
+  // Add localhost only for development environment
+  ...(process.env.NODE_ENV === 'development' ? [
+    'http://localhost:3000',
+    'http://localhost:3001', 
+    'http://localhost:3002',
+    'http://localhost:3003',
+    'http://localhost:3004',
+    'http://localhost:4000',
+    'http://localhost:5173',
+    'http://192.168.18.56:3000',
+    'http://192.168.18.56:3001',
+    'http://192.168.18.56:3002',
+    'http://192.168.18.56:3003',
+    'http://192.168.18.56:3004'
+  ] : [])
 ];
 
 // ✅ IMPLEMENTED: WebSocket server setup

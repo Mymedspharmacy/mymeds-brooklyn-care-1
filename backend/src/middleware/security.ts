@@ -5,18 +5,32 @@ import cors from 'cors';
 import logger from '../utils/logger';
 import { RateLimitError } from './errorHandler';
 
-// Enhanced CORS configuration
+// Enhanced CORS configuration - Production Ready
 const corsOptions = {
   origin: (origin: string | undefined, callback: Function) => {
-    const allowedOrigins = [
-      'http://localhost:8080',
-      'http://localhost:8081',
-      'http://localhost:5173', // Vite dev server
-      'http://localhost:3000', // Common dev port
-      'http://localhost:3001', // Additional dev port
+    // Production origins only
+    const productionOrigins = [
       'https://www.mymedspharmacyinc.com',
-      'https://mymedspharmacyinc.com'
+      'https://mymedspharmacyinc.com',
+      'https://72.60.116.253' // VPS Production IP
     ];
+
+    // Development origins (only in development environment)
+    const developmentOrigins = process.env.NODE_ENV === 'development' ? [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://localhost:3002',
+      'http://localhost:3003',
+      'http://localhost:3004',
+      'http://localhost:5173',
+      'http://192.168.18.56:3000',
+      'http://192.168.18.56:3001',
+      'http://192.168.18.56:3002',
+      'http://192.168.18.56:3003',
+      'http://192.168.18.56:3004'
+    ] : [];
+
+    const allowedOrigins = [...productionOrigins, ...developmentOrigins];
 
     // Allow requests with no origin (like mobile apps or Postman)
     if (!origin) return callback(null, true);
@@ -29,7 +43,8 @@ const corsOptions = {
     logger.warn('CORS_BLOCKED', {
       origin,
       ip: 'unknown',
-      userAgent: 'unknown'
+      userAgent: 'unknown',
+      environment: process.env.NODE_ENV
     });
 
     return callback(new Error('Not allowed by CORS'));

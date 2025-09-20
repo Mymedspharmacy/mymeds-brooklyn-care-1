@@ -1,5 +1,4 @@
 import { Router, Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
 import { unifiedAdminAuth } from './auth';
 
 interface AuthRequest extends Request {
@@ -7,7 +6,22 @@ interface AuthRequest extends Request {
 }
 
 const router = Router();
-const prisma = new PrismaClient();
+
+// Import shared Prisma instance from the main server
+let prisma: any;
+try {
+  // Try to import from the main server file
+  const { PrismaClient } = require('@prisma/client');
+  prisma = new PrismaClient();
+} catch (error) {
+  console.error('Failed to initialize Prisma client in WordPress routes:', error);
+  // Fallback to a mock prisma for error handling
+  prisma = {
+    wordPressSettings: {
+      findUnique: () => Promise.resolve(null)
+    }
+  };
+}
 
 // In-memory cache for posts (in production, use Redis)
 const postCache = new Map();
@@ -1038,10 +1052,31 @@ router.get('/posts', async (req: Request, res: Response) => {
     res.json(result);
   } catch (err: any) {
     console.error('Error fetching posts:', err);
-    res.status(500).json({ 
-      error: 'Failed to fetch posts',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    // Return empty posts instead of error for better UX
+    res.json({ posts: [], pagination: { total: 0, pages: 0 } });
+  }
+});
+
+// Public endpoint to get a post by ID (for frontend)
+router.get('/posts/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const settings = await prisma.wordPressSettings.findUnique({ where: { id: 1 } });
+    if (!settings || !settings.enabled) {
+      return res.status(404).json({ error: 'WordPress integration is not enabled' });
+    }
+    const response = await fetch(`${settings.siteUrl}/wp-json/wp/v2/posts/${id}`, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
     });
+    if (!response.ok) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+    const post = await response.json();
+    res.json({ post });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch post', details: error.message });
   }
 });
 

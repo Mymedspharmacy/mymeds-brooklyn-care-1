@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { wooCommerceAPI } from '@/lib/woocommerce';
 
 interface Product {
   id: number;
@@ -34,13 +35,13 @@ const ShopSection: React.FC = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('/wc-api/v3/products/categories');
-        if (response.ok) {
-          const data = await response.json();
-          setCategories(data);
-        }
+        const data: any = await wooCommerceAPI.getCategories();
+        const normalized = (data.categories ?? data ?? [])
+          .map((c: any) => ({ id: c.id, name: c.name, slug: c.slug }));
+        setCategories(normalized);
       } catch (err) {
         console.error('Error fetching categories:', err);
+        setCategories([]);
       }
     };
 
@@ -51,20 +52,31 @@ const ShopSection: React.FC = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const url = selectedCategory === 'all' 
-          ? '/wc-api/v3/products?per_page=12'
-          : `/wc-api/v3/products?category=${selectedCategory}&per_page=12`;
-        
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error('Failed to fetch products');
-        }
-        const data = await response.json();
-        setProducts(data);
+        const params: any = { per_page: 12 };
+        if (selectedCategory !== 'all') params.category = selectedCategory;
+        const data: any = await wooCommerceAPI.getProducts(params);
+        const items = data.products ?? data ?? [];
+        const normalized: Product[] = items.map((p: any) => ({
+          id: p.id,
+          name: p.name,
+          price: p.price ?? p.regular_price ?? '0',
+          regular_price: p.regular_price ?? p.price ?? '0',
+          sale_price: p.sale_price ?? '0',
+          description: p.description ?? '',
+          short_description: p.short_description ?? '',
+          images: (p.images ?? []).map((img: any) => ({ id: img.id ?? 0, src: img.src, alt: img.alt ?? '' })),
+          categories: p.categories ?? [],
+          stock_status: p.stock_status ?? 'instock',
+          average_rating: p.average_rating ?? '0',
+          rating_count: p.rating_count ?? 0,
+          on_sale: !!p.on_sale,
+        }));
+        setProducts(normalized);
         setError(null);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
         console.error('Error fetching products:', err);
+        setProducts([]);
       } finally {
         setLoading(false);
       }
@@ -148,12 +160,16 @@ const ShopSection: React.FC = () => {
         {products.map((product) => (
           <div key={product.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
             <div className="relative">
-              {product.images[0] && (
+              {product.images[0] ? (
                 <img
                   src={product.images[0].src}
                   alt={product.images[0].alt || product.name}
                   className="w-full h-48 object-cover"
                 />
+              ) : (
+                <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+                  <span className="text-gray-500 text-sm">No Image</span>
+                </div>
               )}
               {product.on_sale && (
                 <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-sm font-semibold">

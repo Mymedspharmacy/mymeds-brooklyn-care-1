@@ -32,7 +32,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 bg-[#376F6B] text-white px-4 py-2 rounded-full text-sm font-medium">
               <Shield className="h-4 w-4" />
-              <span>Trusted by Brooklyn Community</span>
+              <span>Trusted by Our Community</span>
             </div>
 
             {/* Main Headline */}
@@ -45,7 +45,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
               </h1>
               
               <p className="text-xl md:text-2xl text-gray-700 leading-relaxed max-w-2xl">
-                Your Neighbourhood Pharmacy, making your access to trusted care easier and more reliable. Providing exceptional pharmaceutical care and personalised services to the Brooklyn community.
+                Your Neighbourhood Pharmacy, making your access to trusted care easier and more reliable. Providing exceptional pharmaceutical care and personalised services to our community.
               </p>
             </div>
 

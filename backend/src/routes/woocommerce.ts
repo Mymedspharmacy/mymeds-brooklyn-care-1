@@ -1,5 +1,4 @@
 import { Router, Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
 import { unifiedAdminAuth } from './auth';
 
 interface AuthRequest extends Request {
@@ -7,7 +6,23 @@ interface AuthRequest extends Request {
 }
 
 const router = Router();
-const prisma = new PrismaClient();
+
+// Import shared Prisma instance from the main server
+let prisma: any;
+try {
+  // Try to import from the main server file
+  const { PrismaClient } = require('@prisma/client');
+  prisma = new PrismaClient();
+} catch (error) {
+  console.error('Failed to initialize Prisma client in WooCommerce routes:', error);
+  // Fallback to a mock prisma for error handling
+  prisma = {
+    wooCommerceSettings: {
+      findUnique: () => Promise.resolve(null),
+      findFirst: () => Promise.resolve(null)
+    }
+  };
+}
 
 // In-memory cache for products (in production, use Redis)
 const productCache = new Map();
@@ -1166,6 +1181,55 @@ router.post('/clear-cache', unifiedAdminAuth, async (req: AuthRequest, res: Resp
       error: 'Failed to clear cache',
       details: process.env.NODE_ENV === 'development' ? err.message : undefined
     });
+  }
+});
+
+// Categories endpoint
+router.get('/categories', async (req, res) => {
+  try {
+    const settings = await prisma.wooCommerceSettings.findUnique({ where: { id: 1 } });
+    if (!settings || !settings.enabled) {
+      return res.json([]);
+    }
+    const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/products/categories?per_page=100`, {
+      headers: {
+        'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    if (!response.ok) {
+      // Return empty array instead of error for better UX
+      return res.json([]);
+    }
+    const categories = await response.json();
+    res.json(categories);
+  } catch (error: any) {
+    // Return empty array instead of error for better UX
+    res.json([]);
+  }
+});
+
+// Product by ID endpoint
+router.get('/products/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const settings = await prisma.wooCommerceSettings.findUnique({ where: { id: 1 } });
+    if (!settings || !settings.enabled) {
+      return res.status(404).json({ error: 'WooCommerce is not configured or enabled' });
+    }
+    const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/products/${id}`, {
+      headers: {
+        'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    if (!response.ok) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+    const product = await response.json();
+    res.json({ product });
+  } catch (error: any) {
+    res.status(500).json({ error: 'Failed to fetch product', details: error.message });
   }
 });
 

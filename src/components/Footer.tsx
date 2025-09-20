@@ -89,7 +89,7 @@ export const Footer = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Main Footer Content */}
         <div className="py-8 sm:py-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 lg:gap-4">
             
             {/* Company Info */}
             <div className="lg:col-span-1">
@@ -245,7 +245,7 @@ export const Footer = () => {
                     </div>
                   </div>
 
-                                  <div className="grid grid-cols-[36px,1fr] gap-3 items-center">
+                                  <div className="grid grid-cols-[36px,1fr] gap-3 items-start">
                     <div className="w-9 h-9 shrink-0 bg-[#57BBB6] rounded-full flex items-center justify-center">
                       <MapPin className="h-5 w-5 text-white" />
                     </div>
@@ -253,7 +253,7 @@ export const Footer = () => {
                       <p className="text-[#57BBB6] text-sm">Location</p>
                       <button 
                         onClick={handleMapClick}
-                        className="text-gray-800 font-semibold flex items-center"
+                        className="text-gray-800 font-semibold whitespace-nowrap flex items-center"
                         aria-label="Open location in maps"
                       >
                         2242 65th St, Brooklyn, NY 11204

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import api from './api';
 
 // WordPress API configuration
 const WORDPRESS_URL = import.meta.env.VITE_WORDPRESS_URL;
@@ -53,25 +54,11 @@ const clearPostCache = (): void => {
   postCache.clear();
 };
 
-// Enhanced error handling with retry logic
+// Enhanced error handling with retry logic (via backend proxy)
 const makeWordPressRequest = async (url: string, params: WordPressParams = {}, retries = 3): Promise<unknown> => {
-  // Check if WordPress is configured
-  if (!WORDPRESS_URL) {
-    throw new Error('WordPress URL not configured');
-  }
-
-  const fullUrl = `${WORDPRESS_URL}/wp-json/wp/v2${url}`;
-  
   for (let i = 0; i < retries; i++) {
     try {
-      const response = await axios.get(fullUrl, {
-        params,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        timeout: 10000, // 10 second timeout
-      });
-      
+      const response = await api.get(`/wordpress${url}`, { params });
       return response.data;
     } catch (error: unknown) {
       if (i === retries - 1) throw error;
@@ -84,13 +71,7 @@ const makeWordPressRequest = async (url: string, params: WordPressParams = {}, r
   }
 };
 
-const wordpress = axios.create({
-  baseURL: `${WORDPRESS_URL}/wp-json/wp/v2`,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  timeout: 10000, // 10 second timeout
-});
+const wordpress = axios.create();
 
 // Add response interceptor for better error handling
 wordpress.interceptors.response.use(
