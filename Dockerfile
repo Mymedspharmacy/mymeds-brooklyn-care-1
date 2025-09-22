@@ -8,7 +8,7 @@
 # =============================================================================
 # STAGE 1: Frontend Build
 # =============================================================================
-FROM node:18-alpine AS frontend-builder
+FROM node:20-alpine AS frontend-builder
 
 WORKDIR /app/frontend
 
@@ -19,8 +19,8 @@ COPY tailwind.config.ts ./
 COPY postcss.config.js ./
 COPY tsconfig*.json ./
 
-# Install frontend dependencies
-RUN npm ci --only=production
+# Install ALL dependencies (including dev dependencies for build)
+RUN npm ci
 
 # Copy frontend source code
 COPY src/ ./src/
@@ -33,7 +33,7 @@ RUN npm run build
 # =============================================================================
 # STAGE 2: Backend Build
 # =============================================================================
-FROM node:18-alpine AS backend-builder
+FROM node:20-alpine AS backend-builder
 
 WORKDIR /app/backend
 
@@ -41,8 +41,8 @@ WORKDIR /app/backend
 COPY backend/package*.json ./
 COPY backend/tsconfig*.json ./
 
-# Install backend dependencies
-RUN npm ci --only=production
+# Install ALL dependencies (including dev dependencies for build)
+RUN npm ci
 
 # Copy backend source code
 COPY backend/src/ ./src/
@@ -57,14 +57,15 @@ RUN npm run build
 # =============================================================================
 # STAGE 3: Production Runtime
 # =============================================================================
-FROM node:18-alpine AS production
+FROM node:20-alpine AS production
 
 # Install system dependencies
 RUN apk add --no-cache \
     mysql-client \
     curl \
     bash \
-    tzdata
+    tzdata \
+    procps
 
 # Set timezone
 ENV TZ=America/New_York
@@ -111,7 +112,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:4000/api/health || exit 1
 
 # Start script
-COPY docker-entrypoint.sh /app/
-RUN chmod +x /app/docker-entrypoint.sh
+COPY docker-entrypoint-perfect.sh /app/
+RUN chmod +x /app/docker-entrypoint-perfect.sh
 
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
+ENTRYPOINT ["/app/docker-entrypoint-perfect.sh"]
