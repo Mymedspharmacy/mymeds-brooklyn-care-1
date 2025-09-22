@@ -42,6 +42,12 @@ export default defineConfig(({ mode }) => ({
         target: 'http://localhost:4000',
         changeOrigin: true,
         secure: false
+      },
+      '/socket.io': {
+        target: 'http://localhost:4000',
+        changeOrigin: true,
+        secure: false,
+        ws: true
       }
     }
   },
@@ -55,6 +61,11 @@ export default defineConfig(({ mode }) => ({
       mode === 'production'
         ? 'https://mymedspharmacyinc.com/api'
         : 'http://localhost:4000'
+    ),
+    'import.meta.env.VITE_WORDPRESS_URL': JSON.stringify(
+      mode === 'production'
+        ? 'https://mymedspharmacyinc.com/blog'
+        : 'http://localhost:3000/blog'
     )
   },
   optimizeDeps: {

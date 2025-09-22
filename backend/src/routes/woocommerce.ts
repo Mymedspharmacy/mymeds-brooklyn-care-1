@@ -7,22 +7,10 @@ interface AuthRequest extends Request {
 
 const router = Router();
 
-// Import shared Prisma instance from the main server
-let prisma: any;
-try {
-  // Try to import from the main server file
-  const { PrismaClient } = require('@prisma/client');
-  prisma = new PrismaClient();
-} catch (error) {
-  console.error('Failed to initialize Prisma client in WooCommerce routes:', error);
-  // Fallback to a mock prisma for error handling
-  prisma = {
-    wooCommerceSettings: {
-      findUnique: () => Promise.resolve(null),
-      findFirst: () => Promise.resolve(null)
-    }
-  };
-}
+// Import Prisma client directly
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 // In-memory cache for products (in production, use Redis)
 const productCache = new Map();
@@ -434,6 +422,270 @@ router.post('/sync-products', unifiedAdminAuth, async (req: AuthRequest, res: Re
       error: 'Failed to sync products',
       details: process.env.NODE_ENV === 'development' ? err.message : undefined,
       suggestion: 'Check your WooCommerce credentials and store URL'
+    });
+  }
+});
+
+// Admin: generate WooCommerce API keys
+router.post('/generate-api-keys', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+  try {
+    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
+    
+    // Generate random API keys
+    const generateRandomKey = (prefix: string) => {
+      const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+      let result = prefix + '_';
+      for (let i = 0; i < 32; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+    };
+
+    const consumerKey = generateRandomKey('ck');
+    const consumerSecret = generateRandomKey('cs');
+    const webhookSecret = generateRandomKey('whs');
+
+    res.json({
+      success: true,
+      message: 'API keys generated successfully',
+      apiKeys: {
+        consumerKey,
+        consumerSecret,
+        webhookSecret
+      },
+      instructions: {
+        title: 'How to set up WooCommerce API keys',
+        steps: [
+          '1. Go to your WooCommerce store admin panel',
+          '2. Navigate to WooCommerce > Settings > Advanced > REST API',
+          '3. Click "Add Key" to create a new API key',
+          '4. Enter the generated Consumer Key and Consumer Secret',
+          '5. Set permissions to "Read/Write"',
+          '6. Save and copy the generated keys to your application'
+        ],
+        note: 'Keep these keys secure and do not share them publicly'
+      }
+    });
+  } catch (err: any) {
+    console.error('Error generating API keys:', err);
+    res.status(500).json({ 
+      error: 'Failed to generate API keys',
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+  }
+});
+
+// Admin: upload media to WooCommerce (via WordPress Media API)
+router.post('/media/upload', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+  try {
+    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
+    
+    const { file_url, title, description, alt_text } = req.body;
+
+    if (!file_url) {
+      return res.status(400).json({ error: 'File URL is required' });
+    }
+
+    const settings = await prisma.wooCommerceSettings.findUnique({
+      where: { id: 1 }
+    });
+
+    if (!settings || !settings.enabled) {
+      return res.status(400).json({ error: 'WooCommerce integration is not enabled' });
+    }
+
+    // Upload media to WordPress (WooCommerce uses WordPress media)
+    const mediaData = {
+      source_url: file_url,
+      title: title || 'Uploaded Media',
+      description: description || '',
+      alt_text: alt_text || ''
+    };
+
+    // Use WordPress REST API for media upload
+    const url = `${settings.storeUrl}/wp-json/wp/v2/media`;
+    const auth = Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64');
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${auth}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(mediaData)
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`WordPress API error: ${response.status} - ${errorText}`);
+    }
+
+    const uploadedMedia = await response.json();
+    
+    res.json({
+      success: true,
+      message: 'Media uploaded successfully to WooCommerce',
+      media: {
+        id: uploadedMedia.id,
+        title: uploadedMedia.title.rendered,
+        src: uploadedMedia.source_url,
+        alt: uploadedMedia.alt_text
+      }
+    });
+  } catch (err: any) {
+    console.error('Error uploading media to WooCommerce:', err);
+    res.status(500).json({ 
+      error: 'Failed to upload media to WooCommerce',
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined,
+      suggestion: 'Check your WooCommerce API credentials and ensure the media URL is accessible'
+    });
+  }
+});
+
+// Admin: upload product with images to WooCommerce
+router.post('/products/upload', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+  try {
+    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
+    
+    const { 
+      name, 
+      description, 
+      price, 
+      images, 
+      categories, 
+      stock_quantity,
+      short_description,
+      weight,
+      dimensions
+    } = req.body;
+
+    if (!name || !price) {
+      return res.status(400).json({ error: 'Product name and price are required' });
+    }
+
+    const settings = await prisma.wooCommerceSettings.findUnique({
+      where: { id: 1 }
+    });
+
+    if (!settings || !settings.enabled) {
+      return res.status(400).json({ error: 'WooCommerce integration is not enabled' });
+    }
+
+    // Prepare product data for WooCommerce
+    const productData = {
+      name,
+      type: 'simple',
+      regular_price: price.toString(),
+      description: description || '',
+      short_description: short_description || '',
+      manage_stock: true,
+      stock_quantity: stock_quantity || 0,
+      weight: weight || '',
+      dimensions: dimensions ? {
+        length: dimensions.length || '',
+        width: dimensions.width || '',
+        height: dimensions.height || ''
+      } : undefined,
+      categories: categories ? categories.map((cat: any) => ({ id: cat.id })) : [],
+      images: images ? images.map((img: any) => ({ src: img.src, alt: img.alt || name })) : []
+    };
+
+    // Create product in WooCommerce
+    const url = `${settings.storeUrl}/wp-json/wc/v3/products`;
+    const auth = Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64');
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${auth}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(productData)
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`WooCommerce API error: ${response.status} - ${errorText}`);
+    }
+
+    const createdProduct = await response.json();
+    
+    res.json({
+      success: true,
+      message: 'Product uploaded successfully to WooCommerce',
+      product: {
+        id: createdProduct.id,
+        name: createdProduct.name,
+        price: createdProduct.regular_price,
+        images: createdProduct.images,
+        permalink: createdProduct.permalink
+      }
+    });
+  } catch (err: any) {
+    console.error('Error uploading product to WooCommerce:', err);
+    res.status(500).json({ 
+      error: 'Failed to upload product to WooCommerce',
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined,
+      suggestion: 'Check your WooCommerce API credentials and product data'
+    });
+  }
+});
+
+// Admin: get WooCommerce media
+router.get('/media', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+  try {
+    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
+    
+    const { page = 1, per_page = 20 } = req.query;
+    
+    const settings = await prisma.wooCommerceSettings.findUnique({
+      where: { id: 1 }
+    });
+
+    if (!settings || !settings.enabled) {
+      return res.status(400).json({ error: 'WooCommerce integration is not enabled' });
+    }
+
+    const url = `${settings.storeUrl}/wp-json/wc/v3/products/media?page=${page}&per_page=${per_page}`;
+    const auth = Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64');
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Basic ${auth}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`WooCommerce API error: ${response.status}`);
+    }
+
+    const media = await response.json();
+    const totalMedia = response.headers.get('X-WP-Total');
+    const totalPages = response.headers.get('X-WP-TotalPages');
+
+    res.json({
+      media: media.map((item: any) => ({
+        id: item.id,
+        title: item.title,
+        src: item.src,
+        alt: item.alt,
+        date: item.date,
+        modified: item.modified
+      })),
+      pagination: {
+        page: parseInt(page.toString()),
+        per_page: parseInt(per_page.toString()),
+        total: parseInt(totalMedia || '0'),
+        total_pages: parseInt(totalPages || '0')
+      }
+    });
+  } catch (err: any) {
+    console.error('Error fetching WooCommerce media:', err);
+    res.status(500).json({ 
+      error: 'Failed to fetch WooCommerce media',
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined
     });
   }
 });

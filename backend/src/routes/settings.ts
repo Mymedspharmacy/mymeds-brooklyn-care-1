@@ -46,7 +46,7 @@ router.put('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
     const settings = await prisma.settings.upsert({
       where: { id: 1 },
       update: { siteName, contactEmail, contactPhone, address, businessHours, facebook, instagram, twitter },
-      create: { id: 1, siteName, contactEmail, contactPhone, address, businessHours, facebook, instagram, twitter }
+      create: { key: 'general', value: 'settings', siteName, contactEmail, contactPhone, address, businessHours, facebook, instagram, twitter }
     });
     res.json(settings);
   } catch (err) {

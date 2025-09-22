@@ -25,7 +25,8 @@ router.get('/', async (req, res) => {
 router.post('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
     const { title, content, author } = req.body;
-    const blog = await prisma.blog.create({ data: { title, content, author } });
+    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const blog = await prisma.blog.create({ data: { title, content, author, slug } });
     res.status(201).json(blog);
   } catch (err) {
     console.error('Error creating blog:', err);

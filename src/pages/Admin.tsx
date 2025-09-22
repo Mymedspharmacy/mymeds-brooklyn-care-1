@@ -568,6 +568,35 @@ export default function Admin() {
     }
   }
 
+  async function handleSaveWooCommerceSettings() {
+    try {
+      if (!wooCommerceStatus?.storeUrl || !wooCommerceStatus?.consumerKey || !wooCommerceStatus?.consumerSecret) {
+        showToastMessage('Please fill in all WooCommerce settings', 'error');
+        return;
+      }
+
+      showToastMessage('Saving WooCommerce settings...', 'success');
+      const response = await api.put('/woocommerce/settings', {
+        enabled: wooCommerceStatus.enabled,
+        storeUrl: wooCommerceStatus.storeUrl,
+        consumerKey: wooCommerceStatus.consumerKey,
+        consumerSecret: wooCommerceStatus.consumerSecret
+      });
+
+      if (response.data.success) {
+        showToastMessage('WooCommerce settings saved successfully', 'success');
+        // Refresh the status
+        const statusResponse = await api.get('/woocommerce/settings');
+        setWooCommerceStatus(statusResponse.data);
+      } else {
+        showToastMessage('Failed to save WooCommerce settings', 'error');
+      }
+    } catch (error) {
+      console.error('WooCommerce settings save error:', error);
+      showToastMessage('Failed to save WooCommerce settings', 'error');
+    }
+  }
+
   async function handleTestWordPressConnection() {
     try {
       showToastMessage('Testing WordPress connection...', 'success');
@@ -595,6 +624,35 @@ export default function Admin() {
     } catch (error) {
       console.error('WordPress sync error:', error);
       showToastMessage('Failed to sync WordPress posts', 'error');
+    }
+  }
+
+  async function handleSaveWordPressSettings() {
+    try {
+      if (!wordPressStatus?.siteUrl || !wordPressStatus?.username || !wordPressStatus?.applicationPassword) {
+        showToastMessage('Please fill in all WordPress settings', 'error');
+        return;
+      }
+
+      showToastMessage('Saving WordPress settings...', 'success');
+      const response = await api.put('/wordpress/settings', {
+        enabled: wordPressStatus.enabled,
+        siteUrl: wordPressStatus.siteUrl,
+        username: wordPressStatus.username,
+        applicationPassword: wordPressStatus.applicationPassword
+      });
+
+      if (response.data.success) {
+        showToastMessage('WordPress settings saved successfully', 'success');
+        // Refresh the status
+        const statusResponse = await api.get('/wordpress/settings');
+        setWordPressStatus(statusResponse.data);
+      } else {
+        showToastMessage('Failed to save WordPress settings', 'error');
+      }
+    } catch (error) {
+      console.error('WordPress settings save error:', error);
+      showToastMessage('Failed to save WordPress settings', 'error');
     }
   }
 
@@ -1124,16 +1182,26 @@ export default function Admin() {
   }
 
   // Redirect to sign-in if not authenticated (no loading screen)
+  useEffect(() => {
+    if (checkingAuth) {
+      navigate('/admin-signin');
+      return;
+    }
+
+    // Additional check to ensure we have valid user data
+    const currentUser = adminAuth.getUser();
+    if (!currentUser || !currentUser.role || currentUser.role !== 'ADMIN') {
+      navigate('/admin-signin');
+    }
+  }, [checkingAuth, navigate]);
+
   if (checkingAuth) {
-    // Don't show loading screen, just redirect immediately
-    navigate('/admin-signin');
     return null;
   }
 
   // Additional check to ensure we have valid user data
   const currentUser = adminAuth.getUser();
   if (!currentUser || !currentUser.role || currentUser.role !== 'ADMIN') {
-    navigate('/admin-signin');
     return null;
   }
 
@@ -1227,26 +1295,6 @@ export default function Admin() {
     );
   };
 
-  // Session Timeout Warning
-  {showSessionWarning && (
-    <div className="bg-yellow-50 border border-yellow-200 rounded-lg mb-6 p-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-          <span className="text-yellow-800 font-medium">Session Expiring Soon</span>
-          <span className="text-yellow-600 text-sm">Your session will expire in 5 minutes</span>
-        </div>
-        <Button 
-          onClick={extendSession} 
-          size="sm"
-          className="bg-yellow-600 hover:bg-yellow-700 text-white"
-        >
-          Extend Session
-        </Button>
-      </div>
-    </div>
-  )}
-
   return (
     <>
       <SEOHead 
@@ -1302,6 +1350,26 @@ export default function Admin() {
             <div className="absolute top-1/3 left-1/4 w-1.5 h-1.5 bg-[#57BBB6]/15 rounded-full animate-ping"></div>
             <div className="absolute bottom-1/3 right-1/4 w-1 h-1 bg-[#376F6B]/10 rounded-full animate-ping" style={{ animationDelay: '2s' }}></div>
           </div>
+          
+          {/* Session Timeout Warning */}
+          {showSessionWarning && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg mb-6 p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                  <span className="text-yellow-800 font-medium">Session Expiring Soon</span>
+                  <span className="text-yellow-600 text-sm">Your session will expire in 5 minutes</span>
+                </div>
+                <Button 
+                  onClick={extendSession} 
+                  size="sm"
+                  className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                >
+                  Extend Session
+                </Button>
+              </div>
+            </div>
+          )}
           
           {/* Admin Header */}
           <div className="bg-white shadow-sm border-b border-gray-200 rounded-lg mb-8 relative z-10 hover:shadow-md transition-shadow duration-300">
@@ -2395,6 +2463,59 @@ export default function Admin() {
                             </span>
                           </div>
                         </div>
+                        
+                        {/* WooCommerce Configuration Form */}
+                        <div className="border-t pt-4 space-y-4">
+                          <h4 className="text-sm font-medium">Configuration</h4>
+                          <div className="space-y-3">
+                            <div>
+                              <label className="text-sm font-medium">Store URL</label>
+                              <Input 
+                                placeholder="https://yourstore.com"
+                                value={wooCommerceStatus?.storeUrl || ''}
+                                onChange={(e) => setWooCommerceStatus(prev => ({ ...prev, storeUrl: e.target.value }))}
+                                className="mt-1"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium">Consumer Key</label>
+                              <Input 
+                                type="password"
+                                placeholder="Enter your WooCommerce Consumer Key"
+                                value={wooCommerceStatus?.consumerKey || ''}
+                                onChange={(e) => setWooCommerceStatus(prev => ({ ...prev, consumerKey: e.target.value }))}
+                                className="mt-1"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium">Consumer Secret</label>
+                              <Input 
+                                type="password"
+                                placeholder="Enter your WooCommerce Consumer Secret"
+                                value={wooCommerceStatus?.consumerSecret || ''}
+                                onChange={(e) => setWooCommerceStatus(prev => ({ ...prev, consumerSecret: e.target.value }))}
+                                className="mt-1"
+                              />
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Checkbox 
+                                id="woocommerce-enabled"
+                                checked={wooCommerceStatus?.enabled || false}
+                                onCheckedChange={(checked) => setWooCommerceStatus(prev => ({ ...prev, enabled: !!checked }))}
+                              />
+                              <label htmlFor="woocommerce-enabled" className="text-sm">
+                                Enable WooCommerce Integration
+                              </label>
+                            </div>
+                            <Button 
+                              onClick={handleSaveWooCommerceSettings}
+                              className="w-full"
+                            >
+                              Save WooCommerce Settings
+                            </Button>
+                          </div>
+                        </div>
+                        
                         <div className="flex space-x-2">
                           <Button 
                             variant="outline" 
@@ -2442,6 +2563,58 @@ export default function Admin() {
                             </span>
                           </div>
                         </div>
+                        
+                        {/* WordPress Configuration Form */}
+                        <div className="border-t pt-4 space-y-4">
+                          <h4 className="text-sm font-medium">Configuration</h4>
+                          <div className="space-y-3">
+                            <div>
+                              <label className="text-sm font-medium">Site URL</label>
+                              <Input 
+                                placeholder="https://yourwordpresssite.com"
+                                value={wordPressStatus?.siteUrl || ''}
+                                onChange={(e) => setWordPressStatus(prev => ({ ...prev, siteUrl: e.target.value }))}
+                                className="mt-1"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium">Username</label>
+                              <Input 
+                                placeholder="Enter your WordPress username"
+                                value={wordPressStatus?.username || ''}
+                                onChange={(e) => setWordPressStatus(prev => ({ ...prev, username: e.target.value }))}
+                                className="mt-1"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium">Application Password</label>
+                              <Input 
+                                type="password"
+                                placeholder="Enter your WordPress Application Password"
+                                value={wordPressStatus?.applicationPassword || ''}
+                                onChange={(e) => setWordPressStatus(prev => ({ ...prev, applicationPassword: e.target.value }))}
+                                className="mt-1"
+                              />
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Checkbox 
+                                id="wordpress-enabled"
+                                checked={wordPressStatus?.enabled || false}
+                                onCheckedChange={(checked) => setWordPressStatus(prev => ({ ...prev, enabled: !!checked }))}
+                              />
+                              <label htmlFor="wordpress-enabled" className="text-sm">
+                                Enable WordPress Integration
+                              </label>
+                            </div>
+                            <Button 
+                              onClick={handleSaveWordPressSettings}
+                              className="w-full"
+                            >
+                              Save WordPress Settings
+                            </Button>
+                          </div>
+                        </div>
+                        
                         <div className="flex space-x-2">
                           <Button 
                             variant="outline" 

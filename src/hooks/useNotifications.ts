@@ -27,7 +27,13 @@ export function useNotifications(soundEnabled: boolean = true) {
     audioRef.current = new Audio('/notification.mp3');
     audioRef.current.volume = 0.5; // Set volume to 50%
     
-    const newSocket = io(getBackendUrl());
+    const newSocket = io(getBackendUrl(), {
+      timeout: 5000,
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      forceNew: true
+    });
     
     newSocket.on('connect', () => {
       console.log('Connected to notifications');
@@ -35,8 +41,13 @@ export function useNotifications(soundEnabled: boolean = true) {
       newSocket.emit('join-admin');
     });
 
-    newSocket.on('disconnect', () => {
-      console.log('Disconnected from notifications');
+    newSocket.on('connect_error', (error) => {
+      console.log('WebSocket connection error:', error.message);
+      setIsConnected(false);
+    });
+
+    newSocket.on('disconnect', (reason) => {
+      console.log('Disconnected from notifications:', reason);
       setIsConnected(false);
     });
 

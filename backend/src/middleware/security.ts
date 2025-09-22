@@ -1,3 +1,4 @@
+
 import { Request, Response, NextFunction } from 'express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
@@ -5,32 +6,18 @@ import cors from 'cors';
 import logger from '../utils/logger';
 import { RateLimitError } from './errorHandler';
 
-// Enhanced CORS configuration - Production Ready
+// Enhanced CORS configuration
 const corsOptions = {
   origin: (origin: string | undefined, callback: Function) => {
-    // Production origins only
-    const productionOrigins = [
+    const allowedOrigins = [
+      'http://localhost:8080',
+      'http://localhost:8081',
+      'http://localhost:5173', // Vite dev server
+      'http://localhost:3000', // Common dev port
+      'http://localhost:3001', // Additional dev port
       'https://www.mymedspharmacyinc.com',
-      'https://mymedspharmacyinc.com',
-      'https://72.60.116.253' // VPS Production IP
+      'https://mymedspharmacyinc.com'
     ];
-
-    // Development origins (only in development environment)
-    const developmentOrigins = process.env.NODE_ENV === 'development' ? [
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'http://localhost:3002',
-      'http://localhost:3003',
-      'http://localhost:3004',
-      'http://localhost:5173',
-      'http://192.168.18.56:3000',
-      'http://192.168.18.56:3001',
-      'http://192.168.18.56:3002',
-      'http://192.168.18.56:3003',
-      'http://192.168.18.56:3004'
-    ] : [];
-
-    const allowedOrigins = [...productionOrigins, ...developmentOrigins];
 
     // Allow requests with no origin (like mobile apps or Postman)
     if (!origin) return callback(null, true);
@@ -43,8 +30,7 @@ const corsOptions = {
     logger.warn('CORS_BLOCKED', {
       origin,
       ip: 'unknown',
-      userAgent: 'unknown',
-      environment: process.env.NODE_ENV
+      userAgent: 'unknown'
     });
 
     return callback(new Error('Not allowed by CORS'));
@@ -188,15 +174,17 @@ const securityHeaders = helmet({
     directives: {
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      scriptSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdnjs.cloudflare.com", "https://ajax.googleapis.com"],
       imgSrc: ["'self'", "data:", "https:", "https://images.unsplash.com"],
-      connectSrc: ["'self'"],
+      connectSrc: ["'self'", "https:", "wss:", "ws:"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
       frameSrc: ["'self'"],
       workerSrc: ["'self'"],
-      manifestSrc: ["'self'"]
+      manifestSrc: ["'self'"],
+      formAction: ["'self'"],
+      baseUri: ["'self'"]
     },
     reportOnly: false
   },

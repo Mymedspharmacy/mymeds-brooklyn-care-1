@@ -14,7 +14,7 @@ export const Map = ({ showDetails = true, className = "" }: MapProps) => {
   const pharmacyAddress = "My Meds Pharmacy Inc, 2242 65th St, Brooklyn, NY 11204, United States";
   const pharmacyPhone = "347-312-6458";
   const pharmacyEmail = "mymedspharmacy@outlook.com";
-  const pharmacyHours = "Mon-Fri: 9AM-7PM, Sat: 9AM-5PM, Sun: 10AM-4PM";
+  const pharmacyHours = "Mon-Fri: 9AM-7PM, Sat: 9AM-5PM, Sun: Closed";
 
   const handleDirections = () => {
     // Use the exact Google Maps location provided

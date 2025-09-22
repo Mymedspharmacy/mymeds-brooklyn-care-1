@@ -37,7 +37,13 @@ export const isDev = env.MODE === 'development';
 export const isProd = env.MODE === 'production';
 
 // Helper function to get backend URL
-export const getBackendUrl = () => env.BACKEND_URL;
+export const getBackendUrl = () => {
+  // In development, use the Vite proxy to avoid private network access warnings
+  if (env.DEV) {
+    return window.location.origin; // This will be http://localhost:3000 with proxy
+  }
+  return env.BACKEND_URL;
+};
 
 // Helper function to get API URL
 export const getApiUrl = (endpoint: string) => `${env.API_BASE_URL}${endpoint}`;

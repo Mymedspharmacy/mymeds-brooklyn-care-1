@@ -1,51 +1,11 @@
-// New Relic monitoring - must be first
-
-
+// Clean Architecture Application Entry Point
 import dotenv from 'dotenv';
 dotenv.config();
 
-// 🚨 CRITICAL: Environment validation before anything else
-const validateEnvironment = () => {
-  const requiredVars = [
-    'DATABASE_URL',
-    'JWT_SECRET',
-    'NODE_ENV'
-  ];
-
-  const missing = requiredVars.filter(varName => !process.env[varName]);
-  
-  if (missing.length > 0) {
-    console.error('❌ Missing required environment variables:');
-    missing.forEach(varName => console.error(`   - ${varName}`));
-    process.exit(1);
-  }
-
-  // Validate JWT_SECRET strength
-  if (process.env.JWT_SECRET!.length < 32) {
-    console.error('❌ JWT_SECRET must be at least 32 characters long');
-    process.exit(1);
-  }
-
-  // Validate DATABASE_URL format
-  if (!process.env.DATABASE_URL!.startsWith('mysql://') && 
-      !process.env.DATABASE_URL!.startsWith('postgresql://') &&
-      !process.env.DATABASE_URL!.startsWith('file:')) {
-    console.error('❌ DATABASE_URL must be a valid MySQL, PostgreSQL, or SQLite connection string');
-    process.exit(1);
-  }
-
-  // Validate NODE_ENV
-  const validEnvs = ['development', 'staging', 'production'];
-  if (!validEnvs.includes(process.env.NODE_ENV!)) {
-    console.error(`❌ NODE_ENV must be one of: ${validEnvs.join(', ')}`);
-    process.exit(1);
-  }
-
-  console.log('✅ Environment validation passed');
-};
-
-// Run validation immediately
-validateEnvironment();
+// Import configuration and error handling
+import { config } from './config';
+import { ErrorHandler } from './core/errors/ErrorHandler';
+import { container } from './core/Container';
 
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
@@ -88,42 +48,21 @@ import xss from 'xss-clean';
 // Removed express-status-monitor due to security vulnerabilities
 import logger from './utils/logger';
 
+// Initialize error handling
+ErrorHandler.initialize();
+
 console.log('Starting MyMeds backend...');
-console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('PORT:', process.env.PORT || 4000);
-console.log('DATABASE_URL:', process.env.DATABASE_URL ? '***configured***' : '***not configured***');
+console.log('NODE_ENV:', config.nodeEnv);
+console.log('PORT:', config.port);
+console.log('DATABASE_URL:', config.database.url ? '***configured***' : '***not configured***');
 
 const app = express();
 
 // Trust proxy for VPS deployment
 app.set('trust proxy', 1);
 
-// Define allowed origins for CORS - Production Ready
-const allowedOrigins = [
-  // Production Domains
-  'https://www.mymedspharmacyinc.com',
-  'https://mymedspharmacyinc.com',
-  
-  // VPS Deployment (Production)
-  'https://72.60.116.253',
-  'http://72.60.116.253',
-  
-  // Add localhost only for development environment
-  ...(process.env.NODE_ENV === 'development' ? [
-    'http://localhost:3000',
-    'http://localhost:3001', 
-    'http://localhost:3002',
-    'http://localhost:3003',
-    'http://localhost:3004',
-    'http://localhost:4000',
-    'http://localhost:5173',
-    'http://192.168.18.56:3000',
-    'http://192.168.18.56:3001',
-    'http://192.168.18.56:3002',
-    'http://192.168.18.56:3003',
-    'http://192.168.18.56:3004'
-  ] : [])
-];
+// Use CORS origins from configuration
+const allowedOrigins = config.security.corsOrigins;
 
 // ✅ IMPLEMENTED: WebSocket server setup
 const httpServer = createServer(app);
@@ -162,33 +101,32 @@ export { io };
 const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: process.env.DATABASE_URL || '',
+      url: config.database.url,
     },
   },
   // Query performance optimization
-  log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+  log: config.nodeEnv === 'development' ? ['query', 'error', 'warn'] : ['error'],
   errorFormat: 'pretty',
 });
 
-// 🚀 SCALABILITY IMPROVEMENT: Enhanced Memory Management
-const MEMORY_THRESHOLDS = {
-  WARNING: 1024,    // 1GB
-  CRITICAL: 2048,   // 2GB
-  MAX: 3072         // 3GB
-};
+// Register Prisma client in DI container
+container.registerSingleton('PrismaClient', () => prisma);
+
+// Use memory thresholds from configuration
+const MEMORY_THRESHOLDS = config.monitoring.memoryThresholds;
 
 // 🚀 SCALABILITY IMPROVEMENT: Basic In-Memory Caching
 class BasicCache {
   private cache = new Map<string, { data: any; timestamp: number; ttl: number }>();
-  private maxSize = 1000; // Maximum cache entries
-  private cleanupInterval = 5 * 60 * 1000; // 5 minutes
+  private maxSize = config.monitoring.cacheConfig.maxSize;
+  private cleanupInterval = config.monitoring.cacheConfig.cleanupInterval;
 
   constructor() {
     // Start cleanup interval
     setInterval(() => this.cleanup(), this.cleanupInterval);
   }
 
-  set(key: string, data: any, ttl: number = 300000): void { // Default 5 minutes
+  set(key: string, data: any, ttl: number = config.monitoring.cacheConfig.defaultTtl): void {
     if (this.cache.size >= this.maxSize) {
       // Remove oldest entries when cache is full
       const oldestKey = this.cache.keys().next().value;
@@ -241,6 +179,9 @@ class BasicCache {
 // Initialize cache instance
 const cache = new BasicCache();
 
+// Register cache in DI container
+container.registerSingleton('Cache', () => cache);
+
 // Export cache for use in other files
 export { cache };
 
@@ -261,7 +202,7 @@ prisma.$connect()
 // Redirect HTTP to HTTPS in production
 app.use((req, res, next) => {
   if (
-    process.env.NODE_ENV === 'production' &&
+    config.nodeEnv === 'production' &&
     req.headers['x-forwarded-proto'] &&
     req.headers['x-forwarded-proto'] !== 'https'
   ) {
@@ -275,15 +216,18 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'"],
-      fontSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      scriptSrc: ["'self'", "'unsafe-eval'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+      imgSrc: ["'self'", "data:", "https:", "https://images.unsplash.com", "blob:"],
+      connectSrc: ["'self'", "https:", "wss:", "ws:"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
       objectSrc: ["'none'"],
-      mediaSrc: ["'self'"],
-      frameSrc: ["'none'"],
+      mediaSrc: ["'self'", "blob:"],
+      frameSrc: ["'self'"],
+      workerSrc: ["'self'", "blob:"],
+      manifestSrc: ["'self'"]
     },
+    reportOnly: false
   },
   hsts: {
     maxAge: 31536000,
@@ -304,7 +248,7 @@ app.use(cors({
       return callback(null, true);
     }
     // Allow requests from your production domain
-    if (process.env.NODE_ENV === 'production' && origin === 'https://www.mymedspharmacyinc.com') {
+    if (config.nodeEnv === 'production' && origin === 'https://www.mymedspharmacyinc.com') {
       return callback(null, true);
     }
     console.log('CORS blocked origin:', origin);
@@ -320,6 +264,9 @@ app.options('*', cors()); // Handles preflight requests
 app.use(express.json({ limit: '2mb' }));
 app.use(morgan('combined'));
 
+// Serve static files from uploads directory
+app.use('/uploads', express.static('uploads'));
+
 // Custom status monitoring endpoint (replaced express-status-monitor for security)
 app.get('/status', (req: Request, res: Response) => {
   const memUsage = process.memoryUsage();
@@ -334,7 +281,7 @@ app.get('/status', (req: Request, res: Response) => {
     title: 'MyMeds Pharmacy Status',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    environment: process.env.NODE_ENV,
+    environment: config.nodeEnv,
     version: process.env.npm_package_version || '1.0.0',
     memory: memUsageMB,
     cache: {
@@ -371,10 +318,10 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-// Enhanced Rate Limiting
+// Enhanced Rate Limiting using configuration
 const authLimiter = rateLimit({ 
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20, // 20 attempts per 15 minutes (increased from 5)
+  windowMs: config.rateLimit.auth.windowMs,
+  max: config.rateLimit.auth.max,
   message: { error: 'Too many login attempts, please try again later' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -382,16 +329,16 @@ const authLimiter = rateLimit({
 });
 
 const contactLimiter = rateLimit({ 
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 50, // 50 contact form submissions per 15 minutes (increased from 10)
+  windowMs: config.rateLimit.contact.windowMs,
+  max: config.rateLimit.contact.max,
   message: { error: 'Too many contact form submissions, please try again later' },
   standardHeaders: true,
   legacyHeaders: false
 });
 
 const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // 1000 requests per 15 minutes (increased from 100)
+  windowMs: config.rateLimit.general.windowMs,
+  max: config.rateLimit.general.max,
   message: { error: 'Too many requests, please try again later' },
   standardHeaders: true,
   legacyHeaders: false
@@ -399,8 +346,8 @@ const generalLimiter = rateLimit({
 
 // Development rate limiter (more permissive for development)
 const devLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5000, // 5000 requests per 15 minutes for development
+  windowMs: config.rateLimit.general.windowMs,
+  max: config.rateLimit.general.max,
   message: { error: 'Too many requests, please try again later' },
   standardHeaders: true,
   legacyHeaders: false
@@ -413,11 +360,10 @@ const noLimiter = (req: Request, res: Response, next: NextFunction) => {
 
 // Log rate limiting configuration
 console.log('Rate limiting configuration:');
-console.log('- Environment:', process.env.NODE_ENV || 'development');
+console.log('- Environment:', config.nodeEnv);
 console.log('- Disable rate limit:', process.env.DISABLE_RATE_LIMIT === 'true' ? 'YES' : 'NO');
-console.log('- Auth limit:', process.env.DISABLE_RATE_LIMIT === 'true' ? 'DISABLED' : '20 requests/15min');
-console.log('- General limit:', process.env.DISABLE_RATE_LIMIT === 'true' ? 'DISABLED' : 
-  (process.env.NODE_ENV === 'production' ? '1000 requests/15min' : '5000 requests/15min'));
+console.log('- Auth limit:', process.env.DISABLE_RATE_LIMIT === 'true' ? 'DISABLED' : `${config.rateLimit.auth.max} requests/${config.rateLimit.auth.windowMs/1000/60}min`);
+console.log('- General limit:', process.env.DISABLE_RATE_LIMIT === 'true' ? 'DISABLED' : `${config.rateLimit.general.max} requests/${config.rateLimit.general.windowMs/1000/60}min`);
 
 // Server Status endpoint
 app.get('/api/status', async (req: Request, res: Response) => {
@@ -425,7 +371,7 @@ app.get('/api/status', async (req: Request, res: Response) => {
     status: 'running',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    environment: process.env.NODE_ENV,
+    environment: config.nodeEnv,
     version: process.env.npm_package_version || '1.0.0'
   });
 });
@@ -450,7 +396,7 @@ app.get('/api/health', async (req: Request, res: Response) => {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    environment: process.env.NODE_ENV,
+    environment: config.nodeEnv,
     version: process.env.npm_package_version || '1.0.0',
     checks: {
       database: 'unknown',
@@ -478,10 +424,10 @@ app.get('/api/health', async (req: Request, res: Response) => {
   };
 
   // Enhanced memory threshold checking
-  if (memUsageMB.heapUsed > MEMORY_THRESHOLDS.CRITICAL) {
+  if (memUsageMB.heapUsed > MEMORY_THRESHOLDS.critical) {
     healthStatus.checks.memory = 'critical';
     healthStatus.status = 'degraded';
-  } else if (memUsageMB.heapUsed > MEMORY_THRESHOLDS.WARNING) {
+  } else if (memUsageMB.heapUsed > MEMORY_THRESHOLDS.warning) {
     healthStatus.checks.memory = 'warning';
   } else {
     healthStatus.checks.memory = 'healthy';
@@ -539,7 +485,7 @@ app.get('/api/health/db', async (req: Request, res: Response) => {
 // API routes with enhanced security
 // Use different rate limiters based on environment
 const currentLimiter = process.env.DISABLE_RATE_LIMIT === 'true' ? noLimiter : 
-  (process.env.NODE_ENV === 'production' ? generalLimiter : devLimiter);
+  (config.nodeEnv === 'production' ? generalLimiter : devLimiter);
 
 const currentAuthLimiter = process.env.DISABLE_RATE_LIMIT === 'true' ? noLimiter : authLimiter;
 const currentContactLimiter = process.env.DISABLE_RATE_LIMIT === 'true' ? noLimiter : contactLimiter;
@@ -620,29 +566,10 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   res.status(404).json({ error: 'Not found' });
 });
 
-// Global error handler
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  logger.error('Unhandled Error', {
-    error: err.message,
-    stack: err.stack,
-    url: req.url,
-    method: req.method,
-    ip: req.ip,
-    userAgent: req.get('User-Agent')
-  });
-  
-  // Don't expose internal errors in production
-  const errorMessage = process.env.NODE_ENV === 'production' 
-    ? 'Internal server error' 
-    : err.message;
-    
-  res.status(500).json({ 
-    error: errorMessage,
-    timestamp: new Date().toISOString()
-  });
-});
+// Global error handler using centralized error handling
+app.use(ErrorHandler.handle);
 
-const PORT = process.env.PORT || 4000;
+const PORT = config.port;
 const server = httpServer.listen(PORT, async () => {
   console.log(`Backend server running on port ${PORT}`);
   console.log(`Health check available at: http://localhost:${PORT}/api/health`);
@@ -672,5 +599,5 @@ process.on('SIGTERM', () => {
   });
 }); 
 
-// Export app for testing
-export { app }; 
+// Export app and prisma for testing and shared usage
+export { app, prisma }; 

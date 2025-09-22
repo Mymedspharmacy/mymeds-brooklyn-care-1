@@ -7,21 +7,10 @@ interface AuthRequest extends Request {
 
 const router = Router();
 
-// Import shared Prisma instance from the main server
-let prisma: any;
-try {
-  // Try to import from the main server file
-  const { PrismaClient } = require('@prisma/client');
-  prisma = new PrismaClient();
-} catch (error) {
-  console.error('Failed to initialize Prisma client in WordPress routes:', error);
-  // Fallback to a mock prisma for error handling
-  prisma = {
-    wordPressSettings: {
-      findUnique: () => Promise.resolve(null)
-    }
-  };
-}
+// Import Prisma client directly
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 // In-memory cache for posts (in production, use Redis)
 const postCache = new Map();

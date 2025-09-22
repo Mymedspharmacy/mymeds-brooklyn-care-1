@@ -13,7 +13,30 @@ const router = Router();
 const prisma = new PrismaClient();
 
 // File upload configuration
-const upload = multer({ storage: multer.memoryStorage() });
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = `${uuidv4()}-${file.originalname}`;
+    cb(null, uniqueName);
+  }
+});
+
+const upload = multer({ 
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Check if file is an image
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(null, false);
+    }
+  }
+});
 
 // Public: list products
 router.get('/', async (req, res) => {
@@ -87,9 +110,35 @@ router.post('/:id/images', unifiedAdminAuth, upload.single('file'), async (req: 
     const productId = Number(req.params.id);
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
     
-    // TODO: Implement file upload to cloud storage
-    // This endpoint needs proper file storage implementation
-    res.status(501).json({ error: 'File upload functionality needs implementation' });
+    // Verify product exists
+    const product = await prisma.product.findUnique({
+      where: { id: productId }
+    });
+    
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+    
+    // Create image record in database
+    const imageUrl = `/uploads/${req.file.filename}`;
+    const productImage = await prisma.productImage.create({
+      data: {
+        url: imageUrl,
+        productId: productId,
+        alt: req.body.alt_text || product.name
+      }
+    });
+    
+    res.json({
+      success: true,
+      message: 'Product image uploaded successfully',
+      image: {
+        id: productImage.id,
+        url: imageUrl,
+        productId: productId,
+        alt: productImage.alt
+      }
+    });
   } catch (err) {
     console.error('Error uploading product image:', err);
     res.status(500).json({ error: 'Failed to upload product image' });

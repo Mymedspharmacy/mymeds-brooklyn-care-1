@@ -54,12 +54,26 @@ const clearPostCache = (): void => {
   postCache.clear();
 };
 
-// Enhanced error handling with retry logic (via backend proxy)
+// Enhanced error handling with retry logic (direct WordPress API)
 const makeWordPressRequest = async (url: string, params: WordPressParams = {}, retries = 3): Promise<unknown> => {
   for (let i = 0; i < retries; i++) {
     try {
-      const response = await api.get(`/wordpress${url}`, { params });
-      return response.data;
+      // Use direct WordPress API instead of backend proxy
+      const baseUrl = WORDPRESS_URL || 'https://mymedspharmacyinc.com/blog';
+      const fullUrl = `${baseUrl}/wp-json/wp/v2${url}`;
+      
+      const response = await fetch(fullUrl + '?' + new URLSearchParams(params as Record<string, string>), {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      return await response.json();
     } catch (error: unknown) {
       if (i === retries - 1) throw error;
       

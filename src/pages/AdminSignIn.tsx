@@ -25,14 +25,15 @@ export default function AdminSignIn() {
   useEffect(() => {
     setMounted(true);
     
-    // Check if user is already authenticated
-    if (adminAuth.isAuthenticated()) {
+    // Check if user is already authenticated (use sync version to avoid async issues)
+    if (adminAuth.isAuthenticatedSync()) {
       navigate('/admin');
+      return; // Exit early if already authenticated
     }
     
     const emailInput = document.getElementById('admin-email');
     if (emailInput) emailInput.focus();
-  }, [navigate]);
+  }, []); // Empty dependency array to prevent infinite loop
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -253,6 +254,7 @@ export default function AdminSignIn() {
                   onChange={e => setResetEmail(e.target.value)}
                   required
                   autoFocus
+                  autoComplete="email"
                 />
                 <button
                   className="w-full bg-[#376f6b] hover:bg-[#2e8f88] text-white py-2 rounded-lg font-bold text-base shadow transition-colors disabled:opacity-60 disabled:cursor-not-allowed"

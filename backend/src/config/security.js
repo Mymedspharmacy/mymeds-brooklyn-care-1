@@ -11,8 +11,10 @@ const securityConfig = {
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
         imgSrc: ["'self'", "data:", "https:"],
-        scriptSrc: ["'self'"],
-        connectSrc: ["'self'", "https://mymedspharmacyinc.com"]
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https:", "https://cdnjs.cloudflare.com"],
+        connectSrc: ["'self'", "https://mymedspharmacyinc.com", "https:", "wss:", "ws:"],
+        formAction: ["'self'"],
+        baseUri: ["'self'"]
       }
     },
     hsts: {

@@ -1,8 +1,8 @@
 // =============================================================================
-// PRODUCTION PRISMA SCHEMA - MySQL DATABASE
+// DEVELOPMENT PRISMA SCHEMA - SQLite DATABASE
 // =============================================================================
-// MyMeds Pharmacy Inc. - Production Database Schema
-// Generated: September 4, 2025
+// MyMeds Pharmacy Inc. - Development Database Schema
+// Generated: September 21, 2025
 // =============================================================================
 
 generator client {
@@ -20,182 +20,68 @@ datasource db {
 // =============================================================================
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  firstName String
-  lastName  String
-  phone     String?
-  role      Role     @default(CUSTOMER)
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            Int      @id @default(autoincrement())
+  email         String   @unique
+  name          String?
+  password      String
+  role          String   @default("USER")
+  phone         String?
+  permissions   String?
+  isActive      Boolean  @default(true)
+  emailVerified Boolean  @default(false)
+  lastLoginAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   // Relations
-  prescriptions RefillRequest[]
-  transfers    TransferRequest[]
-  appointments Appointment[]
-  reviews      Review[]
-  cart         Cart[]
-  orders       Order[]
+  orders            Order[]
+  prescriptions     Prescription[]
+  appointments      Appointment[]
+  reviews           Review[]
+  refillRequests    RefillRequest[]
+  transferRequests  TransferRequest[]
+  patientProfile    PatientProfile?
 
-  @@index([email])
-  @@index([role])
-  @@index([isActive])
-  @@index([createdAt])
-}
-
-enum Role {
-  ADMIN
-  CUSTOMER
-  PHARMACIST
-  STAFF
+  @@map("users")
 }
 
 // =============================================================================
-// PRESCRIPTION MANAGEMENT
+// PRODUCT MANAGEMENT
 // =============================================================================
 
-model RefillRequest {
-  id                 Int      @id @default(autoincrement())
-  userId             Int?
-  firstName          String
-  lastName           String
-  email              String
-  phone              String
-  prescriptionNumber String
-  medication         String
-  notes              String?
-  status             RefillStatus @default(PENDING)
-  filePath           String?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   // Relations
-  user User? @relation(fields: [userId], references: [id])
+  products    Product[]
 
-  @@index([userId])
-  @@index([status])
-  @@index([createdAt])
-  @@index([email])
+  @@map("categories")
 }
 
-model TransferRequest {
-  id              Int      @id @default(autoincrement())
-  userId          Int?
-  firstName       String
-  lastName        String
-  email           String
-  phone           String
-  currentPharmacy String
-  newPharmacy     String
-  medication      String
-  notes           String?
-  status          TransferStatus @default(PENDING)
-  filePath        String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+model Product {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  price       Float
+  stock       Int       @default(0)
+  imageUrl    String?
+  categoryId  Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   // Relations
-  user User? @relation(fields: [userId], references: [id])
+  category        Category        @relation(fields: [categoryId], references: [id])
+  orderItems      OrderItem[]
+  reviews         Review[]
+  cartItems       CartItem[]
+  images          ProductImage[]
+  variants        ProductVariant[]
 
-  @@index([userId])
-  @@index([status])
-  @@index([createdAt])
-  @@index([email])
-}
-
-enum RefillStatus {
-  PENDING
-  PROCESSING
-  APPROVED
-  REJECTED
-  COMPLETED
-  CANCELLED
-}
-
-enum TransferStatus {
-  PENDING
-  PROCESSING
-  APPROVED
-  REJECTED
-  COMPLETED
-  CANCELLED
-}
-
-// =============================================================================
-// APPOINTMENT MANAGEMENT
-// =============================================================================
-
-model Appointment {
-  id        Int      @id @default(autoincrement())
-  userId    Int?
-  firstName String
-  lastName  String
-  email     String
-  phone     String
-  date      String
-  time      String
-  service   String
-  notes     String?
-  status    AppointmentStatus @default(SCHEDULED)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  user User? @relation(fields: [userId], references: [id])
-
-  @@index([userId])
-  @@index([date])
-  @@index([status])
-  @@index([createdAt])
-}
-
-enum AppointmentStatus {
-  SCHEDULED
-  CONFIRMED
-  COMPLETED
-  CANCELLED
-  NO_SHOW
-}
-
-// =============================================================================
-// REVIEWS & FEEDBACK
-// =============================================================================
-
-model Review {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  rating    Int
-  comment   String?
-  createdAt DateTime @default(now())
-
-  // Relations
-  user User @relation(fields: [userId], references: [id])
-
-  @@index([userId])
-  @@index([rating])
-  @@index([createdAt])
-}
-
-// =============================================================================
-// SHOPPING CART
-// =============================================================================
-
-model Cart {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  productId Int
-  quantity  Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  user User @relation(fields: [userId], references: [id])
-
-  @@index([userId])
-  @@index([productId])
-  @@index([createdAt])
+  @@map("products")
 }
 
 // =============================================================================
@@ -203,56 +89,124 @@ model Cart {
 // =============================================================================
 
 model Order {
-  id            Int           @id @default(autoincrement())
-  userId        Int
-  orderNumber   String        @unique
-  totalAmount   Decimal       @db.Decimal(10, 2)
-  status        OrderStatus   @default(PENDING)
-  paymentStatus PaymentStatus @default(PENDING)
-  items         OrderItem[]
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id              Int       @id @default(autoincrement())
+  userId          Int?
+  orderNumber     String    @unique
+  status          String    @default("PENDING")
+  total           Float
+  shippingAddress String?
+  paymentMethod   String?
+  paymentIntentId String?
+  guestEmail      String?
+  guestName       String?
+  guestPhone      String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  notified        Boolean   @default(false)
 
   // Relations
-  user User @relation(fields: [userId], references: [id])
+  user            User?     @relation(fields: [userId], references: [id])
+  items           OrderItem[]
 
-  @@index([userId])
-  @@index([orderNumber])
-  @@index([status])
-  @@index([createdAt])
+  @@map("orders")
 }
 
 model OrderItem {
-  id       Int     @id @default(autoincrement())
-  orderId  Int
+  id        Int     @id @default(autoincrement())
+  orderId   Int
   productId Int
-  quantity Int
-  price    Decimal @db.Decimal(10, 2)
-  name     String
+  quantity  Int
+  price     Float
 
   // Relations
-  order Order @relation(fields: [orderId], references: [id])
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
 
-  @@index([orderId])
-  @@index([productId])
+  @@map("order_items")
 }
 
-enum OrderStatus {
-  PENDING
-  CONFIRMED
-  PROCESSING
-  SHIPPED
-  DELIVERED
-  CANCELLED
-  REFUNDED
+// =============================================================================
+// PRESCRIPTION MANAGEMENT
+// =============================================================================
+
+model Prescription {
+  id              Int       @id @default(autoincrement())
+  userId          Int?
+  patientName     String
+  medication      String
+  dosage          String
+  instructions    String?
+  doctorName      String?
+  doctorPhone     String?
+  status          String    @default("PENDING")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  notified        Boolean   @default(false)
+
+  // Relations
+  user            User?     @relation(fields: [userId], references: [id])
+
+  @@map("prescriptions")
 }
 
-enum PaymentStatus {
-  PENDING
-  PAID
-  FAILED
-  REFUNDED
-  PARTIAL_REFUND
+// =============================================================================
+// APPOINTMENT MANAGEMENT
+// =============================================================================
+
+model Appointment {
+  id          Int       @id @default(autoincrement())
+  userId      Int?
+  patientName String
+  email       String
+  phone       String?
+  date        DateTime
+  time        String
+  reason      String?
+  status      String    @default("PENDING")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  notified    Boolean   @default(false)
+
+  // Relations
+  user        User?     @relation(fields: [userId], references: [id])
+
+  @@map("appointments")
+}
+
+// =============================================================================
+// CONTACT & REVIEWS
+// =============================================================================
+
+model ContactForm {
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String
+  status    String    @default("NEW")
+  createdAt DateTime  @default(now())
+  notified  Boolean   @default(false)
+
+  @@map("contact_forms")
+}
+
+model Review {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  productId Int?
+  name      String?
+  rating    Int
+  comment   String?
+  status    String    @default("pending")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  user      User      @relation(fields: [userId], references: [id])
+  product   Product?  @relation(fields: [productId], references: [id])
+
+  @@map("reviews")
 }
 
 // =============================================================================
@@ -260,86 +214,211 @@ enum PaymentStatus {
 // =============================================================================
 
 model WooCommerceSettings {
-  id              Int      @id @default(autoincrement())
-  enabled         Boolean  @default(false)
-  storeUrl        String   @default("")
-  consumerKey     String   @default("")
-  consumerSecret  String   @default("")
-  webhookSecret   String   @default("")
-  updatedAt       DateTime @updatedAt
+  id              Int       @id @default(autoincrement())
+  enabled         Boolean   @default(false)
+  storeUrl        String    @default("")
+  consumerKey     String    @default("")
+  consumerSecret  String    @default("")
+  webhookSecret   String    @default("")
+  lastSync        DateTime?
+  lastError       String?
+  updatedAt       DateTime  @updatedAt
 
-  @@index([enabled])
-  @@index([updatedAt])
+  @@map("woocommerce_settings")
 }
 
 model WordPressSettings {
-  id                  Int      @id @default(autoincrement())
-  enabled             Boolean  @default(false)
-  siteUrl             String   @default("")
-  username            String   @default("")
-  applicationPassword String   @default("")
-  updatedAt           DateTime @updatedAt
+  id                  Int       @id @default(autoincrement())
+  enabled             Boolean   @default(false)
+  siteUrl             String    @default("")
+  username            String    @default("")
+  applicationPassword String    @default("")
+  lastSync            DateTime?
+  lastError           String?
+  updatedAt           DateTime  @updatedAt
 
-  @@index([enabled])
-  @@index([updatedAt])
+  @@map("wordpress_settings")
 }
 
 // =============================================================================
-// SYSTEM LOGS & AUDIT
+// ADDITIONAL MODELS FOR FULL FUNCTIONALITY
 // =============================================================================
 
-model SystemLog {
-  id        Int      @id @default(autoincrement())
-  level     LogLevel @default(INFO)
-  message   String   @db.Text
-  context   Json?
+model Blog {
+  id        Int       @id @default(autoincrement())
+  title     String
+  content   String
+  author    String
+  slug      String    @unique
+  status    String    @default("draft")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("blogs")
+}
+
+model Cart {
+  id        Int       @id @default(autoincrement())
   userId    Int?
-  ipAddress String?
-  userAgent String?
-  createdAt DateTime @default(now())
+  sessionId String?
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
-  @@index([level])
-  @@index([userId])
-  @@index([createdAt])
+  // Relations
+  items     CartItem[]
+
+  @@map("carts")
 }
 
-enum LogLevel {
-  ERROR
-  WARN
-  INFO
-  DEBUG
+model CartItem {
+  id        Int     @id @default(autoincrement())
+  cartId    Int
+  productId Int
+  quantity  Int     @default(1)
+  price     Float
+
+  // Relations
+  cart      Cart    @relation(fields: [cartId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map("cart_items")
 }
 
-// =============================================================================
-// CACHE & SESSIONS
-// =============================================================================
-
-model Session {
-  id        String   @id
+model Notification {
+  id        Int       @id @default(autoincrement())
   userId    Int?
-  data      Json
-  expiresAt DateTime
-  createdAt DateTime @default(now())
+  title     String
+  message   String
+  type      String    @default("info")
+  data      String?
+  read      Boolean   @default(false)
+  createdAt DateTime  @default(now())
 
-  @@index([userId])
-  @@index([expiresAt])
+  @@map("notifications")
 }
 
-// =============================================================================
-// FILE UPLOADS
-// =============================================================================
+model RefillRequest {
+  id            Int       @id @default(autoincrement())
+  userId        Int
+  medication    String
+  dosage        String
+  quantity      Int
+  urgency       String    @default("normal")
+  status        String    @default("pending")
+  notes         String?
+  requestedDate DateTime?
+  notified      Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-model FileUpload {
-  id          Int      @id @default(autoincrement())
-  filename    String
-  originalName String
-  mimeType    String
-  size         Int
-  path         String
-  uploadedBy   Int?
-  createdAt    DateTime @default(now())
+  // Relations
+  user          User      @relation(fields: [userId], references: [id])
 
-  @@index([uploadedBy])
-  @@index([createdAt])
-  @@index([mimeType])
+  @@map("refill_requests")
+}
+
+model TransferRequest {
+  id              Int       @id @default(autoincrement())
+  userId          Int
+  fromPharmacy    String
+  toPharmacy      String
+  currentPharmacy String?
+  medication      String
+  medications     String?
+  dosage          String
+  quantity        Int
+  status          String    @default("pending")
+  notes           String?
+  requestedDate   DateTime?
+  notified        Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  user            User      @relation(fields: [userId], references: [id])
+
+  @@map("transfer_requests")
+}
+
+model Settings {
+  id            Int       @id @default(autoincrement())
+  key           String    @unique
+  value         String
+  siteName      String?
+  contactEmail  String?
+  contactPhone  String?
+  address       String?
+  businessHours String?
+  facebook      String?
+  instagram     String?
+  twitter       String?
+  updatedAt     DateTime  @updatedAt
+
+  @@map("settings")
+}
+
+model PatientProfile {
+  id            Int       @id @default(autoincrement())
+  userId        Int       @unique
+  firstName     String
+  lastName      String
+  dateOfBirth   DateTime?
+  phone         String?
+  address       String?
+  emergencyContact String?
+  allergies     String?
+  medications   String?
+  medicalHistory String?
+  ssn           String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  user          User      @relation(fields: [userId], references: [id])
+
+  @@map("patient_profiles")
+}
+
+model ProductImage {
+  id        Int       @id @default(autoincrement())
+  productId Int
+  url       String
+  alt       String?
+  order     Int       @default(0)
+  createdAt DateTime  @default(now())
+
+  // Relations
+  product   Product   @relation(fields: [productId], references: [id])
+
+  @@map("product_images")
+}
+
+model ProductVariant {
+  id        Int       @id @default(autoincrement())
+  productId Int
+  name      String
+  value     String
+  price     Float?
+  stock     Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  product   Product   @relation(fields: [productId], references: [id])
+
+  @@map("product_variants")
+}
+
+model GuestOrderTracking {
+  id              Int       @id @default(autoincrement())
+  orderNumber     String    @unique
+  orderId         Int?
+  email           String
+  status          String    @default("pending")
+  trackingNumber  String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("guest_order_tracking")
 }

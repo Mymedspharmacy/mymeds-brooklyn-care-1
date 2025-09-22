@@ -75,7 +75,7 @@ router.post('/product/:productId', async (req: Request, res: Response) => {
         productId,
         name,
         rating: Number(rating),
-        text,
+        comment: text,
         userId: userId ? Number(userId) : undefined,
         status: 'pending'
       }

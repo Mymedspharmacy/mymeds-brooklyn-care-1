@@ -42,7 +42,8 @@ router.post('/', async (req: Request, res: Response) => {
     const contact = await prisma.contactForm.create({ 
       data: { 
         name: formData.fullName || `${formData.firstName} ${formData.lastName}`,
-        email: formData.email, 
+        email: formData.email,
+        subject: formData.subject || 'General Inquiry',
         message: `Subject: ${formData.subject}\n\nMessage: ${formData.message}\n\nService Type: ${formData.serviceType || 'Not specified'}\nUrgency: ${formData.urgency || 'Normal'}\nPreferred Contact: ${formData.preferredContact || 'Email'}\nBest Time: ${formData.bestTimeToContact || 'Not specified'}\nMarketing Consent: ${formData.allowMarketing ? 'Yes' : 'No'}`
       } 
     });
