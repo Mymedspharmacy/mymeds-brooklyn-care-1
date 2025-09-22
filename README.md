@@ -1,6 +1,6 @@
 # 🏥 MyMeds Pharmacy - Modern Healthcare Platform
 
-A comprehensive pharmacy management system built with React, Node.js, and TypeScript.
+A comprehensive pharmacy management system built with React, Node.js, and TypeScript, featuring full-stack deployment with Docker, WordPress integration, and production-ready configurations.
 
 ## 🏗️ Architecture
 
@@ -9,6 +9,7 @@ mymeds-brooklyn-care-1-1/
 ├── 📱 Frontend (React + Vite + TypeScript)
 ├── 🔧 Backend (Node.js + Express + Prisma)
 ├── 🚀 Deployment (Docker + PM2 + Nginx)
+├── 📝 WordPress + WooCommerce Integration
 └── 📚 Documentation
 ```
 
@@ -18,6 +19,7 @@ mymeds-brooklyn-care-1-1/
 - Node.js 18+ 
 - npm or yarn
 - MySQL 8.0+
+- Docker & Docker Compose (for containerized deployment)
 - Git
 
 ### Development Setup
@@ -42,7 +44,7 @@ mymeds-brooklyn-care-1-1/
 3. **Environment setup**
    ```bash
    # Copy environment files
-   cp frontend.env.production .env.local
+   cp env.production.template .env
    cp backend/env.production backend/.env
    ```
 
@@ -63,6 +65,21 @@ mymeds-brooklyn-care-1-1/
    cd backend
    npm run dev
    ```
+
+### Quick Docker Deployment
+
+For a complete setup with Docker:
+
+```bash
+# Quick deployment with all services
+./deployment/scripts/quick-deploy.sh
+
+# Production deployment
+./deployment/scripts/deploy-production.sh
+
+# Full-stack deployment (includes WordPress)
+./deployment/scripts/deploy-full-stack.sh
+```
 
 ## 🏗️ Project Structure
 
@@ -122,28 +139,39 @@ npm run update:vps   # Update VPS deployment
 
 ## 🚀 Deployment
 
-### VPS Deployment
-```bash
-# Update VPS configuration
-nano deployment/vps-config.json
+### Available Deployment Scripts
 
-# Deploy to VPS
-npm run update:vps
-```
+The project includes three main deployment scripts in `deployment/scripts/`:
+
+1. **`quick-deploy.sh`** - Quick Docker deployment for development/testing
+2. **`deploy-production.sh`** - Production deployment with full monitoring
+3. **`deploy-full-stack.sh`** - Complete deployment with WordPress + WooCommerce
 
 ### Docker Deployment
 ```bash
+# Quick development deployment
+./deployment/scripts/quick-deploy.sh
+
+# Production deployment
+./deployment/scripts/deploy-production.sh
+
+# Full-stack with WordPress
+./deployment/scripts/deploy-full-stack.sh
+```
+
+### Manual Docker Deployment
+```bash
 # Build and run with Docker Compose
-cd deployment/docker
 docker-compose -f docker-compose.prod.yml up -d
+
+# Full-stack deployment
+docker-compose -f docker-compose.full-stack.yml up -d
 ```
 
 ## 📚 Documentation
 
-- [Deployment Guide](docs/DEPLOYMENT.md)
-- [API Documentation](docs/API.md)
-- [Development Guide](docs/DEVELOPMENT.md)
-- [Clean Architecture](CLEAN_ARCHITECTURE.md)
+- [Deployment Guide](docs/DEPLOYMENT.md) - Complete deployment instructions
+- [Clean Architecture](docs/CLEAN_ARCHITECTURE.md) - System architecture overview
 
 ## 🔧 Configuration
 
