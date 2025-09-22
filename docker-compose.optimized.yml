@@ -8,7 +8,7 @@ version: '3.8'
 
 services:
   # =============================================================================
-  # MySQL Database (Optimized)
+  # MySQL Database (Optimized for 1GB RAM)
   # =============================================================================
   mysql:
     image: mysql:8.0
@@ -30,7 +30,19 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 20s
       retries: 10
-    command: --default-authentication-plugin=mysql_native_password --innodb-buffer-pool-size=512M --max-connections=50
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --innodb-buffer-pool-size=512M
+      --innodb-log-file-size=64M
+      --innodb-flush-log-at-trx-commit=2
+      --innodb-flush-method=O_DIRECT
+      --max-connections=50
+      --query-cache-size=32M
+      --query-cache-type=1
+      --tmp-table-size=32M
+      --max-heap-table-size=32M
+      --thread-cache-size=8
+      --key-buffer-size=32M
     deploy:
       resources:
         limits:
@@ -39,7 +51,41 @@ services:
           memory: 512M
 
   # =============================================================================
-  # WordPress + WooCommerce (Optimized)
+  # Redis Cache (Optimized for 256MB RAM)
+  # =============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: mymeds-redis
+    restart: unless-stopped
+    command: >
+      redis-server 
+      --appendonly yes 
+      --requirepass ${REDIS_PASSWORD:-Mymeds2025!RedisSecure123!@#}
+      --maxmemory 200mb
+      --maxmemory-policy allkeys-lru
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - mymeds-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+
+  # =============================================================================
+  # WordPress + WooCommerce (Optimized for 1GB RAM)
   # =============================================================================
   wordpress:
     image: wordpress:6.4-php8.2-apache
@@ -52,8 +98,6 @@ services:
       WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME:-wordpress}
       WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX:-wp_}
       WORDPRESS_DEBUG: 0
-      WORDPRESS_URL: https://mymedspharmacyinc.com
-      WORDPRESS_HOME: https://mymedspharmacyinc.com
       WORDPRESS_CONFIG_EXTRA: |
         define('WP_REDIS_HOST', 'redis');
         define('WP_REDIS_PORT', 6379);
@@ -67,18 +111,24 @@ services:
         define('FORCE_SSL_ADMIN', true);
         define('WP_POST_REVISIONS', 3);
         define('WP_MEMORY_LIMIT', '256M');
-        define('WP_MAX_MEMORY_LIMIT', '256M');
+        define('WP_MAX_MEMORY_LIMIT', '512M');
+        define('WP_MAX_EXECUTION_TIME', 300);
+        define('WP_CRON_LOCK_TIMEOUT', 120);
+        define('EMPTY_TRASH_DAYS', 7);
+        define('WP_ALLOW_REPAIR', true);
     volumes:
       - wordpress_data:/var/www/html
       - ./deployment/wordpress/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini:ro
-      - ./deployment/wordpress/.htaccess:/var/www/html/.htaccess:ro
-      - ./deployment/wordpress/wp-config-extra.php:/var/www/html/wp-config-extra.php:ro
+      - ./wordpress-plugins:/var/www/html/wp-content/plugins:ro
+      - ./wordpress-themes:/var/www/html/wp-content/themes:ro
     ports:
       - "8080:80"
     networks:
       - mymeds-network
     depends_on:
       mysql:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/wp-admin/install.php"]
@@ -94,7 +144,7 @@ services:
           memory: 512M
 
   # =============================================================================
-  # MyMeds Application (Optimized)
+  # MyMeds Application (Optimized for 1.5GB RAM)
   # =============================================================================
   mymeds-app:
     build:
@@ -142,7 +192,7 @@ services:
       FILE_UPLOAD_ENABLED: true
       
       # CORS Configuration
-      CORS_ORIGIN: ${CORS_ORIGIN:-https://www.mymedspharmacyinc.com,https://mymedspharmacyinc.com,http://72.60.116.253:8080,http://72.60.116.253:3000,http://72.60.116.253:4000}
+      CORS_ORIGIN: ${CORS_ORIGIN:-https://www.mymedspharmacyinc.com,https://mymedspharmacyinc.com,http://localhost:8080}
       CORS_CREDENTIALS: true
       CORS_METHODS: GET,POST,PUT,DELETE,OPTIONS,PATCH
       CORS_ALLOWED_HEADERS: Content-Type,Authorization,X-Requested-With,Accept,Origin,Cache-Control
@@ -207,10 +257,10 @@ services:
       BACKUP_RETENTION_DAYS: 30
       BACKUP_PATH: ./backups
       
-      # Performance Configuration (Optimized for 1 CPU)
+      # Performance Configuration (Optimized for Single CPU)
       COMPRESSION_ENABLED: true
       COMPRESSION_LEVEL: 6
-      CLUSTER_ENABLED: false  # Disabled for single CPU
+      CLUSTER_ENABLED: false
       CLUSTER_WORKERS: 1
       
       # Development Overrides (DISABLE IN PRODUCTION)
@@ -228,6 +278,8 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+      redis:
+        condition: service_healthy
       wordpress:
         condition: service_healthy
     healthcheck:
@@ -241,36 +293,10 @@ services:
         limits:
           memory: 1.5G
         reservations:
-          memory: 1G
+          memory: 768M
 
   # =============================================================================
-  # Redis Cache (Optimized)
-  # =============================================================================
-  redis:
-    image: redis:7-alpine
-    container_name: mymeds-redis
-    restart: unless-stopped
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-Mymeds2025!RedisSecure123!@#} --maxmemory 256mb --maxmemory-policy allkeys-lru
-    volumes:
-      - redis_data:/data
-    ports:
-      - "6379:6379"
-    networks:
-      - mymeds-network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    deploy:
-      resources:
-        limits:
-          memory: 256M
-        reservations:
-          memory: 128M
-
-  # =============================================================================
-  # Nginx Reverse Proxy (Optimized)
+  # Nginx Reverse Proxy (Optimized for 128MB RAM)
   # =============================================================================
   nginx:
     image: nginx:alpine
@@ -281,7 +307,9 @@ services:
       - "443:443"
     volumes:
       - ./deployment/nginx/nginx-full-stack.conf:/etc/nginx/nginx.conf:ro
-      - ./deployment/nginx/ssl:/etc/nginx/ssl:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro
+      - /etc/nginx/conf.d:/etc/nginx/conf.d:ro
       - nginx_logs:/var/log/nginx
     networks:
       - mymeds-network
