@@ -40,7 +40,7 @@ echo "🗄️ Setting up database..."
 
 # Wait for database to be ready
 echo "⏳ Waiting for database connection..."
-until mysql -h"${DB_HOST:-localhost}" -P"${DB_PORT:-3306}" -u"${DB_USER:-mymeds_user}" -p"${DB_PASSWORD}" -e "SELECT 1;" >/dev/null 2>&1; do
+until mysql -h"${DB_HOST:-mysql}" -P"${DB_PORT:-3306}" -u"${DB_USER:-mymeds_user}" -p"${DB_PASSWORD}" -e "SELECT 1;" >/dev/null 2>&1; do
     echo "⏳ Database not ready, waiting..."
     sleep 2
 done
@@ -83,7 +83,7 @@ check_backend_health() {
 
 # Function to check database health
 check_database_health() {
-    mysql -h"${DB_HOST:-localhost}" -P"${DB_PORT:-3306}" -u"${DB_USER:-mymeds_user}" -p"${DB_PASSWORD}" -e "SELECT 1;" >/dev/null 2>&1
+    mysql -h"${DB_HOST:-mysql}" -P"${DB_PORT:-3306}" -u"${DB_USER:-mymeds_user}" -p"${DB_PASSWORD}" -e "SELECT 1;" >/dev/null 2>&1
 }
 
 # Wait for services to be ready
