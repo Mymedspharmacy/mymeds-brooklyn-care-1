@@ -41,12 +41,12 @@ WORKDIR /app/backend
 COPY backend/package*.json ./
 COPY backend/tsconfig*.json ./
 
-# Install ALL dependencies (including dev dependencies for build)
-RUN npm ci
-
-# Copy backend source code
+# Copy backend source code FIRST (before npm ci)
 COPY backend/src/ ./src/
 COPY backend/prisma/ ./prisma/
+
+# Install ALL dependencies (including dev dependencies for build)
+RUN npm ci
 
 # Generate Prisma client
 RUN npx prisma generate
