@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ShoppingCart, Users, Star, Settings, 
@@ -57,6 +57,7 @@ export default function Admin() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showToast, setShowToast] = useState({ show: false, message: '', type: 'success' });
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [isNavigating, setIsNavigating] = useState(false);
   const [showContactDialog, setShowContactDialog] = useState(false);
   const [showNotificationDialog, setShowNotificationDialog] = useState(false);
   const [selectedContact, setSelectedContact] = useState<any>(null);
@@ -125,6 +126,16 @@ export default function Admin() {
 
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [showMedicineSearch, setShowMedicineSearch] = useState(false);
+  const [showSessionWarning, setShowSessionWarning] = useState(false);
+
+  // Safe navigation function to prevent multiple simultaneous navigations
+  const safeNavigate = useCallback((path: string) => {
+    if (isNavigating) return;
+    setIsNavigating(true);
+    navigate(path);
+    // Reset navigation flag after a short delay
+    setTimeout(() => setIsNavigating(false), 1000);
+  }, [isNavigating, navigate]);
 
   // ✅ ADDED: Use notifications hook with sound control
   const { notifications: realTimeNotifications, isConnected } = useNotifications(soundEnabled);
@@ -138,7 +149,7 @@ export default function Admin() {
         
         if (!token || auth !== 'true') {
           // No local auth, redirect immediately
-          navigate('/admin-signin');
+          safeNavigate('/admin-signin');
           return;
         }
 
@@ -147,7 +158,7 @@ export default function Admin() {
         if (!isAuth) {
           // Backend says we're not authenticated, clear local auth and redirect
           await adminAuth.logout();
-          navigate('/admin-signin');
+          safeNavigate('/admin-signin');
         } else {
           // We're authenticated, stop checking
           setCheckingAuth(false);
@@ -156,7 +167,7 @@ export default function Admin() {
         console.error('Authentication check failed:', error);
         // On error, clear auth and redirect
         await adminAuth.logout();
-        navigate('/admin-signin');
+        safeNavigate('/admin-signin');
       }
     };
     
@@ -170,13 +181,13 @@ export default function Admin() {
         const isAuth = await adminAuth.isAuthenticated();
         if (!isAuth && !checkingAuth) {
           console.log('Authentication lost, redirecting to signin');
-          navigate('/admin-signin');
+          safeNavigate('/admin-signin');
         }
       } catch (error) {
         console.error('Auth status check failed:', error);
         // Only redirect if we're not already checking auth
         if (!checkingAuth) {
-          navigate('/admin-signin');
+          safeNavigate('/admin-signin');
         }
       }
     };
@@ -251,7 +262,7 @@ export default function Admin() {
         return;
       }
 
-      const response = await api.get('/orders');
+      const response = await api.get('/api/admin/orders');
       setOrders(response.data);
       setStats(prev => ({
         ...prev,
@@ -276,7 +287,7 @@ export default function Admin() {
         return;
       }
 
-      const response = await api.get('/refill-requests');
+      const response = await api.get('/api/admin/refill-requests');
       setRefillRequests(response.data);
       setStats(prev => ({
         ...prev,
@@ -301,7 +312,7 @@ export default function Admin() {
         return;
       }
 
-      const response = await api.get('/transfer-requests');
+      const response = await api.get('/api/admin/transfer-requests');
       setTransferRequests(response.data);
       setStats(prev => ({
         ...prev,
@@ -326,7 +337,7 @@ export default function Admin() {
         return;
       }
 
-      const response = await api.get('/contact');
+      const response = await api.get('/api/admin/contact');
       setContacts(response.data);
       setStats(prev => ({
         ...prev,
@@ -351,7 +362,7 @@ export default function Admin() {
         return;
       }
 
-      const response = await api.get('/notifications');
+      const response = await api.get('/api/admin/notifications');
       setNotifications(response.data);
       setStats(prev => ({
         ...prev,
@@ -1183,32 +1194,32 @@ export default function Admin() {
 
   // Redirect to sign-in if not authenticated (no loading screen)
   useEffect(() => {
-    if (checkingAuth) {
-      navigate('/admin-signin');
-      return;
-    }
+    // Add a small delay to prevent navigation conflicts
+    const timer = setTimeout(() => {
+      if (checkingAuth) {
+        safeNavigate('/admin-signin');
+        return;
+      }
 
-    // Additional check to ensure we have valid user data
-    const currentUser = adminAuth.getUser();
-    if (!currentUser || !currentUser.role || currentUser.role !== 'ADMIN') {
-      navigate('/admin-signin');
-    }
+      // Additional check to ensure we have valid user data
+      const currentUser = adminAuth.getUser();
+      if (!currentUser || !currentUser.role || currentUser.role !== 'ADMIN') {
+        safeNavigate('/admin-signin');
+      }
+    }, 100); // Small delay to prevent navigation throttling
+
+    return () => clearTimeout(timer);
   }, [checkingAuth, navigate]);
-
-  if (checkingAuth) {
-    return null;
-  }
 
   // Additional check to ensure we have valid user data
   const currentUser = adminAuth.getUser();
-  if (!currentUser || !currentUser.role || currentUser.role !== 'ADMIN') {
-    return null;
-  }
-
-  // Prevent API calls if not authenticated
   const isAuthenticated = adminAuth.isAuthenticatedSync();
-  if (!isAuthenticated) {
-    navigate('/admin-signin');
+  
+  // Handle authentication state
+  if (checkingAuth || !currentUser || !currentUser.role || currentUser.role !== 'ADMIN' || !isAuthenticated) {
+    if (!isAuthenticated) {
+      safeNavigate('/admin-signin');
+    }
     return null;
   }
 
@@ -1219,12 +1230,12 @@ export default function Admin() {
   const handleLogout = async () => {
     try {
       await adminAuth.logout();
-      navigate('/admin-signin');
+      safeNavigate('/admin-signin');
     } catch (error) {
       console.error('Logout failed:', error);
       // Force logout anyway
       localStorage.clear();
-      navigate('/admin-signin');
+      safeNavigate('/admin-signin');
     }
   };
 
@@ -1249,7 +1260,6 @@ export default function Admin() {
   };
 
   // Add session timeout warning
-  const [showSessionWarning, setShowSessionWarning] = useState(false);
   useEffect(() => {
     const sessionTimeout = setTimeout(() => {
       setShowSessionWarning(true);

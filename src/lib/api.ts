@@ -1,7 +1,11 @@
 import axios from 'axios';
 
 // API configuration
-const API_BASE_URL: string = (import.meta as any).env?.VITE_API_URL || 'http://localhost:4000';
+const API_BASE_URL: string = import.meta.env.MODE === 'development' 
+  ? '' // Use proxy in development
+  : (import.meta as any).env?.VITE_API_URL || 'http://localhost:4000';
+console.log('API Base URL:', API_BASE_URL);
+console.log('Environment:', import.meta.env.MODE);
 
 // Create axios instance
 const api = axios.create({
@@ -14,6 +18,7 @@ const api = axios.create({
 
 // Add request interceptor to include auth token
 api.interceptors.request.use((config) => {
+  console.log('API Request:', config.method?.toUpperCase(), config.baseURL + config.url);
   const adminToken = localStorage.getItem('admin-token');
   if (adminToken) {
     config.headers.Authorization = `Bearer ${adminToken}`;

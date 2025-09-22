@@ -1,5 +1,8 @@
 import { Router, Request, Response } from 'express';
 import { unifiedAdminAuth } from './auth';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 
 interface AuthRequest extends Request {
   user?: any;
@@ -11,6 +14,40 @@ const router = Router();
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
+
+// Configure multer for WordPress media uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, '../../uploads/wordpress-media');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'wp-media-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ 
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB limit for WordPress media
+  },
+  fileFilter: (req, file, cb) => {
+    // Allow common media types
+    const allowedTypes = /jpeg|jpg|png|gif|pdf|mp4|mp3|wav|webp|svg/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    
+    if (mimetype && extname) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image, video, audio, and document files are allowed'));
+    }
+  }
+});
 
 // In-memory cache for posts (in production, use Redis)
 const postCache = new Map();
@@ -607,15 +644,17 @@ router.get('/media', unifiedAdminAuth, async (req: AuthRequest, res: Response) =
   }
 });
 
-// Admin: upload media to WordPress
-router.post('/media', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+// Admin: upload media to WordPress (supports both file upload and remote URL)
+router.post('/media', unifiedAdminAuth, upload.single('file'), async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
     const { file_url, title, description, caption, alt_text } = req.body;
+    const uploadedFile = req.file;
 
-    if (!file_url) {
-      return res.status(400).json({ error: 'File URL is required' });
+    // Check if we have either a file upload or a remote URL
+    if (!uploadedFile && !file_url) {
+      return res.status(400).json({ error: 'Either file upload or file URL is required' });
     }
 
     const settings = await prisma.wordPressSettings.findUnique({
@@ -626,31 +665,62 @@ router.post('/media', unifiedAdminAuth, async (req: AuthRequest, res: Response) 
       return res.status(400).json({ error: 'WordPress integration is not enabled' });
     }
 
-    // For file uploads, you would typically handle multipart/form-data
-    // This is a simplified version for remote URLs
-    const response = await makeWordPressRequest(
-      `${settings.siteUrl}/wp-json/wp/v2/media`,
-      {
+    let mediaData: any;
+    let sourceUrl: string;
+
+    if (uploadedFile) {
+      // Handle file upload
+      sourceUrl = `${req.protocol}://${req.get('host')}/uploads/wordpress-media/${uploadedFile.filename}`;
+      
+      // Create FormData for WordPress API
+      const formData = new FormData();
+      formData.append('file', fs.createReadStream(uploadedFile.path));
+      formData.append('title', title || uploadedFile.originalname);
+      formData.append('description', description || '');
+      formData.append('caption', caption || '');
+      formData.append('alt_text', alt_text || '');
+
+      const response = await fetch(`${settings.siteUrl}/wp-json/wp/v2/media`, {
         method: 'POST',
         headers: {
-          'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
-          'Content-Type': 'application/json'
+          'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`
         },
-        body: JSON.stringify({
-          source_url: file_url,
-          title: title || '',
-          description: description || '',
-          caption: caption || '',
-          alt_text: alt_text || ''
-        })
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`WordPress API error: ${response.status} - ${errorText}`);
       }
-    );
 
-    if (!response) {
-      throw new Error('Failed to upload media to WordPress');
+      mediaData = await response.json();
+    } else {
+      // Handle remote URL
+      const response = await makeWordPressRequest(
+        `${settings.siteUrl}/wp-json/wp/v2/media`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            source_url: file_url,
+            title: title || '',
+            description: description || '',
+            caption: caption || '',
+            alt_text: alt_text || ''
+          })
+        }
+      );
+
+      if (!response) {
+        throw new Error('Failed to upload media to WordPress');
+      }
+
+      mediaData = await response.json();
+      sourceUrl = file_url;
     }
-
-    const newMedia = await response.json();
     
     // Clear cache
     clearPostCache();
@@ -659,14 +729,27 @@ router.post('/media', unifiedAdminAuth, async (req: AuthRequest, res: Response) 
       success: true,
       message: 'Media uploaded successfully',
       media: {
-        id: newMedia.id,
-        title: newMedia.title.rendered,
-        source_url: newMedia.source_url,
-        link: newMedia.link
+        id: mediaData.id,
+        title: mediaData.title?.rendered || mediaData.title || '',
+        description: mediaData.description?.rendered || mediaData.description || '',
+        caption: mediaData.caption?.rendered || mediaData.caption || '',
+        alt_text: mediaData.alt_text || '',
+        source_url: mediaData.source_url || sourceUrl,
+        link: mediaData.link,
+        mime_type: mediaData.mime_type,
+        media_type: mediaData.media_type,
+        date: mediaData.date,
+        modified: mediaData.modified
       }
     });
   } catch (err: any) {
     console.error('Error uploading media to WordPress:', err);
+    
+    // Clean up uploaded file if it exists and there was an error
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+    
     res.status(500).json({ 
       error: 'Failed to upload media',
       details: process.env.NODE_ENV === 'development' ? err.message : undefined
@@ -1123,6 +1206,44 @@ router.get('/categories', async (req: Request, res: Response) => {
       details: process.env.NODE_ENV === 'development' ? err.message : undefined
     });
   }
+});
+
+// Serve uploaded WordPress media files
+router.get('/uploads/wordpress-media/:filename', (req: Request, res: Response) => {
+  const filename = req.params.filename;
+  const filePath = path.join(__dirname, '../../uploads/wordpress-media', filename);
+  
+  // Check if file exists
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: 'File not found' });
+  }
+  
+  // Set appropriate headers
+  const ext = path.extname(filename).toLowerCase();
+  const mimeTypes: { [key: string]: string } = {
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.png': 'image/png',
+    '.gif': 'image/gif',
+    '.webp': 'image/webp',
+    '.svg': 'image/svg+xml',
+    '.pdf': 'application/pdf',
+    '.mp4': 'video/mp4',
+    '.mp3': 'audio/mpeg',
+    '.wav': 'audio/wav'
+  };
+  
+  const mimeType = mimeTypes[ext] || 'application/octet-stream';
+  res.setHeader('Content-Type', mimeType);
+  
+  // Stream the file
+  const fileStream = fs.createReadStream(filePath);
+  fileStream.pipe(res);
+  
+  fileStream.on('error', (err) => {
+    console.error('Error streaming file:', err);
+    res.status(500).json({ error: 'Error streaming file' });
+  });
 });
 
 export default router; 

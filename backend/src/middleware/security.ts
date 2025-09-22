@@ -168,7 +168,7 @@ const getLimiters = () => {
   return process.env.NODE_ENV === 'production' ? productionLimiters : developmentLimiters;
 };
 
-// Enhanced security headers
+// Enhanced security headers with comprehensive protection
 const securityHeaders = helmet({
   contentSecurityPolicy: {
     directives: {
@@ -184,23 +184,26 @@ const securityHeaders = helmet({
       workerSrc: ["'self'"],
       manifestSrc: ["'self'"],
       formAction: ["'self'"],
-      baseUri: ["'self'"]
+      baseUri: ["'self'"],
+      upgradeInsecureRequests: []
     },
     reportOnly: false
   },
+  crossOriginEmbedderPolicy: false, // Disable for better compatibility
+  crossOriginOpenerPolicy: { policy: "same-origin" },
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  dnsPrefetchControl: { allow: false },
+  frameguard: { action: 'deny' },
+  hidePoweredBy: true,
   hsts: {
     maxAge: 31536000, // 1 year
     includeSubDomains: true,
     preload: true
   },
-  crossOriginEmbedderPolicy: true, // Enable for better security
-  crossOriginResourcePolicy: { policy: "cross-origin" }, // Allow external resources
-  dnsPrefetchControl: { allow: false },
-  frameguard: { action: "deny" },
-  hidePoweredBy: true,
   ieNoOpen: true,
   noSniff: true,
-  permittedCrossDomainPolicies: { permittedPolicies: "none" },
+  originAgentCluster: true,
+  permittedCrossDomainPolicies: false,
   referrerPolicy: { policy: "strict-origin-when-cross-origin" },
   xssFilter: true
 });

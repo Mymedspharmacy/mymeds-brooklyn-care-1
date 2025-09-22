@@ -1,0 +1,221 @@
+# =============================================================================
+# PRODUCTION DOCKER COMPOSE - MyMeds Pharmacy Inc.
+# =============================================================================
+# Complete production stack with MySQL database
+# =============================================================================
+
+version: '3.8'
+
+services:
+  # =============================================================================
+  # MySQL Database
+  # =============================================================================
+  mysql:
+    image: mysql:8.0
+    container_name: mymeds-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-Mymeds2025!RootSecure123!@#}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-mymeds_production}
+      MYSQL_USER: ${MYSQL_USER:-mymeds_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-Mymeds2025!UserSecure123!@#}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./deployment/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "3306:3306"
+    networks:
+      - mymeds-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    command: --default-authentication-plugin=mysql_native_password
+
+  # =============================================================================
+  # MyMeds Application
+  # =============================================================================
+  mymeds-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mymeds-app
+    restart: unless-stopped
+    environment:
+      # Database Configuration
+      DATABASE_URL: mysql://${MYSQL_USER:-mymeds_user}:${MYSQL_PASSWORD:-Mymeds2025!UserSecure123!@#}@mysql:3306/${MYSQL_DATABASE:-mymeds_production}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: ${MYSQL_USER:-mymeds_user}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-Mymeds2025!UserSecure123!@#}
+      DB_NAME: ${MYSQL_DATABASE:-mymeds_production}
+      
+      # Server Configuration
+      NODE_ENV: production
+      PORT: 4000
+      HOST: 0.0.0.0
+      
+      # JWT & Authentication
+      JWT_SECRET: ${JWT_SECRET:-Mymeds2025!JWTSecretKey_PharmacySecure_Production_2025!@#$%^&*()}
+      JWT_EXPIRES_IN: 24h
+      JWT_REFRESH_EXPIRES_IN: 7d
+      
+      # Admin Credentials
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@mymedspharmacyinc.com}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-Mymeds2025!AdminSecure123!@#}
+      ADMIN_FIRST_NAME: Admin
+      ADMIN_LAST_NAME: User
+      
+      # Email Configuration
+      EMAIL_HOST: ${EMAIL_HOST:-smtp.gmail.com}
+      EMAIL_PORT: ${EMAIL_PORT:-587}
+      EMAIL_USER: ${EMAIL_USER:-mymedspharmacyinc@gmail.com}
+      EMAIL_PASSWORD: ${EMAIL_PASSWORD:-YourGmailAppPasswordHere}
+      EMAIL_FROM: ${EMAIL_FROM:-mymedspharmacyinc@gmail.com}
+      EMAIL_FROM_NAME: "MyMeds Pharmacy Inc."
+      
+      # File Upload Configuration
+      UPLOAD_PATH: ./uploads
+      MAX_FILE_SIZE: 5242880
+      ALLOWED_FILE_TYPES: jpeg,jpg,png,gif,pdf
+      FILE_UPLOAD_ENABLED: true
+      
+      # CORS Configuration
+      CORS_ORIGIN: ${CORS_ORIGIN:-https://www.mymedspharmacyinc.com,https://mymedspharmacyinc.com}
+      CORS_CREDENTIALS: true
+      CORS_METHODS: GET,POST,PUT,DELETE,OPTIONS,PATCH
+      CORS_ALLOWED_HEADERS: Content-Type,Authorization,X-Requested-With,Accept,Origin,Cache-Control
+      CORS_MAX_AGE: 86400
+      
+      # Rate Limiting
+      RATE_LIMIT_WINDOW_MS: 900000
+      RATE_LIMIT_MAX_REQUESTS: 100
+      RATE_LIMIT_ENABLED: true
+      
+      # Security Configuration
+      BCRYPT_ROUNDS: 12
+      SESSION_SECRET: ${SESSION_SECRET:-Mymeds2025!SessionSecret_PharmacySecure_Production_2025!@#$%^&*()}
+      HELMET_ENABLED: true
+      XSS_PROTECTION: true
+      CONTENT_SECURITY_POLICY: true
+      
+      # Logging Configuration
+      LOG_LEVEL: info
+      LOG_FILE_PATH: ./logs/app.log
+      LOG_MAX_SIZE: 10485760
+      LOG_MAX_FILES: 5
+      
+      # Cache Configuration
+      CACHE_ENABLED: true
+      CACHE_TTL: 300
+      REDIS_URL: redis://redis:6379
+      REDIS_ENABLED: false
+      
+      # WordPress Integration
+      WORDPRESS_URL: ${WORDPRESS_URL:-https://mymedspharmacyinc.com/blog}
+      WORDPRESS_USERNAME: ${WORDPRESS_USERNAME:-mymeds_api_user}
+      WORDPRESS_APP_PASSWORD: ${WORDPRESS_APP_PASSWORD:-X8J0 ICBi 5Ilb PnrX Bhyp r2PE}
+      FEATURE_WORDPRESS_ENABLED: true
+      WORDPRESS_API_TIMEOUT: 10000
+      WORDPRESS_CACHE_TTL: 300
+      
+      # WooCommerce Integration
+      WOOCOMMERCE_STORE_URL: ${WOOCOMMERCE_STORE_URL:-https://mymedspharmacyinc.com/shop}
+      WOOCOMMERCE_CONSUMER_KEY: ${WOOCOMMERCE_CONSUMER_KEY:-ck_47e02dc770a3824275746e6efd09a01497e3881f}
+      WOOCOMMERCE_CONSUMER_SECRET: ${WOOCOMMERCE_CONSUMER_SECRET:-cs_9fc99adfd9306f1b02005701f7a1eb4244be2d46}
+      WOOCOMMERCE_WEBHOOK_SECRET: ${WOOCOMMERCE_WEBHOOK_SECRET:-Mymeds2025!WooCommerceWebhookSecret_Production_2025!@#}
+      FEATURE_WOOCOMMERCE_ENABLED: true
+      WOOCOMMERCE_API_TIMEOUT: 10000
+      WOOCOMMERCE_CACHE_TTL: 300
+      
+      # Payment Gateway Configuration
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-sk_live_YourStripeSecretKey123}
+      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY:-pk_live_YourStripePublishableKey123}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-whsec_YourStripeWebhookSecret123}
+      PAYMENT_GATEWAY_ENABLED: true
+      
+      # Monitoring & Analytics
+      SENTRY_DSN: ${SENTRY_DSN:-https://YourSentryDSN@sentry.io/project-id}
+      SENTRY_ENABLED: true
+      GOOGLE_ANALYTICS_ID: ${GOOGLE_ANALYTICS_ID:-GA-XXXXXXXXX-X}
+      ANALYTICS_ENABLED: true
+      
+      # Backup Configuration
+      BACKUP_ENABLED: true
+      BACKUP_SCHEDULE: 0 2 * * *
+      BACKUP_RETENTION_DAYS: 30
+      BACKUP_PATH: ./backups
+      
+      # Performance Configuration
+      COMPRESSION_ENABLED: true
+      COMPRESSION_LEVEL: 6
+      CLUSTER_ENABLED: true
+      CLUSTER_WORKERS: 4
+      
+      # Development Overrides (DISABLE IN PRODUCTION)
+      DEBUG_MODE: false
+      VERBOSE_LOGGING: false
+    ports:
+      - "3000:3000"
+      - "4000:4000"
+    volumes:
+      - app_uploads:/app/backend/uploads
+      - app_logs:/app/backend/logs
+      - app_backups:/app/backend/backups
+    networks:
+      - mymeds-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # =============================================================================
+  # Nginx Reverse Proxy
+  # =============================================================================
+  nginx:
+    image: nginx:alpine
+    container_name: mymeds-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deployment/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./deployment/nginx/ssl:/etc/nginx/ssl:ro
+      - nginx_logs:/var/log/nginx
+    networks:
+      - mymeds-network
+    depends_on:
+      - mymeds-app
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+# =============================================================================
+# VOLUMES
+# =============================================================================
+volumes:
+  mysql_data:
+    driver: local
+  app_uploads:
+    driver: local
+  app_logs:
+    driver: local
+  app_backups:
+    driver: local
+  nginx_logs:
+    driver: local
+
+# =============================================================================
+# NETWORKS
+# =============================================================================
+networks:
+  mymeds-network:
+    driver: bridge

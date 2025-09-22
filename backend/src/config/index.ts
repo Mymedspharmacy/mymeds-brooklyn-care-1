@@ -118,9 +118,12 @@ export const createConfig = (): AppConfig => {
     'https://www.mymedspharmacyinc.com',
     'https://mymedspharmacyinc.com',
     
-    // VPS Deployment (Production)
+    // VPS Deployment (Production) - Port-specific URLs
     'https://72.60.116.253',
     'http://72.60.116.253',
+    'http://72.60.116.253:3000',  // MyMeds Frontend
+    'http://72.60.116.253:4000',  // MyMeds Backend
+    'http://72.60.116.253:8080',  // WordPress
     
     // Add localhost only for development environment
     ...(nodeEnv === 'development' ? [

@@ -1,0 +1,101 @@
+# =============================================================================
+# WORDPRESS .HTACCESS - MyMeds Pharmacy Inc.
+# =============================================================================
+# Security and performance optimizations for WordPress + WooCommerce
+# =============================================================================
+
+# BEGIN WordPress
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</IfModule>
+# END WordPress
+
+# =============================================================================
+# SECURITY HEADERS
+# =============================================================================
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options SAMEORIGIN
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+</IfModule>
+
+# =============================================================================
+# FILE PROTECTION
+# =============================================================================
+# Protect wp-config.php
+<Files wp-config.php>
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Protect .htaccess
+<Files .htaccess>
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Protect readme files
+<FilesMatch "^(readme|license|changelog)\.(txt|md)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# =============================================================================
+# PERFORMANCE OPTIMIZATIONS
+# =============================================================================
+# Enable compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+</IfModule>
+
+# Browser caching
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+</IfModule>
+
+# =============================================================================
+# WOOCOMMERCE OPTIMIZATIONS
+# =============================================================================
+# Optimize WooCommerce checkout
+<IfModule mod_rewrite.c>
+    RewriteCond %{REQUEST_URI} ^/checkout/
+    RewriteRule ^(.*)$ - [E=no-gzip:1]
+</IfModule>
+
+# =============================================================================
+# BLOCK MALICIOUS REQUESTS
+# =============================================================================
+<IfModule mod_rewrite.c>
+    RewriteCond %{QUERY_STRING} (<|%3C).*script.*(>|%3E) [NC,OR]
+    RewriteCond %{QUERY_STRING} GLOBALS(=|\[|\%[0-9A-Z]{0,2}) [OR]
+    RewriteCond %{QUERY_STRING} _REQUEST(=|\[|\%[0-9A-Z]{0,2}) [OR]
+    RewriteCond %{QUERY_STRING} ^.*(\[|\]|\(|\)|<|>|ê|"|;|\?|\*|=$).* [NC,OR]
+    RewriteCond %{QUERY_STRING} ^.*("|'|<|>|\|).* [NC,OR]
+    RewriteCond %{QUERY_STRING} ^.*(%0|%A|%B|%C|%D|%E|%F|127\.0).* [NC,OR]
+    RewriteCond %{QUERY_STRING} ^.*(globals|encode|localhost|loopback).* [NC,OR]
+    RewriteCond %{QUERY_STRING} ^.*(request|select|insert|union|declare).* [NC]
+    RewriteRule ^(.*)$ - [F,L]
+</IfModule>

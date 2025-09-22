@@ -39,7 +39,10 @@ class AdminAuth {
   // Login with email and password
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
-      const response = await api.post('/admin/login', credentials);
+      console.log('Attempting login with:', credentials);
+      console.log('API base URL:', api.defaults.baseURL);
+      const response = await api.post('/api/admin/login', credentials);
+      console.log('Login response:', response.data);
       
       // Handle the correct response format from backend
       if (response.data.success && response.data.token) {
@@ -61,7 +64,10 @@ class AdminAuth {
         throw new Error(response.data.error || 'Login failed');
       }
     } catch (error: any) {
-      throw new Error(error.response?.data?.error || 'Login failed');
+      console.error('Login error details:', error);
+      console.error('Error response:', error.response);
+      console.error('Error message:', error.message);
+      throw new Error(error.response?.data?.error || error.message || 'Login failed');
     }
   }
 
@@ -70,7 +76,7 @@ class AdminAuth {
     try {
       // Call admin logout endpoint if we have a token
       if (this.token) {
-        await api.post('/admin/logout');
+        await api.post('/api/admin/logout');
       }
     } catch (error) {
       // Ignore logout errors, continue with cleanup
@@ -93,10 +99,17 @@ class AdminAuth {
     }
 
     try {
-      // Use admin profile endpoint to get current user
-      const response = await api.get('/admin/profile');
-      this.user = response.data.user;
-      return this.user;
+      // Ensure token is set in headers
+      api.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
+      
+      // Use dashboard endpoint to validate token and get basic user info
+      const response = await api.get('/api/admin/dashboard');
+      if (response.status === 200 && response.data.success) {
+        // Return basic user object since we don't have profile data
+        this.user = { email: 'admin@mymedspharmacyinc.com', role: 'ADMIN' };
+        return this.user;
+      }
+      throw new Error('Invalid response from server');
     } catch (error: any) {
       // If token is invalid, clear it
       if (error.response?.status === 401) {
@@ -118,12 +131,15 @@ class AdminAuth {
     // Set the token in API headers for the request
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-    // Validate token with backend using admin profile endpoint
+    // Validate token with backend using dashboard endpoint (which we know works)
     try {
-      const response = await api.get('/admin/profile');
-      if (response.status === 200 && response.data.user) {
-        this.user = response.data.user;
+      // Ensure token is set in headers
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      const response = await api.get('/api/admin/dashboard');
+      if (response.status === 200 && response.data.success) {
         this.token = token;
+        // Set a basic user object since we don't have profile data
+        this.user = { email: 'admin@mymedspharmacyinc.com', role: 'ADMIN' };
         return true;
       }
       return false;
