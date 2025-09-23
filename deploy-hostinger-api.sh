@@ -39,14 +39,14 @@ log_error() {
 
 # Hostinger API Configuration
 HOSTINGER_API_BASE_URL="https://api.hostinger.com/v1"
-HOSTINGER_API_TOKEN=""
-VPS_VM_ID=""
-DOMAIN_NAME=""
+HOSTINGER_API_TOKEN="LhiSbJevwJrYmte64n2DP6hByMgnTj8osIVRVq0p1aa9827a"
+VPS_VM_ID="srv983203"
+DOMAIN_NAME="mymedspharmacyinc.com"
 
 # Project Configuration
 PROJECT_NAME="mymeds-pharmacy"
 PROJECT_DIR="/opt/mymeds-pharmacy"
-GITHUB_REPO_URL=""
+GITHUB_REPO_URL="https://github.com/yourusername/mymeds-brooklyn-care.git"
 
 # =============================================================================
 # API FUNCTIONS
