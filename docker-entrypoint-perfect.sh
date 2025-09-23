@@ -68,3 +68,5 @@ echo "🚀 Starting MyMeds Pharmacy application..."
 cd backend
 exec npm run start
 
+
+

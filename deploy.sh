@@ -165,3 +165,5 @@ echo ""
 log_info "For troubleshooting, check logs with:"
 echo "docker-compose -f $DOCKER_COMPOSE_FILE logs -f"
 
+
+
