@@ -140,7 +140,7 @@ export class IntegrationMonitorService {
       const startTime = Date.now();
       let responseTime = 0;
       let status: 'healthy' | 'warning' | 'error' = 'healthy';
-      let recommendations: string[] = [];
+      const recommendations: string[] = [];
 
       try {
         const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/products?per_page=1`, {
@@ -248,7 +248,7 @@ export class IntegrationMonitorService {
       const startTime = Date.now();
       let responseTime = 0;
       let status: 'healthy' | 'warning' | 'error' = 'healthy';
-      let recommendations: string[] = [];
+      const recommendations: string[] = [];
 
       try {
         const response = await fetch(`${settings.siteUrl}/wp-json/wp/v2/`, {
@@ -636,9 +636,10 @@ export class IntegrationMonitorService {
         cacheStatus: 'empty',
         recommendations: ['Service not configured or monitoring not available'],
         performance: {
-          responseTime: 0,
-          throughput: 0,
-          errorRate: 0
+          avgResponseTime: 0,
+          successRate: 0,
+          cacheHitRate: 0,
+          syncFrequency: 0
         }
       };
     }
@@ -655,9 +656,10 @@ export class IntegrationMonitorService {
         lastSyncDuration: 0,
         dataVolume: 0,
         performance: {
-          responseTime: 0,
-          throughput: 0,
-          errorRate: 0
+          apiCallsPerHour: 0,
+          dataTransferMB: 0,
+          errorRate: 0,
+          uptime: 0
         }
       };
     }

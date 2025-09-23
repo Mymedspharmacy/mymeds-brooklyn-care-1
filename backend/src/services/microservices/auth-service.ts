@@ -35,6 +35,10 @@ export class AuthService {
   constructor() {
     this.jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
     this.jwtExpiresIn = process.env.JWT_EXPIRES_IN || '24h';
+    
+    if (!this.jwtSecret) {
+      throw new Error('JWT_SECRET environment variable is required');
+    }
   }
 
   async registerUser(data: RegisterData): Promise<{ success: boolean; userId?: string; error?: string }> {
@@ -110,7 +114,7 @@ export class AuthService {
       };
 
       // Generate token
-      const token = jwt.sign(payload, this.jwtSecret, { expiresIn: this.jwtExpiresIn });
+      const token = jwt.sign(payload, this.jwtSecret, { expiresIn: this.jwtExpiresIn } as jwt.SignOptions);
 
       // Return user data (without password)
       const { password, ...userWithoutPassword } = user;
@@ -154,7 +158,7 @@ export class AuthService {
       }
 
       // Generate new token
-      const newToken = jwt.sign(result.payload, this.jwtSecret, { expiresIn: this.jwtExpiresIn });
+      const newToken = jwt.sign(result.payload, this.jwtSecret, { expiresIn: this.jwtExpiresIn } as jwt.SignOptions);
 
       return { success: true, token: newToken };
     } catch (error) {

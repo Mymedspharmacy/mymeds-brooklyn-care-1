@@ -116,7 +116,7 @@ export class ErrorHandler {
    */
   public static handleJWTError(error: Error, req: Request, res: Response): void {
     let message = 'Invalid token';
-    let statusCode = 401;
+    const statusCode = 401;
 
     if (error.name === 'TokenExpiredError') {
       message = 'Token expired';

@@ -3,6 +3,7 @@ import { unifiedAdminAuth } from './auth';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import FormData from 'form-data';
 
 interface AuthRequest extends Request {
   user?: any;
@@ -292,7 +293,7 @@ router.post('/sync-posts', unifiedAdminAuth, async (req: AuthRequest, res: Respo
     for (const post of posts) {
       try {
         await prisma.blog.upsert({
-          where: { id: post.id },
+          where: { slug: post.slug || `post-${post.id}` },
           update: {
             title: post.title.rendered,
             content: post.content.rendered,
@@ -300,10 +301,10 @@ router.post('/sync-posts', unifiedAdminAuth, async (req: AuthRequest, res: Respo
             createdAt: new Date(post.date)
           },
           create: {
-            id: post.id,
             title: post.title.rendered,
             content: post.content.rendered,
             author: post.author || 'WordPress Admin',
+            slug: post.slug || `post-${post.id}`,
             createdAt: new Date(post.date)
           }
         });
@@ -683,9 +684,10 @@ router.post('/media', unifiedAdminAuth, upload.single('file'), async (req: AuthR
       const response = await fetch(`${settings.siteUrl}/wp-json/wp/v2/media`, {
         method: 'POST',
         headers: {
-          'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`
+          'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
+          ...formData.getHeaders()
         },
-        body: formData
+        body: formData as any
       });
 
       if (!response.ok) {
@@ -980,7 +982,7 @@ router.post('/auto-sync', async (req: Request, res: Response) => {
     for (const post of posts) {
       try {
         await prisma.blog.upsert({
-          where: { id: post.id },
+          where: { slug: post.slug || `post-${post.id}` },
           update: {
             title: post.title.rendered,
             content: post.content.rendered,
@@ -989,10 +991,10 @@ router.post('/auto-sync', async (req: Request, res: Response) => {
             updatedAt: new Date()
           },
           create: {
-            id: post.id,
             title: post.title.rendered,
             content: post.content.rendered,
             author: post.author || 'WordPress Admin',
+            slug: post.slug || `post-${post.id}`,
             createdAt: new Date(post.date)
           }
         });

@@ -41,10 +41,8 @@ import patientRoutes from './routes/patient';
 import monitoringRoutes from './routes/monitoring';
 import openfdaRoutes from './routes/openfda';
 import cartRoutes from './routes/cart';
-// @ts-ignore
 import hpp from 'hpp';
 import mongoSanitize from 'express-mongo-sanitize';
-// @ts-ignore
 import xss from 'xss-clean';
 // Removed express-status-monitor due to security vulnerabilities
 import logger from './utils/logger';
