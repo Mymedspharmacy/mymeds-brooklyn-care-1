@@ -94,6 +94,7 @@ router.post('/refill', upload.single('file'), async (req: Request, res: Response
     const prescription = await prisma.prescription.create({
       data: {
         userId: defaultUser.id,
+        patientName: `${firstName} ${lastName}`,
         medication: `REFILL REQUEST: ${medication}`,
         dosage: `Patient: ${firstName} ${lastName}\nPhone: ${phone}\nEmail: ${email || 'Not provided'}\nPrescription #: ${prescriptionNumber}\nCurrent Pharmacy: ${pharmacy || 'Not specified'}\nNotes: ${notes || 'None'}\nFile: ${req.file.filename}`,
         instructions: 'PENDING_REFILL'
@@ -158,6 +159,7 @@ router.post('/transfer', upload.single('file'), async (req: Request, res: Respon
     const prescription = await prisma.prescription.create({
       data: {
         userId: defaultUser.id,
+        patientName: `${firstName} ${lastName}`,
         medication: `TRANSFER REQUEST: ${medication}`,
         dosage: `Patient: ${firstName} ${lastName}\nPhone: ${phone}\nEmail: ${email || 'Not provided'}\nPrescription #: ${prescriptionNumber || 'Not provided'}\nCurrent Pharmacy: ${currentPharmacy || 'Not provided'}\nNotes: ${notes || 'None'}\nFile: ${req.file ? req.file.filename : 'Not uploaded'}`,
         instructions: 'PENDING_TRANSFER'
@@ -197,6 +199,7 @@ router.post('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
     const prescription = await prisma.prescription.create({
       data: {
         userId: req.user.userId,
+        patientName: req.user.name || 'Unknown Patient',
         medication,
         dosage,
         instructions

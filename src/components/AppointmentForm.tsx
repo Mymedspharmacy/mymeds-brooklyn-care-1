@@ -88,7 +88,7 @@ export const AppointmentForm = ({ isOpen, onClose, selectedService }: Appointmen
     setError('');
     
     try {
-      await api.post('/appointments', formData);
+      await api.post('/appointments/request', formData);
       setSuccess(true);
       setFormData({ 
         firstName: '', lastName: '', phone: '', email: '', 

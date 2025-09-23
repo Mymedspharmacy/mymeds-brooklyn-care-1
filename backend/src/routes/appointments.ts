@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 import { unifiedAdminAuth } from './auth';
 
 interface AuthRequest extends Request {
@@ -42,8 +42,12 @@ router.post('/request', async (req: Request, res: Response) => {
     const appointment = await prisma.appointment.create({
       data: {
         userId: defaultUser.id,
+        patientName: `${firstName} ${lastName}`,
+        email: email,
+        phone: phone,
         date: new Date(preferredDate + ' ' + preferredTime),
-        reason: `Service: ${service}\nPatient: ${firstName} ${lastName}\nPhone: ${phone}\nEmail: ${email}\nNotes: ${notes || 'None'}`,
+        time: preferredTime,
+        reason: `Service: ${service}\nNotes: ${notes || 'None'}`,
         status: 'PENDING'
       }
     });
@@ -68,7 +72,11 @@ router.post('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
     const appointment = await prisma.appointment.create({
       data: {
         userId: req.user.userId,
+        patientName: req.user.name || 'Admin User',
+        email: req.user.email || 'admin@mymedspharmacyinc.com',
+        phone: '',
         date: new Date(date),
+        time: new Date(date).toTimeString().split(' ')[0],
         reason,
         status
       }
