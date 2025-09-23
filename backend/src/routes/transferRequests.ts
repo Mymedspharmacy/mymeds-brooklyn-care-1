@@ -12,7 +12,7 @@ const prisma = new PrismaClient();
 // Public: submit transfer request
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { userId, currentPharmacy, medications, reason, notes } = req.body;
+    const { userId, currentPharmacy, medications, notes } = req.body;
     
     if (!currentPharmacy || !medications) {
       return res.status(400).json({ error: 'Current pharmacy and medications are required' });
@@ -20,10 +20,14 @@ router.post('/', async (req: Request, res: Response) => {
 
     const transferRequest = await prisma.transferRequest.create({
       data: {
-        userId: userId || 1, // Default to public user if not provided
+        userId: Number(userId) || 1, // Default to customer user if not provided
+        fromPharmacy: currentPharmacy,
+        toPharmacy: 'MyMeds Pharmacy',
         currentPharmacy,
+        medication: Array.isArray(medications) ? medications[0] : medications.split(',')[0] || 'Unknown',
         medications: Array.isArray(medications) ? JSON.stringify(medications) : medications,
-        reason,
+        dosage: 'As prescribed',
+        quantity: 30,
         notes,
         status: 'pending',
         notified: false
@@ -44,7 +48,7 @@ router.post('/', async (req: Request, res: Response) => {
       data: {
         type: 'transfer',
         title: 'New Transfer Request',
-        message: `New transfer request from ${currentPharmacy} by ${transferRequest.user.name}`,
+        message: `New transfer request from ${currentPharmacy} by user ${transferRequest.userId}`,
         data: JSON.stringify({ transferRequestId: transferRequest.id })
       }
     });

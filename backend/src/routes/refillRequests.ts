@@ -12,7 +12,7 @@ const prisma = new PrismaClient();
 // Public: submit refill request
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { userId, medication, dosage, instructions, urgency, notes } = req.body;
+    const { userId, medication, dosage, urgency, notes } = req.body;
     
     if (!medication || !dosage) {
       return res.status(400).json({ error: 'Medication and dosage are required' });
@@ -20,10 +20,10 @@ router.post('/', async (req: Request, res: Response) => {
 
     const refillRequest = await prisma.refillRequest.create({
       data: {
-        userId: userId || 1, // Default to public user if not provided
+        userId: Number(userId) || 1, // Default to customer user if not provided
         medication,
         dosage,
-        instructions,
+        quantity: 30, // Default quantity
         urgency: urgency || 'normal',
         notes,
         status: 'pending',
@@ -45,7 +45,7 @@ router.post('/', async (req: Request, res: Response) => {
       data: {
         type: 'refill',
         title: 'New Refill Request',
-        message: `New refill request for ${medication} from ${refillRequest.user.name}`,
+        message: `New refill request for ${medication} from user ${refillRequest.userId}`,
         data: JSON.stringify({ refillRequestId: refillRequest.id })
       }
     });

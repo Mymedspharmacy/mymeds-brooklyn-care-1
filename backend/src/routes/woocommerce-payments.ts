@@ -105,6 +105,7 @@ router.post('/create-order', authenticateToken, async (req: Request, res: Respon
     // Create order in our database
     const dbOrder = await prisma.order.create({
       data: {
+        orderNumber: `WC-${order.id}-${Date.now()}`,
         userId: (req as any).user.id,
         total: totalAmount,
         status: 'pending',

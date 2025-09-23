@@ -121,22 +121,13 @@ router.post('/guest-checkout', async (req: Request, res: Response) => {
       data: {
         orderNumber: generateOrderNumber(),
         total: parseFloat(total.toFixed(2)),
-        status: 'pending',
+        status: 'PENDING',
         guestEmail: validatedData.guestEmail,
         guestName: validatedData.guestName,
         guestPhone: validatedData.guestPhone,
         shippingAddress: validatedData.shippingAddress,
-        shippingCity: validatedData.shippingCity,
-        shippingState: validatedData.shippingState,
-        shippingZipCode: validatedData.shippingZipCode,
-        shippingCountry: validatedData.shippingCountry,
-        shippingMethod: validatedData.shippingMethod,
-        shippingCost: parseFloat(shippingCost.toFixed(2)),
-        taxAmount: parseFloat(taxAmount.toFixed(2)),
-        subtotal: parseFloat(subtotal.toFixed(2)),
         paymentMethod: validatedData.paymentMethod,
         paymentIntentId: validatedData.paymentIntentId,
-        paymentStatus: validatedData.paymentIntentId ? 'paid' : 'pending',
       }
     });
     
@@ -168,7 +159,9 @@ router.post('/guest-checkout', async (req: Request, res: Response) => {
     await prisma.guestOrderTracking.create({
       data: {
         orderId: order.id,
-        estimatedDelivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+        orderNumber: order.orderNumber,
+        email: validatedData.guestEmail,
+        status: 'pending'
       }
     });
     
@@ -216,7 +209,7 @@ router.get('/guest-track', async (req: Request, res: Response) => {
           items: {
             include: { product: true }
           },
-          tracking: true
+          guestTracking: true
         }
       });
     } else {
@@ -230,7 +223,7 @@ router.get('/guest-track', async (req: Request, res: Response) => {
           items: {
             include: { product: true }
           },
-          tracking: true
+          guestTracking: true
         },
         orderBy: { createdAt: 'desc' }
       });
@@ -287,7 +280,7 @@ router.get('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
         items: {
           include: { product: true }
         },
-        tracking: true
+        guestTracking: true
       }
     });
     
@@ -315,7 +308,7 @@ router.get('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) => 
         items: {
           include: { product: true }
         },
-        tracking: true
+        guestTracking: true
       }
     });
     
@@ -349,12 +342,11 @@ router.put('/:id/status', unifiedAdminAuth, async (req: AuthRequest, res: Respon
     });
     
     // Update tracking information if provided
-    if (trackingNumber || estimatedDelivery) {
+    if (trackingNumber) {
       await prisma.guestOrderTracking.update({
-        where: { orderId },
+        where: { orderNumber: order.orderNumber },
         data: {
-          trackingNumber,
-          estimatedDelivery: estimatedDelivery ? new Date(estimatedDelivery) : undefined
+          trackingNumber
         }
       });
     }
