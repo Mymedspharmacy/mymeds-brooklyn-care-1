@@ -1,8 +1,8 @@
 // =============================================================================
-// DEVELOPMENT PRISMA SCHEMA - SQLite DATABASE
+// DEVELOPMENT PRISMA SCHEMA - MYSQL DATABASE
 // =============================================================================
 // MyMeds Pharmacy Inc. - Development Database Schema
-// Generated: September 21, 2025
+// Generated: September 25, 2025
 // =============================================================================
 
 generator client {
@@ -11,7 +11,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 

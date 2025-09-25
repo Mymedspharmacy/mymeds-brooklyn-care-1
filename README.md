@@ -48,8 +48,23 @@ mymeds-brooklyn-care-1/
    cp backend/.env.example backend/.env
    ```
 
-4. **Database setup**
+4. **MySQL Database setup**
    ```bash
+   # Install MySQL (Ubuntu/Debian)
+   sudo apt update
+   sudo apt install mysql-server
+   
+   # Start MySQL service
+   sudo systemctl start mysql
+   sudo systemctl enable mysql
+   
+   # Create database and user
+   sudo mysql -e "CREATE DATABASE IF NOT EXISTS mymeds_development;"
+   sudo mysql -e "CREATE USER IF NOT EXISTS 'mymeds_user'@'localhost' IDENTIFIED BY 'Pharm-23-medS';"
+   sudo mysql -e "GRANT ALL PRIVILEGES ON mymeds_development.* TO 'mymeds_user'@'localhost';"
+   sudo mysql -e "FLUSH PRIVILEGES;"
+   
+   # Setup Prisma
    cd backend
    npx prisma generate
    npx prisma migrate dev
@@ -385,10 +400,19 @@ sudo systemctl restart mysql
 # Check database exists
 mysql -u root -p -e "SHOW DATABASES;"
 
-# Reset database
+# Check user privileges
+mysql -u root -p -e "SHOW GRANTS FOR 'mymeds_user'@'localhost';"
+
+# Test connection
+mysql -u mymeds_user -p -e "USE mymeds_development; SHOW TABLES;"
+
+# Reset database (WARNING: Deletes all data)
 cd backend
 npx prisma migrate reset
 npx prisma migrate dev
+
+# Check Prisma status
+npx prisma status
 ```
 
 #### Port Already in Use
