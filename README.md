@@ -92,6 +92,115 @@ npm run build
 cd backend && npm run build
 ```
 
+## 📝 WordPress & WooCommerce Setup
+
+### WordPress Installation
+
+1. **Download WordPress**
+   ```bash
+   # Navigate to web root
+   cd /var/www
+   
+   # Download latest WordPress
+   sudo wget https://wordpress.org/latest.tar.gz
+   
+   # Extract WordPress
+   sudo tar -xzf latest.tar.gz
+   
+   # Clean up
+   sudo rm latest.tar.gz
+   
+   # Set permissions
+   sudo chown -R www-data:www-data wordpress
+   sudo chmod -R 755 wordpress
+   ```
+
+2. **Create WordPress Database**
+   ```bash
+   # Create WordPress database
+   sudo mysql -e "CREATE DATABASE IF NOT EXISTS wordpress_db;"
+   sudo mysql -e "CREATE USER IF NOT EXISTS 'wp_user'@'localhost' IDENTIFIED BY 'secure_wp_password';"
+   sudo mysql -e "GRANT ALL PRIVILEGES ON wordpress_db.* TO 'wp_user'@'localhost';"
+   sudo mysql -e "FLUSH PRIVILEGES;"
+   ```
+
+3. **Configure WordPress**
+   ```bash
+   # Copy WordPress config
+   cd /var/www/wordpress
+   sudo cp wp-config-sample.php wp-config.php
+   
+   # Edit wp-config.php with database credentials
+   sudo nano wp-config.php
+   ```
+
+4. **WordPress Configuration**
+   ```php
+   // Database settings
+   define('DB_NAME', 'wordpress_db');
+   define('DB_USER', 'wp_user');
+   define('DB_PASSWORD', 'secure_wp_password');
+   define('DB_HOST', 'localhost');
+   
+   // Security keys (generate at https://api.wordpress.org/secret-key/1.1/salt/)
+   define('AUTH_KEY',         'your-auth-key');
+   define('SECURE_AUTH_KEY',  'your-secure-auth-key');
+   define('LOGGED_IN_KEY',    'your-logged-in-key');
+   define('NONCE_KEY',        'your-nonce-key');
+   define('AUTH_SALT',        'your-auth-salt');
+   define('SECURE_AUTH_SALT', 'your-secure-auth-salt');
+   define('LOGGED_IN_SALT',   'your-logged-in-salt');
+   define('NONCE_SALT',       'your-nonce-salt');
+   ```
+
+### WooCommerce Installation
+
+1. **Install WooCommerce Plugin**
+   ```bash
+   # Download WooCommerce
+   cd /var/www/wordpress/wp-content/plugins
+   sudo wget https://downloads.wordpress.org/plugin/woocommerce.latest-stable.zip
+   
+   # Extract WooCommerce
+   sudo unzip woocommerce.latest-stable.zip
+   
+   # Set permissions
+   sudo chown -R www-data:www-data woocommerce
+   sudo chmod -R 755 woocommerce
+   
+   # Clean up
+   sudo rm woocommerce.latest-stable.zip
+   ```
+
+2. **Configure WooCommerce API**
+   - Go to WordPress Admin → WooCommerce → Settings → Advanced → REST API
+   - Click "Add Key"
+   - Set description: "MyMeds Pharmacy Integration"
+   - Set user: Administrator
+   - Set permissions: Read/Write
+   - Copy Consumer Key and Consumer Secret
+
+3. **Update Environment Variables**
+   ```bash
+   # Add to backend/.env
+   WOOCOMMERCE_STORE_URL=https://yourdomain.com/shop
+   WOOCOMMERCE_CONSUMER_KEY=ck_your_consumer_key_here
+   WOOCOMMERCE_CONSUMER_SECRET=cs_your_consumer_secret_here
+   WOOCOMMERCE_WEBHOOK_SECRET=your_webhook_secret_here
+   ```
+
+### WordPress Integration Testing
+
+```bash
+# Test WordPress API connection
+curl -X GET "https://yourdomain.com/wp-json/wp/v2/posts" \
+  -H "Authorization: Basic $(echo -n 'username:app_password' | base64)"
+
+# Test WooCommerce API connection
+curl -X GET "https://yourdomain.com/wp-json/wc/v3/products" \
+  -H "Authorization: Basic $(echo -n 'consumer_key:consumer_secret' | base64)"
+```
+
 ## 🏗️ Project Structure
 
 ### Frontend (`src/`)
@@ -460,19 +569,41 @@ pm2 delete all
 pm2 start ecosystem.config.js
 ```
 
-#### Nginx Issues
+#### WordPress Issues
 ```bash
-# Test Nginx configuration
-sudo nginx -t
+# Check WordPress permissions
+sudo chown -R www-data:www-data /var/www/wordpress
+sudo chmod -R 755 /var/www/wordpress
 
-# Reload Nginx
-sudo systemctl reload nginx
+# Check WordPress database connection
+mysql -u wp_user -p -e "USE wordpress_db; SHOW TABLES;"
 
-# Check Nginx status
-sudo systemctl status nginx
+# Check WordPress configuration
+sudo nano /var/www/wordpress/wp-config.php
 
-# View Nginx logs
+# Check WordPress logs
 sudo tail -f /var/log/nginx/error.log
+sudo tail -f /var/log/php8.1-fpm.log
+
+# Reset WordPress permissions
+sudo find /var/www/wordpress -type d -exec chmod 755 {} \;
+sudo find /var/www/wordpress -type f -exec chmod 644 {} \;
+```
+
+#### WooCommerce Issues
+```bash
+# Check WooCommerce plugin status
+ls -la /var/www/wordpress/wp-content/plugins/woocommerce
+
+# Check WooCommerce API keys
+# Go to WordPress Admin → WooCommerce → Settings → Advanced → REST API
+
+# Test WooCommerce API
+curl -X GET "https://yourdomain.com/wp-json/wc/v3/system_status" \
+  -H "Authorization: Basic $(echo -n 'consumer_key:consumer_secret' | base64)"
+
+# Check WooCommerce logs
+sudo tail -f /var/www/wordpress/wp-content/uploads/wc-logs/
 ```
 
 ### Performance Optimization
