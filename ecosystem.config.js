@@ -1,9 +1,9 @@
-module.exports = {
+export default {
   apps: [
     {
       name: 'mymeds-backend',
       script: './backend/dist/index.js',
-      cwd: '/app',
+      cwd: '/var/www/mymeds-brooklyn-care-1',
       instances: 2,
       exec_mode: 'cluster',
       env: {
@@ -23,7 +23,7 @@ module.exports = {
       name: 'mymeds-frontend',
       script: 'serve',
       args: '-s dist -l 3000',
-      cwd: '/app',
+      cwd: '/var/www/mymeds-brooklyn-care-1',
       env: {
         NODE_ENV: 'production',
         PORT: 3000
