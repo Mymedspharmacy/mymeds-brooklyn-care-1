@@ -144,9 +144,9 @@ export default function Shop() {
   return (
     <>
       <SEOHead 
-        title="Shop Health Products - My Meds Pharmacy | Brooklyn's Health & Wellness Store"
-        description="Shop our comprehensive selection of health products, vitamins, supplements, and over-the-counter medications. Free delivery on orders over $25 in Brooklyn."
-        keywords="health products, vitamins, supplements, over the counter medications, Brooklyn pharmacy shop, health store, wellness products, pharmaceutical supplies"
+        title="Shop Health Products - My Meds Pharmacy | Health & Wellness Store"
+        description="Shop our comprehensive selection of health products, vitamins, supplements, and over-the-counter medications. Free delivery on orders over $25."
+        keywords="health products, vitamins, supplements, over the counter medications, pharmacy shop, health store, wellness products, pharmaceutical supplies"
       />
       <div className="min-h-screen bg-[#D5C6BC]">
         <Header 
@@ -487,7 +487,7 @@ export default function Shop() {
                     Fast Delivery
                   </h3>
                   <p className="text-white/90">
-                    Free shipping on orders over $50. Same-day delivery available in Brooklyn.
+                    Free shipping on orders over $50. Same-day delivery available locally.
                   </p>
                 </CardContent>
               </Card>

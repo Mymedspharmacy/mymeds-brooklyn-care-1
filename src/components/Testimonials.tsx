@@ -19,12 +19,12 @@ export const Testimonials = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Production-ready stats - these can be updated with real data
+  // Pharmacy stats - focusing on service and commitment
   const stats = [
-    { number: "98%", label: "Patient Satisfaction", icon: Heart, color: "from-pink-400 to-red-400" },
-    { number: "4.9★", label: "Average Rating", icon: Star, color: "from-yellow-400 to-orange-400" },
-    { number: "10K+", label: "Patients Served", icon: Users, color: "from-blue-400 to-cyan-400" },
-    { number: "25+", label: "Years Experience", icon: Award, color: "from-purple-400 to-pink-400" }
+    { number: "0", label: "Reviews", icon: Star, color: "from-yellow-400 to-orange-400" },
+    { number: "100%", label: "Commitment", icon: Heart, color: "from-pink-400 to-red-400" },
+    { number: "24/7", label: "Service", icon: Users, color: "from-blue-400 to-cyan-400" },
+    { number: "5★", label: "Quality", icon: Award, color: "from-purple-400 to-pink-400" }
   ];
 
   useEffect(() => {
@@ -121,33 +121,40 @@ export const Testimonials = () => {
           </div>
           
           <div className="inline-flex items-center gap-2 bg-[#57BBB6] text-white px-6 py-3 rounded-full text-sm font-semibold mb-6 shadow-lg hover:scale-105 transition-transform duration-300">
-            <Heart className="h-4 w-4 animate-pulse" />
-            Patient Stories
+            <Sparkles className="h-4 w-4 animate-pulse" />
+            New & Exciting
           </div>
           
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 text-[#376F6B] drop-shadow-lg">
-            What Our Patients Say
+            Building Trust Through Excellence
           </h2>
           
           <p className="text-lg sm:text-xl text-[#376F6B] max-w-3xl mx-auto font-semibold leading-relaxed mb-8 drop-shadow-lg">
-            Don't just take our word for it - hear from our satisfied patients about their experience
+            We're committed to building trust through exceptional service and care
           </p>
           
-          {/* Enhanced Overall Rating */}
+          {/* Review Status */}
           <div className="flex items-center justify-center gap-4 mb-8 p-4 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg">
             <div className="flex items-center">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="h-7 w-7 text-yellow-400 fill-current animate-pulse" style={{ animationDelay: `${i * 0.1}s` }} />
-              ))}
+              <Sparkles className="h-8 w-8 text-[#57BBB6] animate-pulse" />
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-[#57BBB6] drop-shadow-sm">4.9</div>
-              <div className="text-[#376F6B] font-medium text-sm drop-shadow-sm">out of 5</div>
+              <div className="text-2xl font-bold text-[#57BBB6] drop-shadow-sm">Building Our Reputation</div>
+              <div className="text-[#376F6B] font-medium text-sm drop-shadow-sm">Through exceptional service</div>
             </div>
             <div className="text-[#376F6B] font-medium text-sm drop-shadow-sm">
-              Based on <span className="font-bold">2,847</span> reviews
+              <span className="font-bold">0</span> reviews so far
             </div>
           </div>
+        </div>
+
+        {/* Call to Action for Reviews */}
+        <div className="bg-gradient-to-r from-[#57BBB6] to-[#2e8f88] rounded-2xl p-6 mb-8 text-center text-white">
+          <h3 className="text-xl font-bold mb-2">Be the First to Review Us!</h3>
+          <p className="text-[#e0f2f1] mb-4">Help us build our reputation by sharing your experience</p>
+          <Button className="bg-white text-[#57BBB6] hover:bg-[#e0f2f1] font-semibold">
+            Leave a Review
+          </Button>
         </div>
 
         {/* Enhanced Stats Grid */}

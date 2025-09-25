@@ -13,6 +13,7 @@ import { useFormHandlers } from "@/hooks/useFormHandlers";
 import { RefillForm } from "@/components/RefillForm";
 import { AppointmentForm } from "@/components/AppointmentForm";
 import { TransferForm } from "@/components/TransferForm";
+import api from "@/lib/api";
 
 interface WordPressPost {
   id: number;
@@ -72,8 +73,48 @@ export default function Blog() {
     // Navigate to individual blog post page
     navigate(`/blog/${postId}`);
   };
+
+  const handleNewsletterSubscription = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!newsletterEmail || !newsletterEmail.includes('@')) {
+      alert('Please enter a valid email address');
+      return;
+    }
+    
+    try {
+      const response = await api.post('/newsletter/subscribe', { 
+        email: newsletterEmail,
+        source: 'blog',
+        consent: true
+      });
+      
+      if (response.data.success) {
+        setIsSubscribed(true);
+        setNewsletterEmail('');
+        
+        if (response.data.alreadySubscribed) {
+          alert('You\'re already subscribed to our newsletter!');
+        } else {
+          alert('Thank you for subscribing! Check your email for confirmation.');
+        }
+      }
+    } catch (error: any) {
+      console.error('Newsletter subscription error:', error);
+      
+      if (error.response?.status === 400) {
+        alert('Please enter a valid email address.');
+      } else if (error.response?.status === 500) {
+        alert('Subscription failed. Please try again later or contact us directly.');
+      } else {
+        alert('Unable to subscribe at the moment. Please try again later.');
+      }
+    }
+  };
   const [featuredPosts, setFeaturedPosts] = useState<WordPressPost[]>([]);
   const [recentPosts, setRecentPosts] = useState<WordPressPost[]>([]);
+  const [newsletterEmail, setNewsletterEmail] = useState<string>('');
+  const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
 
   // Fetch posts from WordPress
   useEffect(() => {
@@ -527,18 +568,22 @@ export default function Blog() {
                   Get the latest health tips, medication updates, and wellness advice delivered to your inbox
                 </p>
                 
-                <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+                <form onSubmit={handleNewsletterSubscription} className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
                   <Input
                     type="email"
                     placeholder="Enter your email address"
+                    value={newsletterEmail}
+                    onChange={(e) => setNewsletterEmail(e.target.value)}
                     className="flex-1 border-white/30 text-white placeholder:text-white/60 focus:border-white focus:ring-white/30 bg-white/10"
+                    required
                   />
                   <Button 
+                    type="submit"
                     className="bg-white text-[#57BBB6] hover:bg-gray-100 font-bold px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
                   >
                     Subscribe
                   </Button>
-                </div>
+                </form>
                 
                 <p className="text-white/70 text-sm mt-4">
                   No spam, unsubscribe at any time. We respect your privacy.

@@ -13,9 +13,9 @@ const TermsOfService = () => {
   return (
     <>
       <SEOHead 
-        title="Terms of Service - My Meds Pharmacy | Brooklyn Pharmacy Terms"
+        title="Terms of Service - My Meds Pharmacy"
         description="Read our terms of service and user agreement for My Meds Pharmacy services. Understand your rights and responsibilities when using our pharmacy services."
-        keywords="terms of service, pharmacy terms, user agreement, pharmacy services terms, Brooklyn pharmacy terms, service conditions"
+        keywords="terms of service, pharmacy terms, user agreement, pharmacy services terms, pharmacy terms, service conditions"
       />
       <div className="min-h-screen bg-[#D5C6BC]">
         <Header 
@@ -197,7 +197,7 @@ const TermsOfService = () => {
                     Any disputes arising from these Terms or your use of our services shall be resolved through binding arbitration in accordance with the rules of the American Arbitration Association.
                   </p>
                   <p>
-                    The arbitration shall be conducted in Brooklyn, New York, and the laws of the State of New York shall govern these Terms.
+                    The arbitration shall be conducted in New York, and the laws of the State of New York shall govern these Terms.
                   </p>
                 </div>
               </section>
@@ -228,7 +228,7 @@ const TermsOfService = () => {
                   <div className="space-y-2 text-[#57BBB6]">
                     <p><strong>Email:</strong> mymedspharmacy@outlook.com</p>
                     <p><strong>Phone:</strong> (347) 312-6458</p>
-                    <p><strong>Address:</strong> J279+5V Brooklyn, NY</p>
+                    <p><strong>Address:</strong> J279+5V New York</p>
                   </div>
                 </div>
               </section>

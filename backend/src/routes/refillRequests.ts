@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { unifiedAdminAuth } from './auth';
+import { secureAdminAuthMiddleware } from '../services/SecureAdminAuth';
 
 interface AuthRequest extends Request {
   user?: any;
@@ -58,7 +58,7 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 // Admin: get all refill requests
-router.get('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+router.get('/', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -92,7 +92,7 @@ router.get('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
 });
 
 // Admin: get specific refill request
-router.get('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+router.get('/:id', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -121,7 +121,7 @@ router.get('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) => 
 });
 
 // Admin: update refill request status
-router.put('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+router.put('/:id', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -165,7 +165,7 @@ router.put('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) => 
 });
 
 // Admin: delete refill request
-router.delete('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+router.delete('/:id', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -181,7 +181,7 @@ router.delete('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) 
 });
 
 // Admin: get refill request statistics
-router.get('/stats/overview', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+router.get('/stats/overview', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -217,6 +217,82 @@ router.get('/stats/overview', unifiedAdminAuth, async (req: AuthRequest, res: Re
   } catch (err) {
     console.error('Error fetching refill request stats:', err);
     res.status(500).json({ error: 'Failed to fetch statistics' });
+  }
+});
+
+// Create new refill request (admin only)
+router.post('/admin/create', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
+  try {
+    const { 
+      userId, 
+      medicationName, 
+      prescriptionNumber, 
+      quantity, 
+      dosage, 
+      instructions, 
+      priority = 'NORMAL' 
+    } = req.body;
+
+    // Validate required fields
+    if (!userId || !medicationName || !prescriptionNumber || !quantity) {
+      return res.status(400).json({
+        success: false,
+        error: 'User ID, medication name, prescription number, and quantity are required'
+      });
+    }
+
+    // Verify user exists
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(userId) }
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    // Create refill request
+    const refillRequest = await prisma.refillRequest.create({
+      data: {
+        userId: parseInt(userId),
+        medication: medicationName,
+        quantity: parseInt(quantity),
+        dosage: dosage || '',
+        notes: instructions || `Created by admin on ${new Date().toISOString()}`,
+        status: 'PENDING',
+        urgency: priority.toLowerCase()
+      },
+      include: {
+        user: { select: { name: true, email: true, phone: true } }
+      }
+    });
+
+    // Create notification for the user
+    await prisma.notification.create({
+      data: {
+        title: 'New Refill Request',
+        message: `Your refill request for ${medicationName} has been submitted and is pending review.`,
+        type: 'info',
+        userId: parseInt(userId),
+        read: false
+      }
+    });
+
+    res.status(201).json({
+      success: true,
+      data: refillRequest,
+      message: 'Refill request created successfully'
+    });
+
+  } catch (error: any) {
+    console.error('Create refill request error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create refill request',
+      message: error.message
+    });
   }
 });
 

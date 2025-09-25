@@ -11,14 +11,15 @@ export const Map = ({ showDetails = true, className = "" }: MapProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const [activeTab, setActiveTab] = useState<'map' | 'street' | 'satellite'>('map');
   
-  const pharmacyAddress = "My Meds Pharmacy Inc, 2242 65th St, Brooklyn, NY 11204, United States";
+  const pharmacyAddress = "My Meds Pharmacy Inc, 2242 65th St, New York 11204, United States";
   const pharmacyPhone = "347-312-6458";
   const pharmacyEmail = "mymedspharmacy@outlook.com";
   const pharmacyHours = "Mon-Fri: 9AM-7PM, Sat: 9AM-5PM, Sun: Closed";
 
   const handleDirections = () => {
-    // Use the exact Google Maps location provided
-    window.open(import.meta.env.VITE_GOOGLE_MAPS_URL || 'https://maps.google.com', '_blank');
+    // Open Google Maps with the exact pharmacy location
+    const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(pharmacyAddress)}`;
+    window.open(mapsUrl, '_blank');
   };
 
   const handleCall = () => {
@@ -39,7 +40,7 @@ export const Map = ({ showDetails = true, className = "" }: MapProps) => {
 
   const getMapUrl = (type: string) => {
     const baseUrl = "https://maps.google.com/maps";
-    const query = "2242+65th+St,+Brooklyn,+NY+11204";
+    const query = "2242+65th+St,+New+York+11204";
     
     switch (type) {
       case 'street':
@@ -267,7 +268,7 @@ export const Map = ({ showDetails = true, className = "" }: MapProps) => {
           <div className="relative z-10">
             <h3 className="text-2xl font-bold mb-4">Visit Us Today</h3>
             <p className="text-white/90 mb-6 text-lg max-w-2xl mx-auto leading-relaxed">
-              Stop by our pharmacy for personalized care and expert consultation. We're here to serve the Brooklyn community with compassion and expertise.
+              Stop by our pharmacy for personalized care and expert consultation. We're here to serve our community with compassion and expertise.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

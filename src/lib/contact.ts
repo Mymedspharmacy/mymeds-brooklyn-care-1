@@ -2,8 +2,8 @@
 export const contactConfig = {
   phone: import.meta.env.VITE_PHONE_NUMBER || '3473126458',
   email: import.meta.env.VITE_CONTACT_EMAIL || 'mymedspharmacy@outlook.com',
-  address: import.meta.env.VITE_PHARMACY_ADDRESS || 'J279+5V Brooklyn, NY',
-  googleMapsUrl: import.meta.env.VITE_GOOGLE_MAPS_URL || 'https://maps.google.com',
+  address: import.meta.env.VITE_PHARMACY_ADDRESS || 'J279+5V New York',
+  googleMapsUrl: import.meta.env.VITE_GOOGLE_MAPS_URL || 'https://www.google.com/maps/dir/?api=1&destination=My+Meds+Pharmacy+Inc%2C+2242+65th+St%2C+New+York+11204%2C+United+States',
   hours: import.meta.env.VITE_PHARMACY_HOURS || 'Mon-Fri: 9AM-7PM, Sat: 9AM-5PM, Sun: 10AM-4PM',
 } as const;
 

@@ -1,11 +1,11 @@
 import express from 'express';
 import { Request, Response } from 'express';
-import { adminAuthMiddleware } from '../adminAuth';
+import { secureAdminAuthMiddleware } from '../services/SecureAdminAuth';
 
 const router = express.Router();
 
 // Monitoring dashboard (admin only)
-router.get('/dashboard', adminAuthMiddleware, async (req: Request, res: Response) => {
+router.get('/dashboard', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
   try {
     const os = require('os');
     const { getSystemStats } = require('../../scripts/monitor-system');
@@ -32,7 +32,7 @@ router.get('/dashboard', adminAuthMiddleware, async (req: Request, res: Response
 });
 
 // Log viewer (admin only)
-router.get('/logs', adminAuthMiddleware, async (req: Request, res: Response) => {
+router.get('/logs', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
   try {
     const fs = require('fs');
     const path = require('path');
@@ -58,7 +58,7 @@ router.get('/logs', adminAuthMiddleware, async (req: Request, res: Response) => 
 });
 
 // System health check (admin only)
-router.get('/health', adminAuthMiddleware, async (req: Request, res: Response) => {
+router.get('/health', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
   try {
     const { getSystemStats } = require('../../scripts/monitor-system');
     const { checkDatabaseHealth } = require('../../scripts/monitor-database');

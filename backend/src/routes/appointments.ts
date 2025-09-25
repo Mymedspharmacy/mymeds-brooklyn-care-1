@@ -30,7 +30,7 @@ router.post('/request', async (req: Request, res: Response) => {
       const hashedPassword = await bcrypt.hash(adminPassword, 10);
       defaultUser = await prisma.user.create({
         data: {
-          email: process.env.ADMIN_EMAIL || 'admin@mymedspharmacy.com',
+          email: process.env.ADMIN_EMAIL || 'mymedspharmacy@outlook.com',
           password: hashedPassword,
           name: process.env.ADMIN_NAME || 'Admin User',
           role: 'ADMIN'
@@ -73,7 +73,7 @@ router.post('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
       data: {
         userId: req.user.userId,
         patientName: req.user.name || 'Admin User',
-        email: req.user.email || 'admin@mymedspharmacyinc.com',
+        email: req.user.email || 'mymedspharmacy@outlook.com',
         phone: '',
         date: new Date(date),
         time: new Date(date).toTimeString().split(' ')[0],

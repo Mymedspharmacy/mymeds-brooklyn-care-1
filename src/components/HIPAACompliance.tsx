@@ -215,7 +215,7 @@ export const HIPAAComplianceModal = () => {
               <h4 className="font-semibold text-blue-800 mb-2">Contact Information</h4>
               <p className="text-sm text-blue-700">
                 If you have questions about our privacy practices or would like to exercise your rights, 
-                please contact us at (347) 312-6458 or email us at Mymedspharmacy@outlook.com
+                please contact us at (347) 312-6458 or email us at mymedspharmacy@outlook.com
               </p>
             </div>
           </div>

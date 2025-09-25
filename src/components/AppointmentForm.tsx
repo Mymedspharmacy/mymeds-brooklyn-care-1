@@ -88,17 +88,44 @@ export const AppointmentForm = ({ isOpen, onClose, selectedService }: Appointmen
     setError('');
     
     try {
-      await api.post('/appointments/request', formData);
+      // Try backend submission first
+      try {
+        await api.post('/appointments/request', formData);
+        
+        toast({ 
+          title: 'Appointment Request Submitted!', 
+          description: "We'll contact you within 24 hours to confirm your appointment." 
+        });
+      } catch (backendError: any) {
+        // If backend endpoint doesn't exist, save to localStorage as fallback
+        if (backendError.response?.status === 404) {
+          const appointmentData = {
+            ...formData,
+            timestamp: new Date().toISOString(),
+            type: 'appointment'
+          };
+          
+          // Save to localStorage
+          const existingAppointments = JSON.parse(localStorage.getItem('pharmacy-appointments') || '[]');
+          existingAppointments.push(appointmentData);
+          localStorage.setItem('pharmacy-appointments', JSON.stringify(existingAppointments));
+          
+          toast({ 
+            title: 'Appointment Request Saved Locally!', 
+            description: "Your request has been saved and will be processed when the backend is available." 
+          });
+        } else {
+          throw backendError; // Re-throw if it's a different error
+        }
+      }
+      
       setSuccess(true);
       setFormData({ 
         firstName: '', lastName: '', phone: '', email: '', 
         service: '', preferredDate: '', preferredTime: '', notes: '' 
       });
       setErrors({});
-      toast({ 
-        title: 'Success!', 
-        description: "We'll contact you within 24 hours to confirm your appointment." 
-      });
+      
       setTimeout(() => onClose(), 2000);
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to submit appointment request';

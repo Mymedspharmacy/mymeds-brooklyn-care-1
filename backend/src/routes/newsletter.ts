@@ -88,6 +88,30 @@ The My Meds Pharmacy Team
           text: welcomeEmailContent,
           html: welcomeEmailContent.replace(/\n/g, '<br>')
         });
+
+        // Send notification to business email
+        const notificationContent = `
+New Newsletter Subscription
+
+A new user has subscribed to your newsletter:
+
+Email: ${email}
+Source: ${source}
+Timestamp: ${new Date().toISOString()}
+
+You can manage your newsletter subscribers through your admin panel.
+
+Best regards,
+My Meds Pharmacy System
+        `;
+
+        await transporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: 'mymedspharmacy@outlook.com',
+          subject: 'New Newsletter Subscription - My Meds Pharmacy',
+          text: notificationContent,
+          html: notificationContent.replace(/\n/g, '<br>')
+        });
       }
     } catch (emailError: any) {
       console.log('Welcome email failed (optional):', emailError.message);

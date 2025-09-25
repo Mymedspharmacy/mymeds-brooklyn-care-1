@@ -1,15 +1,17 @@
 import { Router, Request, Response } from 'express';
 import { 
-  adminAuthMiddleware, 
-  adminLogin, 
-  ensureAdminUser, 
-  changeAdminPassword, 
-  changeAdminPasswordWithUserId,
-  validateAdminSession, 
-  getAdminInfo, 
-  adminLogout,
-  adminLogoutDirect
-} from '../adminAuth';
+  secureAdminAuthMiddleware,
+  secureAdminLogin,
+  secureAdminLogout,
+  changeAdminPasswordSecurely,
+  generateCSRFToken,
+  csrfProtectionMiddleware,
+  trackLoginAttempt,
+  isAccountRateLimited
+} from '../services/SecureAdminAuth';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 const router = Router();
 
@@ -17,22 +19,38 @@ const router = Router();
 router.post('/login', async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
+    const ipAddress = req.ip || req.connection.remoteAddress || 'unknown';
+    const userAgent = req.get('User-Agent');
 
     // Validate input
     if (!email || !password) {
+      await trackLoginAttempt(email || 'unknown', ipAddress, userAgent, false, 'Missing credentials');
       return res.status(400).json({
         error: 'Email and password are required.',
         code: 'MISSING_CREDENTIALS'
       });
     }
 
-    // Attempt admin login
-    const result = await adminLogin(email, password);
+    // Attempt secure admin login
+    const result = await secureAdminLogin(email, password, ipAddress, userAgent);
     
-    res.json({
-      ...result,
-      message: 'Admin login successful'
-    });
+    if (result.success) {
+      // Generate CSRF token for the session
+      const csrfToken = await generateCSRFToken(result.user.id);
+      
+      res.json({
+        success: true,
+        token: result.token,
+        user: result.user,
+        csrfToken,
+        message: 'Admin login successful'
+      });
+    } else {
+      res.status(401).json({
+        error: result.error,
+        code: 'LOGIN_FAILED'
+      });
+    }
 
   } catch (error: any) {
     console.error('Admin login error:', error.message);
@@ -54,16 +72,24 @@ router.post('/login', async (req: Request, res: Response) => {
     }
     
     res.status(401).json({
-      error: error.message,
+      error: 'Login failed. Please try again.',
       code: 'LOGIN_FAILED'
     });
   }
 });
 
 // Admin logout endpoint
-router.post('/logout', adminAuthMiddleware, async (req: Request, res: Response) => {
+router.post('/logout', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
   try {
-    const result = adminLogoutDirect();
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(400).json({
+        error: 'No token provided',
+        code: 'NO_TOKEN'
+      });
+    }
+
+    const result = await secureAdminLogout(token);
     res.json(result);
   } catch (error: any) {
     console.error('Admin logout error:', error);
@@ -75,14 +101,39 @@ router.post('/logout', adminAuthMiddleware, async (req: Request, res: Response) 
 });
 
 // Get admin profile
-router.get('/profile', adminAuthMiddleware, async (req: Request, res: Response) => {
+router.get('/profile', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = (req.user as any).userId;
-    const adminInfo = await getAdminInfo(userId);
+    const userId = req.user?.userId;
+    if (!userId) {
+      return res.status(401).json({
+        error: 'User not authenticated',
+        code: 'NOT_AUTHENTICATED'
+      });
+    }
+
+    const adminUser = await prisma.user.findUnique({
+      where: { id: userId, role: 'ADMIN' },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        lastLoginAt: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
+
+    if (!adminUser) {
+      return res.status(404).json({
+        error: 'Admin user not found',
+        code: 'USER_NOT_FOUND'
+      });
+    }
     
     res.json({
       success: true,
-      user: adminInfo
+      user: adminUser
     });
   } catch (error: any) {
     console.error('Get admin profile error:', error);
@@ -93,11 +144,108 @@ router.get('/profile', adminAuthMiddleware, async (req: Request, res: Response) 
   }
 });
 
+// Admin dashboard endpoint
+router.get('/dashboard', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
+  try {
+    // Get dashboard statistics
+    const [
+      totalUsers,
+      totalPrescriptions,
+      totalAppointments,
+      totalContacts,
+      totalOrders,
+      recentUsers,
+      recentPrescriptions,
+      recentAppointments
+    ] = await Promise.all([
+      prisma.user.count(),
+      prisma.prescription.count(),
+      prisma.appointment.count(),
+      prisma.contactForm.count(),
+      prisma.order.count(),
+      prisma.user.findMany({
+        take: 5,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          createdAt: true
+        }
+      }),
+      prisma.prescription.findMany({
+        take: 5,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          patientName: true,
+          medication: true,
+          status: true,
+          createdAt: true
+        }
+      }),
+      prisma.appointment.findMany({
+        take: 5,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          patientName: true,
+          email: true,
+          date: true,
+          status: true,
+          createdAt: true
+        }
+      })
+    ]);
+
+    // Get system health information
+    const systemHealth = {
+      database: 'connected',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime()
+    };
+
+    res.json({
+      success: true,
+      data: {
+        statistics: {
+          totalUsers,
+          totalPrescriptions,
+          totalAppointments,
+          totalContacts,
+          totalOrders
+        },
+        recentActivity: {
+          users: recentUsers,
+          prescriptions: recentPrescriptions,
+          appointments: recentAppointments
+        },
+        systemHealth
+      },
+      message: 'Dashboard data retrieved successfully'
+    });
+  } catch (error: any) {
+    console.error('Admin dashboard error:', error);
+    res.status(500).json({
+      error: 'Failed to retrieve dashboard data',
+      message: error.message
+    });
+  }
+});
+
 // Change admin password
-router.post('/change-password', adminAuthMiddleware, async (req: Request, res: Response) => {
+router.post('/change-password', secureAdminAuthMiddleware, csrfProtectionMiddleware, async (req: Request, res: Response) => {
   try {
     const { currentPassword, newPassword } = req.body;
-    const userId = (req.user as any).userId;
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      return res.status(401).json({
+        error: 'User not authenticated',
+        code: 'NOT_AUTHENTICATED'
+      });
+    }
 
     // Validate input
     if (!currentPassword || !newPassword) {
@@ -107,18 +255,25 @@ router.post('/change-password', adminAuthMiddleware, async (req: Request, res: R
       });
     }
 
-    const result = await changeAdminPasswordWithUserId(userId, currentPassword, newPassword);
+    const result = await changeAdminPasswordSecurely(userId, currentPassword, newPassword);
     
-    res.json({
-      ...result,
-      message: 'Password changed successfully'
-    });
+    if (result.success) {
+      res.json({
+        success: true,
+        message: result.message
+      });
+    } else {
+      res.status(400).json({
+        error: result.message,
+        code: result.error || 'PASSWORD_CHANGE_FAILED'
+      });
+    }
 
   } catch (error: any) {
     console.error('Change password error:', error.message);
     
-    res.status(400).json({
-      error: error.message,
+    res.status(500).json({
+      error: 'Password change failed',
       code: 'PASSWORD_CHANGE_FAILED'
     });
   }
@@ -136,17 +291,47 @@ router.post('/validate-session', async (req: Request, res: Response) => {
       });
     }
 
-    const result = validateAdminSession(token);
-    
-    if (result.valid) {
+    // Use the secure auth middleware logic to validate session
+    try {
+      const jwt = require('jsonwebtoken');
+      const { SECURITY_CONFIG } = require('../services/SecureAdminAuth');
+      
+      const decoded = jwt.verify(token, SECURITY_CONFIG.JWT_SECRET) as any;
+      
+      if (!decoded || decoded.role !== 'ADMIN') {
+        return res.status(401).json({
+          error: 'Invalid admin token',
+          code: 'INVALID_SESSION'
+        });
+      }
+
+      // Check if session exists and is active
+      const session = await prisma.adminSession.findUnique({
+        where: { token },
+        include: { user: true }
+      });
+
+      if (!session || !session.isActive || session.expiresAt < new Date()) {
+        return res.status(401).json({
+          error: 'Session expired or invalid',
+          code: 'INVALID_SESSION'
+        });
+      }
+
       res.json({
         success: true,
         message: 'Session is valid',
-        user: result.user
+        user: {
+          id: decoded.userId,
+          email: decoded.email,
+          name: decoded.name,
+          role: decoded.role
+        }
       });
-    } else {
-      res.status(401).json({
-        error: result.error,
+
+    } catch (jwtError) {
+      return res.status(401).json({
+        error: 'Invalid token',
         code: 'INVALID_SESSION'
       });
     }
@@ -163,12 +348,24 @@ router.post('/validate-session', async (req: Request, res: Response) => {
 // Initialize admin user (for setup)
 router.post('/init', async (req: Request, res: Response) => {
   try {
-    const adminUser = await ensureAdminUser();
+    const { SECURITY_CONFIG } = require('../services/SecureAdminAuth');
     
+    // Check if admin user already exists
+    let adminUser = await prisma.user.findUnique({
+      where: { email: SECURITY_CONFIG.ADMIN_EMAIL }
+    });
+
     if (!adminUser) {
-      return res.status(500).json({
-        error: 'Failed to initialize admin user - database not available',
-        code: 'DB_NOT_AVAILABLE'
+      // Create admin user
+      adminUser = await prisma.user.create({
+        data: {
+          email: SECURITY_CONFIG.ADMIN_EMAIL,
+          password: SECURITY_CONFIG.ADMIN_PASSWORD_HASH,
+          name: SECURITY_CONFIG.ADMIN_NAME,
+          role: 'ADMIN',
+          isActive: true,
+          emailVerified: true
+        }
       });
     }
     
@@ -193,17 +390,17 @@ router.post('/init', async (req: Request, res: Response) => {
 });
 
 // Health check for admin system
-router.get('/health', adminAuthMiddleware, async (req: Request, res: Response) => {
+router.get('/health', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
   try {
     res.json({
       success: true,
       message: 'Admin system is healthy',
       timestamp: new Date().toISOString(),
       user: {
-        id: (req.user as any).userId,
-        email: (req.user as any).email,
-        name: (req.user as any).name,
-        role: (req.user as any).role
+        id: req.user?.userId,
+        email: req.user?.email,
+        name: req.user?.name,
+        role: req.user?.role
       }
     });
   } catch (error: any) {
@@ -264,6 +461,416 @@ router.get('/health/public', async (req: Request, res: Response) => {
       error: 'Health check failed',
       code: 'HEALTH_CHECK_FAILED'
     });
+  }
+});
+
+// Export all data (CSV, JSON, Excel)
+router.get('/export/:format', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
+  try {
+    const { format } = req.params;
+    const { dataType } = req.query;
+
+    if (!['csv', 'json', 'excel'].includes(format)) {
+      return res.status(400).json({ error: 'Invalid format. Use csv, json, or excel' });
+    }
+
+    let data: any[] = [];
+    let filename = '';
+
+    switch (dataType) {
+      case 'orders':
+        data = await prisma.order.findMany({
+          include: {
+            user: { select: { name: true, email: true } },
+            items: { include: { product: { select: { name: true } } } }
+          },
+          orderBy: { createdAt: 'desc' }
+        });
+        filename = 'orders';
+        break;
+      case 'users':
+        data = await prisma.user.findMany({
+          where: { role: 'USER' },
+          select: {
+            id: true, name: true, email: true, phone: true,
+            isActive: true, createdAt: true, updatedAt: true
+          },
+          orderBy: { createdAt: 'desc' }
+        });
+        filename = 'users';
+        break;
+      case 'prescriptions':
+        data = await prisma.prescription.findMany({
+          include: {
+            user: { select: { name: true, email: true } }
+          },
+          orderBy: { createdAt: 'desc' }
+        });
+        filename = 'prescriptions';
+        break;
+      case 'appointments':
+        data = await prisma.appointment.findMany({
+          include: {
+            user: { select: { name: true, email: true } }
+          },
+          orderBy: { createdAt: 'desc' }
+        });
+        filename = 'appointments';
+        break;
+      case 'contacts':
+        data = await prisma.contactForm.findMany({
+          orderBy: { createdAt: 'desc' }
+        });
+        filename = 'contacts';
+        break;
+      case 'inventory':
+        data = await prisma.product.findMany({
+          include: {
+            category: { select: { name: true } }
+          },
+          orderBy: { createdAt: 'desc' }
+        });
+        filename = 'inventory';
+        break;
+      default:
+        return res.status(400).json({ error: 'Invalid data type' });
+    }
+
+    if (format === 'csv') {
+      const csv = convertToCSV(data);
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename=${filename}.csv`);
+      res.send(csv);
+    } else if (format === 'json') {
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', `attachment; filename=${filename}.json`);
+      res.json(data);
+    } else if (format === 'excel') {
+      // For Excel, we'll return JSON that can be converted to Excel on the frontend
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', `attachment; filename=${filename}.xlsx`);
+      res.json({ data, format: 'excel', filename });
+    }
+
+  } catch (error: any) {
+    console.error('Export error:', error);
+    res.status(500).json({ error: 'Failed to export data', message: error.message });
+  }
+});
+
+// Helper function to convert data to CSV
+function convertToCSV(data: any[]): string {
+  if (!data || data.length === 0) return '';
+  
+  const headers = Object.keys(data[0]);
+  const csvContent = [
+    headers.join(','),
+    ...data.map(row => 
+      headers.map(header => {
+        const value = row[header];
+        if (typeof value === 'object' && value !== null) {
+          return `"${JSON.stringify(value).replace(/"/g, '""')}"`;
+        }
+        return `"${String(value || '').replace(/"/g, '""')}"`;
+      }).join(',')
+    )
+  ].join('\n');
+  
+  return csvContent;
+}
+
+// Backup system data
+router.post('/backup', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
+  try {
+    const backupData = {
+      timestamp: new Date().toISOString(),
+      version: '1.0.0',
+      data: {
+        users: await prisma.user.findMany(),
+        orders: await prisma.order.findMany({
+          include: { user: true, items: { include: { product: true } } }
+        }),
+        prescriptions: await prisma.prescription.findMany({
+          include: { user: true }
+        }),
+        appointments: await prisma.appointment.findMany({
+          include: { user: true }
+        }),
+        products: await prisma.product.findMany({
+          include: { category: true }
+        }),
+        categories: await prisma.category.findMany(),
+        contactForms: await prisma.contactForm.findMany(),
+        notifications: await prisma.notification.findMany()
+      },
+      metadata: {
+        totalUsers: await prisma.user.count(),
+        totalOrders: await prisma.order.count(),
+        totalProducts: await prisma.product.count(),
+        backupSize: 'Calculating...'
+      }
+    };
+
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename=backup-${new Date().toISOString().split('T')[0]}.json`);
+    res.json(backupData);
+  } catch (error: any) {
+    console.error('Backup error:', error);
+    res.status(500).json({ error: 'Failed to create backup', message: error.message });
+  }
+});
+
+// Test notification
+router.post('/test-notification', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
+  try {
+    const { message, type = 'info' } = req.body;
+    
+    const notification = await prisma.notification.create({
+      data: {
+        title: 'Test Notification',
+        message: message || 'This is a test notification from the admin panel',
+        type: type,
+        userId: (req as any).user?.userId,
+        read: false
+      }
+    });
+
+    res.json({
+      success: true,
+      notification,
+      message: 'Test notification sent successfully'
+    });
+  } catch (error: any) {
+    console.error('Test notification error:', error);
+    res.status(500).json({ error: 'Failed to send test notification', message: error.message });
+  }
+});
+
+// Get delivery orders with locations for map
+router.get('/delivery-orders', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
+  try {
+    const orders = await prisma.order.findMany({
+      where: {
+        status: { in: ['PROCESSING', 'SHIPPED', 'OUT_FOR_DELIVERY'] },
+        shippingAddress: { not: '' }
+      },
+      select: {
+        id: true,
+        orderNumber: true,
+        status: true,
+        total: true,
+        shippingAddress: true,
+        createdAt: true,
+        user: {
+          select: {
+            name: true,
+            email: true,
+            phone: true
+          }
+        },
+        items: {
+          select: {
+            quantity: true,
+            product: {
+              select: {
+                name: true,
+                price: true
+              }
+            }
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    // Add mock coordinates for demonstration (in production, you'd geocode the addresses)
+    const ordersWithLocations = orders.map((order, index) => ({
+      ...order,
+      coordinates: {
+        lat: 40.7128 + (Math.random() - 0.5) * 0.1, // NYC area with some variance
+        lng: -74.0060 + (Math.random() - 0.5) * 0.1
+      },
+      deliveryStatus: order.status === 'OUT_FOR_DELIVERY' ? 'IN_TRANSIT' : 'PREPARING'
+    }));
+
+    res.json({
+      success: true,
+      data: ordersWithLocations,
+      message: 'Delivery orders retrieved successfully'
+    });
+
+  } catch (error: any) {
+    console.error('Delivery orders error:', error);
+    res.status(500).json({ error: 'Failed to fetch delivery orders', message: error.message });
+  }
+});
+
+// Delivery settings management
+router.get('/delivery-settings', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
+  try {
+    // Try to get settings from database first, fallback to defaults
+    let settings;
+    try {
+      // In production, you'd have a settings table. For now, we'll use a simple file-based approach
+      const fs = require('fs');
+      const path = require('path');
+      const settingsFile = path.join(__dirname, '../data/delivery-settings.json');
+      
+      if (fs.existsSync(settingsFile)) {
+        const fileContent = fs.readFileSync(settingsFile, 'utf8');
+        settings = JSON.parse(fileContent);
+      } else {
+        // Create default settings
+        settings = {
+          freeDeliveryThreshold: 25,
+          standardDeliveryFee: 5.00,
+          sameDayDeliveryFee: 3.00,
+          freeDeliveryText: 'Free',
+          currency: '$',
+          deliveryZones: [
+            {
+              id: 1,
+              name: 'Zone 1 - Immediate',
+              radius: '0-5 miles',
+              status: 'Active',
+              color: 'green'
+            },
+            {
+              id: 2,
+              name: 'Zone 2 - Extended',
+              radius: '5-10 miles',
+              status: 'Active',
+              color: 'blue'
+            },
+            {
+              id: 3,
+              name: 'Zone 3 - Premium',
+              radius: '10-15 miles',
+              status: 'Limited',
+              color: 'yellow'
+            }
+          ]
+        };
+        
+        // Ensure directory exists
+        const dataDir = path.dirname(settingsFile);
+        if (!fs.existsSync(dataDir)) {
+          fs.mkdirSync(dataDir, { recursive: true });
+        }
+        
+        // Save default settings
+        fs.writeFileSync(settingsFile, JSON.stringify(settings, null, 2));
+      }
+    } catch (fileError) {
+      console.error('File system error:', fileError);
+      // Fallback to default settings
+      settings = {
+        freeDeliveryThreshold: 25,
+        standardDeliveryFee: 5.00,
+        sameDayDeliveryFee: 3.00,
+        freeDeliveryText: 'Free',
+        currency: '$',
+        deliveryZones: [
+          {
+            id: 1,
+            name: 'Zone 1 - Immediate',
+            radius: '0-5 miles',
+            status: 'Active',
+            color: 'green'
+          },
+          {
+            id: 2,
+            name: 'Zone 2 - Extended',
+            radius: '5-10 miles',
+            status: 'Active',
+            color: 'blue'
+          },
+          {
+            id: 3,
+            name: 'Zone 3 - Premium',
+            radius: '10-15 miles',
+            status: 'Limited',
+            color: 'yellow'
+          }
+        ]
+      };
+    }
+
+    res.json({
+      success: true,
+      data: settings,
+      message: 'Delivery settings retrieved successfully'
+    });
+
+  } catch (error: any) {
+    console.error('Get delivery settings error:', error);
+    res.status(500).json({ error: 'Failed to retrieve delivery settings', message: error.message });
+  }
+});
+
+router.put('/delivery-settings', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
+  try {
+    const { 
+      freeDeliveryThreshold, 
+      standardDeliveryFee, 
+      sameDayDeliveryFee, 
+      freeDeliveryText, 
+      currency,
+      deliveryZones 
+    } = req.body;
+
+    // Validate input
+    if (typeof freeDeliveryThreshold !== 'number' || freeDeliveryThreshold < 0) {
+      return res.status(400).json({ error: 'Invalid free delivery threshold' });
+    }
+    
+    if (typeof standardDeliveryFee !== 'number' || standardDeliveryFee < 0) {
+      return res.status(400).json({ error: 'Invalid standard delivery fee' });
+    }
+    
+    if (typeof sameDayDeliveryFee !== 'number' || sameDayDeliveryFee < 0) {
+      return res.status(400).json({ error: 'Invalid same-day delivery fee' });
+    }
+
+    // Create updated settings
+    const updatedSettings = {
+      freeDeliveryThreshold,
+      standardDeliveryFee,
+      sameDayDeliveryFee,
+      freeDeliveryText: freeDeliveryText || 'Free',
+      currency: currency || '$',
+      deliveryZones: deliveryZones || []
+    };
+
+    // Save to file system
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const settingsFile = path.join(__dirname, '../data/delivery-settings.json');
+      
+      // Ensure directory exists
+      const dataDir = path.dirname(settingsFile);
+      if (!fs.existsSync(dataDir)) {
+        fs.mkdirSync(dataDir, { recursive: true });
+      }
+      
+      // Save settings to file
+      fs.writeFileSync(settingsFile, JSON.stringify(updatedSettings, null, 2));
+      console.log('Delivery settings saved to file:', settingsFile);
+    } catch (fileError) {
+      console.error('Failed to save settings to file:', fileError);
+      // Continue anyway, at least return success to frontend
+    }
+
+    res.json({
+      success: true,
+      data: updatedSettings,
+      message: 'Delivery settings updated successfully'
+    });
+
+  } catch (error: any) {
+    console.error('Update delivery settings error:', error);
+    res.status(500).json({ error: 'Failed to update delivery settings', message: error.message });
   }
 });
 

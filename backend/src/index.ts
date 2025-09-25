@@ -26,7 +26,7 @@ import newsletterRoutes from './routes/newsletter';
 import rateLimit from 'express-rate-limit';
 import { AuthRequest } from './types/express';
 import wooCommercePaymentsRoutes from './routes/woocommerce-payments';
-import { adminAuthMiddleware } from './adminAuth';
+import { secureAdminAuthMiddleware } from './services/SecureAdminAuth';
 import reviewsRoutes from './routes/reviews';
 import feedbackRoutes from './routes/feedback';
 import settingsRoutes from './routes/settings';
@@ -41,6 +41,8 @@ import patientRoutes from './routes/patient';
 import monitoringRoutes from './routes/monitoring';
 import openfdaRoutes from './routes/openfda';
 import cartRoutes from './routes/cart';
+import inventoryRoutes from './routes/inventory';
+import crmRoutes from './routes/crm';
 import hpp from 'hpp';
 import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
@@ -513,9 +515,11 @@ app.use('/api/patient', currentLimiter, patientRoutes);
 app.use('/api/monitoring', currentLimiter, monitoringRoutes);
 app.use('/api/openfda', currentLimiter, openfdaRoutes);
 app.use('/api/cart', currentLimiter, cartRoutes);
+app.use('/api/inventory', currentLimiter, inventoryRoutes);
+app.use('/api/crm', currentLimiter, crmRoutes);
 
 // Notification endpoints
-app.get('/api/notifications', adminAuthMiddleware, async (req: Request, res: Response) => {
+app.get('/api/notifications', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
   const start = Date.now();
   try {
     let limit = parseInt(req.query.limit as string) || 20;
@@ -534,7 +538,7 @@ app.get('/api/notifications', adminAuthMiddleware, async (req: Request, res: Res
   }
 });
 
-app.post('/api/notifications/mark-read', adminAuthMiddleware, async (req: Request, res: Response) => {
+app.post('/api/notifications/mark-read', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
   const { type, id } = req.body;
   try {
     let result;
@@ -576,9 +580,8 @@ const server = httpServer.listen(PORT, async () => {
   
   // Initialize admin user on startup
   try {
-    const { ensureAdminUser } = await import('./adminAuth');
-    await ensureAdminUser();
-    console.log('✅ Admin user initialized successfully');
+    // Admin user is handled by the new SecureAdminAuth system
+    console.log('✅ Admin user initialization handled by SecureAdminAuth system');
   } catch (error) {
     console.error('❌ Failed to initialize admin user:', error);
   }

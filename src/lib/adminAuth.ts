@@ -46,18 +46,20 @@ class AdminAuth {
       
       // Handle the correct response format from backend
       if (response.data.success && response.data.token) {
-        const { token, user } = response.data;
+        const { token, user, csrfToken } = response.data;
         
         this.token = token;
         this.user = user;
         
-        // Store token in localStorage
+        // Store token and CSRF token in localStorage
         localStorage.setItem('admin-token', token);
         localStorage.setItem('admin-user', JSON.stringify(user));
         localStorage.setItem('admin-auth', 'true');
+        localStorage.setItem('admin-csrf-token', csrfToken);
         
         // Set token for future API requests
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        api.defaults.headers.common['X-CSRF-Token'] = csrfToken;
         
         return { token, user };
       } else {
@@ -88,7 +90,9 @@ class AdminAuth {
       localStorage.removeItem('admin-token');
       localStorage.removeItem('admin-user');
       localStorage.removeItem('admin-auth');
+      localStorage.removeItem('admin-csrf-token');
       delete api.defaults.headers.common['Authorization'];
+      delete api.defaults.headers.common['X-CSRF-Token'];
     }
   }
 
@@ -106,7 +110,7 @@ class AdminAuth {
       const response = await api.get('/api/admin/dashboard');
       if (response.status === 200 && response.data.success) {
         // Return basic user object since we don't have profile data
-        this.user = { email: 'admin@mymedspharmacyinc.com', role: 'ADMIN' };
+        this.user = { email: 'mymedspharmacy@outlook.com', role: 'ADMIN' };
         return this.user;
       }
       throw new Error('Invalid response from server');
@@ -139,7 +143,7 @@ class AdminAuth {
       if (response.status === 200 && response.data.success) {
         this.token = token;
         // Set a basic user object since we don't have profile data
-        this.user = { email: 'admin@mymedspharmacyinc.com', role: 'ADMIN' };
+        this.user = { email: 'mymedspharmacy@outlook.com', role: 'ADMIN' };
         return true;
       }
       return false;
@@ -211,10 +215,15 @@ class AdminAuth {
   initialize(): void {
     const token = localStorage.getItem('admin-token');
     const auth = localStorage.getItem('admin-auth');
+    const csrfToken = localStorage.getItem('admin-csrf-token');
     
     if (token && auth === 'true') {
       this.token = token;
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      
+      if (csrfToken) {
+        api.defaults.headers.common['X-CSRF-Token'] = csrfToken;
+      }
     }
   }
 }

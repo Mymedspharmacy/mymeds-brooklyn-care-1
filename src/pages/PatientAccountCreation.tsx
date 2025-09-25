@@ -273,9 +273,9 @@ export default function PatientAccountCreation() {
   return (
     <>
       <SEOHead 
-        title="Create Patient Account - My Meds Pharmacy | Brooklyn Patient Portal"
-        description="Create your patient account at My Meds Pharmacy. Access prescription management, health records, and personalized care services in Brooklyn."
-        keywords="patient account creation, pharmacy patient portal, Brooklyn patient account, prescription management, health records, patient portal signup"
+        title="Create Patient Account - My Meds Pharmacy | Patient Portal"
+        description="Create your patient account at My Meds Pharmacy. Access prescription management, health records, and personalized care services."
+        keywords="patient account creation, pharmacy patient portal, patient account, prescription management, health records, patient portal signup"
       />
       <div className="min-h-screen bg-[#D5C6BC]">
         <Header 

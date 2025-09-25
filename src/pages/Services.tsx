@@ -65,9 +65,9 @@ export default function Services() {
       icon: Truck,
       title: "Same-Day Delivery",
       description: "Same-day local delivery service for prescriptions and health products",
-      longDescription: "Get your prescriptions and health products delivered to your doorstep on the same day. Our delivery service covers Brooklyn and surrounding areas with secure, temperature-controlled packaging and real-time tracking.",
+      longDescription: "Get your prescriptions and health products delivered to your doorstep on the same day. Our delivery service covers local areas with secure, temperature-controlled packaging and real-time tracking.",
       features: [
-        "Same-day delivery within Brooklyn",
+        "Same-day delivery within local area",
         "Free delivery on orders over $25",
         "Real-time tracking and delivery notifications",
         "Secure prescription handling and packaging",
@@ -396,7 +396,10 @@ export default function Services() {
   };
 
   const handleMapClick = () => {
-    window.open(import.meta.env.VITE_GOOGLE_MAPS_URL || 'https://maps.google.com', '_blank');
+    // Open Google Maps with the exact pharmacy location
+    const pharmacyAddress = "My Meds Pharmacy Inc, 2242 65th St, New York 11204, United States";
+    const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(pharmacyAddress)}`;
+    window.open(mapsUrl, '_blank');
   };
 
   const handleActionClick = (service) => {
@@ -560,7 +563,7 @@ export default function Services() {
                   </Button>
                   
                   <div className="text-center">
-                                      <div className={`inline-flex items-center gap-2 ${selectedServiceData.accent} text-[#376F6B] px-6 py-3 rounded-full text-sm font-semibold mb-8 shadow-lg`}>
+                  <div className={`inline-flex items-center gap-2 bg-[#57BBB6] text-white px-6 py-3 rounded-full text-sm font-semibold mb-8 shadow-lg`}>
                     <selectedServiceData.icon className="h-5 w-5" />
                     {selectedServiceData.title}
                   </div>
@@ -609,6 +612,61 @@ export default function Services() {
                      </div>
                    </div>
                     </div>
+
+                {/* Process Section */}
+                <div className="mt-16">
+                  <div className="process-section">
+                    <h2 className="text-3xl font-bold text-[#376F6B] mb-8 text-center">How It Works</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                      {selectedServiceData.process.map((step, index) => (
+                        <div key={index} className="text-center group">
+                          <div className="w-16 h-16 bg-[#57BBB6] rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                            <span className="text-white font-bold text-xl">{index + 1}</span>
+                          </div>
+                          <p className="text-[#376F6B] leading-relaxed font-medium">{step}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Service Stats */}
+                <div className="mt-16 bg-white rounded-2xl p-8 shadow-lg">
+                  <h2 className="text-3xl font-bold text-[#376F6B] mb-8 text-center">Service Performance</h2>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-[#376F6B] mb-2">{selectedServiceData.satisfactionRate}%</div>
+                      <div className="text-[#376F6B] font-medium">Satisfaction Rate</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-[#376F6B] mb-2">{selectedServiceData.patientsServed.toLocaleString()}</div>
+                      <div className="text-[#376F6B] font-medium">Patients Served</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-[#376F6B] mb-2">{selectedServiceData.avgResponseTime}</div>
+                      <div className="text-[#376F6B] font-medium">Avg Response Time</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-[#376F6B] mb-2">{selectedServiceData.price}</div>
+                      <div className="text-[#376F6B] font-medium">Price Range</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Service Action Button */}
+                <div className="mt-16 text-center">
+                  <div className="bg-[#57BBB6] rounded-2xl p-8 text-white">
+                    <h3 className="text-2xl font-bold mb-4">Ready to Get Started?</h3>
+                    <p className="text-lg mb-6 text-white/90">Take the next step with our {selectedServiceData.title.toLowerCase()} service</p>
+                    <Button 
+                      onClick={() => handleActionClick(selectedServiceData)}
+                      className="bg-white text-[#57BBB6] hover:bg-gray-100 font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+                    >
+                      <selectedServiceData.actionIcon className="w-5 h-5 mr-2" />
+                      {selectedServiceData.actionButton}
+                    </Button>
+                  </div>
+                </div>
 
                 {/* Interactive How It Works Section */}
                 <div className="mt-16">

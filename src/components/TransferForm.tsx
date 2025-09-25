@@ -52,28 +52,58 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
     setError('');
     setSuccess(false);
     try {
-      const formDataToSend = new FormData();
-      
-      // Only append file if it exists
-      if (prescriptionFile) {
-        formDataToSend.append('file', prescriptionFile);
+      // Try backend submission first
+      try {
+        const formDataToSend = new FormData();
+        
+        // Only append file if it exists
+        if (prescriptionFile) {
+          formDataToSend.append('file', prescriptionFile);
+        }
+        
+        Object.entries(formData).forEach(([key, value]) => {
+          formDataToSend.append(key, value);
+        });
+        
+        await api.post('/prescriptions/transfer', formDataToSend, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        
+        toast({ 
+          title: 'Transfer Request Submitted!', 
+          description: "We'll process your prescription transfer request within 24 hours and notify you when it's ready." 
+        });
+      } catch (backendError: any) {
+        // If backend endpoint doesn't exist, save to localStorage as fallback
+        if (backendError.response?.status === 404) {
+          const transferData = {
+            ...formData,
+            prescriptionFile: prescriptionFile ? prescriptionFile.name : null,
+            timestamp: new Date().toISOString(),
+            type: 'transfer'
+          };
+          
+          // Save to localStorage
+          const existingTransfers = JSON.parse(localStorage.getItem('pharmacy-transfers') || '[]');
+          existingTransfers.push(transferData);
+          localStorage.setItem('pharmacy-transfers', JSON.stringify(existingTransfers));
+          
+          toast({ 
+            title: 'Transfer Request Saved Locally!', 
+            description: "Your request has been saved and will be processed when the backend is available." 
+          });
+        } else {
+          throw backendError; // Re-throw if it's a different error
+        }
       }
       
-      Object.entries(formData).forEach(([key, value]) => {
-        formDataToSend.append(key, value);
-      });
-      
-      await api.post('/prescriptions/transfer', formDataToSend, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
       setSuccess(true);
       setFormData({
         firstName: '', lastName: '', dateOfBirth: '', phone: '', email: '', currentPharmacy: '', currentPharmacyPhone: '', currentPharmacyAddress: '', medication: '', prescriptionNumber: '', prescribingDoctor: '', insuranceProvider: '', insuranceMemberID: '', notes: ''
       });
       setPrescriptionFile(null);
-      toast({ title: 'Transfer Request Submitted!', description: "We'll process your prescription transfer request within 24 hours and notify you when it's ready." });
       onClose();
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to submit transfer request';

@@ -41,9 +41,9 @@ export default function AdminReset() {
   return (
     <>
       <SEOHead 
-        title="Admin Password Reset - My Meds Pharmacy | Brooklyn Pharmacy Management"
+        title="Admin Password Reset - My Meds Pharmacy | Pharmacy Management"
         description="Reset your admin password for My Meds Pharmacy. Secure access to pharmacy management tools and administrative functions."
-        keywords="admin password reset, pharmacy admin reset, admin access recovery, pharmacy management reset, Brooklyn pharmacy admin"
+        keywords="admin password reset, pharmacy admin reset, admin access recovery, pharmacy management reset, pharmacy admin"
       />
       <div className="min-h-screen bg-[#D5C6BC]">
         <Header 

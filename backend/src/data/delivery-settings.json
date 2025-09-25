@@ -1,0 +1,30 @@
+{
+  "freeDeliveryThreshold": 55,
+  "standardDeliveryFee": 25,
+  "sameDayDeliveryFee": 36,
+  "freeDeliveryText": "Not Free",
+  "currency": "$",
+  "deliveryZones": [
+    {
+      "id": 1,
+      "name": "Zone 1 - Immediate",
+      "radius": "0-5 miles",
+      "status": "Active",
+      "color": "green"
+    },
+    {
+      "id": 2,
+      "name": "Zone 2 - Extended",
+      "radius": "5-10 miles",
+      "status": "Active",
+      "color": "blue"
+    },
+    {
+      "id": 3,
+      "name": "Zone 3 - Premium",
+      "radius": "10-15 miles",
+      "status": "Limited",
+      "color": "yellow"
+    }
+  ]
+}

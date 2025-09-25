@@ -69,7 +69,7 @@ export default function SpecialOffers() {
       ],
       terms: [
         "Minimum order value of $50",
-        "Valid for Brooklyn and surrounding areas",
+        "Valid for local delivery areas",
         "Excludes controlled substances",
         "Delivery times may vary"
       ],
@@ -232,7 +232,10 @@ export default function SpecialOffers() {
   };
 
   const handleMapClick = () => {
-    window.open(import.meta.env.VITE_GOOGLE_MAPS_URL || 'https://maps.google.com', '_blank');
+    // Open Google Maps with the exact pharmacy location
+    const pharmacyAddress = "My Meds Pharmacy Inc, 2242 65th St, New York 11204, United States";
+    const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(pharmacyAddress)}`;
+    window.open(mapsUrl, '_blank');
   };
 
   const handlePersonalizedRecommendations = () => {
@@ -291,9 +294,9 @@ export default function SpecialOffers() {
   return (
     <>
       <SEOHead 
-        title="Special Offers & Discounts - My Meds Pharmacy | Brooklyn Savings"
-        description="Save money with our special pharmacy offers including prescription refills, free shipping, senior discounts, and referral rewards. Limited time deals in Brooklyn."
-        keywords="pharmacy discounts, prescription savings, free shipping, senior discount, referral rewards, Brooklyn pharmacy deals, medication savings, pharmacy offers"
+        title="Special Offers & Discounts - My Meds Pharmacy | Savings & Deals"
+        description="Save money with our special pharmacy offers including prescription refills, free shipping, senior discounts, and referral rewards. Limited time deals available."
+        keywords="pharmacy discounts, prescription savings, free shipping, senior discount, referral rewards, pharmacy deals, medication savings, pharmacy offers"
       />
       <div className="min-h-screen bg-[#F1EEE9]">
         <Header 

@@ -87,9 +87,9 @@ export default function AdminSignIn() {
   return (
     <>
       <SEOHead 
-        title="Admin Sign In - My Meds Pharmacy | Brooklyn Pharmacy Management"
+        title="Admin Sign In - My Meds Pharmacy | Pharmacy Management"
         description="Sign in to the My Meds Pharmacy admin dashboard. Access pharmacy management tools, patient records, and administrative functions."
-        keywords="admin login, pharmacy admin, admin dashboard, pharmacy management login, Brooklyn pharmacy admin"
+        keywords="admin login, pharmacy admin, admin dashboard, pharmacy management login, pharmacy admin"
       />
       <div className="min-h-screen bg-[#D5C6BC]">
         <Header 

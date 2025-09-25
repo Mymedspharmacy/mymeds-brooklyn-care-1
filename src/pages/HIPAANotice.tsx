@@ -13,9 +13,9 @@ const HIPAANotice = () => {
   return (
     <>
       <SEOHead 
-        title="HIPAA Privacy Notice - My Meds Pharmacy | Brooklyn Privacy Practices"
+        title="HIPAA Privacy Notice - My Meds Pharmacy | Privacy Practices"
         description="Read our HIPAA Notice of Privacy Practices. Learn how My Meds Pharmacy protects your health information and your privacy rights under federal law."
-        keywords="HIPAA notice, privacy practices, health information privacy, patient privacy, Brooklyn pharmacy privacy, HIPAA compliance, health data protection"
+        keywords="HIPAA notice, privacy practices, health information privacy, patient privacy, pharmacy privacy, HIPAA compliance, health data protection"
       />
       <div className="min-h-screen bg-[#D5C6BC]">
         <Header 
@@ -225,9 +225,9 @@ const HIPAANotice = () => {
                   </p>
                   <div className="space-y-2 text-[#57BBB6]">
                     <p><strong>Privacy Officer:</strong> My Meds Pharmacy</p>
-                    <p><strong>Email:</strong> privacy@mymedspharmacy.com</p>
+                    <p><strong>Email:</strong> mymedspharmacy@outlook.com</p>
                     <p><strong>Phone:</strong> (347) 312-6458</p>
-                    <p><strong>Address:</strong> J279+5V Brooklyn, NY</p>
+                    <p><strong>Address:</strong> J279+5V New York</p>
                   </div>
                   <div className="mt-4 p-4 bg-blue-50 rounded-lg">
                     <p className="text-blue-800 text-sm">

@@ -175,9 +175,9 @@ const PrivacyPolicy = () => {
               <h3 className="text-xl font-bold text-[#376f6b] mb-4">Contact Us</h3>
               <div className="space-y-2 text-[#57BBB6]">
                 <p><strong>My Meds Pharmacy</strong></p>
-                <p>2242 65th St, Brooklyn, NY</p>
+                <p>2242 65th St, New York</p>
                 <p>Phone: (347) 312-6458</p>
-                <p>Email: Mymedspharmacy@outlook.com</p>
+                <p>Email: mymedspharmacy@outlook.com</p>
                 <p>Hours: Monday - Saturday, 9:00 AM - 7:00 PM</p>
                 <p className="mt-4">
                   If you have any questions about this Privacy Policy, please contact us using the information above.

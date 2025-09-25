@@ -92,7 +92,10 @@ export default function About() {
   };
 
   const handleMapClick = () => {
-    window.open(import.meta.env.VITE_GOOGLE_MAPS_URL || 'https://maps.google.com', '_blank');
+    // Open Google Maps with the exact pharmacy location
+    const pharmacyAddress = "My Meds Pharmacy Inc, 2242 65th St, New York 11204, United States";
+    const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(pharmacyAddress)}`;
+    window.open(mapsUrl, '_blank');
   };
 
   const coreValues = [
@@ -111,7 +114,7 @@ export default function About() {
     {
       icon: Globe,
       title: "Community Focus",
-      description: "We're proud to serve the Brooklyn community and are committed to improving the health and well-being of our neighbors.",
+      description: "We're proud to serve our local community and are committed to improving the health and well-being of our neighbors.",
       color: "bg-[#57BBB6]"
     },
     {
@@ -126,7 +129,7 @@ export default function About() {
     {
       year: "2025",
       title: "New Beginnings",
-      description: "My Meds Pharmacy opens its doors in Brooklyn, NY, ready to serve our community.",
+      description: "My Meds Pharmacy opens its doors, ready to serve our community.",
       icon: Building2
     },
     {
@@ -150,7 +153,7 @@ export default function About() {
     {
       year: "2025",
       title: "Community Focus",
-      description: "Dedicated to becoming a trusted healthcare partner in Brooklyn.",
+      description: "Dedicated to becoming a trusted healthcare partner in our community.",
       icon: Users
     },
     {
@@ -173,9 +176,9 @@ export default function About() {
   return (
     <>
       <SEOHead 
-        title="About Us - My Meds Pharmacy | Brooklyn's Trusted Healthcare Partner"
-        description="Learn about My Meds Pharmacy's 15+ years serving Brooklyn. Discover our patient-centered care, community values, and commitment to excellence in pharmaceutical services."
-        keywords="Brooklyn pharmacy, about us, pharmacy history, patient care, community pharmacy, pharmaceutical services, Brooklyn healthcare, trusted pharmacy"
+        title="About Us - My Meds Pharmacy | Trusted Healthcare Partner"
+        description="Learn about My Meds Pharmacy's commitment to excellence. Discover our patient-centered care, community values, and dedication to pharmaceutical services."
+        keywords="pharmacy, about us, pharmacy history, patient care, community pharmacy, pharmaceutical services, healthcare, trusted pharmacy"
       />
       <div className="min-h-screen bg-[#E8F4F3]">
         <Header 
@@ -236,7 +239,7 @@ export default function About() {
                 About My Meds Pharmacy
               </h1>
               <p className="text-xl sm:text-2xl text-[#E8F4F3] leading-relaxed max-w-3xl mx-auto">
-                Your trusted healthcare partner in Brooklyn, delivering exceptional pharmaceutical care with compassion, expertise, and community focus.
+                Your trusted healthcare partner, delivering exceptional pharmaceutical care with compassion, expertise, and community focus.
               </p>
               
               {/* Decorative Underline */}
@@ -381,7 +384,7 @@ export default function About() {
                 Visit Our Location
               </h2>
               <p className="text-lg sm:text-xl text-gray-600 max-w-3xl lg:max-w-2xl lg:mx-0 mx-auto">
-                Come visit us at our convenient Brooklyn location for personalized care and expert consultation.
+                Come visit us at our convenient location for personalized care and expert consultation.
               </p>
             </div>
             <Map />

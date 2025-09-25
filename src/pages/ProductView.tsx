@@ -209,9 +209,9 @@ export default function ProductView({ product: propProduct, relatedProducts: pro
   return (
     <>
       <SEOHead 
-        title={product ? `${product.name} - My Meds Pharmacy | Brooklyn Health Store` : "Product Details - My Meds Pharmacy"}
-        description={product ? `${product.short_description} - Shop ${product.name} at My Meds Pharmacy in Brooklyn. Quality health products with fast delivery.` : "Browse our selection of health products and medications at My Meds Pharmacy in Brooklyn."}
-        keywords={product ? `${product.name}, ${product.categories.map(cat => cat.name).join(', ')}, health products, Brooklyn pharmacy, online pharmacy, health store` : "health products, pharmacy, Brooklyn, online store, medications, health supplies"}
+        title={product ? `${product.name} - My Meds Pharmacy | Health Store` : "Product Details - My Meds Pharmacy"}
+        description={product ? `${product.short_description} - Shop ${product.name} at My Meds Pharmacy. Quality health products with fast delivery.` : "Browse our selection of health products and medications at My Meds Pharmacy."}
+        keywords={product ? `${product.name}, ${product.categories.map(cat => cat.name).join(', ')}, health products, pharmacy, online pharmacy, health store` : "health products, pharmacy, online store, medications, health supplies"}
       />
       <div className="min-h-screen bg-[#D5C6BC]">
         <Header 

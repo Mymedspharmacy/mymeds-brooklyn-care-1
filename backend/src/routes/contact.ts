@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
-import { unifiedAdminAuth } from './auth';
+import { secureAdminAuthMiddleware } from '../services/SecureAdminAuth';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -66,7 +66,7 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 // Get all contact forms (admin only)
-router.get('/', unifiedAdminAuth, async (req, res) => {
+router.get('/', secureAdminAuthMiddleware, async (req, res) => {
   try {
     let limit = parseInt(req.query.limit as string) || 20;
     if (limit > 100) limit = 100;
@@ -89,7 +89,7 @@ router.get('/', unifiedAdminAuth, async (req, res) => {
 });
 
 // Mark contact as read (admin only)
-router.put('/:id/read', unifiedAdminAuth, async (req, res) => {
+router.put('/:id/read', secureAdminAuthMiddleware, async (req, res) => {
   try {
     const contactId = parseInt(req.params.id);
     const contact = await prisma.contactForm.update({
@@ -112,7 +112,7 @@ router.put('/:id/read', unifiedAdminAuth, async (req, res) => {
 });
 
 // Delete contact form (admin only)
-router.delete('/:id', unifiedAdminAuth, async (req, res) => {
+router.delete('/:id', secureAdminAuthMiddleware, async (req, res) => {
   try {
     const contactId = parseInt(req.params.id);
     await prisma.contactForm.delete({
@@ -127,6 +127,57 @@ router.delete('/:id', unifiedAdminAuth, async (req, res) => {
     console.error('Error deleting contact form:', err);
     res.status(500).json({ 
       error: 'Failed to delete contact form',
+      message: err.message 
+    });
+  }
+});
+
+// Get contact form statistics (admin only)
+router.get('/stats/overview', secureAdminAuthMiddleware, async (req, res) => {
+  try {
+    const [total, unread, today, thisWeek, thisMonth] = await Promise.all([
+      prisma.contactForm.count(),
+      prisma.contactForm.count({ where: { notified: false } }),
+      prisma.contactForm.count({
+        where: {
+          createdAt: {
+            gte: new Date(new Date().setHours(0, 0, 0, 0))
+          }
+        }
+      }),
+      prisma.contactForm.count({
+        where: {
+          createdAt: {
+            gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+          }
+        }
+      }),
+      prisma.contactForm.count({
+        where: {
+          createdAt: {
+            gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+          }
+        }
+      })
+    ]);
+
+    const recentContacts = await prisma.contactForm.findMany({
+      take: 5,
+      orderBy: { createdAt: 'desc' }
+    });
+
+    res.json({
+      total,
+      unread,
+      today,
+      thisWeek,
+      thisMonth,
+      recentContacts
+    });
+  } catch (err: any) {
+    console.error('Error fetching contact statistics:', err);
+    res.status(500).json({ 
+      error: 'Failed to fetch contact statistics',
       message: err.message 
     });
   }

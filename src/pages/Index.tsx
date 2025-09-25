@@ -67,7 +67,7 @@ const Index = () => {
               Find Us
             </h2>
             <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
-              Visit our pharmacy for personalized care and expert consultation. We're conveniently located in Brooklyn.
+              Visit our pharmacy for personalized care and expert consultation. We're conveniently located in your area.
             </p>
           </div>
           <Map />

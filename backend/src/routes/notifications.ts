@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { unifiedAdminAuth } from './auth';
+import { secureAdminAuthMiddleware } from '../services/SecureAdminAuth';
 import { io } from '../index';
 
 interface AuthRequest extends Request {
@@ -108,7 +108,7 @@ export async function triggerSystemNotification(event: string, data: any) {
 }
 
 // Admin: get all notifications
-router.get('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+router.get('/', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -133,7 +133,7 @@ router.get('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
 });
 
 // Admin: get unread notifications count
-router.get('/unread-count', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+router.get('/unread-count', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -149,7 +149,7 @@ router.get('/unread-count', unifiedAdminAuth, async (req: AuthRequest, res: Resp
 });
 
 // Admin: mark notification as read
-router.put('/:id/read', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+router.put('/:id/read', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -166,7 +166,7 @@ router.put('/:id/read', unifiedAdminAuth, async (req: AuthRequest, res: Response
 });
 
 // Admin: mark all notifications as read
-router.put('/mark-all-read', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+router.put('/mark-all-read', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -183,7 +183,7 @@ router.put('/mark-all-read', unifiedAdminAuth, async (req: AuthRequest, res: Res
 });
 
 // Admin: delete notification
-router.delete('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+router.delete('/:id', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -199,7 +199,7 @@ router.delete('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) 
 });
 
 // ✅ IMPLEMENTED: Create notification endpoint
-router.post('/create', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+router.post('/create', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -222,6 +222,70 @@ router.post('/create', unifiedAdminAuth, async (req: AuthRequest, res: Response)
   } catch (err) {
     console.error('Error creating notification:', err);
     res.status(500).json({ error: 'Failed to create notification' });
+  }
+});
+
+// Admin: get notification statistics
+router.get('/stats/overview', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
+    
+    const [total, unread, today, thisWeek, thisMonth] = await Promise.all([
+      prisma.notification.count(),
+      prisma.notification.count({ where: { read: false } }),
+      prisma.notification.count({
+        where: {
+          createdAt: {
+            gte: new Date(new Date().setHours(0, 0, 0, 0))
+          }
+        }
+      }),
+      prisma.notification.count({
+        where: {
+          createdAt: {
+            gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+          }
+        }
+      }),
+      prisma.notification.count({
+        where: {
+          createdAt: {
+            gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+          }
+        }
+      })
+    ]);
+
+    // Get notification counts by type
+    const typeCounts = await prisma.notification.groupBy({
+      by: ['type'],
+      _count: {
+        type: true
+      },
+      orderBy: {
+        _count: {
+          type: 'desc'
+        }
+      }
+    });
+
+    const recentNotifications = await prisma.notification.findMany({
+      take: 5,
+      orderBy: { createdAt: 'desc' }
+    });
+
+    res.json({
+      total,
+      unread,
+      today,
+      thisWeek,
+      thisMonth,
+      typeCounts,
+      recentNotifications
+    });
+  } catch (err) {
+    console.error('Error fetching notification statistics:', err);
+    res.status(500).json({ error: 'Failed to fetch notification statistics' });
   }
 });
 

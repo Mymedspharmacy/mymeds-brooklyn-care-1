@@ -18,9 +18,9 @@ const NotFound = () => {
   return (
     <>
       <SEOHead 
-        title="Page Not Found - My Meds Pharmacy | Brooklyn Pharmacy"
-        description="The page you're looking for doesn't exist. Return to My Meds Pharmacy homepage for prescription services, health products, and pharmacy care in Brooklyn."
-        keywords="page not found, 404 error, Brooklyn pharmacy, My Meds Pharmacy, prescription services"
+        title="Page Not Found - My Meds Pharmacy"
+        description="The page you're looking for doesn't exist. Return to My Meds Pharmacy homepage for prescription services, health products, and pharmacy care."
+        keywords="page not found, 404 error, pharmacy, My Meds Pharmacy, prescription services"
       />
       <div className="min-h-screen bg-[#D5C6BC]">
         <Header 

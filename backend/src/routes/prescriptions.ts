@@ -82,7 +82,7 @@ router.post('/refill', upload.single('file'), async (req: Request, res: Response
       const hashedPassword = await bcrypt.hash(adminPassword, 10);
       defaultUser = await prisma.user.create({
         data: {
-          email: process.env.ADMIN_EMAIL || 'admin@mymedspharmacy.com',
+          email: process.env.ADMIN_EMAIL || 'mymedspharmacy@outlook.com',
           password: hashedPassword,
           name: process.env.ADMIN_NAME || 'Admin User',
           role: 'ADMIN'
@@ -147,7 +147,7 @@ router.post('/transfer', upload.single('file'), async (req: Request, res: Respon
       const hashedPassword = await bcrypt.hash(adminPassword, 10);
       defaultUser = await prisma.user.create({
         data: {
-          email: process.env.ADMIN_EMAIL || 'admin@mymedspharmacy.com',
+          email: process.env.ADMIN_EMAIL || 'mymedspharmacy@outlook.com',
           password: hashedPassword,
           name: process.env.ADMIN_NAME || 'Admin User',
           role: 'ADMIN'

@@ -24,7 +24,7 @@ import {
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
 import logo from "@/assets/logo.png";
-import { getPhoneNumber, getEmail, getTelLink, getMailtoLink, getGoogleMapsUrl } from "@/lib/contact";
+import { getPhoneNumber, getEmail, getTelLink, getMailtoLink } from "@/lib/contact";
 
 export const Footer = () => {
   const navigate = useNavigate();
@@ -49,7 +49,10 @@ export const Footer = () => {
   };
 
   const handleMapClick = () => {
-    window.open(getGoogleMapsUrl(), '_blank');
+    // Open Google Maps with the exact pharmacy location
+    const pharmacyAddress = "My Meds Pharmacy Inc, 2242 65th St, New York 11204, United States";
+    const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(pharmacyAddress)}`;
+    window.open(mapsUrl, '_blank');
   };
 
   const currentYear = new Date().getFullYear();
@@ -241,9 +244,9 @@ export const Footer = () => {
                       <button 
                         onClick={handleEmailClick}
                         className="text-gray-800 font-semibold whitespace-nowrap no-underline"
-                        aria-label="Send email to mymedspharmacyinc@gmail.com"
+                        aria-label="Send email to mymedspharmacy@outlook.com"
                       >
-                        mymedspharmacyinc@gmail.com
+                        mymedspharmacy@outlook.com
                       </button>
                     </div>
                   </div>
@@ -259,7 +262,7 @@ export const Footer = () => {
                         className="text-gray-800 font-semibold whitespace-nowrap flex items-center"
                         aria-label="Open location in maps"
                       >
-                        2242 65th St, Brooklyn, NY 11204
+                        2242 65th St, New York 11204
                         <ExternalLink className="h-3 w-3 ml-1" />
                       </button>
                     </div>

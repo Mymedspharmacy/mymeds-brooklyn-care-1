@@ -310,7 +310,7 @@ const PatientPortal = () => {
         <SEOHead 
           title="Patient Portal - My Meds Pharmacy | Secure Patient Login"
           description="Access your secure patient portal at My Meds Pharmacy. Manage prescriptions, view health records, and communicate with your pharmacy team."
-          keywords="patient portal, pharmacy login, secure patient access, prescription management, health records, Brooklyn patient portal"
+          keywords="patient portal, pharmacy login, secure patient access, prescription management, health records, patient portal"
         />
         <Header 
           onRefillClick={() => navigate('/', { state: { openRefillForm: true } })}

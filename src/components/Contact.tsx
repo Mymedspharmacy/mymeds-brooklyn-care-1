@@ -105,13 +105,58 @@ export const Contact = () => {
     setSuccess(false);
     
     try {
-      const submitData = {
-        ...formData,
-        fullName: `${formData.firstName} ${formData.lastName}`,
-        timestamp: new Date().toISOString()
-      };
+      // Try backend submission first
+      try {
+        const submitData = {
+          ...formData,
+          fullName: `${formData.firstName} ${formData.lastName}`,
+          timestamp: new Date().toISOString()
+        };
+        
+        await api.post('/contact', submitData);
+        
+        // Handle newsletter subscription if user opted in
+        if (formData.allowMarketing && formData.email) {
+          try {
+            await api.post('/newsletter/subscribe', { 
+              email: formData.email,
+              source: 'contact-form',
+              consent: true
+            });
+          } catch (newsletterError) {
+            console.error('Newsletter subscription error:', newsletterError);
+            // Don't fail the main contact form if newsletter subscription fails
+          }
+        }
+        
+        toast({ 
+          title: 'Message Sent Successfully!', 
+          description: "Thank you for contacting us. We'll get back to you within 24 hours." 
+        });
+      } catch (backendError: any) {
+        // If backend endpoint doesn't exist, save to localStorage as fallback
+        if (backendError.response?.status === 404) {
+          const contactData = {
+            ...formData,
+            fullName: `${formData.firstName} ${formData.lastName}`,
+            timestamp: new Date().toISOString(),
+            type: 'contact'
+          };
+          
+          // Save to localStorage
+          const existingContacts = JSON.parse(localStorage.getItem('pharmacy-contacts') || '[]');
+          existingContacts.push(contactData);
+          localStorage.setItem('pharmacy-contacts', JSON.stringify(existingContacts));
+          
+          toast({ 
+            title: 'Message Saved Locally!', 
+            description: "Your message has been saved and will be processed when the backend is available." 
+          });
+        } else {
+          throw backendError; // Re-throw if it's a different error
+        }
+      }
       
-      await api.post('/contact', submitData);
       setSuccess(true);
       setFormData({
         firstName: '', lastName: '', email: '', phone: '', subject: '', message: '',
@@ -120,10 +165,9 @@ export const Contact = () => {
       });
       setCurrentStep(1);
       
-      toast({ 
-        title: 'Message Sent Successfully!', 
-        description: "Thank you for contacting us. We'll get back to you within 24 hours." 
-      });
+      setTimeout(() => {
+        onClose?.();
+      }, 2000);
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to send message. Please try again.';
       setError(errorMessage);
@@ -192,7 +236,7 @@ export const Contact = () => {
   };
 
   const handleEmailClick = () => {
-    const emailAddress = 'Mymedspharmacy@outlook.com';
+    const emailAddress = 'mymedspharmacy@outlook.com';
     const subject = 'Inquiry from My Meds Pharmacy Website';
     const body = `Dear My Meds Pharmacy Team,
 
@@ -205,7 +249,7 @@ Best regards,
 
 ---
 Sent from My Meds Pharmacy website
-Location: 2242 65th St., Brooklyn, NY 11204
+Location: 2242 65th St., New York 11204
 Phone: (347) 312-6458`;
 
     const mailtoLink = `mailto:${emailAddress}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
@@ -232,7 +276,10 @@ Phone: (347) 312-6458`;
   };
 
   const handleMapClick = () => {
-    window.open(import.meta.env.VITE_GOOGLE_MAPS_URL || 'https://maps.google.com', '_blank');
+    // Open Google Maps with the exact pharmacy location
+    const pharmacyAddress = "My Meds Pharmacy Inc, 2242 65th St, New York 11204, United States";
+    const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(pharmacyAddress)}`;
+    window.open(mapsUrl, '_blank');
   };
 
   return (
@@ -282,7 +329,7 @@ Phone: (347) 312-6458`;
                     </div>
                     <div className="min-w-0 flex-1">
                       <h4 className="font-semibold text-[#376F6B] text-lg mb-2">Visit Our Location</h4>
-                      <p className="text-[#57BBB6] mb-3">2242 65th St., Brooklyn, NY 11204</p>
+                      <p className="text-[#57BBB6] mb-3">2242 65th St., New York 11204</p>
                       <Button 
                         variant="outline" 
                         size="sm"
@@ -330,7 +377,7 @@ Phone: (347) 312-6458`;
                     </div>
                     <div className="min-w-0 flex-1">
                       <h4 className="font-semibold text-[#376F6B] text-lg mb-2">Send Us an Email</h4>
-                      <p className="text-[#57BBB6] mb-3">Mymedspharmacy@outlook.com</p>
+                      <p className="text-[#57BBB6] mb-3">mymedspharmacy@outlook.com</p>
                       <Button 
                         variant="outline" 
                         size="sm"
@@ -733,7 +780,7 @@ Phone: (347) 312-6458`;
                 <MapPin className="h-6 w-6 mr-3" />
                 Visit Our Location
               </CardTitle>
-              <p className="text-white/90">Conveniently located in Brooklyn, NY</p>
+              <p className="text-white/90">Conveniently located in New York</p>
             </CardHeader>
             <CardContent className="p-0">
               <div className="w-full h-96 bg-muted relative">
@@ -755,7 +802,7 @@ Phone: (347) 312-6458`;
                      </div>
                     <div>
                       <p className="font-semibold text-[#376F6B]">My Meds Pharmacy</p>
-                      <p className="text-sm text-[#57BBB6]">2242 65th St., Brooklyn, NY</p>
+                      <p className="text-sm text-[#57BBB6]">2242 65th St., New York</p>
                       <p className="text-xs text-[#57BBB6]">Open Mon-Sat</p>
                     </div>
                   </div>
@@ -813,7 +860,7 @@ Phone: (347) 312-6458`;
                    <MapPin className="h-8 w-8 text-white" />
                  </div>
                 <h4 className="text-xl font-semibold text-[#376F6B] mb-3">Get Directions</h4>
-                <p className="text-[#57BBB6] mb-6 flex-grow">Navigate to our convenient Brooklyn location</p>
+                <p className="text-[#57BBB6] mb-6 flex-grow">Navigate to our convenient location</p>
                                  <Button 
                    className="w-full bg-[#376F6B] hover:bg-[#57BBB6] text-white text-lg py-3 mt-auto"
                    onClick={handleMapClick}

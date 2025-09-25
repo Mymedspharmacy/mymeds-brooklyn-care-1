@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { adminAuthMiddleware } from '../adminAuth';
+import { secureAdminAuthMiddleware } from '../services/SecureAdminAuth';
 import openfdaService from '../services/openfdaService';
 import logger from '../utils/logger';
 
@@ -86,7 +86,7 @@ router.get('/search', async (req: Request, res: Response) => {
 });
 
 // Get detailed drug information - ADMIN ONLY
-router.get('/drug/:drugId', adminAuthMiddleware, async (req: Request, res: Response) => {
+router.get('/drug/:drugId', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
   try {
     const { drugId } = req.params;
     
@@ -129,7 +129,7 @@ router.get('/drug/:drugId', adminAuthMiddleware, async (req: Request, res: Respo
 });
 
 // Get drug interactions
-router.get('/drug/:drugId/interactions', adminAuthMiddleware, async (req: Request, res: Response) => {
+router.get('/drug/:drugId/interactions', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
   try {
     const { drugId } = req.params;
     
@@ -172,7 +172,7 @@ router.get('/drug/:drugId/interactions', adminAuthMiddleware, async (req: Reques
 });
 
 // Get adverse reactions
-router.get('/drug/:drugId/reactions', adminAuthMiddleware, async (req: Request, res: Response) => {
+router.get('/drug/:drugId/reactions', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
   try {
     const { drugId } = req.params;
     
@@ -215,7 +215,7 @@ router.get('/drug/:drugId/reactions', adminAuthMiddleware, async (req: Request, 
 });
 
 // Get cache statistics (admin only)
-router.get('/cache/stats', adminAuthMiddleware, async (req: Request, res: Response) => {
+router.get('/cache/stats', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
   try {
     const stats = openfdaService.getCacheStats();
     
@@ -242,7 +242,7 @@ router.get('/cache/stats', adminAuthMiddleware, async (req: Request, res: Respon
 });
 
 // Clear cache (admin only)
-router.delete('/cache', adminAuthMiddleware, async (req: Request, res: Response) => {
+router.delete('/cache', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
   try {
     openfdaService.clearCache();
     
