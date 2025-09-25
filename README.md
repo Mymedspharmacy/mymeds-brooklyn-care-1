@@ -283,7 +283,398 @@ npm run validate:deps    # Validate dependencies
 npm run setup:deps       # Setup all dependencies
 ```
 
-## 🚀 Deployment
+## 🚀 Complete Deployment Guide
+
+### Prerequisites
+- Ubuntu 20.04+ VPS with root access
+- Domain name pointed to VPS IP
+- SSH access to VPS
+
+### Step-by-Step Deployment Commands
+
+#### Step 1: Initial VPS Setup
+```bash
+# Update system packages
+sudo apt update && sudo apt upgrade -y
+
+# Install essential packages
+sudo apt install -y curl wget git unzip software-properties-common apt-transport-https ca-certificates gnupg lsb-release
+
+# Install Node.js 18
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt install -y nodejs
+
+# Install MySQL 8.0
+sudo apt install -y mysql-server
+sudo systemctl start mysql
+sudo systemctl enable mysql
+
+# Secure MySQL installation
+sudo mysql_secure_installation
+
+# Install Nginx
+sudo apt install -y nginx
+sudo systemctl start nginx
+sudo systemctl enable nginx
+
+# Install PHP 8.1 and extensions
+sudo apt install -y php8.1 php8.1-fpm php8.1-mysql php8.1-curl php8.1-gd php8.1-mbstring php8.1-xml php8.1-zip php8.1-intl php8.1-bcmath
+
+# Install PM2 globally
+sudo npm install -g pm2
+
+# Install Certbot for SSL
+sudo apt install -y certbot python3-certbot-nginx
+
+# Configure firewall
+sudo ufw allow 22
+sudo ufw allow 80
+sudo ufw allow 443
+sudo ufw --force enable
+```
+
+#### Step 2: Database Setup
+```bash
+# Create MySQL databases
+sudo mysql -e "CREATE DATABASE IF NOT EXISTS mymeds_production;"
+sudo mysql -e "CREATE DATABASE IF NOT EXISTS wordpress_db;"
+
+# Create MySQL users
+sudo mysql -e "CREATE USER IF NOT EXISTS 'mymeds_user'@'localhost' IDENTIFIED BY 'Pharm-23-medS';"
+sudo mysql -e "CREATE USER IF NOT EXISTS 'wp_user'@'localhost' IDENTIFIED BY 'secure_wp_password';"
+
+# Grant privileges
+sudo mysql -e "GRANT ALL PRIVILEGES ON mymeds_production.* TO 'mymeds_user'@'localhost';"
+sudo mysql -e "GRANT ALL PRIVILEGES ON wordpress_db.* TO 'wp_user'@'localhost';"
+sudo mysql -e "FLUSH PRIVILEGES;"
+
+# Verify databases
+mysql -u root -p -e "SHOW DATABASES;"
+```
+
+#### Step 3: Clone and Setup Application
+```bash
+# Navigate to web root
+cd /var/www
+
+# Clone repository
+sudo git clone https://github.com/Mymedspharmacy/mymeds-brooklyn-care-1.git
+sudo chown -R $USER:$USER mymeds-brooklyn-care-1
+cd mymeds-brooklyn-care-1
+
+# Install frontend dependencies
+npm install
+
+# Install backend dependencies
+cd backend
+npm install
+cd ..
+
+# Copy environment files
+cp env.production .env
+cp backend/.env.example backend/.env
+
+# Update backend environment with production values
+nano backend/.env
+```
+
+#### Step 4: Configure Environment Variables
+```bash
+# Edit backend environment file
+nano backend/.env
+
+# Add these production values:
+# DATABASE_URL="mysql://mymeds_user:Pharm-23-medS@localhost:3306/mymeds_production"
+# JWT_SECRET="your-secure-jwt-secret-here"
+# ADMIN_EMAIL="admin@yourdomain.com"
+# ADMIN_PASSWORD="your-secure-admin-password"
+# EMAIL_HOST="smtp.gmail.com"
+# EMAIL_USER="your-email@gmail.com"
+# EMAIL_PASSWORD="your-app-password"
+# WORDPRESS_URL="https://yourdomain.com/blog"
+# WOOCOMMERCE_STORE_URL="https://yourdomain.com/shop"
+# WOOCOMMERCE_CONSUMER_KEY="your-consumer-key"
+# WOOCOMMERCE_CONSUMER_SECRET="your-consumer-secret"
+```
+
+#### Step 5: Build and Deploy Application
+```bash
+# Build application
+npm run build:prod
+
+# Setup Prisma
+cd backend
+npx prisma generate
+npx prisma migrate deploy
+cd ..
+
+# Start application with PM2
+pm2 start ecosystem.config.js
+pm2 save
+pm2 startup
+```
+
+#### Step 6: WordPress Installation
+```bash
+# Navigate to web root
+cd /var/www
+
+# Download WordPress
+sudo wget https://wordpress.org/latest.tar.gz
+sudo tar -xzf latest.tar.gz
+sudo rm latest.tar.gz
+
+# Set permissions
+sudo chown -R www-data:www-data wordpress
+sudo chmod -R 755 wordpress
+
+# Configure WordPress
+cd wordpress
+sudo cp wp-config-sample.php wp-config.php
+sudo nano wp-config.php
+
+# Add database configuration:
+# define('DB_NAME', 'wordpress_db');
+# define('DB_USER', 'wp_user');
+# define('DB_PASSWORD', 'secure_wp_password');
+# define('DB_HOST', 'localhost');
+```
+
+#### Step 7: Install WooCommerce
+```bash
+# Navigate to WordPress plugins directory
+cd /var/www/wordpress/wp-content/plugins
+
+# Download WooCommerce
+sudo wget https://downloads.wordpress.org/plugin/woocommerce.latest-stable.zip
+sudo unzip woocommerce.latest-stable.zip
+sudo rm woocommerce.latest-stable.zip
+
+# Set permissions
+sudo chown -R www-data:www-data woocommerce
+sudo chmod -R 755 woocommerce
+```
+
+#### Step 8: Configure Nginx
+```bash
+# Create Nginx configuration
+sudo nano /etc/nginx/sites-available/mymeds-pharmacy
+
+# Add the following configuration:
+cat > /etc/nginx/sites-available/mymeds-pharmacy << 'EOF'
+server {
+    listen 80;
+    server_name yourdomain.com www.yourdomain.com;
+    
+    # Pharmacy app root
+    root /var/www/mymeds-brooklyn-care-1/dist;
+    index index.html index.htm;
+    
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    
+    # Static assets caching
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+    
+    # API routes - proxy to backend
+    location /api/ {
+        proxy_pass http://localhost:4000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+    
+    # WordPress blog
+    location /blog {
+        alias /var/www/wordpress;
+        try_files $uri $uri/ /wordpress/index.php?$args;
+        
+        location ~ \.php$ {
+            include snippets/fastcgi-php.conf;
+            fastcgi_param SCRIPT_FILENAME $request_filename;
+            fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
+        }
+    }
+    
+    # Admin panel
+    location /admin {
+        try_files $uri $uri/ /index.html;
+    }
+    
+    # Pharmacy app routes (React Router)
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+    
+    # File upload limits
+    client_max_body_size 64M;
+}
+EOF
+
+# Enable site
+sudo ln -sf /etc/nginx/sites-available/mymeds-pharmacy /etc/nginx/sites-enabled/
+sudo rm -f /etc/nginx/sites-enabled/default
+
+# Test Nginx configuration
+sudo nginx -t
+
+# Reload Nginx
+sudo systemctl reload nginx
+```
+
+#### Step 9: SSL Certificate Setup
+```bash
+# Install SSL certificate
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com --non-interactive --agree-tos --email admin@yourdomain.com
+
+# Test SSL renewal
+sudo certbot renew --dry-run
+
+# Setup automatic renewal
+sudo crontab -e
+# Add this line:
+# 0 12 * * * /usr/bin/certbot renew --quiet
+```
+
+#### Step 10: Final Configuration and Testing
+```bash
+# Restart all services
+sudo systemctl restart nginx
+sudo systemctl restart mysql
+sudo systemctl restart php8.1-fpm
+pm2 restart all
+
+# Check service status
+sudo systemctl status nginx
+sudo systemctl status mysql
+sudo systemctl status php8.1-fpm
+pm2 status
+
+# Test application
+curl -I http://yourdomain.com
+curl -I https://yourdomain.com
+curl -I https://yourdomain.com/api/health
+
+# Check logs
+pm2 logs
+sudo tail -f /var/log/nginx/error.log
+sudo tail -f /var/log/nginx/access.log
+```
+
+#### Step 11: WordPress Initial Setup
+```bash
+# Complete WordPress installation via browser
+# Visit: https://yourdomain.com/blog/wp-admin/install.php
+# Follow the WordPress installation wizard
+
+# After WordPress setup, configure WooCommerce:
+# 1. Go to WordPress Admin → Plugins → Activate WooCommerce
+# 2. Follow WooCommerce setup wizard
+# 3. Go to WooCommerce → Settings → Advanced → REST API
+# 4. Create new API key with Read/Write permissions
+# 5. Update backend/.env with WooCommerce API credentials
+```
+
+#### Step 12: Post-Deployment Verification
+```bash
+# Test all endpoints
+curl -I https://yourdomain.com                    # Main site
+curl -I https://yourdomain.com/admin              # Admin panel
+curl -I https://yourdomain.com/blog               # WordPress
+curl -I https://yourdomain.com/api/health         # API health
+curl -I https://yourdomain.com/wp-json/wp/v2/posts # WordPress API
+
+# Check PM2 processes
+pm2 monit
+
+# Check disk space
+df -h
+
+# Check memory usage
+free -h
+
+# Check running services
+sudo systemctl list-units --type=service --state=running
+```
+
+### Quick Deployment Script
+```bash
+# Create deployment script
+cat > deploy.sh << 'EOF'
+#!/bin/bash
+set -e
+
+echo "🚀 Starting MyMeds Pharmacy Deployment..."
+
+# Update system
+sudo apt update && sudo apt upgrade -y
+
+# Install dependencies
+sudo apt install -y curl wget git nginx mysql-server php8.1 php8.1-fpm php8.1-mysql nodejs npm certbot python3-certbot-nginx ufw
+
+# Setup MySQL
+sudo mysql -e "CREATE DATABASE IF NOT EXISTS mymeds_production;"
+sudo mysql -e "CREATE USER IF NOT EXISTS 'mymeds_user'@'localhost' IDENTIFIED BY 'Pharm-23-medS';"
+sudo mysql -e "GRANT ALL PRIVILEGES ON mymeds_production.* TO 'mymeds_user'@'localhost';"
+sudo mysql -e "FLUSH PRIVILEGES;"
+
+# Install PM2
+sudo npm install -g pm2
+
+# Clone and setup app
+cd /var/www
+sudo git clone https://github.com/Mymedspharmacy/mymeds-brooklyn-care-1.git
+sudo chown -R $USER:$USER mymeds-brooklyn-care-1
+cd mymeds-brooklyn-care-1
+
+# Install dependencies
+npm install
+cd backend && npm install && cd ..
+
+# Build application
+npm run build:prod
+
+# Setup Prisma
+cd backend
+npx prisma generate
+npx prisma migrate deploy
+cd ..
+
+# Start with PM2
+pm2 start ecosystem.config.js
+pm2 save
+pm2 startup
+
+# Setup WordPress
+cd /var/www
+sudo wget https://wordpress.org/latest.tar.gz
+sudo tar -xzf latest.tar.gz
+sudo rm latest.tar.gz
+sudo chown -R www-data:www-data wordpress
+sudo chmod -R 755 wordpress
+
+# Configure firewall
+sudo ufw allow 22,80,443
+sudo ufw --force enable
+
+echo "✅ Deployment completed! Configure Nginx and SSL manually."
+EOF
+
+# Make executable and run
+chmod +x deploy.sh
+./deploy.sh
+```
 
 ### VPS Deployment (Recommended)
 
