@@ -1,9 +1,47 @@
 import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
+import rateLimit from 'express-rate-limit';
 
 const router = Router();
 const prisma = new PrismaClient();
+
+// Rate limiting for review submissions
+const reviewSubmissionLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 3, // Limit each IP to 3 review submissions per windowMs
+  message: {
+    error: 'Too many review submissions. Please try again later.',
+    retryAfter: '15 minutes'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Security middleware for input sanitization
+const sanitizeInput = (req: Request, res: Response, next: any) => {
+  const sanitizeString = (str: string): string => {
+    return str
+      .trim()
+      .replace(/[<>]/g, '') // Remove potential HTML tags
+      .substring(0, 1000); // Limit length
+  };
+
+  if (req.body.customerName) {
+    req.body.customerName = sanitizeString(req.body.customerName);
+  }
+  if (req.body.title) {
+    req.body.title = sanitizeString(req.body.title);
+  }
+  if (req.body.comment) {
+    req.body.comment = sanitizeString(req.body.comment);
+  }
+  if (req.body.customerEmail) {
+    req.body.customerEmail = req.body.customerEmail.trim().toLowerCase();
+  }
+
+  next();
+};
 
 // Review schema
 const reviewSchema = z.object({
@@ -29,7 +67,7 @@ const feedbackSchema = z.object({
 });
 
 // Create a product review
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', reviewSubmissionLimiter, sanitizeInput, async (req: Request, res: Response) => {
   try {
     const validatedData = reviewSchema.parse(req.body);
     
@@ -52,6 +90,20 @@ router.post('/', async (req: Request, res: Response) => {
     
     if (existingReview) {
       return res.status(400).json({ error: 'You have already reviewed this product' });
+    }
+
+    // Additional security: Check for suspicious patterns
+    const suspiciousKeywords = ['spam', 'scam', 'fake', 'test', 'bot'];
+    const reviewText = `${validatedData.title} ${validatedData.comment}`.toLowerCase();
+    const hasSuspiciousContent = suspiciousKeywords.some(keyword => 
+      reviewText.includes(keyword)
+    );
+
+    if (hasSuspiciousContent) {
+      console.warn(`Suspicious review content detected from ${req.ip}:`, {
+        email: validatedData.customerEmail,
+        content: reviewText.substring(0, 100)
+      });
     }
     
     // Create review
@@ -79,6 +131,17 @@ router.post('/', async (req: Request, res: Response) => {
     
     // Update product average rating
     await updateProductRating(validatedData.productId);
+
+    // Log successful review submission
+    console.log(`Review submitted successfully:`, {
+      reviewId: review.id,
+      productId: validatedData.productId,
+      customerEmail: validatedData.customerEmail,
+      rating: validatedData.rating,
+      ip: req.ip,
+      userAgent: req.get('User-Agent'),
+      timestamp: new Date().toISOString()
+    });
     
     res.status(201).json({
       success: true,

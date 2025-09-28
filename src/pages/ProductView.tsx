@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import ReviewForm from '@/components/ReviewForm';
 import { Star, ShoppingCart, Heart, Truck, Shield, Clock, ArrowLeft, Share2, Package, CheckCircle, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -561,6 +562,14 @@ export default function ProductView({ product: propProduct, relatedProducts: pro
       </div>
       
       <Footer />
+      
+      {/* Review Form Modal */}
+      <ReviewForm 
+        isOpen={showReviewForm}
+        onClose={() => setShowReviewForm(false)}
+        productId={product.id}
+        productName={product.name}
+      />
         </div>
       </>
     );

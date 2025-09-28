@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import logger from '../utils/logger';
 import { ZodError } from 'zod';
-import { Prisma } from '@prisma/client';
+import { PrismaClientKnownRequestError, PrismaClientValidationError } from '@prisma/client/runtime/library';
 
 // Custom error classes
 export class AppError extends Error {
@@ -104,7 +104,7 @@ export const errorHandler = (
       message: err.message,
       code: err.code
     }));
-  } else if (error instanceof Prisma.PrismaClientKnownRequestError) {
+  } else if (error instanceof PrismaClientKnownRequestError) {
     // Handle Prisma errors
     switch (error.code) {
       case 'P2002':
@@ -127,7 +127,7 @@ export const errorHandler = (
         message = 'Database operation failed';
         code = 'DATABASE_ERROR';
     }
-  } else if (error instanceof Prisma.PrismaClientValidationError) {
+  } else if (error instanceof PrismaClientValidationError) {
     statusCode = 400;
     message = 'Invalid data provided';
     code = 'VALIDATION_ERROR';

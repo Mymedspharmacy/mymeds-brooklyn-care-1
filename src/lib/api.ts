@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // API configuration
 const API_BASE_URL: string = import.meta.env.MODE === 'development' 
-  ? '' // Use proxy in development
+  ? 'http://localhost:4000/api' // Direct backend connection in development
   : 'https://mymedspharmacyinc.com/api';
 console.log('API Base URL:', API_BASE_URL);
 console.log('Environment:', import.meta.env.MODE);

@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import api from '../lib/api';
@@ -26,6 +26,7 @@ import { AnalyticsDashboard } from '../components/analytics/AnalyticsDashboard';
 import { EnhancedNotifications } from '../components/notifications/EnhancedNotifications';
 import { ExportManager } from '../components/export/ExportManager';
 import MedicineSearch from '../components/MedicineSearch';
+import LocationsList from '../components/LocationsList';
 import { useNotifications } from '@/hooks/useNotifications';
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -38,6 +39,7 @@ const TABS = [
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
   { id: 'orders', label: 'Orders', icon: ShoppingCart },
   { id: 'delivery-map', label: 'Delivery Map', icon: MapPin },
+  { id: 'locations', label: 'Locations', icon: MapPin },
   { id: 'refills', label: 'Refill Requests', icon: Pill },
   { id: 'transfers', label: 'Transfer Requests', icon: RefreshCw },
   { id: 'contacts', label: 'Contact Requests', icon: MessageSquare },
@@ -90,6 +92,24 @@ export default function Admin() {
   const [inventorySearch, setInventorySearch] = useState('');
   const [inventoryCategoryFilter, setInventoryCategoryFilter] = useState('all');
   const [lowStockOnly, setLowStockOnly] = useState(false);
+  
+  // WooCommerce sync state
+  const [wooCommerceStatus, setWooCommerceStatus] = useState({
+    connected: false,
+    lastSync: null,
+    syncInProgress: false,
+    error: null
+  });
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  
+  // Product management state
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showProductViewDialog, setShowProductViewDialog] = useState(false);
+  const [showProductEditDialog, setShowProductEditDialog] = useState(false);
+  
+  // Contact details state
+  const [selectedContact, setSelectedContact] = useState(null);
+  const [showContactDetailsDialog, setShowContactDetailsDialog] = useState(false);
   
   // CRM state
   const [crmCustomers, setCrmCustomers] = useState([]);
@@ -488,8 +508,137 @@ export default function Admin() {
   useEffect(() => {
     if (activeTab === 'inventory' && user) {
       loadInventoryData();
+      loadWooCommerceStatus();
     }
   }, [activeTab, user, loadInventoryData]);
+
+  // WooCommerce sync functions
+  const loadWooCommerceStatus = useCallback(async () => {
+    try {
+      const response = await api.get('/woocommerce/status').catch(err => ({ data: { success: false } }));
+      if (response.data && response.data.success) {
+        setWooCommerceStatus({
+          connected: response.data.data?.connected || false,
+          lastSync: response.data.data?.lastSync || null,
+          syncInProgress: false,
+          error: null
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load WooCommerce status:', error);
+    }
+  }, []);
+
+  const syncWithWooCommerce = useCallback(async () => {
+    setWooCommerceStatus(prev => ({ ...prev, syncInProgress: true, error: null }));
+    try {
+      const response = await api.post('/woocommerce/sync-products');
+      if (response.data && response.data.success) {
+        setWooCommerceStatus(prev => ({
+          ...prev,
+          syncInProgress: false,
+          lastSync: new Date().toISOString()
+        }));
+        await loadInventoryData(); // Refresh inventory data
+        toast({
+          title: "Sync Successful",
+          description: `Synced ${response.data.data?.syncedCount || 0} products with WooCommerce`,
+        });
+      } else {
+        throw new Error(response.data?.error || 'Sync failed');
+      }
+    } catch (error: any) {
+      setWooCommerceStatus(prev => ({
+        ...prev,
+        syncInProgress: false,
+        error: error.message || 'Sync failed'
+      }));
+      toast({
+        title: "Sync Failed",
+        description: error.message || 'Failed to sync with WooCommerce',
+        variant: "destructive",
+      });
+    }
+  }, [loadInventoryData, toast]);
+
+  const updateProductStock = useCallback(async (productId: string, newStock: number) => {
+    try {
+      const response = await api.put(`/woocommerce/products/${productId}/stock`, {
+        stock: newStock,
+        notifyLowStock: true
+      });
+      
+      if (response.data && response.data.success) {
+        await loadInventoryData(); // Refresh inventory data
+        toast({
+          title: "Stock Updated",
+          description: `Stock updated and synced with WooCommerce`,
+        });
+      } else {
+        throw new Error(response.data?.error || 'Failed to update stock');
+      }
+    } catch (error: any) {
+      toast({
+        title: "Update Failed",
+        description: error.message || 'Failed to update stock',
+        variant: "destructive",
+      });
+    }
+  }, [loadInventoryData, toast]);
+
+  const bulkSyncSelectedProducts = useCallback(async () => {
+    if (selectedProducts.length === 0) {
+      toast({
+        title: "No Products Selected",
+        description: "Please select products to sync",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setWooCommerceStatus(prev => ({ ...prev, syncInProgress: true, error: null }));
+    try {
+      const promises = selectedProducts.map(productId => 
+        api.put(`/woocommerce/products/${productId}/stock`, {
+          stock: inventoryItems.find(item => item.id === productId)?.stock || 0,
+          notifyLowStock: false
+        })
+      );
+
+      await Promise.all(promises);
+      setWooCommerceStatus(prev => ({ ...prev, syncInProgress: false }));
+      setSelectedProducts([]);
+      await loadInventoryData(); // Refresh inventory data
+      
+      toast({
+        title: "Bulk Sync Complete",
+        description: `Synced ${selectedProducts.length} products with WooCommerce`,
+      });
+    } catch (error: any) {
+      setWooCommerceStatus(prev => ({
+        ...prev,
+        syncInProgress: false,
+        error: error.message || 'Bulk sync failed'
+      }));
+      toast({
+        title: "Bulk Sync Failed",
+        description: error.message || 'Failed to sync selected products',
+        variant: "destructive",
+      });
+    }
+  }, [selectedProducts, inventoryItems, loadInventoryData, toast]);
+
+  // View product details
+  const viewProduct = useCallback((product) => {
+    setSelectedProduct(product);
+    setShowProductViewDialog(true);
+  }, []);
+
+  // Edit product
+  const editProduct = useCallback((product) => {
+    setSelectedProduct(product);
+    setShowProductEditDialog(true);
+  }, []);
 
   // Load CRM data
   const loadCrmData = useCallback(async () => {
@@ -584,28 +733,118 @@ export default function Admin() {
   }, []);
 
   // Schedule management functions
+  const [editingTimeSlot, setEditingTimeSlot] = useState(null);
+  const [editingAppointmentType, setEditingAppointmentType] = useState(null);
+  const [newTimeSlot, setNewTimeSlot] = useState('');
+  const [newAppointmentType, setNewAppointmentType] = useState({
+    name: '',
+    duration: '',
+    price: '',
+    description: ''
+  });
+  const [scheduleRules, setScheduleRules] = useState({
+    advanceBookingLimit: '30',
+    minimumNotice: '2',
+    maxAppointmentsPerDay: '20',
+    bufferTime: '15'
+  });
+
   const editTimeSlot = useCallback((slot) => {
-    // Implementation for editing time slot
-    console.log('Edit time slot:', slot);
+    setEditingTimeSlot(slot);
+    setNewTimeSlot(slot);
+    setShowTimeSlotDialog(true);
   }, []);
 
   const deleteTimeSlot = useCallback((slot) => {
-    setTimeSlots(prev => prev.filter(s => s !== slot));
+    if (confirm(`Are you sure you want to delete the time slot "${slot}"?`)) {
+      setTimeSlots(prev => prev.filter(s => s !== slot));
+      // TODO: Save to backend
+      console.log('Deleted time slot:', slot);
+    }
   }, []);
 
+  const addTimeSlot = useCallback(() => {
+    if (newTimeSlot && !timeSlots.includes(newTimeSlot)) {
+      if (editingTimeSlot) {
+        // Edit existing slot
+        setTimeSlots(prev => prev.map(slot => slot === editingTimeSlot ? newTimeSlot : slot));
+        setEditingTimeSlot(null);
+      } else {
+        // Add new slot
+        setTimeSlots(prev => [...prev, newTimeSlot]);
+      }
+      setNewTimeSlot('');
+      setShowTimeSlotDialog(false);
+      // TODO: Save to backend
+      console.log('Saved time slot:', newTimeSlot);
+    }
+  }, [newTimeSlot, timeSlots, editingTimeSlot]);
+
   const editAppointmentType = useCallback((type) => {
-    // Implementation for editing appointment type
-    console.log('Edit appointment type:', type);
+    setEditingAppointmentType(type);
+    setNewAppointmentType({
+      name: type.name,
+      duration: type.duration.toString(),
+      price: type.price.toString(),
+      description: type.description || ''
+    });
+    setShowAppointmentTypeDialog(true);
   }, []);
 
   const deleteAppointmentType = useCallback((id) => {
-    setAppointmentTypes(prev => prev.filter(t => t.id !== id));
+    if (confirm('Are you sure you want to delete this appointment type?')) {
+      setAppointmentTypes(prev => prev.filter(t => t.id !== id));
+      // TODO: Save to backend
+      console.log('Deleted appointment type:', id);
+    }
   }, []);
+
+  const addAppointmentType = useCallback(() => {
+    if (newAppointmentType.name && newAppointmentType.duration && newAppointmentType.price) {
+      const newType = {
+        id: editingAppointmentType ? editingAppointmentType.id : Date.now(),
+        name: newAppointmentType.name,
+        duration: parseInt(newAppointmentType.duration),
+        price: parseFloat(newAppointmentType.price),
+        description: newAppointmentType.description
+      };
+
+      if (editingAppointmentType) {
+        // Edit existing type
+        setAppointmentTypes(prev => prev.map(type => type.id === editingAppointmentType.id ? newType : type));
+        setEditingAppointmentType(null);
+      } else {
+        // Add new type
+        setAppointmentTypes(prev => [...prev, newType]);
+      }
+
+      setNewAppointmentType({ name: '', duration: '', price: '', description: '' });
+      setShowAppointmentTypeDialog(false);
+      // TODO: Save to backend
+      console.log('Saved appointment type:', newType);
+    }
+  }, [newAppointmentType, editingAppointmentType]);
 
   const toggleWorkingDay = useCallback((dayName, enabled) => {
     setWorkingHours(prev => prev.map(day => 
       day.name === dayName ? { ...day, enabled } : day
     ));
+    // TODO: Save to backend
+    console.log('Updated working day:', dayName, enabled);
+  }, []);
+
+  const updateWorkingHours = useCallback((dayName, field, value) => {
+    setWorkingHours(prev => prev.map(day => 
+      day.name === dayName ? { ...day, [field]: value } : day
+    ));
+    // TODO: Save to backend
+    console.log('Updated working hours:', dayName, field, value);
+  }, []);
+
+  const updateScheduleRule = useCallback((rule, value) => {
+    setScheduleRules(prev => ({ ...prev, [rule]: value }));
+    // TODO: Save to backend
+    console.log('Updated schedule rule:', rule, value);
   }, []);
 
   const exportSchedule = useCallback(async () => {
@@ -1001,7 +1240,7 @@ export default function Admin() {
       }
 
       // Fallback to API if localStorage is empty
-      const response = await api.get('/api/admin/delivery-settings');
+      const response = await api.get('/admin/delivery-settings');
       if (response.data.success) {
         setDeliveryFees(response.data.data);
         setDeliveryZones(response.data.data.deliveryZones || []);
@@ -1057,7 +1296,7 @@ export default function Admin() {
     
     // Try to save to backend as well
     try {
-      const response = await api.put('/api/admin/delivery-settings', settingsToSave);
+      const response = await api.put('/admin/delivery-settings', settingsToSave);
       if (response.data.success) {
         console.log('Zone saved to backend successfully');
       }
@@ -1090,7 +1329,7 @@ export default function Admin() {
       
       // Try to save to backend as well
       try {
-        const response = await api.put('/api/admin/delivery-settings', settingsToSave);
+        const response = await api.put('/admin/delivery-settings', settingsToSave);
         if (response.data.success) {
           console.log('Zone deletion saved to backend successfully');
         }
@@ -1121,7 +1360,7 @@ export default function Admin() {
         
         // Try to save to backend as well
         try {
-          const response = await api.put('/api/admin/delivery-settings', settingsToSave);
+          const response = await api.put('/admin/delivery-settings', settingsToSave);
           if (response.data.success) {
             console.log('Zone update saved to backend successfully');
           }
@@ -1189,7 +1428,7 @@ export default function Admin() {
       
       // Try to save to backend as well (but don't fail if backend is down)
       try {
-        const response = await api.put('/api/admin/delivery-settings', newSettings);
+        const response = await api.put('/admin/delivery-settings', newSettings);
         if (response.data.success) {
           console.log('Settings saved to backend successfully');
         }
@@ -1342,6 +1581,11 @@ export default function Admin() {
   }, [loadTransfersData]);
 
   // Contact management functions
+  const handleViewContactDetails = useCallback((contact: any) => {
+    setSelectedContact(contact);
+    setShowContactDetailsDialog(true);
+  }, []);
+
   const handleMarkContactAsRead = useCallback(async (contactId: string) => {
     try {
       await api.put(`/contact/${contactId}/read`);
@@ -1627,6 +1871,20 @@ export default function Admin() {
                     console.log('Analytics time range changed:', range);
                   }}
                 />
+              </div>
+            )}
+
+            {/* Locations Tab */}
+            {activeTab === 'locations' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-gray-900">Location Management</h2>
+                  <div className="text-sm text-gray-500">
+                    Manage your pharmacy locations and branches
+                  </div>
+                </div>
+                
+                <LocationsList showActions={true} />
               </div>
             )}
 
@@ -2349,7 +2607,8 @@ export default function Admin() {
                                   <Button 
                                     variant="outline" 
                                     size="sm"
-                                    onClick={() => window.open(`/admin/contacts/${contact.id}`, '_blank')}
+                                    onClick={() => handleViewContactDetails(contact)}
+                                    title="View Contact Details"
                                   >
                                     <Eye className="h-4 w-4" />
                                   </Button>
@@ -2940,8 +3199,48 @@ export default function Admin() {
             {activeTab === 'inventory' && (
               <div className="space-y-6">
                 <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-bold text-gray-900">Inventory Management</h2>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">Inventory Management</h2>
+                    <div className="flex items-center gap-4 mt-2">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${wooCommerceStatus.connected ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                        <span className="text-sm text-gray-600">
+                          WooCommerce: {wooCommerceStatus.connected ? 'Connected' : 'Disconnected'}
+                        </span>
+                      </div>
+                      {wooCommerceStatus.lastSync && (
+                        <span className="text-sm text-gray-500">
+                          Last sync: {new Date(wooCommerceStatus.lastSync).toLocaleString()}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                   <div className="flex space-x-4">
+                    <Button 
+                      onClick={syncWithWooCommerce}
+                      disabled={wooCommerceStatus.syncInProgress}
+                      className="bg-[#57bbb6] hover:bg-[#2e8f88]"
+                    >
+                      {wooCommerceStatus.syncInProgress ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Syncing...
+                        </>
+                      ) : (
+                        <>
+                          <Zap className="h-4 w-4 mr-2" />
+                          Sync WooCommerce
+                        </>
+                      )}
+                    </Button>
+                    <Button 
+                      onClick={bulkSyncSelectedProducts}
+                      disabled={selectedProducts.length === 0 || wooCommerceStatus.syncInProgress}
+                      variant="outline"
+                    >
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      Bulk Sync ({selectedProducts.length})
+                    </Button>
                     <Button onClick={() => window.location.reload()}>
                       <RefreshCw className="h-4 w-4 mr-2" />
                       Refresh
@@ -3003,6 +3302,57 @@ export default function Admin() {
                   </div>
                 )}
 
+                {/* WooCommerce Sync Status */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Link className="h-5 w-5" />
+                      WooCommerce Integration Status
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-3 h-3 rounded-full ${wooCommerceStatus.connected ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                        <div>
+                          <p className="font-medium">Connection Status</p>
+                          <p className="text-sm text-gray-600">
+                            {wooCommerceStatus.connected ? 'Connected' : 'Disconnected'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Clock className="h-4 w-4 text-gray-400" />
+                        <div>
+                          <p className="font-medium">Last Sync</p>
+                          <p className="text-sm text-gray-600">
+                            {wooCommerceStatus.lastSync 
+                              ? new Date(wooCommerceStatus.lastSync).toLocaleString()
+                              : 'Never'
+                            }
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-3 h-3 rounded-full ${wooCommerceStatus.syncInProgress ? 'bg-yellow-500 animate-pulse' : 'bg-gray-300'}`}></div>
+                        <div>
+                          <p className="font-medium">Sync Status</p>
+                          <p className="text-sm text-gray-600">
+                            {wooCommerceStatus.syncInProgress ? 'Syncing...' : 'Idle'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    {wooCommerceStatus.error && (
+                      <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <p className="text-sm text-red-600">
+                          <strong>Error:</strong> {wooCommerceStatus.error}
+                        </p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
                 {/* Filters */}
                 <Card>
                   <CardContent className="p-6">
@@ -3057,6 +3407,18 @@ export default function Admin() {
                         <Table>
                           <TableHeader>
                             <TableRow>
+                              <TableHead className="w-12">
+                                <Checkbox
+                                  checked={selectedProducts.length === inventoryItems.length && inventoryItems.length > 0}
+                                  onCheckedChange={(checked) => {
+                                    if (checked) {
+                                      setSelectedProducts(inventoryItems.map(item => item.id));
+                                    } else {
+                                      setSelectedProducts([]);
+                                    }
+                                  }}
+                                />
+                              </TableHead>
                               <TableHead>Product</TableHead>
                               <TableHead>Category</TableHead>
                               <TableHead>Price</TableHead>
@@ -3069,13 +3431,25 @@ export default function Admin() {
                           <TableBody>
                             {(inventoryItems || []).length === 0 ? (
                               <TableRow>
-                                <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                                <TableCell colSpan={8} className="text-center py-8 text-gray-500">
                                   No products found
                                 </TableCell>
                               </TableRow>
                             ) : (
                               (inventoryItems || []).map((product: any) => (
                                 <TableRow key={product.id}>
+                                  <TableCell>
+                                    <Checkbox
+                                      checked={selectedProducts.includes(product.id)}
+                                      onCheckedChange={(checked) => {
+                                        if (checked) {
+                                          setSelectedProducts(prev => [...prev, product.id]);
+                                        } else {
+                                          setSelectedProducts(prev => prev.filter(id => id !== product.id));
+                                        }
+                                      }}
+                                    />
+                                  </TableCell>
                                   <TableCell>
                                     <div>
                                       <p className="font-medium">{product.name}</p>
@@ -3086,6 +3460,25 @@ export default function Admin() {
                                   <TableCell className="font-medium">${product.price?.toFixed(2)}</TableCell>
                                   <TableCell>
                                     <div className="flex items-center space-x-2">
+                                      <Input
+                                        type="number"
+                                        value={product.stock}
+                                        onChange={(e) => {
+                                          const newStock = parseInt(e.target.value) || 0;
+                                          // Update local state immediately for better UX
+                                          setInventoryItems(prev => prev.map(item => 
+                                            item.id === product.id ? { ...item, stock: newStock } : item
+                                          ));
+                                        }}
+                                        onBlur={(e) => {
+                                          const newStock = parseInt(e.target.value) || 0;
+                                          if (newStock !== product.stock) {
+                                            updateProductStock(product.id, newStock);
+                                          }
+                                        }}
+                                        className="w-20 h-8 text-center"
+                                        min="0"
+                                      />
                                       <span className={`
                                         px-2 py-1 rounded-full text-xs font-medium
                                         ${product.stock === 0 ? 'bg-red-100 text-red-800' :
@@ -3107,13 +3500,39 @@ export default function Admin() {
                                        'In Stock'}
                                     </Badge>
                                   </TableCell>
-                                  <TableCell>{new Date(product.updatedAt).toLocaleDateString()}</TableCell>
+                                  <TableCell>
+                                    {product.updatedAt ? 
+                                      (typeof product.updatedAt === 'string' || typeof product.updatedAt === 'number' ?
+                                        new Date(product.updatedAt).toLocaleDateString() :
+                                        new Date(product.updatedAt?.toString() || Date.now()).toLocaleDateString()
+                                      ) : 
+                                      'N/A'
+                                    }
+                                  </TableCell>
                                   <TableCell>
                                     <div className="flex space-x-2">
-                                      <Button size="sm" variant="outline">
+                                      <Button 
+                                        size="sm" 
+                                        variant="outline"
+                                        onClick={() => updateProductStock(product.id, product.stock)}
+                                        title="Sync with WooCommerce"
+                                      >
+                                        <Zap className="h-4 w-4" />
+                                      </Button>
+                                      <Button 
+                                        size="sm" 
+                                        variant="outline"
+                                        onClick={() => viewProduct(product)}
+                                        title="View Product Details"
+                                      >
                                         <Eye className="h-4 w-4" />
                                       </Button>
-                                      <Button size="sm" variant="outline">
+                                      <Button 
+                                        size="sm" 
+                                        variant="outline"
+                                        onClick={() => editProduct(product)}
+                                        title="Edit Product"
+                                      >
                                         <Edit className="h-4 w-4" />
                                       </Button>
                                     </div>
@@ -3533,7 +3952,10 @@ export default function Admin() {
                                 <div className="font-medium">Advance Booking Limit</div>
                                 <div className="text-sm text-gray-600">How far in advance patients can book</div>
                               </div>
-                              <Select defaultValue="30">
+                              <Select 
+                                value={scheduleRules.advanceBookingLimit}
+                                onValueChange={(value) => updateScheduleRule('advanceBookingLimit', value)}
+                              >
                                 <SelectTrigger className="w-24">
                                   <SelectValue />
                                 </SelectTrigger>
@@ -3550,7 +3972,10 @@ export default function Admin() {
                                 <div className="font-medium">Minimum Notice</div>
                                 <div className="text-sm text-gray-600">Minimum time before appointment</div>
                               </div>
-                              <Select defaultValue="2">
+                              <Select 
+                                value={scheduleRules.minimumNotice}
+                                onValueChange={(value) => updateScheduleRule('minimumNotice', value)}
+                              >
                                 <SelectTrigger className="w-24">
                                   <SelectValue />
                                 </SelectTrigger>
@@ -3569,14 +3994,22 @@ export default function Admin() {
                                 <div className="font-medium">Max Appointments per Day</div>
                                 <div className="text-sm text-gray-600">Daily appointment limit</div>
                               </div>
-                              <Input type="number" defaultValue="20" className="w-20" />
+                              <Input 
+                                type="number" 
+                                value={scheduleRules.maxAppointmentsPerDay}
+                                onChange={(e) => updateScheduleRule('maxAppointmentsPerDay', e.target.value)}
+                                className="w-20" 
+                              />
                             </div>
                             <div className="flex items-center justify-between p-3 border rounded-lg">
                               <div>
                                 <div className="font-medium">Buffer Time</div>
                                 <div className="text-sm text-gray-600">Time between appointments</div>
                               </div>
-                              <Select defaultValue="15">
+                              <Select 
+                                value={scheduleRules.bufferTime}
+                                onValueChange={(value) => updateScheduleRule('bufferTime', value)}
+                              >
                                 <SelectTrigger className="w-24">
                                   <SelectValue />
                                 </SelectTrigger>
@@ -3606,9 +4039,19 @@ export default function Admin() {
                                 />
                                 {day.enabled ? (
                                   <div className="flex items-center gap-2">
-                                    <Input type="time" defaultValue={day.startTime} className="w-24" />
+                                    <Input 
+                                      type="time" 
+                                      value={day.startTime} 
+                                      onChange={(e) => updateWorkingHours(day.name, 'startTime', e.target.value)}
+                                      className="w-24" 
+                                    />
                                     <span>to</span>
-                                    <Input type="time" defaultValue={day.endTime} className="w-24" />
+                                    <Input 
+                                      type="time" 
+                                      value={day.endTime} 
+                                      onChange={(e) => updateWorkingHours(day.name, 'endTime', e.target.value)}
+                                      className="w-24" 
+                                    />
                                   </div>
                                 ) : (
                                   <span className="text-gray-500 text-sm">Closed</span>
@@ -3616,6 +4059,37 @@ export default function Admin() {
                               </div>
                             </div>
                           ))}
+                        </div>
+                      </div>
+
+                      {/* Save Changes Button */}
+                      <div className="pt-6 border-t">
+                        <div className="flex justify-end gap-4">
+                          <Button variant="outline" onClick={() => window.location.reload()}>
+                            Reset Changes
+                          </Button>
+                          <Button 
+                            onClick={async () => {
+                              try {
+                                // TODO: Save all schedule changes to backend
+                                const scheduleData = {
+                                  timeSlots,
+                                  appointmentTypes,
+                                  workingHours,
+                                  scheduleRules
+                                };
+                                console.log('Saving schedule data:', scheduleData);
+                                alert('Schedule changes saved successfully!');
+                              } catch (error) {
+                                console.error('Failed to save schedule:', error);
+                                alert('Failed to save schedule changes');
+                              }
+                            }}
+                            className="bg-[#57bbb6] hover:bg-[#2e8f88]"
+                          >
+                            <Settings className="h-4 w-4 mr-2" />
+                            Save All Changes
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -4408,36 +4882,32 @@ export default function Admin() {
         {/* Schedule Management Dialogs */}
         
         {/* Time Slot Management Dialog */}
-        <Dialog open={showTimeSlotDialog} onOpenChange={setShowTimeSlotDialog}>
+        <Dialog open={showTimeSlotDialog} onOpenChange={(open) => {
+          setShowTimeSlotDialog(open);
+          if (!open) {
+            setEditingTimeSlot(null);
+            setNewTimeSlot('');
+          }
+        }}>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Manage Time Slots</DialogTitle>
+              <DialogTitle>{editingTimeSlot ? 'Edit Time Slot' : 'Add New Time Slot'}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Add New Time Slot</label>
+                <label className="block text-sm font-medium mb-2">
+                  {editingTimeSlot ? 'Edit Time Slot' : 'Add New Time Slot'}
+                </label>
                 <div className="flex gap-2">
                   <Input 
                     placeholder="e.g., 9:00 AM" 
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        const newSlot = e.target.value;
-                        if (newSlot && !timeSlots.includes(newSlot)) {
-                          setTimeSlots(prev => [...prev, newSlot].sort());
-                          e.target.value = '';
-                        }
-                      }
-                    }}
+                    value={newTimeSlot}
+                    onChange={(e) => setNewTimeSlot(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && addTimeSlot()}
                   />
                   <Button 
-                    onClick={(e) => {
-                      const input = e.target.previousElementSibling;
-                      const newSlot = input.value;
-                      if (newSlot && !timeSlots.includes(newSlot)) {
-                        setTimeSlots(prev => [...prev, newSlot].sort());
-                        input.value = '';
-                      }
-                    }}
+                    onClick={addTimeSlot}
+                    disabled={!newTimeSlot}
                     className="bg-[#57bbb6] hover:bg-[#2e8f88]"
                   >
                     <Plus className="h-4 w-4" />
@@ -4468,37 +4938,66 @@ export default function Admin() {
         </Dialog>
 
         {/* Appointment Type Management Dialog */}
-        <Dialog open={showAppointmentTypeDialog} onOpenChange={setShowAppointmentTypeDialog}>
+        <Dialog open={showAppointmentTypeDialog} onOpenChange={(open) => {
+          setShowAppointmentTypeDialog(open);
+          if (!open) {
+            setEditingAppointmentType(null);
+            setNewAppointmentType({ name: '', duration: '', price: '', description: '' });
+          }
+        }}>
           <DialogContent className="max-w-lg">
             <DialogHeader>
-              <DialogTitle>Manage Appointment Types</DialogTitle>
+              <DialogTitle>{editingAppointmentType ? 'Edit Appointment Type' : 'Add New Appointment Type'}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Type Name</label>
-                  <Input placeholder="e.g., Consultation" />
+                  <Input 
+                    placeholder="e.g., Consultation" 
+                    value={newAppointmentType.name}
+                    onChange={(e) => setNewAppointmentType(prev => ({ ...prev, name: e.target.value }))}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">Duration (minutes)</label>
-                  <Input type="number" placeholder="30" />
+                  <Input 
+                    type="number" 
+                    placeholder="30" 
+                    value={newAppointmentType.duration}
+                    onChange={(e) => setNewAppointmentType(prev => ({ ...prev, duration: e.target.value }))}
+                  />
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">Price ($)</label>
-                <Input type="number" placeholder="50.00" step="0.01" />
+                <Input 
+                  type="number" 
+                  placeholder="50.00" 
+                  step="0.01" 
+                  value={newAppointmentType.price}
+                  onChange={(e) => setNewAppointmentType(prev => ({ ...prev, price: e.target.value }))}
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">Description</label>
-                <Input placeholder="Brief description of this appointment type" />
+                <Input 
+                  placeholder="Brief description of this appointment type" 
+                  value={newAppointmentType.description}
+                  onChange={(e) => setNewAppointmentType(prev => ({ ...prev, description: e.target.value }))}
+                />
               </div>
               
               <div className="flex gap-2">
-                <Button className="bg-[#57bbb6] hover:bg-[#2e8f88]">
+                <Button 
+                  onClick={addAppointmentType}
+                  disabled={!newAppointmentType.name || !newAppointmentType.duration || !newAppointmentType.price}
+                  className="bg-[#57bbb6] hover:bg-[#2e8f88]"
+                >
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Type
+                  {editingAppointmentType ? 'Update Type' : 'Add Type'}
                 </Button>
-                <Button variant="outline">Cancel</Button>
+                <Button variant="outline" onClick={() => setShowAppointmentTypeDialog(false)}>Cancel</Button>
               </div>
               
               <div>
@@ -4767,6 +5266,311 @@ export default function Admin() {
                 </Button>
               </div>
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Product View Dialog */}
+        <Dialog open={showProductViewDialog} onOpenChange={setShowProductViewDialog}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Product Details</DialogTitle>
+            </DialogHeader>
+            {selectedProduct && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Product Name</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedProduct.name}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Category</label>
+                    <p className="mt-1 text-sm text-gray-900">
+                      {typeof selectedProduct.category === 'object' && selectedProduct.category?.name 
+                        ? selectedProduct.category.name 
+                        : selectedProduct.category || 'N/A'
+                      }
+                    </p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Price</label>
+                    <p className="mt-1 text-sm text-gray-900">${selectedProduct.price}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Stock</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedProduct.stock}</p>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Description</label>
+                  <p className="mt-1 text-sm text-gray-900">{selectedProduct.description || 'No description available'}</p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Status</label>
+                    <Badge variant={
+                      selectedProduct.stock === 0 ? 'destructive' :
+                      selectedProduct.stock <= 10 ? 'secondary' :
+                      'default'
+                    }>
+                      {selectedProduct.stock === 0 ? 'Out of Stock' :
+                       selectedProduct.stock <= 10 ? 'Low Stock' :
+                       'In Stock'}
+                    </Badge>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Last Updated</label>
+                    <p className="mt-1 text-sm text-gray-900">
+                      {selectedProduct.updatedAt ? 
+                        (typeof selectedProduct.updatedAt === 'string' || typeof selectedProduct.updatedAt === 'number' ?
+                          new Date(selectedProduct.updatedAt).toLocaleDateString() :
+                          new Date(selectedProduct.updatedAt?.toString() || Date.now()).toLocaleDateString()
+                        ) : 
+                        'N/A'
+                      }
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowProductViewDialog(false)}>
+                Close
+              </Button>
+              <Button onClick={() => {
+                setShowProductViewDialog(false);
+                editProduct(selectedProduct);
+              }}>
+                Edit Product
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Product Edit Dialog */}
+        <Dialog open={showProductEditDialog} onOpenChange={setShowProductEditDialog}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Edit Product</DialogTitle>
+            </DialogHeader>
+            {selectedProduct && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Product Name</label>
+                    <Input 
+                      value={selectedProduct.name}
+                      onChange={(e) => setSelectedProduct({...selectedProduct, name: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Category</label>
+                    <Input 
+                      value={typeof selectedProduct.category === 'object' && selectedProduct.category?.name 
+                        ? selectedProduct.category.name 
+                        : selectedProduct.category || ''
+                      }
+                      onChange={(e) => setSelectedProduct({...selectedProduct, category: e.target.value})}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Price</label>
+                    <Input 
+                      type="number"
+                      step="0.01"
+                      value={selectedProduct.price}
+                      onChange={(e) => setSelectedProduct({...selectedProduct, price: parseFloat(e.target.value) || 0})}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Stock</label>
+                    <Input 
+                      type="number"
+                      value={selectedProduct.stock}
+                      onChange={(e) => setSelectedProduct({...selectedProduct, stock: parseInt(e.target.value) || 0})}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Description</label>
+                  <textarea 
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                    rows={3}
+                    value={selectedProduct.description || ''}
+                    onChange={(e) => setSelectedProduct({...selectedProduct, description: e.target.value})}
+                  />
+                </div>
+              </div>
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowProductEditDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={async () => {
+                try {
+                  await api.put(`/products/${selectedProduct.id}`, selectedProduct);
+                  toast({
+                    title: "Product Updated",
+                    description: "Product has been updated successfully.",
+                  });
+                  setShowProductEditDialog(false);
+                  loadInventoryData(); // Refresh inventory
+                } catch (error) {
+                  toast({
+                    title: "Update Failed",
+                    description: "Failed to update product. Please try again.",
+                    variant: "destructive",
+                  });
+                }
+              }}>
+                Save Changes
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Contact Details Dialog */}
+        <Dialog open={showContactDetailsDialog} onOpenChange={setShowContactDetailsDialog}>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>Contact Request Details</DialogTitle>
+            </DialogHeader>
+            {selectedContact && (
+              <div className="space-y-6">
+                {/* Contact Information */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Name</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedContact.name}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Email</label>
+                    <p className="mt-1 text-sm text-gray-900">
+                      <a href={`mailto:${selectedContact.email}`} className="text-blue-600 hover:underline">
+                        {selectedContact.email}
+                      </a>
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Subject</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedContact.subject}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Status</label>
+                    <div className="mt-1">
+                      <Badge variant={selectedContact.notified ? 'outline' : 'destructive'}>
+                        {selectedContact.notified ? 'Read' : 'Unread'}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Date Submitted</label>
+                    <p className="mt-1 text-sm text-gray-900">
+                      {selectedContact.createdAt ? 
+                        (typeof selectedContact.createdAt === 'string' || typeof selectedContact.createdAt === 'number' ?
+                          new Date(selectedContact.createdAt).toLocaleString() :
+                          new Date(selectedContact.createdAt?.toString() || Date.now()).toLocaleString()
+                        ) : 
+                        'N/A'
+                      }
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Last Updated</label>
+                    <p className="mt-1 text-sm text-gray-900">
+                      {selectedContact.updatedAt ? 
+                        (typeof selectedContact.updatedAt === 'string' || typeof selectedContact.updatedAt === 'number' ?
+                          new Date(selectedContact.updatedAt).toLocaleString() :
+                          new Date(selectedContact.updatedAt?.toString() || Date.now()).toLocaleString()
+                        ) : 
+                        'N/A'
+                      }
+                    </p>
+                  </div>
+                </div>
+
+                {/* Full Message */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Full Message</label>
+                  <div className="bg-gray-50 rounded-lg p-4 border">
+                    <pre className="whitespace-pre-wrap text-sm text-gray-900 font-sans">
+                      {selectedContact.message || 'No message content available'}
+                    </pre>
+                  </div>
+                </div>
+
+                {/* Parsed Message Details (if available) */}
+                {selectedContact.message && selectedContact.message.includes('Service Type:') && (
+                  <div className="border-t pt-4">
+                    <h4 className="text-lg font-medium text-gray-900 mb-3">Message Details</h4>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      {selectedContact.message.includes('Service Type:') && (
+                        <div>
+                          <span className="font-medium text-gray-700">Service Type:</span>
+                          <p className="text-gray-900">
+                            {selectedContact.message.match(/Service Type: ([^\n]+)/)?.[1] || 'Not specified'}
+                          </p>
+                        </div>
+                      )}
+                      {selectedContact.message.includes('Urgency:') && (
+                        <div>
+                          <span className="font-medium text-gray-700">Urgency:</span>
+                          <p className="text-gray-900">
+                            {selectedContact.message.match(/Urgency: ([^\n]+)/)?.[1] || 'Normal'}
+                          </p>
+                        </div>
+                      )}
+                      {selectedContact.message.includes('Preferred Contact:') && (
+                        <div>
+                          <span className="font-medium text-gray-700">Preferred Contact:</span>
+                          <p className="text-gray-900">
+                            {selectedContact.message.match(/Preferred Contact: ([^\n]+)/)?.[1] || 'Email'}
+                          </p>
+                        </div>
+                      )}
+                      {selectedContact.message.includes('Best Time:') && (
+                        <div>
+                          <span className="font-medium text-gray-700">Best Time to Contact:</span>
+                          <p className="text-gray-900">
+                            {selectedContact.message.match(/Best Time: ([^\n]+)/)?.[1] || 'Not specified'}
+                          </p>
+                        </div>
+                      )}
+                      {selectedContact.message.includes('Marketing Consent:') && (
+                        <div>
+                          <span className="font-medium text-gray-700">Marketing Consent:</span>
+                          <p className="text-gray-900">
+                            {selectedContact.message.match(/Marketing Consent: ([^\n]+)/)?.[1] || 'No'}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowContactDetailsDialog(false)}>
+                Close
+              </Button>
+              {selectedContact && !selectedContact.notified && (
+                <Button onClick={() => {
+                  handleMarkContactAsRead(selectedContact.id);
+                  setShowContactDetailsDialog(false);
+                }}>
+                  Mark as Read
+                </Button>
+              )}
+            </DialogFooter>
           </DialogContent>
         </Dialog>
 

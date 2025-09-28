@@ -41,7 +41,7 @@ class AdminAuth {
     try {
       console.log('Attempting login with:', credentials);
       console.log('API base URL:', api.defaults.baseURL);
-      const response = await api.post('/api/admin/login', credentials);
+      const response = await api.post('/admin/login', credentials);
       console.log('Login response:', response.data);
       
       // Handle the correct response format from backend
@@ -78,7 +78,7 @@ class AdminAuth {
     try {
       // Call admin logout endpoint if we have a token
       if (this.token) {
-        await api.post('/api/admin/logout');
+        await api.post('/admin/logout');
       }
     } catch (error) {
       // Ignore logout errors, continue with cleanup
@@ -107,7 +107,7 @@ class AdminAuth {
       api.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
       
       // Use dashboard endpoint to validate token and get basic user info
-      const response = await api.get('/api/admin/dashboard');
+      const response = await api.get('/admin/dashboard');
       if (response.status === 200 && response.data.success) {
         // Return basic user object since we don't have profile data
         this.user = { email: 'mymedspharmacy@outlook.com', role: 'ADMIN' };
@@ -139,7 +139,7 @@ class AdminAuth {
     try {
       // Ensure token is set in headers
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      const response = await api.get('/api/admin/dashboard');
+      const response = await api.get('/admin/dashboard');
       if (response.status === 200 && response.data.success) {
         this.token = token;
         // Set a basic user object since we don't have profile data

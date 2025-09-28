@@ -1,6 +1,21 @@
-import { MapPin, Phone, Mail, Clock, Car, Navigation, Star, Heart, Shield, Users, Stethoscope } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Car, Navigation, Star, Heart, Shield, Users, Stethoscope, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import api from '@/lib/api';
+
+interface Location {
+  id: number;
+  name: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  phone?: string;
+  email?: string;
+  businessHours?: string;
+  isActive: boolean;
+  isPrimary: boolean;
+}
 
 interface MapProps {
   showDetails?: boolean;
@@ -10,11 +25,60 @@ interface MapProps {
 export const Map = ({ showDetails = true, className = "" }: MapProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const [activeTab, setActiveTab] = useState<'map' | 'street' | 'satellite'>('map');
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+  const [loading, setLoading] = useState(true);
   
-  const pharmacyAddress = "My Meds Pharmacy Inc, 2242 65th St, New York 11204, United States";
-  const pharmacyPhone = "347-312-6458";
-  const pharmacyEmail = "mymedspharmacy@outlook.com";
-  const pharmacyHours = "Mon-Fri: 9AM-7PM, Sat: 9AM-5PM, Sun: Closed";
+  // Default fallback data
+  const defaultLocation = {
+    id: 0,
+    name: "My Meds Pharmacy Inc",
+    address: "2242 65th St",
+    city: "New York",
+    state: "NY",
+    zipCode: "11204",
+    phone: "347-312-6458",
+    email: "mymedspharmacy@outlook.com",
+    businessHours: "Mon-Fri: 9AM-7PM, Sat: 9AM-5PM, Sun: Closed",
+    isActive: true,
+    isPrimary: true
+  };
+
+  useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        const response = await api.get('/locations');
+        const fetchedLocations = response.data.locations || [];
+        
+        if (fetchedLocations.length > 0) {
+          setLocations(fetchedLocations);
+          // Set primary location as default, or first location
+          const primaryLocation = fetchedLocations.find(loc => loc.isPrimary) || fetchedLocations[0];
+          setSelectedLocation(primaryLocation);
+        } else {
+          // Fallback to default location if no locations in database
+          setLocations([defaultLocation]);
+          setSelectedLocation(defaultLocation);
+        }
+      } catch (error) {
+        console.error('Error fetching locations:', error);
+        // Fallback to default location on error
+        setLocations([defaultLocation]);
+        setSelectedLocation(defaultLocation);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLocations();
+  }, []);
+
+  // Use selected location or fallback to default
+  const currentLocation = selectedLocation || defaultLocation;
+  const pharmacyAddress = `${currentLocation.name}, ${currentLocation.address}, ${currentLocation.city} ${currentLocation.state} ${currentLocation.zipCode}`;
+  const pharmacyPhone = currentLocation.phone || "347-312-6458";
+  const pharmacyEmail = currentLocation.email || "mymedspharmacy@outlook.com";
+  const pharmacyHours = currentLocation.businessHours || "Mon-Fri: 9AM-7PM, Sat: 9AM-5PM, Sun: Closed";
 
   const handleDirections = () => {
     // Open Google Maps with the exact pharmacy location
@@ -40,7 +104,7 @@ export const Map = ({ showDetails = true, className = "" }: MapProps) => {
 
   const getMapUrl = (type: string) => {
     const baseUrl = "https://maps.google.com/maps";
-    const query = "2242+65th+St,+New+York+11204";
+    const query = `${currentLocation.address}+${currentLocation.city}+${currentLocation.state}+${currentLocation.zipCode}`;
     
     switch (type) {
       case 'street':
@@ -52,8 +116,45 @@ export const Map = ({ showDetails = true, className = "" }: MapProps) => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className={`w-full ${className}`}>
+        <div className="flex items-center justify-center h-[500px]">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin text-[#376F6B] mx-auto mb-4" />
+            <p className="text-gray-600">Loading locations...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`w-full ${className}`}>
+      {/* Location Selector */}
+      {locations.length > 1 && (
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-[#376F6B] mb-2">
+            Select Location
+          </label>
+          <select
+            value={selectedLocation?.id || ''}
+            onChange={(e) => {
+              const locationId = parseInt(e.target.value);
+              const location = locations.find(loc => loc.id === locationId);
+              setSelectedLocation(location || null);
+            }}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#376F6B] focus:border-transparent"
+          >
+            {locations.map((location) => (
+              <option key={location.id} value={location.id}>
+                {location.name} {location.isPrimary && '(Primary)'} - {location.address}, {location.city}, {location.state}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {/* Enhanced Map Container with Extended Sides */}
       <div className="relative w-full h-[500px] rounded-3xl overflow-hidden shadow-2xl group"
            onMouseEnter={() => setIsHovered(true)}

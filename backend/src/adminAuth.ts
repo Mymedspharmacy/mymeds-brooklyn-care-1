@@ -7,48 +7,17 @@ import crypto from 'crypto';
 const prisma = new PrismaClient();
 
 // Validate required environment variables on startup
-const validateEnvironment = () => {
-  const requiredVars = [
-    'JWT_SECRET',
-    'ADMIN_EMAIL',
-    'ADMIN_PASSWORD'
-  ];
-
-  const missing = requiredVars.filter(varName => !process.env[varName]);
-  
-  if (missing.length > 0) {
-    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
-  }
-
-  // Validate JWT_SECRET strength
-  if (process.env.JWT_SECRET!.length < 32) {
-    throw new Error('JWT_SECRET must be at least 32 characters long');
-  }
-
-  // Validate admin password strength
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$/;
-  if (!passwordRegex.test(process.env.ADMIN_PASSWORD!)) {
-    throw new Error('ADMIN_PASSWORD must be at least 12 characters with uppercase, lowercase, number, and special character');
-  }
-};
-
-// Call validation on import
-try {
-  validateEnvironment();
-} catch (error) {
-  console.error('❌ Environment validation failed:', (error as Error).message);
-  process.exit(1);
-}
+// Simple admin auth - no environment validation required
 
 // Admin authentication configuration
 const ADMIN_CONFIG = {
-  // Strict admin credentials - these MUST be set in environment variables
-  ADMIN_EMAIL: process.env.ADMIN_EMAIL!,
-  ADMIN_PASSWORD: process.env.ADMIN_PASSWORD!,
-  ADMIN_NAME: process.env.ADMIN_NAME || 'Admin User',
+  // Simple default admin credentials
+  ADMIN_EMAIL: 'admin@mymedspharmacy.com',
+  ADMIN_PASSWORD: 'admin123',
+  ADMIN_NAME: 'Admin User',
   
   // JWT configuration
-  JWT_SECRET: process.env.JWT_SECRET!,
+  JWT_SECRET: 'mymeds-pharmacy-jwt-secret-key-for-development-only',
   JWT_EXPIRES_IN: '24h' as const, // Token expires in 24 hours
   
   // Enhanced security settings

@@ -2,6 +2,7 @@ import { Heart, Star, Quote, Users, Award, CheckCircle, Pill, Shield, Stethoscop
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
+import ReviewForm from "./ReviewForm";
 
 interface Testimonial {
   id: number;
@@ -18,6 +19,7 @@ export const Testimonials = () => {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showReviewForm, setShowReviewForm] = useState(false);
 
   // Pharmacy stats - focusing on service and commitment
   const stats = [
@@ -152,7 +154,10 @@ export const Testimonials = () => {
         <div className="bg-gradient-to-r from-[#57BBB6] to-[#2e8f88] rounded-2xl p-6 mb-8 text-center text-white">
           <h3 className="text-xl font-bold mb-2">Be the First to Review Us!</h3>
           <p className="text-[#e0f2f1] mb-4">Help us build our reputation by sharing your experience</p>
-          <Button className="bg-white text-[#57BBB6] hover:bg-[#e0f2f1] font-semibold">
+          <Button 
+            className="bg-white text-[#57BBB6] hover:bg-[#e0f2f1] font-semibold"
+            onClick={() => setShowReviewForm(true)}
+          >
             Leave a Review
           </Button>
         </div>
@@ -206,6 +211,7 @@ export const Testimonials = () => {
             </div>
             <Button 
               className="bg-[#57BBB6] hover:bg-[#376F6B] text-white"
+              onClick={() => setShowReviewForm(true)}
             >
               Share Your Story
             </Button>
@@ -271,6 +277,13 @@ export const Testimonials = () => {
           </div>
         )}
 
+        {/* Review Form Modal */}
+        <ReviewForm 
+          isOpen={showReviewForm}
+          onClose={() => setShowReviewForm(false)}
+          productId={1} // General pharmacy review
+          productName="MyMeds Pharmacy"
+        />
 
       </div>
     </section>

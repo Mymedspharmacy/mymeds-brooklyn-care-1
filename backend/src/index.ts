@@ -28,6 +28,7 @@ import { AuthRequest } from './types/express';
 import wooCommercePaymentsRoutes from './routes/woocommerce-payments';
 import { secureAdminAuthMiddleware } from './services/SecureAdminAuth';
 import reviewsRoutes from './routes/reviews';
+import locationsRoutes from './routes/locations';
 import feedbackRoutes from './routes/feedback';
 import settingsRoutes from './routes/settings';
 import adminRoutes from './routes/admin';
@@ -257,8 +258,18 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  exposedHeaders: ['Content-Length', 'X-Total-Count'],
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'X-Requested-With',
+    'x-csrf-token',
+    'X-CSRF-Token',
+    'Accept',
+    'Origin',
+    'Cache-Control',
+    'X-File-Name'
+  ],
+  exposedHeaders: ['Content-Length', 'X-Total-Count', 'X-Requested-With'],
   maxAge: 86400 // 24 hours
 }));
 app.options('*', cors()); // Handles preflight requests
@@ -505,6 +516,7 @@ app.use('/api/contact', currentContactLimiter, contactRoutes);
 app.use('/api/newsletter', currentLimiter, newsletterRoutes);
 app.use('/api/woocommerce-payments', currentLimiter, wooCommercePaymentsRoutes);
 app.use('/api/reviews', currentLimiter, reviewsRoutes);
+app.use('/api/locations', currentLimiter, locationsRoutes);
 app.use('/api/feedback', currentLimiter, feedbackRoutes);
 app.use('/api/settings', currentLimiter, settingsRoutes);
 app.use('/api/refill-requests', currentLimiter, refillRequestRoutes);

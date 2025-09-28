@@ -6,6 +6,7 @@ import { RefillForm } from "@/components/RefillForm";
 import { AppointmentForm } from "@/components/AppointmentForm";
 import { TransferForm } from "@/components/TransferForm";
 import { Map } from "@/components/Map";
+import LocationsList from "@/components/LocationsList";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Phone, Mail, MapPin, Shield, Users, Stethoscope, Heart, Award, Clock, Star, CheckCircle, ArrowRight, Globe, Building2, Zap, Target } from "lucide-react";
@@ -351,9 +352,9 @@ export default function About() {
           </div>
         </div>
 
-        {/* Location Section */}
+        {/* Locations Section */}
         <section className="py-16 sm:py-20 bg-[#F1EEE9] relative overflow-hidden">
-          {/* Background Images for Map Section */}
+          {/* Background Images for Locations Section */}
           <div className="absolute inset-0 opacity-15 pointer-events-none">
             <div
               className="absolute inset-0 opacity-25"
@@ -379,15 +380,16 @@ export default function About() {
           <div className="absolute inset-0 bg-white/80 z-10"></div>
 
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="text-center lg:text-left mb-16">
+            <div className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#376F6B] mb-6">
-                Visit Our Location
+                Our Locations
               </h2>
-              <p className="text-lg sm:text-xl text-gray-600 max-w-3xl lg:max-w-2xl lg:mx-0 mx-auto">
-                Come visit us at our convenient location for personalized care and expert consultation.
+              <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
+                Find MyMeds Pharmacy locations near you. Each location is staffed with experienced pharmacists 
+                and healthcare professionals ready to serve your needs.
               </p>
             </div>
-            <Map />
+            <LocationsList showActions={false} />
           </div>
         </section>
       </div>

@@ -1,8 +1,8 @@
 // =============================================================================
-// DEVELOPMENT PRISMA SCHEMA - MYSQL DATABASE
+// PRODUCTION PRISMA SCHEMA - MYSQL DATABASE
 // =============================================================================
-// MyMeds Pharmacy Inc. - Development Database Schema
-// Generated: September 25, 2025
+// MyMeds Pharmacy Inc. - Production Database Schema
+// Generated: September 28, 2025
 // =============================================================================
 
 generator client {
@@ -13,6 +13,7 @@ generator client {
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 // =============================================================================
@@ -547,6 +548,32 @@ model InventoryMovement {
   user    User?   @relation(fields: [userId], references: [id])
 
   @@map("inventory_movements")
+}
+
+// =============================================================================
+// LOCATION MANAGEMENT
+// =============================================================================
+
+model Location {
+  id          Int      @id @default(autoincrement())
+  name        String
+  address     String
+  city        String
+  state       String
+  zipCode     String
+  phone       String?
+  email       String?
+  latitude    Float?
+  longitude   Float?
+  isActive    Boolean  @default(true)
+  isPrimary   Boolean  @default(false)
+  hours       String?
+  services    String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("locations")
 }
 
 // =============================================================================
