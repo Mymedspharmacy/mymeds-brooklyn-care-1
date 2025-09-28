@@ -8,9 +8,13 @@
  * =============================================================================
  */
 
-const crypto = require('crypto');
-const fs = require('fs');
-const path = require('path');
+import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Colors for console output
 const colors = {
@@ -176,7 +180,7 @@ function main() {
     const envContent = generateEnvFile(secrets);
     
     // Write to file
-    const envPath = path.join(process.cwd(), '.env.production');
+    const envPath = path.join(path.dirname(__dirname), '..', '.env.production');
     fs.writeFileSync(envPath, envContent);
     
     colorLog('green', `✅ Production environment file created: ${envPath}`);
@@ -315,11 +319,11 @@ VERBOSE_LOGGING=false
 }
 
 // Run the script
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
     main();
 }
 
-module.exports = {
+export {
     generateSecureSecret,
     generateStrongPassword,
     generateWooCommerceKeys,

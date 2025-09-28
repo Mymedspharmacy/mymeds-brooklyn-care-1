@@ -8,9 +8,13 @@
  * =============================================================================
  */
 
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
+import fs from 'fs';
+import path from 'path';
+import crypto from 'crypto';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Colors for console output
 const colors = {
@@ -263,7 +267,7 @@ function main() {
     console.log('');
     
     // Load environment file
-    const envPath = path.join(process.cwd(), '.env.production');
+    const envPath = path.join(path.dirname(__dirname), '..', '.env.production');
     const env = loadEnvFile(envPath);
     
     if (!env) {
@@ -458,11 +462,11 @@ function main() {
 }
 
 // Run the script
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
     main();
 }
 
-module.exports = {
+export {
     loadEnvFile,
     validateRequired,
     validateSecurity,
