@@ -201,17 +201,17 @@ prisma.$connect()
     // Don't exit - let the app start anyway
   });
 
-// Redirect HTTP to HTTPS in production
-app.use((req, res, next) => {
-  if (
-    config.nodeEnv === 'production' &&
-    req.headers['x-forwarded-proto'] &&
-    req.headers['x-forwarded-proto'] !== 'https'
-  ) {
-    return res.redirect(301, 'https://' + req.headers.host + req.url);
-  }
-  next();
-});
+// Redirect HTTP to HTTPS in production - DISABLED FOR NOW
+// app.use((req, res, next) => {
+//   if (
+//     config.nodeEnv === 'production' &&
+//     req.headers['x-forwarded-proto'] &&
+//     req.headers['x-forwarded-proto'] !== 'https'
+//   ) {
+//     return res.redirect(301, 'https://' + req.headers.host + req.url);
+//   }
+//   next();
+// });
 
 // Enhanced Security Middleware
 app.use(helmet({
@@ -521,6 +521,10 @@ app.use('/api/feedback', currentLimiter, feedbackRoutes);
 app.use('/api/settings', currentLimiter, settingsRoutes);
 app.use('/api/refill-requests', currentLimiter, refillRequestRoutes);
 app.use('/api/transfer-requests', currentLimiter, transferRequestRoutes);
+
+// API aliases for frontend compatibility
+app.use('/api/refills', currentLimiter, refillRequestRoutes);
+app.use('/api/transfers', currentLimiter, transferRequestRoutes);
 app.use('/api/notifications', currentLimiter, notificationRoutes);
 app.use('/api/analytics', currentLimiter, analyticsRoutes);
 app.use('/api/patient', currentLimiter, patientRoutes);

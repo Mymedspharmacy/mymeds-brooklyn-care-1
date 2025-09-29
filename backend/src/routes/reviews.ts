@@ -173,6 +173,54 @@ router.post('/', reviewSubmissionLimiter, sanitizeInput, async (req: Request, re
   }
 });
 
+// Get all reviews (simple endpoint)
+router.get('/', async (req: Request, res: Response) => {
+  try {
+    const { page = '1', limit = '10', status = 'approved' } = req.query;
+    
+    const pageNum = parseInt(page.toString());
+    const limitNum = parseInt(limit.toString());
+    const skip = (pageNum - 1) * limitNum;
+    
+    const where: any = {};
+    if (status) where.status = status;
+    
+    const reviews = await prisma.review.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limitNum,
+      include: {
+        product: {
+          select: {
+            id: true,
+            name: true
+          }
+        }
+      }
+    });
+    
+    const totalReviews = await prisma.review.count({ where });
+    
+    res.json({
+      reviews,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total: totalReviews,
+        pages: Math.ceil(totalReviews / limitNum)
+      }
+    });
+    
+  } catch (error: any) {
+    console.error('Error fetching reviews:', error);
+    res.status(500).json({
+      error: 'Failed to fetch reviews',
+      message: error.message
+    });
+  }
+});
+
 // Get reviews for a product
 router.get('/product/:productId', async (req: Request, res: Response) => {
   try {
