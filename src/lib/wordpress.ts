@@ -54,26 +54,13 @@ const clearPostCache = (): void => {
   postCache.clear();
 };
 
-// Enhanced error handling with retry logic (direct WordPress API)
-const makeWordPressRequest = async (url: string, params: WordPressParams = {}, retries = 3): Promise<unknown> => {
+// Enhanced error handling with retry logic (use backend API)
+const makeWordPressRequest = async (endpoint: string, params: WordPressParams = {}, retries = 3): Promise<unknown> => {
   for (let i = 0; i < retries; i++) {
     try {
-      // Use direct WordPress API instead of backend proxy
-      const baseUrl = WORDPRESS_URL || 'https://mymedspharmacyinc.com/blog';
-      const fullUrl = `${baseUrl}/wp-json/wp/v2${url}`;
-      
-      const response = await fetch(fullUrl + '?' + new URLSearchParams(params as Record<string, string>), {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      
-      return await response.json();
+      // Use your backend API instead of direct WordPress API
+      const response = await api.get(`/wordpress${endpoint}`, { params });
+      return response.data;
     } catch (error: unknown) {
       if (i === retries - 1) throw error;
       
@@ -142,7 +129,6 @@ export const wordPressAPI = {
 
       console.log('🔄 Fetching posts from WordPress...');
       const posts = await makeWordPressRequest('/posts', {
-        _embed: true, // Include featured images and other embedded content
         ...params,
       });
       
@@ -174,9 +160,7 @@ export const wordPressAPI = {
       }
 
       console.log(`🔄 Fetching post ${id} from WordPress...`);
-      const post = await makeWordPressRequest(`/posts/${id}`, {
-        _embed: true,
-      });
+      const post = await makeWordPressRequest(`/posts/${id}`);
       
       // Cache the result
       setCachedPosts(cacheKey, post);
@@ -238,7 +222,6 @@ export const wordPressAPI = {
       console.log(`🔄 Fetching posts for category ${categoryId}...`);
       const posts = await makeWordPressRequest('/posts', {
         categories: categoryId,
-        _embed: true,
         ...params,
       });
       
@@ -271,7 +254,6 @@ export const wordPressAPI = {
       console.log(`🔍 Searching posts for "${searchTerm}"...`);
       const posts = await makeWordPressRequest('/posts', {
         search: searchTerm,
-        _embed: true,
         ...params,
       });
       
@@ -304,8 +286,7 @@ export const wordPressAPI = {
 
       console.log('🔄 Fetching featured posts from WordPress...');
       const posts = await makeWordPressRequest('/posts', {
-        sticky: true, // Get sticky posts (featured)
-        _embed: true,
+        featured: true, // Get featured posts
         ...params,
       });
       
@@ -340,7 +321,6 @@ export const wordPressAPI = {
       console.log(`🔄 Fetching recent posts (${limit}) from WordPress...`);
       const posts = await makeWordPressRequest('/posts', {
         per_page: limit,
-        _embed: true,
         ...params,
       });
       

@@ -7,18 +7,18 @@ import { authenticateToken } from '../middleware/auth';
 const router = Router();
 const prisma = new PrismaClient();
 
-// Initialize WooCommerce API
+// Initialize WooCommerce API with basic authentication
 let wooCommerce: WooCommerceRestApi | null = null;
-if (process.env.WOOCOMMERCE_STORE_URL && process.env.WOOCOMMERCE_CONSUMER_KEY && process.env.WOOCOMMERCE_CONSUMER_SECRET) {
+if (process.env.WOOCOMMERCE_STORE_URL && process.env.WOOCOMMERCE_USERNAME && process.env.WOOCOMMERCE_APPLICATION_PASSWORD) {
   wooCommerce = new WooCommerceRestApi({
     url: process.env.WOOCOMMERCE_STORE_URL,
-    consumerKey: process.env.WOOCOMMERCE_CONSUMER_KEY,
-    consumerSecret: process.env.WOOCOMMERCE_CONSUMER_SECRET,
+    consumerKey: process.env.WOOCOMMERCE_USERNAME,
+    consumerSecret: process.env.WOOCOMMERCE_APPLICATION_PASSWORD,
     version: 'wc/v3'
   });
-  console.log('✅ WooCommerce API initialized successfully');
+  console.log('✅ WooCommerce API initialized successfully with basic authentication');
 } else {
-  console.log('⚠️  WooCommerce API keys not found. Payment functionality will be disabled.');
+  console.log('⚠️  WooCommerce credentials not found. Payment functionality will be disabled.');
 }
 
 // Validation schemas

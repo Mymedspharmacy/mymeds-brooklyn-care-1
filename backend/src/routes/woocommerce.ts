@@ -72,8 +72,8 @@ router.get('/settings', unifiedAdminAuth, async (req: AuthRequest, res: Response
           id: 1,
           enabled: false,
           storeUrl: '',
-          consumerKey: '',
-          consumerSecret: '',
+          username: '',
+          applicationPassword: '',
           webhookSecret: '',
           updatedAt: new Date()
         }
@@ -83,8 +83,8 @@ router.get('/settings', unifiedAdminAuth, async (req: AuthRequest, res: Response
     // Don't return sensitive data
     const safeSettings = {
       ...settings,
-      consumerKey: settings.consumerKey ? '***' + settings.consumerKey.slice(-4) : '',
-      consumerSecret: settings.consumerSecret ? '***' + settings.consumerSecret.slice(-4) : '',
+      username: settings.username ? '***' + settings.username.slice(-4) : '',
+      applicationPassword: settings.applicationPassword ? '***' + settings.applicationPassword.slice(-4) : '',
       webhookSecret: settings.webhookSecret ? '***' + settings.webhookSecret.slice(-4) : ''
     };
 
@@ -103,12 +103,12 @@ router.put('/settings', unifiedAdminAuth, async (req: AuthRequest, res: Response
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
-    const { enabled, storeUrl, consumerKey, consumerSecret, webhookSecret } = req.body;
+    const { enabled, storeUrl, username, applicationPassword, webhookSecret } = req.body;
 
     // Validate required fields when enabling
-    if (enabled && (!storeUrl || !consumerKey || !consumerSecret)) {
+    if (enabled && (!storeUrl || !username || !applicationPassword)) {
       return res.status(400).json({ 
-        error: 'Store URL, Consumer Key, and Consumer Secret are required when enabling WooCommerce integration' 
+        error: 'Store URL, Username, and Application Password are required when enabling WooCommerce integration' 
       });
     }
 
@@ -118,8 +118,8 @@ router.put('/settings', unifiedAdminAuth, async (req: AuthRequest, res: Response
     };
 
     if (storeUrl !== undefined) updateData.storeUrl = storeUrl;
-    if (consumerKey !== undefined) updateData.consumerKey = consumerKey;
-    if (consumerSecret !== undefined) updateData.consumerSecret = consumerSecret;
+    if (username !== undefined) updateData.username = username;
+    if (applicationPassword !== undefined) updateData.applicationPassword = applicationPassword;
     if (webhookSecret !== undefined) updateData.webhookSecret = webhookSecret;
 
     const settings = await prisma.wooCommerceSettings.upsert({
@@ -129,8 +129,8 @@ router.put('/settings', unifiedAdminAuth, async (req: AuthRequest, res: Response
         id: 1,
         enabled: enabled || false,
         storeUrl: storeUrl || '',
-        consumerKey: consumerKey || '',
-        consumerSecret: consumerSecret || '',
+        username: username || '',
+        applicationPassword: applicationPassword || '',
         webhookSecret: webhookSecret || '',
         updatedAt: new Date()
       }
@@ -142,8 +142,8 @@ router.put('/settings', unifiedAdminAuth, async (req: AuthRequest, res: Response
     // Don't return sensitive data
     const safeSettings = {
       ...settings,
-      consumerKey: settings.consumerKey ? '***' + settings.consumerKey.slice(-4) : '',
-      consumerSecret: settings.consumerSecret ? '***' + settings.consumerSecret.slice(-4) : '',
+      username: settings.username ? '***' + settings.username.slice(-4) : '',
+      applicationPassword: settings.applicationPassword ? '***' + settings.applicationPassword.slice(-4) : '',
       webhookSecret: settings.webhookSecret ? '***' + settings.webhookSecret.slice(-4) : ''
     };
 
@@ -170,7 +170,7 @@ router.post('/test-connection', unifiedAdminAuth, async (req: AuthRequest, res: 
       return res.status(400).json({ error: 'WooCommerce integration is not enabled' });
     }
 
-    if (!settings.storeUrl || !settings.consumerKey || !settings.consumerSecret) {
+    if (!settings.storeUrl || !settings.username || !settings.applicationPassword) {
       return res.status(400).json({ error: 'Missing required WooCommerce credentials' });
     }
 
@@ -179,7 +179,7 @@ router.post('/test-connection', unifiedAdminAuth, async (req: AuthRequest, res: 
       `${settings.storeUrl}/wp-json/wc/v3/products?per_page=1`,
       {
         headers: {
-          'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`,
+          'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
           'Content-Type': 'application/json'
         }
       }
@@ -238,7 +238,7 @@ router.post('/sync-products', unifiedAdminAuth, async (req: AuthRequest, res: Re
       `${settings.storeUrl}/wp-json/wc/v3/products?per_page=100&include=variations`,
       {
         headers: {
-          'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`,
+          'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
           'Content-Type': 'application/json'
         }
       }
@@ -281,7 +281,7 @@ router.post('/sync-products', unifiedAdminAuth, async (req: AuthRequest, res: Re
             `${settings.storeUrl}/wp-json/wc/v3/products/${product.id}/variations`,
             {
               headers: {
-                'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`,
+                'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
                 'Content-Type': 'application/json'
               }
             }
@@ -441,16 +441,16 @@ router.post('/generate-api-keys', unifiedAdminAuth, async (req: AuthRequest, res
       return result;
     };
 
-    const consumerKey = generateRandomKey('ck');
-    const consumerSecret = generateRandomKey('cs');
+    const username = 'MyMedsPharmacy';
+    const applicationPassword = generateRandomKey('app');
     const webhookSecret = generateRandomKey('whs');
 
     res.json({
       success: true,
-      message: 'API keys generated successfully',
+      message: 'API credentials generated successfully',
       apiKeys: {
-        consumerKey,
-        consumerSecret,
+        username,
+        applicationPassword,
         webhookSecret
       },
       instructions: {
@@ -504,7 +504,7 @@ router.post('/media/upload', unifiedAdminAuth, async (req: AuthRequest, res: Res
 
     // Use WordPress REST API for media upload
     const url = `${settings.storeUrl}/wp-json/wp/v2/media`;
-    const auth = Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64');
+    const auth = Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64');
 
     const response = await fetch(url, {
       method: 'POST',
@@ -592,7 +592,7 @@ router.post('/products/upload', unifiedAdminAuth, async (req: AuthRequest, res: 
 
     // Create product in WooCommerce
     const url = `${settings.storeUrl}/wp-json/wc/v3/products`;
-    const auth = Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64');
+    const auth = Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64');
 
     const response = await fetch(url, {
       method: 'POST',
@@ -647,7 +647,7 @@ router.get('/media', unifiedAdminAuth, async (req: AuthRequest, res: Response) =
     }
 
     const url = `${settings.storeUrl}/wp-json/wc/v3/products/media?page=${page}&per_page=${per_page}`;
-    const auth = Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64');
+    const auth = Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64');
 
     const response = await fetch(url, {
       method: 'GET',
@@ -796,7 +796,7 @@ router.put('/products/:id/stock', unifiedAdminAuth, async (req: AuthRequest, res
       {
         method: 'PUT',
         headers: {
-          'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`,
+          'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -936,7 +936,7 @@ router.post('/auto-sync', async (req: Request, res: Response) => {
       `${settings.storeUrl}/wp-json/wc/v3/products?per_page=100&include=variations`,
       {
         headers: {
-          'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`,
+          'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
           'Content-Type': 'application/json'
         }
       }
@@ -976,7 +976,7 @@ router.post('/auto-sync', async (req: Request, res: Response) => {
             `${settings.storeUrl}/wp-json/wc/v3/products/${product.id}/variations`,
             {
               headers: {
-                'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`,
+                'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
                 'Content-Type': 'application/json'
               }
             }
@@ -1108,7 +1108,7 @@ router.get('/products', async (req: Request, res: Response) => {
       `${settings.storeUrl}/wp-json/wc/v3/products`,
       {
         headers: {
-          'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`,
+          'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
           'Content-Type': 'application/json'
         }
       },
@@ -1202,7 +1202,7 @@ router.post('/orders', async (req: Request, res: Response) => {
     const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/orders`, {
       method: 'POST',
       headers: {
-        'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`,
+        'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(orderData)
@@ -1252,7 +1252,7 @@ router.get('/orders/:id', async (req: Request, res: Response) => {
 
     const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/orders/${id}`, {
       headers: {
-        'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`,
+        'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
         'Content-Type': 'application/json'
       }
     });
@@ -1299,7 +1299,7 @@ router.put('/orders/:id/status', async (req: Request, res: Response) => {
     const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/orders/${id}`, {
       method: 'PUT',
       headers: {
-        'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`,
+        'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ status })
@@ -1351,7 +1351,7 @@ router.get('/status', async (req: Request, res: Response) => {
     try {
       const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/products?per_page=1`, {
         headers: {
-          'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`
+          'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`
         }
       });
 
@@ -1445,7 +1445,7 @@ router.get('/categories', async (req, res) => {
     }
     const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/products/categories?per_page=100`, {
       headers: {
-        'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`,
+        'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
         'Content-Type': 'application/json'
       }
     });
@@ -1471,7 +1471,7 @@ router.get('/products/:id', async (req, res) => {
     }
     const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/products/${id}`, {
       headers: {
-        'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`,
+        'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
         'Content-Type': 'application/json'
       }
     });

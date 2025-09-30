@@ -261,15 +261,15 @@ model FeedbackResponse {
 // =============================================================================
 
 model WooCommerceSettings {
-  id             Int       @id @default(autoincrement())
-  enabled        Boolean   @default(false)
-  storeUrl       String    @default("")
-  consumerKey    String    @default("")
-  consumerSecret String    @default("")
-  webhookSecret  String    @default("")
-  lastSync       DateTime?
-  lastError      String?
-  updatedAt      DateTime  @updatedAt
+  id                  Int       @id @default(autoincrement())
+  enabled             Boolean   @default(false)
+  storeUrl            String    @default("")
+  username            String    @default("")
+  applicationPassword String    @default("")
+  webhookSecret       String    @default("")
+  lastSync            DateTime?
+  lastError           String?
+  updatedAt           DateTime  @updatedAt
 
   @@map("woocommerce_settings")
 }

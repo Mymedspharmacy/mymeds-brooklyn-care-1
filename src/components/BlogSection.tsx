@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { wordPressAPI } from '@/lib/wordpress';
+import api from '@/lib/api';
 
 interface BlogPost {
   id: number;
@@ -28,9 +28,9 @@ const BlogSection: React.FC = () => {
         setLoading(true);
         setError(null);
         
-        // Use the improved WordPress API with fallback content
-        const postsData = await wordPressAPI.getRecentPosts(6);
-        setPosts(postsData);
+        // Use your backend API instead of direct WordPress API
+        const response = await api.get('/wordpress/posts?per_page=6');
+        setPosts(response.data.posts);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
         console.error('Error fetching blog posts:', err);

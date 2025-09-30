@@ -129,16 +129,17 @@ export default function Blog() {
           setError('WordPress blog not configured. Please configure VITE_WORDPRESS_URL to show blog posts.');
         }
 
-        const [postsData, categoriesData, featuredData] = await Promise.all([
-          wordPressAPI.getPosts({ per_page: 100 }),
-          wordPressAPI.getCategories(),
-          wordPressAPI.getFeaturedPosts({ per_page: 3 })
+        // Use your backend API instead of direct WordPress API
+        const [postsResponse, categoriesResponse, featuredResponse] = await Promise.all([
+          api.get('/wordpress/posts?per_page=100').then(res => res.data.posts),
+          api.get('/wordpress/categories').then(res => res.data.categories || []),
+          api.get('/wordpress/posts?featured=true&per_page=3').then(res => res.data.posts || [])
         ]);
         
         // Type assertions to fix TypeScript errors
-        const typedPostsData = postsData as WordPressPost[];
-        const typedCategoriesData = categoriesData as WordPressCategory[];
-        const typedFeaturedData = featuredData as WordPressPost[];
+        const typedPostsData = postsResponse as WordPressPost[];
+        const typedCategoriesData = categoriesResponse as WordPressCategory[];
+        const typedFeaturedData = featuredResponse as WordPressPost[];
         
         setPosts(typedPostsData);
         setCategories(typedCategoriesData);
