@@ -40,7 +40,14 @@ const clearProductCache = () => {
 const makeWooCommerceRequest = async (url: string, options: any, params?: any, retries = 3) => {
   for (let i = 0; i < retries; i++) {
     try {
-      const response = await fetch(url, options);
+      // Build URL with query parameters if provided
+      let requestUrl = url;
+      if (params && Object.keys(params).length > 0) {
+        const queryString = new URLSearchParams(params).toString();
+        requestUrl = `${url}?${queryString}`;
+      }
+      
+      const response = await fetch(requestUrl, options);
       
       if (!response.ok) {
         const errorText = await response.text();
@@ -1122,6 +1129,12 @@ router.get('/products', async (req: Request, res: Response) => {
     const products = await response.json();
     const totalProducts = response.headers.get('X-WP-Total');
     const totalPages = response.headers.get('X-WP-TotalPages');
+
+    // Ensure products is an array
+    if (!Array.isArray(products)) {
+      console.error('WooCommerce API returned non-array products:', products);
+      throw new Error('Invalid response format from WooCommerce API');
+    }
 
     const result = {
       products: products.map((product: any) => ({
