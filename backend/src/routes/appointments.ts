@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
-import { secureAdminAuthMiddleware } from '../services/SecureAdminAuth';
+import { unifiedAdminAuth } from './auth';
 
 interface AuthRequest extends Request {
   user?: any;
@@ -66,7 +66,7 @@ router.post('/request', async (req: Request, res: Response) => {
 });
 
 // User: create appointment (authenticated users)
-router.post('/', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
+router.post('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
     const { date, reason, status } = req.body;
     const appointment = await prisma.appointment.create({
@@ -89,7 +89,7 @@ router.post('/', secureAdminAuthMiddleware, async (req: AuthRequest, res: Respon
 });
 
 // User: get own appointments
-router.get('/my', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
+router.get('/my', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
     const appointments = await prisma.appointment.findMany({ where: { userId: req.user.userId } });
     res.json(appointments);
@@ -100,7 +100,7 @@ router.get('/my', secureAdminAuthMiddleware, async (req: AuthRequest, res: Respo
 });
 
 // Admin: get all appointments
-router.get('/', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
+router.get('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     let limit = parseInt(req.query.limit as string) || 20;
@@ -113,73 +113,8 @@ router.get('/', secureAdminAuthMiddleware, async (req: AuthRequest, res: Respons
   }
 });
 
-// Admin: get all appointments (alternative endpoint for frontend compatibility)
-router.get('/admin/all', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
-  try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
-    let limit = parseInt(req.query.limit as string) || 20;
-    if (limit > 100) limit = 100;
-    const appointments = await prisma.appointment.findMany({ 
-      take: limit,
-      orderBy: { date: 'desc' }
-    });
-    res.json({ 
-      success: true, 
-      data: { appointments } 
-    });
-  } catch (err) {
-    console.error('Error fetching all appointments:', err);
-    res.status(500).json({ error: 'Failed to fetch appointments' });
-  }
-});
-
-// Admin: get appointment statistics
-router.get('/admin/stats', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
-  try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
-    
-    const [total, pending, confirmed, completed, cancelled] = await Promise.all([
-      prisma.appointment.count(),
-      prisma.appointment.count({ where: { status: 'PENDING' } }),
-      prisma.appointment.count({ where: { status: 'CONFIRMED' } }),
-      prisma.appointment.count({ where: { status: 'COMPLETED' } }),
-      prisma.appointment.count({ where: { status: 'CANCELLED' } })
-    ]);
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    const todayAppointments = await prisma.appointment.count({
-      where: {
-        date: {
-          gte: today,
-          lt: tomorrow
-        }
-      }
-    });
-
-    res.json({ 
-      success: true, 
-      data: {
-        total,
-        pending,
-        confirmed,
-        completed,
-        cancelled,
-        today: todayAppointments,
-        availableSlots: 20 // This could be calculated based on schedule
-      }
-    });
-  } catch (err) {
-    console.error('Error fetching appointment stats:', err);
-    res.status(500).json({ error: 'Failed to fetch appointment statistics' });
-  }
-});
-
 // Admin: delete appointment
-router.delete('/:id', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
+router.delete('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     await prisma.appointment.delete({ where: { id: Number(req.params.id) } });
