@@ -79,7 +79,14 @@ const makeWordPressRequest = async (url: string, options: any = {}, params: any 
   const retries = 3; // Default number of retries
   for (let i = 0; i < retries; i++) {
     try {
-      const response = await fetch(url, {
+      // Build URL with query parameters if provided
+      let requestUrl = url;
+      if (params && Object.keys(params).length > 0) {
+        const queryString = new URLSearchParams(params).toString();
+        requestUrl = `${url}?${queryString}`;
+      }
+      
+      const response = await fetch(requestUrl, {
         ...options,
         headers: {
           'Content-Type': 'application/json',
@@ -1095,6 +1102,12 @@ router.get('/posts', async (req: Request, res: Response) => {
     const posts = await response.json();
     const totalPosts = response.headers.get('X-WP-Total');
     const totalPages = response.headers.get('X-WP-TotalPages');
+
+    // Ensure posts is an array
+    if (!Array.isArray(posts)) {
+      console.error('WordPress API returned non-array posts:', posts);
+      throw new Error('Invalid response format from WordPress API');
+    }
 
     const result = {
       posts: posts.map((post: any) => ({
