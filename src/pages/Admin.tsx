@@ -38,11 +38,13 @@ const TABS = [
   { id: 'dashboard', label: 'Dashboard', icon: TrendingUp },
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
   { id: 'orders', label: 'Orders', icon: ShoppingCart },
+  { id: 'woocommerce-orders', label: 'WooCommerce Orders', icon: Package },
   { id: 'delivery-map', label: 'Delivery Map', icon: MapPin },
   { id: 'locations', label: 'Locations', icon: MapPin },
   { id: 'refills', label: 'Refill Requests', icon: Pill },
   { id: 'transfers', label: 'Transfer Requests', icon: RefreshCw },
   { id: 'contacts', label: 'Contact Requests', icon: MessageSquare },
+  { id: 'form-submissions', label: 'All Form Submissions', icon: FileText },
   { id: 'notifications', label: 'Notifications', icon: Bell },
   { id: 'inventory', label: 'Inventory', icon: ShoppingCart },
   { id: 'crm', label: 'CRM', icon: Users },
@@ -66,23 +68,30 @@ export default function Admin() {
   // Data states for real functionality
   const [orders, setOrders] = useState([]);
   const [orderStats, setOrderStats] = useState(null);
+  const [woocommerceOrders, setWooCommerceOrders] = useState([]);
+  const [woocommerceOrderStats, setWooCommerceOrderStats] = useState(null);
   const [refillRequests, setRefillRequests] = useState([]);
   const [refillStats, setRefillStats] = useState(null);
   const [transferRequests, setTransferRequests] = useState([]);
   const [transferStats, setTransferStats] = useState(null);
   const [contacts, setContacts] = useState([]);
   const [contactStats, setContactStats] = useState(null);
+  const [allFormSubmissions, setAllFormSubmissions] = useState([]);
+  const [formSubmissionsLoading, setFormSubmissionsLoading] = useState(false);
   const [adminNotifications, setAdminNotifications] = useState([]);
   const [notificationStats, setNotificationStats] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [orderStatusFilter, setOrderStatusFilter] = useState('all');
+  const [woocommerceOrderStatusFilter, setWooCommerceOrderStatusFilter] = useState('all');
   const [refillStatusFilter, setRefillStatusFilter] = useState('all');
   const [transferStatusFilter, setTransferStatusFilter] = useState('all');
   const [notificationTypeFilter, setNotificationTypeFilter] = useState('all');
   const [ordersLoading, setOrdersLoading] = useState(false);
+  const [woocommerceOrdersLoading, setWooCommerceOrdersLoading] = useState(false);
   const [refillsLoading, setRefillsLoading] = useState(false);
   const [transfersLoading, setTransfersLoading] = useState(false);
   const [contactsLoading, setContactsLoading] = useState(false);
+  const [formSubmissionsLoading, setFormSubmissionsLoading] = useState(false);
   const [notificationsLoading, setNotificationsLoading] = useState(false);
   
   // Inventory state
@@ -320,6 +329,107 @@ export default function Admin() {
     }
   }, [orderStatusFilter, searchTerm]);
 
+  // Load WooCommerce orders data
+  const loadWooCommerceOrdersData = useCallback(async () => {
+    setWooCommerceOrdersLoading(true);
+    try {
+      const [ordersResponse, statsResponse] = await Promise.all([
+        api.get(`/woocommerce/orders?status=${woocommerceOrderStatusFilter}&search=${searchTerm}&per_page=50`),
+        api.get('/woocommerce/orders/stats')
+      ]);
+      
+      if (ordersResponse.data.success) {
+        const ordersData = Array.isArray(ordersResponse.data.orders) 
+          ? ordersResponse.data.orders 
+          : [];
+        setWooCommerceOrders(ordersData);
+      }
+      if (statsResponse.data.success) {
+        setWooCommerceOrderStats(statsResponse.data.stats);
+      }
+    } catch (error) {
+      console.error('Failed to load WooCommerce orders data:', error);
+      setWooCommerceOrders([]);
+    } finally {
+      setWooCommerceOrdersLoading(false);
+    }
+  }, [woocommerceOrderStatusFilter, searchTerm]);
+
+  // Load all form submissions data
+  const loadAllFormSubmissions = useCallback(async () => {
+    setFormSubmissionsLoading(true);
+    try {
+      const [contactsResponse, refillsResponse, transfersResponse] = await Promise.all([
+        api.get('/contact'),
+        api.get('/refill-requests'),
+        api.get('/transfer-requests')
+      ]);
+      
+      const allSubmissions = [];
+      
+      // Add contact forms
+      if (contactsResponse.data && Array.isArray(contactsResponse.data)) {
+        contactsResponse.data.forEach(contact => {
+          allSubmissions.push({
+            id: contact.id,
+            type: 'Contact Form',
+            name: contact.name,
+            email: contact.email,
+            subject: contact.subject,
+            message: contact.message,
+            timestamp: contact.createdAt || new Date().toISOString(),
+            status: 'New',
+            priority: 'Normal'
+          });
+        });
+      }
+      
+      // Add refill requests
+      if (refillsResponse.data && Array.isArray(refillsResponse.data)) {
+        refillsResponse.data.forEach(refill => {
+          allSubmissions.push({
+            id: refill.id,
+            type: 'Refill Request',
+            name: refill.user?.name || 'Unknown',
+            email: refill.user?.email || 'N/A',
+            subject: `Refill: ${refill.medication}`,
+            message: `Medication: ${refill.medication}\nDosage: ${refill.dosage}\nNotes: ${refill.notes || 'None'}`,
+            timestamp: refill.createdAt || new Date().toISOString(),
+            status: refill.status || 'Pending',
+            priority: refill.urgency || 'Normal'
+          });
+        });
+      }
+      
+      // Add transfer requests
+      if (transfersResponse.data && Array.isArray(transfersResponse.data)) {
+        transfersResponse.data.forEach(transfer => {
+          allSubmissions.push({
+            id: transfer.id,
+            type: 'Transfer Request',
+            name: transfer.user?.name || 'Unknown',
+            email: transfer.user?.email || 'N/A',
+            subject: `Transfer from ${transfer.currentPharmacy}`,
+            message: `From: ${transfer.currentPharmacy}\nMedications: ${transfer.medications}\nNotes: ${transfer.notes || 'None'}`,
+            timestamp: transfer.createdAt || new Date().toISOString(),
+            status: transfer.status || 'Pending',
+            priority: 'Normal'
+          });
+        });
+      }
+      
+      // Sort by timestamp (newest first)
+      allSubmissions.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      
+      setAllFormSubmissions(allSubmissions);
+    } catch (error) {
+      console.error('Failed to load form submissions:', error);
+      setAllFormSubmissions([]);
+    } finally {
+      setFormSubmissionsLoading(false);
+    }
+  }, []);
+
   // Load refill requests data
   const loadRefillsData = useCallback(async () => {
     setRefillsLoading(true);
@@ -352,6 +462,20 @@ export default function Admin() {
       loadOrdersData();
     }
   }, [activeTab, user, loadOrdersData]);
+
+  // Load WooCommerce orders when woocommerce-orders tab becomes active
+  useEffect(() => {
+    if (activeTab === 'woocommerce-orders' && user) {
+      loadWooCommerceOrdersData();
+    }
+  }, [activeTab, user, loadWooCommerceOrdersData]);
+
+  // Load form submissions when form-submissions tab becomes active
+  useEffect(() => {
+    if (activeTab === 'form-submissions' && user) {
+      loadAllFormSubmissions();
+    }
+  }, [activeTab, user, loadAllFormSubmissions]);
 
   // Load transfer requests data
   const loadTransfersData = useCallback(async () => {
@@ -2637,6 +2761,373 @@ export default function Admin() {
                         )}
                       </TableBody>
                     </Table>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* WooCommerce Orders Tab */}
+            {activeTab === 'woocommerce-orders' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-gray-900">WooCommerce Orders</h2>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline"
+                      onClick={() => loadWooCommerceOrdersData()}
+                      disabled={woocommerceOrdersLoading}
+                    >
+                      <RefreshCw className={`h-4 w-4 mr-2 ${woocommerceOrdersLoading ? 'animate-spin' : ''}`} />
+                      Refresh
+                    </Button>
+                  </div>
+                </div>
+
+                {/* WooCommerce Order Stats Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
+                      <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{woocommerceOrderStats?.totalOrders || 0}</div>
+                      <p className="text-xs text-muted-foreground">All time</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Pending</CardTitle>
+                      <Clock className="h-4 w-4 text-yellow-500" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{woocommerceOrderStats?.pendingOrders || 0}</div>
+                      <p className="text-xs text-muted-foreground">Awaiting processing</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Completed</CardTitle>
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{woocommerceOrderStats?.completedOrders || 0}</div>
+                      <p className="text-xs text-muted-foreground">Successfully delivered</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+                      <DollarSign className="h-4 w-4 text-green-600" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">${woocommerceOrderStats?.totalRevenue || 0}</div>
+                      <p className="text-xs text-muted-foreground">From completed orders</p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Filters and Search */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex-1">
+                    <Input
+                      placeholder="Search orders..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="max-w-sm"
+                    />
+                  </div>
+                  <Select value={woocommerceOrderStatusFilter} onValueChange={setWooCommerceOrderStatusFilter}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Statuses</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="processing">Processing</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                      <SelectItem value="refunded">Refunded</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* WooCommerce Orders Table */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>WooCommerce Orders</CardTitle>
+                    <CardDescription>
+                      Manage orders from your WooCommerce store
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {woocommerceOrdersLoading ? (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 className="h-8 w-8 animate-spin" />
+                        <span className="ml-2">Loading orders...</span>
+                      </div>
+                    ) : woocommerceOrders.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">
+                        No WooCommerce orders found
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="border-b">
+                              <th className="text-left p-2">Order #</th>
+                              <th className="text-left p-2">Customer</th>
+                              <th className="text-left p-2">Status</th>
+                              <th className="text-left p-2">Total</th>
+                              <th className="text-left p-2">Payment Method</th>
+                              <th className="text-left p-2">Date</th>
+                              <th className="text-left p-2">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {woocommerceOrders.map((order: any) => (
+                              <tr key={order.id} className="border-b hover:bg-gray-50">
+                                <td className="p-2 font-medium">#{order.order_number}</td>
+                                <td className="p-2">
+                                  <div>
+                                    <div className="font-medium">
+                                      {order.customer?.first_name} {order.customer?.last_name}
+                                    </div>
+                                    <div className="text-sm text-gray-500">{order.customer?.email}</div>
+                                  </div>
+                                </td>
+                                <td className="p-2">
+                                  <Badge 
+                                    variant={
+                                      order.status === 'completed' ? 'default' :
+                                      order.status === 'pending' ? 'secondary' :
+                                      order.status === 'processing' ? 'outline' :
+                                      order.status === 'cancelled' ? 'destructive' : 'secondary'
+                                    }
+                                  >
+                                    {order.status}
+                                  </Badge>
+                                </td>
+                                <td className="p-2 font-medium">
+                                  ${parseFloat(order.total).toFixed(2)} {order.currency}
+                                </td>
+                                <td className="p-2 text-sm">{order.payment_method_title}</td>
+                                <td className="p-2 text-sm">
+                                  {new Date(order.date_created).toLocaleDateString()}
+                                </td>
+                                <td className="p-2">
+                                  <div className="flex gap-1">
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => {
+                                        // View order details
+                                        alert(`Order #${order.order_number} details:\n\nCustomer: ${order.customer?.first_name} ${order.customer?.last_name}\nEmail: ${order.customer?.email}\nTotal: $${order.total}\nStatus: ${order.status}\nPayment: ${order.payment_method_title}\nDate: ${new Date(order.date_created).toLocaleString()}`);
+                                      }}
+                                    >
+                                      <Eye className="h-3 w-3" />
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => {
+                                        // Update order status
+                                        const newStatus = prompt('Enter new status (pending, processing, completed, cancelled):', order.status);
+                                        if (newStatus && newStatus !== order.status) {
+                                          // Here you would call the API to update the order status
+                                          alert(`Order status would be updated to: ${newStatus}`);
+                                        }
+                                      }}
+                                    >
+                                      <Edit className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* Form Submissions Tab */}
+            {activeTab === 'form-submissions' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-gray-900">All Form Submissions</h2>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline"
+                      onClick={() => loadAllFormSubmissions()}
+                      disabled={formSubmissionsLoading}
+                    >
+                      <RefreshCw className={`h-4 w-4 mr-2 ${formSubmissionsLoading ? 'animate-spin' : ''}`} />
+                      Refresh
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Form Submissions Stats */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Total Submissions</CardTitle>
+                      <FileText className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{allFormSubmissions.length}</div>
+                      <p className="text-xs text-muted-foreground">All forms</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Contact Forms</CardTitle>
+                      <MessageSquare className="h-4 w-4 text-blue-500" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{allFormSubmissions.filter(s => s.type === 'Contact Form').length}</div>
+                      <p className="text-xs text-muted-foreground">Customer inquiries</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Refill Requests</CardTitle>
+                      <Pill className="h-4 w-4 text-green-500" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{allFormSubmissions.filter(s => s.type === 'Refill Request').length}</div>
+                      <p className="text-xs text-muted-foreground">Medication refills</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Transfer Requests</CardTitle>
+                      <RefreshCw className="h-4 w-4 text-orange-500" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{allFormSubmissions.filter(s => s.type === 'Transfer Request').length}</div>
+                      <p className="text-xs text-muted-foreground">Pharmacy transfers</p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Form Submissions Table */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>All Form Submissions</CardTitle>
+                    <CardDescription>
+                      Complete view of all customer form submissions
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {formSubmissionsLoading ? (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 className="h-8 w-8 animate-spin" />
+                        <span className="ml-2">Loading form submissions...</span>
+                      </div>
+                    ) : allFormSubmissions.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">
+                        No form submissions found
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="border-b">
+                              <th className="text-left p-2">Type</th>
+                              <th className="text-left p-2">Name</th>
+                              <th className="text-left p-2">Email</th>
+                              <th className="text-left p-2">Subject</th>
+                              <th className="text-left p-2">Status</th>
+                              <th className="text-left p-2">Priority</th>
+                              <th className="text-left p-2">Date</th>
+                              <th className="text-left p-2">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {allFormSubmissions.map((submission: any) => (
+                              <tr key={`${submission.type}-${submission.id}`} className="border-b hover:bg-gray-50">
+                                <td className="p-2">
+                                  <Badge 
+                                    variant={
+                                      submission.type === 'Contact Form' ? 'default' :
+                                      submission.type === 'Refill Request' ? 'secondary' :
+                                      'outline'
+                                    }
+                                  >
+                                    {submission.type}
+                                  </Badge>
+                                </td>
+                                <td className="p-2 font-medium">{submission.name}</td>
+                                <td className="p-2 text-sm">{submission.email}</td>
+                                <td className="p-2 text-sm max-w-xs truncate">{submission.subject}</td>
+                                <td className="p-2">
+                                  <Badge 
+                                    variant={
+                                      submission.status === 'New' ? 'default' :
+                                      submission.status === 'Pending' ? 'secondary' :
+                                      submission.status === 'Completed' ? 'outline' : 'destructive'
+                                    }
+                                  >
+                                    {submission.status}
+                                  </Badge>
+                                </td>
+                                <td className="p-2">
+                                  <Badge 
+                                    variant={
+                                      submission.priority === 'High' ? 'destructive' :
+                                      submission.priority === 'Normal' ? 'secondary' : 'outline'
+                                    }
+                                  >
+                                    {submission.priority}
+                                  </Badge>
+                                </td>
+                                <td className="p-2 text-sm">
+                                  {new Date(submission.timestamp).toLocaleDateString()}
+                                </td>
+                                <td className="p-2">
+                                  <div className="flex gap-1">
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => {
+                                        // View detailed submission
+                                        alert(`Form Submission Details:\n\nType: ${submission.type}\nName: ${submission.name}\nEmail: ${submission.email}\nSubject: ${submission.subject}\n\nMessage:\n${submission.message}\n\nStatus: ${submission.status}\nPriority: ${submission.priority}\nDate: ${new Date(submission.timestamp).toLocaleString()}`);
+                                      }}
+                                    >
+                                      <Eye className="h-3 w-3" />
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => {
+                                        // Update status
+                                        const newStatus = prompt('Enter new status (New, Pending, Completed, Cancelled):', submission.status);
+                                        if (newStatus && newStatus !== submission.status) {
+                                          alert(`Status would be updated to: ${newStatus}`);
+                                        }
+                                      }}
+                                    >
+                                      <Edit className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>

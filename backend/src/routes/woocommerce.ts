@@ -40,10 +40,22 @@ const clearProductCache = () => {
 const makeWooCommerceRequest = async (url: string, options: any, params?: any, retries = 3) => {
   for (let i = 0; i < retries; i++) {
     try {
-      // Build URL with query parameters if provided
+      // Get WooCommerce settings for authentication
+      const settings = await prisma.wooCommerceSettings.findUnique({ where: { id: 1 } });
+      if (!settings || !settings.enabled) {
+        throw new Error('WooCommerce is not configured or enabled');
+      }
+
+      // Build URL with query parameters including authentication
       let requestUrl = url;
-      if (params && Object.keys(params).length > 0) {
-        const queryString = new URLSearchParams(params).toString();
+      const allParams = {
+        ...params,
+        consumer_key: settings.consumerKey,
+        consumer_secret: settings.consumerSecret
+      };
+      
+      if (allParams && Object.keys(allParams).length > 0) {
+        const queryString = new URLSearchParams(allParams).toString();
         requestUrl = `${url}?${queryString}`;
       }
       
@@ -79,8 +91,8 @@ router.get('/settings', unifiedAdminAuth, async (req: AuthRequest, res: Response
           id: 1,
           enabled: false,
           storeUrl: '',
-          username: '',
-          applicationPassword: '',
+          consumerKey: '',
+          consumerSecret: '',
           webhookSecret: '',
           updatedAt: new Date()
         }
@@ -90,8 +102,8 @@ router.get('/settings', unifiedAdminAuth, async (req: AuthRequest, res: Response
     // Don't return sensitive data
     const safeSettings = {
       ...settings,
-      username: settings.username ? '***' + settings.username.slice(-4) : '',
-      applicationPassword: settings.applicationPassword ? '***' + settings.applicationPassword.slice(-4) : '',
+      consumerKey: settings.consumerKey ? '***' + settings.consumerKey.slice(-4) : '',
+      consumerSecret: settings.consumerSecret ? '***' + settings.consumerSecret.slice(-4) : '',
       webhookSecret: settings.webhookSecret ? '***' + settings.webhookSecret.slice(-4) : ''
     };
 
@@ -110,12 +122,12 @@ router.put('/settings', unifiedAdminAuth, async (req: AuthRequest, res: Response
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
-    const { enabled, storeUrl, username, applicationPassword, webhookSecret } = req.body;
+    const { enabled, storeUrl, consumerKey, consumerSecret, webhookSecret } = req.body;
 
     // Validate required fields when enabling
-    if (enabled && (!storeUrl || !username || !applicationPassword)) {
+    if (enabled && (!storeUrl || !consumerKey || !consumerSecret)) {
       return res.status(400).json({ 
-        error: 'Store URL, Username, and Application Password are required when enabling WooCommerce integration' 
+        error: 'Store URL, Consumer Key, and Consumer Secret are required when enabling WooCommerce integration' 
       });
     }
 
@@ -125,8 +137,8 @@ router.put('/settings', unifiedAdminAuth, async (req: AuthRequest, res: Response
     };
 
     if (storeUrl !== undefined) updateData.storeUrl = storeUrl;
-    if (username !== undefined) updateData.username = username;
-    if (applicationPassword !== undefined) updateData.applicationPassword = applicationPassword;
+    if (consumerKey !== undefined) updateData.consumerKey = consumerKey;
+    if (consumerSecret !== undefined) updateData.consumerSecret = consumerSecret;
     if (webhookSecret !== undefined) updateData.webhookSecret = webhookSecret;
 
     const settings = await prisma.wooCommerceSettings.upsert({
@@ -136,8 +148,8 @@ router.put('/settings', unifiedAdminAuth, async (req: AuthRequest, res: Response
         id: 1,
         enabled: enabled || false,
         storeUrl: storeUrl || '',
-        username: username || '',
-        applicationPassword: applicationPassword || '',
+        consumerKey: consumerKey || '',
+        consumerSecret: consumerSecret || '',
         webhookSecret: webhookSecret || '',
         updatedAt: new Date()
       }
@@ -149,8 +161,8 @@ router.put('/settings', unifiedAdminAuth, async (req: AuthRequest, res: Response
     // Don't return sensitive data
     const safeSettings = {
       ...settings,
-      username: settings.username ? '***' + settings.username.slice(-4) : '',
-      applicationPassword: settings.applicationPassword ? '***' + settings.applicationPassword.slice(-4) : '',
+      consumerKey: settings.consumerKey ? '***' + settings.consumerKey.slice(-4) : '',
+      consumerSecret: settings.consumerSecret ? '***' + settings.consumerSecret.slice(-4) : '',
       webhookSecret: settings.webhookSecret ? '***' + settings.webhookSecret.slice(-4) : ''
     };
 
@@ -177,16 +189,15 @@ router.post('/test-connection', unifiedAdminAuth, async (req: AuthRequest, res: 
       return res.status(400).json({ error: 'WooCommerce integration is not enabled' });
     }
 
-    if (!settings.storeUrl || !settings.username || !settings.applicationPassword) {
+    if (!settings.storeUrl || !settings.consumerKey || !settings.consumerSecret) {
       return res.status(400).json({ error: 'Missing required WooCommerce credentials' });
     }
 
-    // Test connection with retry logic
+    // Test connection with retry logic using WooCommerce REST API authentication
     const response = await makeWooCommerceRequest(
-      `${settings.storeUrl}/wp-json/wc/v3/products?per_page=1`,
+      `${settings.storeUrl}/wp-json/wc/v3/products?per_page=1&consumer_key=${settings.consumerKey}&consumer_secret=${settings.consumerSecret}`,
       {
         headers: {
-          'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
           'Content-Type': 'application/json'
         }
       }
@@ -242,10 +253,9 @@ router.post('/sync-products', unifiedAdminAuth, async (req: AuthRequest, res: Re
 
     // Fetch products with retry logic
     const response = await makeWooCommerceRequest(
-      `${settings.storeUrl}/wp-json/wc/v3/products?per_page=100&include=variations`,
+      `${settings.storeUrl}/wp-json/wc/v3/products?per_page=100&include=variations&consumer_key=${settings.consumerKey}&consumer_secret=${settings.consumerSecret}`,
       {
         headers: {
-          'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
           'Content-Type': 'application/json'
         }
       }
@@ -285,10 +295,9 @@ router.post('/sync-products', unifiedAdminAuth, async (req: AuthRequest, res: Re
         if (product.variations && product.variations.length > 0) {
           // Fetch variation details for accurate stock count
           const variationsResponse = await makeWooCommerceRequest(
-            `${settings.storeUrl}/wp-json/wc/v3/products/${product.id}/variations`,
+            `${settings.storeUrl}/wp-json/wc/v3/products/${product.id}/variations?consumer_key=${settings.consumerKey}&consumer_secret=${settings.consumerSecret}`,
             {
               headers: {
-                'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
                 'Content-Type': 'application/json'
               }
             }
@@ -510,8 +519,13 @@ router.post('/media/upload', unifiedAdminAuth, async (req: AuthRequest, res: Res
     };
 
     // Use WordPress REST API for media upload
-    const url = `${settings.storeUrl}/wp-json/wp/v2/media`;
-    const auth = Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64');
+    const wpSettings = await prisma.wordPressSettings.findUnique({ where: { id: 1 } });
+    if (!wpSettings) {
+      throw new Error('WordPress settings not found');
+    }
+    
+    const url = `${wpSettings.siteUrl}/wp-json/wp/v2/media`;
+    const auth = Buffer.from(`${wpSettings.username}:${wpSettings.applicationPassword}`).toString('base64');
 
     const response = await fetch(url, {
       method: 'POST',
@@ -598,15 +612,14 @@ router.post('/products/upload', unifiedAdminAuth, async (req: AuthRequest, res: 
     };
 
     // Create product in WooCommerce
-    const url = `${settings.storeUrl}/wp-json/wc/v3/products`;
-    const auth = Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64');
+    const url = `${settings.storeUrl}/wp-json/wc/v3/products?consumer_key=${settings.consumerKey}&consumer_secret=${settings.consumerSecret}`;
+    const auth = Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64');
 
     const response = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Authorization': `Basic ${auth}`,
-        'Content-Type': 'application/json'
-      },
+        headers: {
+          'Content-Type': 'application/json'
+        },
       body: JSON.stringify(productData)
     });
 
@@ -653,8 +666,8 @@ router.get('/media', unifiedAdminAuth, async (req: AuthRequest, res: Response) =
       return res.status(400).json({ error: 'WooCommerce integration is not enabled' });
     }
 
-    const url = `${settings.storeUrl}/wp-json/wc/v3/products/media?page=${page}&per_page=${per_page}`;
-    const auth = Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64');
+    const url = `${settings.storeUrl}/wp-json/wc/v3/products/media?page=${page}&per_page=${per_page}&consumer_key=${settings.consumerKey}&consumer_secret=${settings.consumerSecret}`;
+    const auth = Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64');
 
     const response = await fetch(url, {
       method: 'GET',
@@ -799,11 +812,10 @@ router.put('/products/:id/stock', unifiedAdminAuth, async (req: AuthRequest, res
 
     // Update WooCommerce
     const response = await makeWooCommerceRequest(
-      `${settings.storeUrl}/wp-json/wc/v3/products/${id}`,
+      `${settings.storeUrl}/wp-json/wc/v3/products/${id}?consumer_key=${settings.consumerKey}&consumer_secret=${settings.consumerSecret}`,
       {
         method: 'PUT',
         headers: {
-          'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -940,10 +952,9 @@ router.post('/auto-sync', async (req: Request, res: Response) => {
 
     // Fetch products with retry logic
     const response = await makeWooCommerceRequest(
-      `${settings.storeUrl}/wp-json/wc/v3/products?per_page=100&include=variations`,
+      `${settings.storeUrl}/wp-json/wc/v3/products?per_page=100&include=variations&consumer_key=${settings.consumerKey}&consumer_secret=${settings.consumerSecret}`,
       {
         headers: {
-          'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
           'Content-Type': 'application/json'
         }
       }
@@ -980,10 +991,9 @@ router.post('/auto-sync', async (req: Request, res: Response) => {
         if (product.variations && product.variations.length > 0) {
           // Fetch variation details for accurate stock count
           const variationsResponse = await makeWooCommerceRequest(
-            `${settings.storeUrl}/wp-json/wc/v3/products/${product.id}/variations`,
+            `${settings.storeUrl}/wp-json/wc/v3/products/${product.id}/variations?consumer_key=${settings.consumerKey}&consumer_secret=${settings.consumerSecret}`,
             {
               headers: {
-                'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
                 'Content-Type': 'application/json'
               }
             }
@@ -1115,7 +1125,6 @@ router.get('/products', async (req: Request, res: Response) => {
       `${settings.storeUrl}/wp-json/wc/v3/products`,
       {
         headers: {
-          'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
           'Content-Type': 'application/json'
         }
       },
@@ -1212,10 +1221,9 @@ router.post('/orders', async (req: Request, res: Response) => {
     };
 
     // Create order in WooCommerce
-    const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/orders`, {
+    const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/orders?consumer_key=${settings.consumerKey}&consumer_secret=${settings.consumerSecret}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(orderData)
@@ -1251,6 +1259,158 @@ router.post('/orders', async (req: Request, res: Response) => {
   }
 });
 
+// Get all WooCommerce orders
+router.get('/orders', async (req: Request, res: Response) => {
+  try {
+    const { page = 1, per_page = 20, status = 'all', search = '' } = req.query;
+    
+    const settings = await prisma.wooCommerceSettings.findUnique({
+      where: { id: 1 }
+    });
+
+    if (!settings || !settings.enabled) {
+      return res.status(503).json({ error: 'WooCommerce is not configured or enabled' });
+    }
+
+    // Build query parameters
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      per_page: per_page.toString(),
+    });
+
+    if (status !== 'all') {
+      queryParams.append('status', status.toString());
+    }
+
+    if (search) {
+      queryParams.append('search', search.toString());
+    }
+
+    const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/orders?${queryParams.toString()}&consumer_key=${settings.consumerKey}&consumer_secret=${settings.consumerSecret}`, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `WooCommerce API error: ${response.status}`);
+    }
+
+    const orders = await response.json();
+
+    // Get total count for pagination
+    const totalResponse = await fetch(`${settings.storeUrl}/wp-json/wc/v3/orders?per_page=1&consumer_key=${settings.consumerKey}&consumer_secret=${settings.consumerSecret}`, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const totalCount = totalResponse.headers.get('X-WP-Total') || '0';
+
+    res.json({
+      success: true,
+      orders: orders.map((order: any) => ({
+        id: order.id,
+        order_number: order.number,
+        status: order.status,
+        total: order.total,
+        currency: order.currency,
+        customer: {
+          id: order.customer_id,
+          email: order.billing?.email,
+          first_name: order.billing?.first_name,
+          last_name: order.billing?.last_name,
+          phone: order.billing?.phone
+        },
+        billing: order.billing,
+        shipping: order.shipping,
+        line_items: order.line_items,
+        payment_method: order.payment_method,
+        payment_method_title: order.payment_method_title,
+        date_created: order.date_created,
+        date_modified: order.date_modified,
+        customer_note: order.customer_note,
+        meta_data: order.meta_data
+      })),
+      pagination: {
+        page: parseInt(page.toString()),
+        per_page: parseInt(per_page.toString()),
+        total: parseInt(totalCount),
+        total_pages: Math.ceil(parseInt(totalCount) / parseInt(per_page.toString()))
+      }
+    });
+
+  } catch (err: any) {
+    console.error('Error fetching WooCommerce orders:', err);
+    res.status(500).json({ 
+      error: 'Failed to fetch orders',
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+  }
+});
+
+// Get WooCommerce order statistics
+router.get('/orders/stats', async (req: Request, res: Response) => {
+  try {
+    const settings = await prisma.wooCommerceSettings.findUnique({
+      where: { id: 1 }
+    });
+
+    if (!settings || !settings.enabled) {
+      return res.status(503).json({ error: 'WooCommerce is not configured or enabled' });
+    }
+
+    // Get orders with different statuses for statistics
+    const [allOrders, pendingOrders, processingOrders, completedOrders, cancelledOrders] = await Promise.all([
+      fetch(`${settings.storeUrl}/wp-json/wc/v3/orders?per_page=1&consumer_key=${settings.consumerKey}&consumer_secret=${settings.consumerSecret}`),
+      fetch(`${settings.storeUrl}/wp-json/wc/v3/orders?status=pending&per_page=1&consumer_key=${settings.consumerKey}&consumer_secret=${settings.consumerSecret}`),
+      fetch(`${settings.storeUrl}/wp-json/wc/v3/orders?status=processing&per_page=1&consumer_key=${settings.consumerKey}&consumer_secret=${settings.consumerSecret}`),
+      fetch(`${settings.storeUrl}/wp-json/wc/v3/orders?status=completed&per_page=1&consumer_key=${settings.consumerKey}&consumer_secret=${settings.consumerSecret}`),
+      fetch(`${settings.storeUrl}/wp-json/wc/v3/orders?status=cancelled&per_page=1&consumer_key=${settings.consumerKey}&consumer_secret=${settings.consumerSecret}`)
+    ]);
+
+    const totalOrders = parseInt(allOrders.headers.get('X-WP-Total') || '0');
+    const pendingCount = parseInt(pendingOrders.headers.get('X-WP-Total') || '0');
+    const processingCount = parseInt(processingOrders.headers.get('X-WP-Total') || '0');
+    const completedCount = parseInt(completedOrders.headers.get('X-WP-Total') || '0');
+    const cancelledCount = parseInt(cancelledOrders.headers.get('X-WP-Total') || '0');
+
+    // Get recent orders for revenue calculation
+    const recentOrdersResponse = await fetch(`${settings.storeUrl}/wp-json/wc/v3/orders?status=completed&per_page=100&consumer_key=${settings.consumerKey}&consumer_secret=${settings.consumerSecret}`);
+    const recentOrders = await recentOrdersResponse.json();
+
+    // Calculate total revenue from completed orders
+    const totalRevenue = recentOrders.reduce((sum: number, order: any) => {
+      return sum + parseFloat(order.total || '0');
+    }, 0);
+
+    // Calculate average order value
+    const averageOrderValue = completedCount > 0 ? totalRevenue / completedCount : 0;
+
+    res.json({
+      success: true,
+      stats: {
+        totalOrders,
+        pendingOrders: pendingCount,
+        processingOrders: processingCount,
+        completedOrders: completedCount,
+        cancelledOrders: cancelledCount,
+        totalRevenue: parseFloat(totalRevenue.toFixed(2)),
+        averageOrderValue: parseFloat(averageOrderValue.toFixed(2)),
+        conversionRate: totalOrders > 0 ? parseFloat(((completedCount / totalOrders) * 100).toFixed(2)) : 0
+      }
+    });
+
+  } catch (err: any) {
+    console.error('Error fetching WooCommerce order statistics:', err);
+    res.status(500).json({ 
+      error: 'Failed to fetch order statistics',
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+  }
+});
+
 // Get WooCommerce order by ID
 router.get('/orders/:id', async (req: Request, res: Response) => {
   try {
@@ -1263,9 +1423,9 @@ router.get('/orders/:id', async (req: Request, res: Response) => {
       return res.status(503).json({ error: 'WooCommerce is not configured or enabled' });
     }
 
-    const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/orders/${id}`, {
+    const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/orders/${id}?consumer_key=${settings.consumerKey}&consumer_secret=${settings.consumerSecret}`, {
       headers: {
-        'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
+          'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`,
         'Content-Type': 'application/json'
       }
     });
@@ -1309,10 +1469,9 @@ router.put('/orders/:id/status', async (req: Request, res: Response) => {
       return res.status(503).json({ error: 'WooCommerce is not configured or enabled' });
     }
 
-    const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/orders/${id}`, {
+    const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/orders/${id}?consumer_key=${settings.consumerKey}&consumer_secret=${settings.consumerSecret}`, {
       method: 'PUT',
       headers: {
-        'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ status })
@@ -1362,9 +1521,9 @@ router.get('/status', async (req: Request, res: Response) => {
 
     // Test connection to WooCommerce
     try {
-      const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/products?per_page=1`, {
+      const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/products?per_page=1&consumer_key=${settings.consumerKey}&consumer_secret=${settings.consumerSecret}`, {
         headers: {
-          'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`
+          'Content-Type': 'application/json'
         }
       });
 
@@ -1456,9 +1615,9 @@ router.get('/categories', async (req, res) => {
     if (!settings || !settings.enabled) {
       return res.json([]);
     }
-    const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/products/categories?per_page=100`, {
+    const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/products/categories?per_page=100&consumer_key=${settings.consumerKey}&consumer_secret=${settings.consumerSecret}`, {
       headers: {
-        'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
+          'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`,
         'Content-Type': 'application/json'
       }
     });
@@ -1484,7 +1643,7 @@ router.get('/products/:id', async (req, res) => {
     }
     const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/products/${id}`, {
       headers: {
-        'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
+          'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`,
         'Content-Type': 'application/json'
       }
     });

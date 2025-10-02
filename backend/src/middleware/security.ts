@@ -15,6 +15,11 @@ const corsOptions = {
       'http://localhost:5173', // Vite dev server
       'http://localhost:3000', // Common dev port
       'http://localhost:3001', // Additional dev port
+      'http://localhost:3002',
+      'http://localhost:3003',
+      'http://localhost:3004',
+      'http://localhost:3005',
+      'http://localhost:3006',
       'https://www.mymedspharmacyinc.com',
       'https://mymedspharmacyinc.com'
     ];

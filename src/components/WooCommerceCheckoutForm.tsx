@@ -8,12 +8,13 @@ import { wooCommerceAPI } from '@/lib/woocommerce';
 
 interface WooCommerceCheckoutFormProps {
   cart: Array<{
-    product: {
-      id: number;
-      name: string;
-      price: string;
-    };
+    id: number;
+    name: string;
+    price: string;
     quantity: number;
+    total: string;
+    product_id: number;
+    meta_data: Array<{ key: string; value: string }>;
   }>;
   total: number;
   onSuccess: (orderId: number) => void;
@@ -94,7 +95,7 @@ export const WooCommerceCheckoutForm = ({
           country: formData.country
         },
         line_items: cart.map(item => ({
-          product_id: item.product.id,
+          product_id: item.product_id,
           quantity: item.quantity
         })),
         payment_method: 'bacs', // Bank transfer - you can change this based on your WooCommerce setup

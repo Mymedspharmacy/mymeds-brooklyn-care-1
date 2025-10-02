@@ -3,12 +3,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Search, Filter, ShoppingCart, Heart, Star, Eye, Package, Truck, Shield, Clock, CheckCircle, ArrowRight, Minus, Plus, Home, Baby, Loader2 } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { NewsTicker } from "@/components/NewsTicker";
 import { SEOHead } from "@/components/SEOHead";
 import { wooCommerceAPI } from "@/lib/woocommerce";
+import WooCommerceCartService, { WooCommerceCart, WooCommerceCartItem } from "@/lib/woocommerceCart";
 import { WooCommerceCheckoutForm } from "@/components/WooCommerceCheckoutForm";
 
 // WooCommerce checkout configuration
@@ -37,19 +39,39 @@ interface CartItem {
 // WooCommerce checkout success handler
 const handleCheckoutSuccess = (orderId: number) => {
   alert(`Order placed successfully! Your order number is: ${orderId}`);
-  setCart([]);
+  // Clear WooCommerce cart
+  WooCommerceCartService.getInstance().clearCart();
   setShowCheckout(false);
 };
 
 export default function Shop() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [woocommerceCart, setWooCommerceCart] = useState<WooCommerceCart | null>(null);
   const [products, setProducts] = useState<WooCommerceProduct[]>([]);
   const [categories, setCategories] = useState<Array<{ id: number; name: string; count: number }>>([]);
   const [loading, setLoading] = useState(true);
   const [showCheckout, setShowCheckout] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [wishlist, setWishlist] = useState<number[]>([]);
+  const [quickViewProduct, setQuickViewProduct] = useState<WooCommerceProduct | null>(null);
+  const [cartLoading, setCartLoading] = useState(false);
+
+  const cartService = WooCommerceCartService.getInstance();
+
+  // Load WooCommerce cart on component mount
+  useEffect(() => {
+    const loadCart = async () => {
+      try {
+        const cart = await cartService.getCart();
+        setWooCommerceCart(cart);
+      } catch (error) {
+        console.error('Error loading cart:', error);
+      }
+    };
+
+    loadCart();
+  }, []);
 
   // Fetch products from WooCommerce
   useEffect(() => {
@@ -79,45 +101,115 @@ export default function Shop() {
     fetchProducts();
   }, []);
 
-  const addToCart = (product: WooCommerceProduct) => {
-    setCart(prev => {
-      const existingItem = prev.find(item => item.product.id === product.id);
-      if (existingItem) {
-        return prev.map(item => 
-          item.product.id === product.id 
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
+  const addToCart = async (product: WooCommerceProduct) => {
+    setCartLoading(true);
+    try {
+      const result = await cartService.addToCart({
+        productId: product.id,
+        quantity: 1,
+      });
+
+      if (result?.success) {
+        setWooCommerceCart(result.cart);
+        // Show success message
+        console.log('Product added to cart successfully');
+      } else {
+        console.error('Failed to add product to cart:', result?.error);
       }
-      return [...prev, { product, quantity: 1 }];
-    });
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    } finally {
+      setCartLoading(false);
+    }
   };
 
-  const removeFromCart = (productId: number) => {
-    setCart(prev => prev.filter(item => item.product.id !== productId));
+  const removeFromCart = async (itemKey: string) => {
+    setCartLoading(true);
+    try {
+      const result = await cartService.removeFromCart(itemKey);
+      
+      if (result?.success) {
+        setWooCommerceCart(result.cart);
+      } else {
+        console.error('Failed to remove from cart:', result?.error);
+      }
+    } catch (error) {
+      console.error('Error removing from cart:', error);
+    } finally {
+      setCartLoading(false);
+    }
   };
 
-  const updateCartQuantity = (productId: number, quantity: number) => {
+  const updateCartQuantity = async (itemKey: string, quantity: number) => {
     if (quantity <= 0) {
-      removeFromCart(productId);
+      await removeFromCart(itemKey);
       return;
     }
-    setCart(prev => prev.map(item => 
-      item.product.id === productId 
-        ? { ...item, quantity }
-        : item
-    ));
+
+    setCartLoading(true);
+    try {
+      const result = await cartService.updateCartItem({
+        itemKey,
+        quantity,
+      });
+
+      if (result?.success) {
+        setWooCommerceCart(result.cart);
+      } else {
+        console.error('Failed to update cart quantity:', result?.error);
+      }
+    } catch (error) {
+      console.error('Error updating cart quantity:', error);
+    } finally {
+      setCartLoading(false);
+    }
   };
 
-  const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const cartTotal = cart.reduce((total, item) => total + (parseFloat(item.product.price) * item.quantity), 0);
+  const toggleWishlist = (productId: number) => {
+    setWishlist(prev => 
+      prev.includes(productId) 
+        ? prev.filter(id => id !== productId)
+        : [...prev, productId]
+    );
+  };
+
+  const openQuickView = (product: WooCommerceProduct) => {
+    setQuickViewProduct(product);
+  };
+
+  const closeQuickView = () => {
+    setQuickViewProduct(null);
+  };
+
+  const cartItemCount = woocommerceCart?.itemCount || 0;
+  const cartTotal = woocommerceCart ? parseFloat(woocommerceCart.totals.total) : 0;
 
   const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         product.tags.some(tag => tag.name.toLowerCase().includes(searchQuery.toLowerCase()));
+    if (!searchQuery.trim()) {
+      // If no search query, only filter by category
+      const matchesCategory = selectedCategory === "all" || 
+                             product.categories.some(cat => cat.name.toLowerCase() === selectedCategory.toLowerCase());
+      return matchesCategory;
+    }
+    
+    // Enhanced search logic
+    const searchTerms = searchQuery.toLowerCase().trim().split(/\s+/);
+    const productName = product.name.toLowerCase();
+    const productDescription = product.description.toLowerCase();
+    const productTags = product.tags.map(tag => tag.name.toLowerCase());
+    const productCategories = product.categories.map(cat => cat.name.toLowerCase());
+    
+    // Check if all search terms match any field
+    const matchesSearch = searchTerms.every(term => 
+      productName.includes(term) ||
+      productDescription.includes(term) ||
+      productTags.some(tag => tag.includes(term)) ||
+      productCategories.some(cat => cat.includes(term))
+    );
+    
     const matchesCategory = selectedCategory === "all" || 
                            product.categories.some(cat => cat.name.toLowerCase() === selectedCategory.toLowerCase());
+    
     return matchesSearch && matchesCategory;
   });
 
@@ -235,9 +327,25 @@ export default function Shop() {
                     placeholder="Search products..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 pr-4 py-3 text-lg border-0 focus:ring-2 focus:ring-white/50 focus:outline-none"
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        // Search is handled automatically by the filter
+                        console.log('Searching for:', searchQuery);
+                      }
+                    }}
+                    className="pl-10 pr-4 py-3 text-lg border-0 focus:ring-2 focus:ring-white/50 focus:outline-none text-gray-800 placeholder:text-gray-500 bg-white/90"
                   />
                 </div>
+                <Button 
+                  className="bg-white text-[#57BBB6] hover:bg-gray-100 px-6 py-3" 
+                  onClick={() => {
+                    console.log('Searching for:', searchQuery);
+                    // Search is handled automatically by the filter
+                  }}
+                >
+                  <Search className="h-5 w-5 mr-2" />
+                  Search
+                </Button>
                 <Button className="bg-white text-[#57BBB6] hover:bg-gray-100 px-6 py-3" onClick={() => setShowFilters(!showFilters)}>
                   <Filter className="h-5 w-5 mr-2" />
                   Filter
@@ -378,10 +486,24 @@ export default function Shop() {
                         <ShoppingCart className="h-4 w-4 mr-2" />
                         Add to Cart
                       </Button>
-                      <Button variant="outline" size="icon" className="border-[#57BBB6] text-[#57BBB6] hover:bg-[#57BBB6] hover:text-white">
-                        <Heart className="h-4 w-4" />
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
+                        onClick={() => toggleWishlist(product.id)}
+                        className={`border-[#57BBB6] hover:bg-[#57BBB6] hover:text-white ${
+                          wishlist.includes(product.id) 
+                            ? 'bg-[#57BBB6] text-white' 
+                            : 'text-[#57BBB6]'
+                        }`}
+                      >
+                        <Heart className={`h-4 w-4 ${wishlist.includes(product.id) ? 'fill-current' : ''}`} />
                       </Button>
-                      <Button variant="outline" size="icon" className="border-[#57BBB6] text-[#57BBB6] hover:bg-[#57BBB6] hover:text-white">
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
+                        onClick={() => openQuickView(product)}
+                        className="border-[#57BBB6] text-[#57BBB6] hover:bg-[#57BBB6] hover:text-white"
+                      >
                         <Eye className="h-4 w-4" />
                       </Button>
                     </div>
@@ -395,16 +517,34 @@ export default function Shop() {
               <div className="text-center py-16">
                 <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-gray-600 mb-2">No products found</h3>
-                <p className="text-gray-500 mb-6">Try adjusting your search or filter criteria</p>
-                <Button 
-                  onClick={() => {
-                    setSearchQuery("");
-                    setSelectedCategory("all");
-                  }}
-                  className="bg-[#57BBB6] hover:bg-[#376F6B] text-white"
-                >
-                  Clear Filters
-                </Button>
+                {searchQuery ? (
+                  <p className="text-gray-500 mb-6">
+                    No products found for "<span className="font-semibold">{searchQuery}</span>"
+                    {selectedCategory !== "all" && ` in ${selectedCategory}`}
+                  </p>
+                ) : (
+                  <p className="text-gray-500 mb-6">Try adjusting your search or filter criteria</p>
+                )}
+                <div className="flex gap-4 justify-center">
+                  <Button 
+                    onClick={() => {
+                      setSearchQuery("");
+                      setSelectedCategory("all");
+                    }}
+                    className="bg-[#57BBB6] hover:bg-[#376F6B] text-white"
+                  >
+                    Clear All Filters
+                  </Button>
+                  {searchQuery && (
+                    <Button 
+                      onClick={() => setSearchQuery("")}
+                      variant="outline"
+                      className="border-[#57BBB6] text-[#57BBB6] hover:bg-[#57BBB6] hover:text-white"
+                    >
+                      Clear Search
+                    </Button>
+                  )}
+                </div>
               </div>
             )}
           </div>
@@ -448,24 +588,24 @@ export default function Shop() {
               {/* Cart Summary */}
               <div className="mb-4">
                 <h4 className="font-semibold mb-2">Order Summary</h4>
-                {cart.map((item) => (
-                  <div key={item.product.id} className="flex justify-between items-center py-2 border-b">
+                {(woocommerceCart?.items || []).map((item) => (
+                  <div key={item.id} className="flex justify-between items-center py-2 border-b">
                     <div>
-                      <p className="font-medium">{item.product.name}</p>
+                      <p className="font-medium">{item.name}</p>
                       <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
                     </div>
-                    <p className="font-medium">${(parseFloat(item.product.price) * item.quantity).toFixed(2)}</p>
+                    <p className="font-medium">{cartService.formatPrice(item.total, woocommerceCart?.currency)}</p>
                   </div>
                 ))}
                 <div className="flex justify-between items-center py-2 font-bold text-lg">
                   <span>Total:</span>
-                  <span>${cartTotal.toFixed(2)}</span>
+                  <span>{cartService.formatPrice(cartTotal, woocommerceCart?.currency)}</span>
                 </div>
               </div>
 
               {/* WooCommerce Checkout Form */}
               <WooCommerceCheckoutForm 
-                cart={cart}
+                cart={woocommerceCart?.items || []}
                 total={cartTotal}
                 onSuccess={handleCheckoutSuccess}
                 onCancel={() => setShowCheckout(false)}
@@ -473,6 +613,110 @@ export default function Shop() {
             </div>
           </div>
         )}
+
+        {/* Quick View Modal */}
+        <Dialog open={!!quickViewProduct} onOpenChange={closeQuickView}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Eye className="h-5 w-5 text-[#57BBB6]" />
+                Quick View
+              </DialogTitle>
+            </DialogHeader>
+            
+            {quickViewProduct && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Product Image */}
+                <div className="space-y-4">
+                  <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
+                    {quickViewProduct.images && quickViewProduct.images.length > 0 ? (
+                      <img
+                        src={quickViewProduct.images[0].src}
+                        alt={quickViewProduct.images[0].alt || quickViewProduct.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400">
+                        <Package className="h-16 w-16" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Product Details */}
+                <div className="space-y-4">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">{quickViewProduct.name}</h2>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-3xl font-bold text-[#57BBB6]">${quickViewProduct.price}</span>
+                      {quickViewProduct.sale_price && quickViewProduct.sale_price !== quickViewProduct.price && (
+                        <span className="text-lg text-gray-500 line-through">${quickViewProduct.regular_price}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Stock Status */}
+                  <div>
+                    <Badge 
+                      variant={quickViewProduct.stock_quantity > 0 ? "default" : "destructive"}
+                      className={quickViewProduct.stock_quantity > 0 ? "bg-green-500" : "bg-red-500"}
+                    >
+                      {quickViewProduct.stock_quantity > 0 ? `In Stock (${quickViewProduct.stock_quantity})` : 'Out of Stock'}
+                    </Badge>
+                  </div>
+
+                  {/* Description */}
+                  {quickViewProduct.description && (
+                    <div className="prose max-w-none">
+                      <div dangerouslySetInnerHTML={{ __html: quickViewProduct.description }} />
+                    </div>
+                  )}
+
+                  {/* Categories */}
+                  {quickViewProduct.categories && quickViewProduct.categories.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-2">Categories:</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {quickViewProduct.categories.map((category) => (
+                          <Badge key={category.id} variant="secondary">
+                            {category.name}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-3 pt-4">
+                    <Button 
+                      onClick={() => {
+                        addToCart(quickViewProduct);
+                        closeQuickView();
+                      }}
+                      disabled={quickViewProduct.stock_quantity <= 0}
+                      className="flex-1 bg-[#57BBB6] hover:bg-[#376F6B] text-white disabled:opacity-50"
+                    >
+                      <ShoppingCart className="h-4 w-4 mr-2" />
+                      Add to Cart
+                    </Button>
+                    
+                    <Button 
+                      variant="outline" 
+                      onClick={() => toggleWishlist(quickViewProduct.id)}
+                      className={`border-[#57BBB6] hover:bg-[#57BBB6] hover:text-white ${
+                        wishlist.includes(quickViewProduct.id) 
+                          ? 'bg-[#57BBB6] text-white' 
+                          : 'text-[#57BBB6]'
+                      }`}
+                    >
+                      <Heart className={`h-4 w-4 ${wishlist.includes(quickViewProduct.id) ? 'fill-current' : ''}`} />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
 
         {/* Features Section */}
         <section className="py-16 sm:py-20 bg-[#D5C6BC]">

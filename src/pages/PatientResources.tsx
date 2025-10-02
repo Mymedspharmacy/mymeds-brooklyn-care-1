@@ -1,19 +1,53 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Pill, Calculator, FileText, Heart, Shield, Clock, AlertTriangle, Download, ExternalLink, Search, BookOpen, Users, Phone, Mail, MapPin } from 'lucide-react';
+import { ArrowLeft, Pill, Calculator, FileText, Heart, Shield, Clock, AlertTriangle, Download, ExternalLink, Search, BookOpen, Users, Phone, Mail, MapPin, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { HIPAACompliance } from '@/components/HIPAACompliance';
 import { SEOHead } from '@/components/SEOHead';
+import BMICalculator from '@/components/calculators/BMICalculator';
+import BloodPressureTracker from '@/components/calculators/BloodPressureTracker';
+import MedicationTimingCalculator from '@/components/calculators/MedicationTimingCalculator';
+import DosageCalculator from '@/components/calculators/DosageCalculator';
+import api from '@/lib/api';
 import { useScrollToTop } from '@/hooks/useScrollToTop';
+
+interface BlogPost {
+  id: number;
+  title: string;
+  content: string;
+  excerpt: string;
+  date: string;
+  slug: string;
+  link: string;
+  featured_media?: {
+    source_url: string;
+    alt_text: string;
+  };
+  categories?: Array<{
+    id: number;
+    name: string;
+    slug: string;
+  }>;
+  tags?: Array<{
+    id: number;
+    name: string;
+    slug: string;
+  }>;
+}
 
 const PatientResources = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   useScrollToTop();
 
   const healthCalculators = [
@@ -82,36 +116,43 @@ const PatientResources = () => {
     }
   ];
 
-  const healthArticles = [
-    {
-      id: 'seasonal-allergies',
-      title: 'Managing Seasonal Allergies',
-      description: 'Tips for managing spring and fall allergies',
-      category: 'Seasonal Health',
-      readTime: '5 min read'
-    },
-    {
-      id: 'vitamin-d',
-      title: 'Vitamin D: The Sunshine Vitamin',
-      description: 'Importance of Vitamin D and supplementation',
-      category: 'Nutrition',
-      readTime: '4 min read'
-    },
-    {
-      id: 'medication-storage',
-      title: 'Proper Medication Storage',
-      description: 'How to store medications safely at home',
-      category: 'Medication Safety',
-      readTime: '3 min read'
-    },
-    {
-      id: 'immunization-schedule',
-      title: 'Adult Immunization Schedule',
-      description: 'Recommended vaccines for adults',
-      category: 'Preventive Care',
-      readTime: '6 min read'
-    }
-  ];
+  // Fetch blog posts from WordPress
+  useEffect(() => {
+    const fetchBlogPosts = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await api.get('/wordpress/posts?per_page=20');
+        setBlogPosts(response.data.posts || []);
+      } catch (err) {
+        console.error('Error fetching blog posts:', err);
+        setError('Failed to load health articles. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBlogPosts();
+  }, []);
+
+  // No fallback articles needed - we now have real blog posts
+
+  // Transform blog posts to match the expected format
+  const transformBlogPostToArticle = (post: BlogPost) => ({
+    id: post.id.toString(),
+    title: post.title,
+    description: post.excerpt.replace(/<[^>]*>/g, ''), // Strip HTML tags
+    category: post.categories?.[0]?.name || 'Health Education',
+    readTime: '5 min read', // Default read time
+    date: post.date,
+    link: post.link,
+    excerpt: post.excerpt,
+    featured_media: post.featured_media
+  });
+
+  // Use blog posts (now we always have them)
+  const healthArticles = blogPosts.map(transformBlogPostToArticle);
 
   const emergencyInfo = [
     {
@@ -131,9 +172,25 @@ const PatientResources = () => {
     }
   ];
 
+  const [selectedCalculator, setSelectedCalculator] = useState<string | null>(null);
+
   const handleCalculatorClick = (calculatorId: string) => {
-    // Navigate to specific calculator or open modal
-    console.log(`Opening calculator: ${calculatorId}`);
+    setSelectedCalculator(calculatorId);
+  };
+
+  const renderCalculator = () => {
+    switch (selectedCalculator) {
+      case 'bmi':
+        return <BMICalculator />;
+      case 'blood-pressure':
+        return <BloodPressureTracker />;
+      case 'medication-timing':
+        return <MedicationTimingCalculator />;
+      case 'dosage-calculator':
+        return <DosageCalculator />;
+      default:
+        return null;
+    }
   };
 
   const handleDownloadGuide = (pdfUrl: string) => {
@@ -142,13 +199,31 @@ const PatientResources = () => {
   };
 
   const handleReadArticle = (article: any) => {
-    // Navigate to specific article or open modal
-    console.log(`Reading article: ${article.id}`);
+    if (article.link && article.link !== '#') {
+      // Open blog post in new tab
+      window.open(article.link, '_blank');
+    } else {
+      // Navigate to blog page for all articles
+      navigate('/blog');
+    }
   };
 
   const filteredCalculators = healthCalculators.filter(calc =>
     calc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    calc.description.toLowerCase().includes(searchTerm.toLowerCase())
+    calc.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    calc.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredGuides = medicationGuides.filter(guide =>
+    guide.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    guide.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    guide.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredArticles = healthArticles.filter(article =>
+    article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    article.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    article.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -226,29 +301,41 @@ const PatientResources = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredCalculators.map((calculator) => (
-                  <Card 
-                    key={calculator.id} 
-                    className="hover:shadow-lg transition-all duration-300 cursor-pointer group"
-                    onClick={() => handleCalculatorClick(calculator.id)}
-                  >
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between">
-                        <div className="w-12 h-12 bg-gradient-to-r from-brand-light to-brand rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                          <calculator.icon className="h-6 w-6 text-white" />
-                        </div>
-                        <Badge variant="secondary" className="text-xs">
-                          {calculator.category}
-                        </Badge>
-                      </div>
-                      <CardTitle className="text-lg">{calculator.title}</CardTitle>
-                      <CardDescription>{calculator.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <Button className="w-full" variant="outline" onClick={() => handleCalculatorClick(calculator.id)}>
-                        Open Calculator
-                      </Button>
-                    </CardContent>
-                  </Card>
+                  <Dialog key={calculator.id} onOpenChange={(open) => {
+                    if (open) {
+                      setSelectedCalculator(calculator.id);
+                    } else {
+                      setSelectedCalculator(null);
+                    }
+                  }}>
+                    <DialogTrigger asChild>
+                      <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer group">
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center justify-between">
+                            <div className="w-12 h-12 bg-gradient-to-r from-brand-light to-brand rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                              <calculator.icon className="h-6 w-6 text-white" />
+                            </div>
+                            <Badge variant="secondary" className="text-xs">
+                              {calculator.category}
+                            </Badge>
+                          </div>
+                          <CardTitle className="text-lg">{calculator.title}</CardTitle>
+                          <CardDescription>{calculator.description}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <Button className="w-full" variant="outline">
+                            Open Calculator
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>{calculator.title}</DialogTitle>
+                      </DialogHeader>
+                      {renderCalculator()}
+                    </DialogContent>
+                  </Dialog>
                 ))}
               </div>
             </TabsContent>
@@ -261,7 +348,7 @@ const PatientResources = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {medicationGuides.map((guide) => (
+                {filteredGuides.map((guide) => (
                   <Card key={guide.id} className="hover:shadow-lg transition-all duration-300">
                     <CardHeader>
                       <div className="flex items-center justify-between">
@@ -293,31 +380,89 @@ const PatientResources = () => {
             <TabsContent value="articles" className="space-y-6">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">Health Articles</h2>
-                <p className="text-gray-600">Educational content to help you stay informed about your health</p>
+      <p className="text-gray-600">
+        Latest health articles from our blog ({blogPosts.length} articles)
+      </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {healthArticles.map((article) => (
-                  <Card key={article.id} className="hover:shadow-lg transition-all duration-300">
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <Badge variant="secondary" className="text-xs">
-                          {article.category}
-                        </Badge>
-                        <span className="text-xs text-gray-500">{article.readTime}</span>
-                      </div>
-                      <CardTitle className="text-lg">{article.title}</CardTitle>
-                      <CardDescription>{article.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <Button className="w-full" variant="outline" onClick={() => handleReadArticle(article)}>
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        Read Article
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+              {/* Loading State */}
+              {loading && (
+                <div className="flex justify-center items-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                  <span className="ml-2 text-gray-600">Loading health articles...</span>
+                </div>
+              )}
+
+              {/* Error State */}
+              {error && (
+                <Alert className="border-yellow-200 bg-yellow-50">
+                  <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                  <AlertDescription className="text-yellow-800">
+                    {error}
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {/* Articles Grid */}
+              {!loading && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {filteredArticles.map((article) => (
+                    <Card key={article.id} className="hover:shadow-lg transition-all duration-300">
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <Badge variant="secondary" className="text-xs">
+                            {article.category}
+                          </Badge>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-gray-500">{article.readTime}</span>
+                            {article.date && (
+                              <span className="text-xs text-gray-400">
+                                {new Date(article.date).toLocaleDateString()}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <CardTitle className="text-lg line-clamp-2">{article.title}</CardTitle>
+                        <CardDescription className="line-clamp-3">
+                          {article.description}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="flex gap-2">
+                          <Button 
+                            className="flex-1" 
+                            variant="outline"
+                            onClick={() => handleReadArticle(article)}
+                          >
+                            <BookOpen className="h-4 w-4 mr-2" />
+                            Read Article
+                          </Button>
+                          {article.link && article.link !== '#' && (
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => window.open(article.link, '_blank')}
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+
+              {/* No Articles State */}
+              {!loading && !error && filteredArticles.length === 0 && (
+                <div className="text-center py-12">
+                  <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No articles found</h3>
+                  <p className="text-gray-600">
+                    No articles match "{searchTerm}". Try a different search term.
+                  </p>
+                </div>
+              )}
             </TabsContent>
 
             {/* Emergency Information */}

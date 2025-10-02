@@ -33,6 +33,7 @@ import feedbackRoutes from './routes/feedback';
 import settingsRoutes from './routes/settings';
 import adminRoutes from './routes/admin';
 import woocommerceRoutes from './routes/woocommerce';
+import woocommerceCartRoutes from './routes/woocommerceCart';
 import wordpressRoutes from './routes/wordpress';
 import refillRequestRoutes from './routes/refillRequests';
 import transferRequestRoutes from './routes/transferRequests';
@@ -505,6 +506,7 @@ const currentContactLimiter = process.env.DISABLE_RATE_LIMIT === 'true' ? noLimi
 app.use('/api/auth', currentAuthLimiter, authRoutes);
 app.use('/api/admin', adminRoutes); // Admin routes with built-in security
 app.use('/api/woocommerce', currentLimiter, woocommerceRoutes); // WooCommerce integration
+app.use('/api/woocommerce-cart', currentLimiter, woocommerceCartRoutes); // WooCommerce cart integration
 app.use('/api/wordpress', currentLimiter, wordpressRoutes); // WordPress integration
 app.use('/api/users', currentLimiter, userRoutes);
 app.use('/api/products', currentLimiter, productRoutes);

@@ -132,13 +132,17 @@ export const createConfig = (): AppConfig => {
       'http://localhost:3002',
       'http://localhost:3003',
       'http://localhost:3004',
+      'http://localhost:3005',
+      'http://localhost:3006',
       'http://localhost:4000',
       'http://localhost:5173',
       'http://192.168.18.56:3000',
       'http://192.168.18.56:3001',
       'http://192.168.18.56:3002',
       'http://192.168.18.56:3003',
-      'http://192.168.18.56:3004'
+      'http://192.168.18.56:3004',
+      'http://192.168.18.56:3005',
+      'http://192.168.18.56:3006'
     ] : [])
   ];
 

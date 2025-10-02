@@ -1070,7 +1070,109 @@ router.get('/posts', async (req: Request, res: Response) => {
     });
 
     if (!settings || !settings.enabled) {
-      return res.json({ posts: [], pagination: { total: 0, pages: 0 } });
+      // Return sample blog posts for development/demo purposes
+      const samplePosts = [
+        {
+          id: 1,
+          title: 'Managing Seasonal Allergies: A Complete Guide',
+          content: '<p>Spring and fall bring beautiful weather, but for many people, they also bring seasonal allergies. Here\'s how to manage your symptoms effectively...</p>',
+          excerpt: 'Learn effective strategies for managing seasonal allergies, including medication options, lifestyle changes, and prevention tips.',
+          author: 'Dr. Sarah Johnson',
+          date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
+          modified: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+          slug: 'managing-seasonal-allergies',
+          link: '/blog/managing-seasonal-allergies',
+          featured_media: null,
+          categories: [1],
+          tags: [{ id: 1, name: 'allergies', slug: 'allergies' }],
+          _embedded: null
+        },
+        {
+          id: 2,
+          title: 'Vitamin D: The Sunshine Vitamin and Your Health',
+          content: '<p>Vitamin D plays a crucial role in bone health, immune function, and overall well-being. Here\'s what you need to know...</p>',
+          excerpt: 'Understanding the importance of Vitamin D, how to get enough through diet and sunlight, and when supplementation may be necessary.',
+          author: 'Dr. Michael Chen',
+          date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
+          modified: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+          slug: 'vitamin-d-sunshine-vitamin',
+          link: '/blog/vitamin-d-sunshine-vitamin',
+          featured_media: null,
+          categories: [2],
+          tags: [{ id: 2, name: 'vitamin-d', slug: 'vitamin-d' }],
+          _embedded: null
+        },
+        {
+          id: 3,
+          title: 'Proper Medication Storage: Essential Safety Tips',
+          content: '<p>Storing medications correctly is crucial for maintaining their effectiveness and ensuring safety. Here are the key guidelines...</p>',
+          excerpt: 'Essential tips for safe medication storage at home, including temperature control, humidity management, and child safety measures.',
+          author: 'Pharmacist Lisa Rodriguez',
+          date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 1 week ago
+          modified: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+          slug: 'proper-medication-storage',
+          link: '/blog/proper-medication-storage',
+          featured_media: null,
+          categories: [3],
+          tags: [{ id: 3, name: 'medication-safety', slug: 'medication-safety' }],
+          _embedded: null
+        },
+        {
+          id: 4,
+          title: 'Adult Immunization Schedule: Stay Protected',
+          content: '<p>Vaccines aren\'t just for children. Adults need immunizations too to stay protected against serious diseases...</p>',
+          excerpt: 'Complete guide to adult immunizations, including recommended vaccines, schedules, and special considerations for different age groups.',
+          author: 'Dr. Emily Watson',
+          date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), // 10 days ago
+          modified: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+          slug: 'adult-immunization-schedule',
+          link: '/blog/adult-immunization-schedule',
+          featured_media: null,
+          categories: [4],
+          tags: [{ id: 4, name: 'vaccines', slug: 'vaccines' }],
+          _embedded: null
+        },
+        {
+          id: 5,
+          title: 'Understanding Blood Pressure Medications',
+          content: '<p>High blood pressure affects millions of Americans. Here\'s a comprehensive guide to understanding your medications...</p>',
+          excerpt: 'Learn about different types of blood pressure medications, how they work, and what to expect when starting treatment.',
+          author: 'Dr. Robert Kim',
+          date: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(), // 2 weeks ago
+          modified: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+          slug: 'understanding-blood-pressure-medications',
+          link: '/blog/understanding-blood-pressure-medications',
+          featured_media: null,
+          categories: [5],
+          tags: [{ id: 5, name: 'blood-pressure', slug: 'blood-pressure' }],
+          _embedded: null
+        },
+        {
+          id: 6,
+          title: 'Diabetes Management: Lifestyle and Medication',
+          content: '<p>Managing diabetes effectively requires a combination of lifestyle changes and proper medication use. Here\'s your guide...</p>',
+          excerpt: 'Comprehensive guide to diabetes management, including diet, exercise, medication adherence, and blood sugar monitoring.',
+          author: 'Dr. Maria Gonzalez',
+          date: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString(), // 3 weeks ago
+          modified: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString(),
+          slug: 'diabetes-management-lifestyle-medication',
+          link: '/blog/diabetes-management-lifestyle-medication',
+          featured_media: null,
+          categories: [6],
+          tags: [{ id: 6, name: 'diabetes', slug: 'diabetes' }],
+          _embedded: null
+        }
+      ];
+
+      return res.json({ 
+        posts: samplePosts, 
+        pagination: { 
+          page: parseInt(page.toString()), 
+          per_page: parseInt(per_page.toString()), 
+          total: samplePosts.length, 
+          total_pages: Math.ceil(samplePosts.length / parseInt(per_page.toString()))
+        } 
+      });
     }
 
     // Build query parameters
@@ -1183,7 +1285,16 @@ router.get('/categories', async (req: Request, res: Response) => {
     });
 
     if (!settings || !settings.enabled) {
-      return res.json([]);
+      // Return sample categories for development/demo purposes
+      const sampleCategories = [
+        { id: 1, name: 'Seasonal Health', slug: 'seasonal-health', count: 1 },
+        { id: 2, name: 'Nutrition', slug: 'nutrition', count: 1 },
+        { id: 3, name: 'Medication Safety', slug: 'medication-safety', count: 1 },
+        { id: 4, name: 'Preventive Care', slug: 'preventive-care', count: 1 },
+        { id: 5, name: 'Cardiovascular Health', slug: 'cardiovascular-health', count: 1 },
+        { id: 6, name: 'Chronic Conditions', slug: 'chronic-conditions', count: 1 }
+      ];
+      return res.json({ categories: sampleCategories });
     }
 
     // Fetch from WordPress API
