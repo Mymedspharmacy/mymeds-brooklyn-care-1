@@ -89,10 +89,28 @@ const ShopSection: React.FC = () => {
     return `$${parseFloat(price).toFixed(2)}`;
   };
 
-  const handleAddToCart = (product: Product) => {
-    // TODO: Implement cart functionality
-    console.log('Adding to cart:', product.name);
-    // You can integrate this with your existing cart system
+  const handleAddToCart = async (product: Product) => {
+    try {
+      const WooCommerceCartService = (await import('@/lib/woocommerceCart')).default;
+      const cartService = WooCommerceCartService.getInstance();
+      
+      const result = await cartService.addToCart({
+        productId: product.id,
+        quantity: 1
+      });
+      
+      if (result?.success) {
+        console.log('✅ Product added to cart:', product.name);
+        // You could add a toast notification here
+        alert(`${product.name} added to cart successfully!`);
+      } else {
+        console.error('❌ Failed to add product to cart');
+        alert('Failed to add product to cart. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      alert('Failed to add product to cart. Please try again.');
+    }
   };
 
   if (loading) {

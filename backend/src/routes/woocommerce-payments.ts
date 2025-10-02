@@ -9,14 +9,14 @@ const prisma = new PrismaClient();
 
 // Initialize WooCommerce API with basic authentication
 let wooCommerce: WooCommerceRestApi | null = null;
-if (process.env.WOOCOMMERCE_STORE_URL && process.env.WOOCOMMERCE_USERNAME && process.env.WOOCOMMERCE_APPLICATION_PASSWORD) {
+if (process.env.WOOCOMMERCE_STORE_URL && process.env.WOOCOMMERCE_CONSUMER_KEY && process.env.WOOCOMMERCE_CONSUMER_SECRET) {
   wooCommerce = new WooCommerceRestApi({
     url: process.env.WOOCOMMERCE_STORE_URL,
-    consumerKey: process.env.WOOCOMMERCE_USERNAME,
-    consumerSecret: process.env.WOOCOMMERCE_APPLICATION_PASSWORD,
+    consumerKey: process.env.WOOCOMMERCE_CONSUMER_KEY,
+    consumerSecret: process.env.WOOCOMMERCE_CONSUMER_SECRET,
     version: 'wc/v3'
   });
-  console.log('✅ WooCommerce API initialized successfully with basic authentication');
+  console.log('✅ WooCommerce API initialized successfully for payments');
 } else {
   console.log('⚠️  WooCommerce credentials not found. Payment functionality will be disabled.');
 }

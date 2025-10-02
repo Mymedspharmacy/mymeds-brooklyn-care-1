@@ -266,10 +266,28 @@ export const FeaturedProducts = () => {
                   <Button 
                     size="sm"
                     className="flex-1 bg-[#376F6B] hover:bg-[#2A5A56] text-white"
-                    onClick={(e) => {
+                    onClick={async (e) => {
                       e.stopPropagation();
-                      // Add to cart logic would go here
-                      console.log('Adding to cart:', product.id);
+                      try {
+                        const WooCommerceCartService = (await import('@/lib/woocommerceCart')).default;
+                        const cartService = WooCommerceCartService.getInstance();
+                        
+                        const result = await cartService.addToCart({
+                          productId: product.id,
+                          quantity: 1
+                        });
+                        
+                        if (result?.success) {
+                          console.log('✅ Product added to cart:', product.name);
+                          alert(`${product.name} added to cart successfully!`);
+                        } else {
+                          console.error('❌ Failed to add product to cart');
+                          alert('Failed to add product to cart. Please try again.');
+                        }
+                      } catch (error) {
+                        console.error('Error adding to cart:', error);
+                        alert('Failed to add product to cart. Please try again.');
+                      }
                     }}
                   >
                     <ShoppingCart className="h-4 w-4 mr-2" />

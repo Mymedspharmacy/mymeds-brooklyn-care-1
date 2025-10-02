@@ -424,18 +424,40 @@ export class WooCommerceCartService {
   }
 
   /**
-   * Get product details (simplified)
+   * Get product details from WooCommerce API
    */
   private async getProductDetails(productId: number): Promise<{ name: string; price: string } | null> {
     try {
-      // For now, return mock data - in a real implementation, this would fetch from WooCommerce
+      // Validate required environment variables for production
+      if (!process.env.WOOCOMMERCE_CONSUMER_KEY || !process.env.WOOCOMMERCE_CONSUMER_SECRET || !process.env.WOOCOMMERCE_STORE_URL) {
+        throw new Error('WooCommerce credentials not configured for cart service');
+      }
+
+      // Fetch from WooCommerce API
+      const WooCommerceAPI = require('woocommerce-api');
+      const wooCommerce = new WooCommerceAPI({
+        url: process.env.WOOCOMMERCE_STORE_URL,
+        consumerKey: process.env.WOOCOMMERCE_CONSUMER_KEY,
+        consumerSecret: process.env.WOOCOMMERCE_CONSUMER_SECRET,
+        wpAPI: true,
+        version: 'wc/v3'
+      });
+
+      const response = await new Promise((resolve, reject) => {
+        wooCommerce.get(`products/${productId}`, (err: any, data: any, res: any) => {
+          if (err) reject(err);
+          else resolve(JSON.parse(res));
+        });
+      });
+
+      const product = response as any;
       return {
-        name: `Product ${productId}`,
-        price: '10.00',
+        name: product.name,
+        price: product.price,
       };
     } catch (error) {
       console.error('Error fetching product details:', error);
-      return null;
+      throw new Error(`Failed to fetch product details for product ${productId}: ${error.message}`);
     }
   }
 

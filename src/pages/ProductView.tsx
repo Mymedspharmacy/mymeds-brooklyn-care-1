@@ -109,15 +109,22 @@ export default function ProductView({ product: propProduct, relatedProducts: pro
     setAddingToCart(true);
     
     try {
-      // Here you would typically call your cart API
-      console.log('Adding to cart:', {
+      const WooCommerceCartService = (await import('@/lib/woocommerceCart')).default;
+      const cartService = WooCommerceCartService.getInstance();
+      
+      const result = await cartService.addToCart({
         productId: product.id,
         quantity,
-        variation: selectedVariation
+        variationId: selectedVariation
       });
       
-      // Show success message or redirect to cart
-      alert('Product added to cart successfully!');
+      if (result?.success) {
+        console.log('✅ Product added to cart:', product.name);
+        alert(`${product.name} added to cart successfully!`);
+      } else {
+        console.error('❌ Failed to add product to cart');
+        alert('Failed to add product to cart. Please try again.');
+      }
     } catch (err) {
       console.error('Error adding to cart:', err);
       alert('Failed to add product to cart');

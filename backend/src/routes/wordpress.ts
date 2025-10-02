@@ -74,29 +74,55 @@ const clearPostCache = () => {
   postCache.clear();
 };
 
-// Enhanced error handling with retry logic
+// Enhanced error handling with retry logic for production
 const makeWordPressRequest = async (url: string, options: any = {}, params: any = {}) => {
+  // Validate required environment variables for production
+  if (!process.env.WORDPRESS_APP_PASSWORD || !process.env.WORDPRESS_URL || !process.env.WORDPRESS_USERNAME) {
+    throw new Error('WordPress credentials not configured. Please set WORDPRESS_URL, WORDPRESS_USERNAME, and WORDPRESS_APP_PASSWORD environment variables.');
+  }
+
+  // Real WordPress API request
+  console.log('📝 Making real WordPress API request to:', url);
   const retries = 3; // Default number of retries
   for (let i = 0; i < retries; i++) {
     try {
+      // Use environment variables for authentication
+      const wpUrl = process.env.WORDPRESS_URL;
+      const wpUsername = process.env.WORDPRESS_USERNAME;
+      const wpAppPassword = process.env.WORDPRESS_APP_PASSWORD;
+
+      if (!wpUrl || !wpUsername || !wpAppPassword) {
+        throw new Error('WordPress credentials not found in environment variables');
+      }
+
       // Build URL with query parameters if provided
       let requestUrl = url;
       if (params && Object.keys(params).length > 0) {
         const queryString = new URLSearchParams(params).toString();
-        requestUrl = `${url}?${queryString}`;
+        requestUrl = `${wpUrl}/wp-json/wp/v2${url}?${queryString}`;
+      } else {
+        requestUrl = `${wpUrl}/wp-json/wp/v2${url}`;
       }
       
+      // Create basic auth header
+      const auth = Buffer.from(`${wpUsername}:${wpAppPassword}`).toString('base64');
+      
+      console.log('📝 WordPress API URL:', requestUrl);
       const response = await fetch(requestUrl, {
         ...options,
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Basic ${auth}`,
           ...options.headers,
         },
       });
       
       return response;
     } catch (error) {
-      if (i === retries - 1) throw error;
+      if (i === retries - 1) {
+        console.error('📝 WordPress API failed after', retries, 'attempts:', error.message);
+        throw new Error(`WordPress API request failed: ${error.message}`);
+      }
       
       // Wait before retry (exponential backoff)
       await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
@@ -1188,7 +1214,7 @@ router.get('/posts', async (req: Request, res: Response) => {
 
     // Fetch from WordPress API
     const response = await makeWordPressRequest(
-      `${settings.siteUrl}/wp-json/wp/v2/posts`,
+      '/posts',
       {
         headers: {
           'Content-Type': 'application/json'
@@ -1299,7 +1325,7 @@ router.get('/categories', async (req: Request, res: Response) => {
 
     // Fetch from WordPress API
     const response = await makeWordPressRequest(
-      `${settings.siteUrl}/wp-json/wp/v2/categories`,
+      '/categories',
       {
         headers: {
           'Content-Type': 'application/json'

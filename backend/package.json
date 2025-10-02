@@ -18,6 +18,7 @@
     "create-admin": "node create-admin-user.js",
     "generate-secrets": "node generate-jwt-secret.js",
     "security-check": "node security-monitor.js",
+    "validate:production": "node scripts/validate-production-env.js",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "type-check": "tsc --noEmit",

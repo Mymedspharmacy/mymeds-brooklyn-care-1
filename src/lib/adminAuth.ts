@@ -106,11 +106,10 @@ class AdminAuth {
       // Ensure token is set in headers
       api.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
       
-      // Use dashboard endpoint to validate token and get basic user info
-      const response = await api.get('/admin/dashboard');
+      // Use profile endpoint to get user info
+      const response = await api.get('/admin/profile');
       if (response.status === 200 && response.data.success) {
-        // Return basic user object since we don't have profile data
-        this.user = { email: 'mymedspharmacy@outlook.com', role: 'ADMIN' };
+        this.user = response.data.user;
         return this.user;
       }
       throw new Error('Invalid response from server');
@@ -135,15 +134,14 @@ class AdminAuth {
     // Set the token in API headers for the request
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-    // Validate token with backend using dashboard endpoint (which we know works)
+    // Validate token with backend using profile endpoint
     try {
       // Ensure token is set in headers
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      const response = await api.get('/admin/dashboard');
+      const response = await api.get('/admin/profile');
       if (response.status === 200 && response.data.success) {
         this.token = token;
-        // Set a basic user object since we don't have profile data
-        this.user = { email: 'mymedspharmacy@outlook.com', role: 'ADMIN' };
+        this.user = response.data.user;
         return true;
       }
       return false;
