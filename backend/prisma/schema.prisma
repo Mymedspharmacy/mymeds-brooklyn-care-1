@@ -550,6 +550,32 @@ model InventoryMovement {
 }
 
 // =============================================================================
+// LOCATION MANAGEMENT
+// =============================================================================
+
+model Location {
+  id        Int      @id @default(autoincrement())
+  name      String
+  address   String
+  city      String
+  state     String
+  zipCode   String
+  phone     String?
+  email     String?
+  latitude  Float?
+  longitude Float?
+  hours     String?
+  services  String?
+  notes     String?
+  isActive  Boolean  @default(true)
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("locations")
+}
+
+// =============================================================================
 // CRM MANAGEMENT
 // =============================================================================
 
