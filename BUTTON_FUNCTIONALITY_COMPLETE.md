@@ -132,3 +132,4 @@ const closeQuickView = () => {
 **Ready for testing at:** `http://localhost:3000/shop`
 
 
+

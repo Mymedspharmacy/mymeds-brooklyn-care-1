@@ -121,3 +121,4 @@ echo "4. Configure environment variables"
 echo ""
 echo "WordPress should still be accessible at: https://mymedspharmacyinc.com"
 
+

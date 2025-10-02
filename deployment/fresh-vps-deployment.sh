@@ -238,3 +238,4 @@ echo "  sudo systemctl reload nginx   # Reload Nginx"
 echo ""
 echo "⚠️  IMPORTANT: Configure your credentials in .env.production before testing!"
 
+

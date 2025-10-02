@@ -145,3 +145,4 @@ The search functionality is now fully functional and ready for production. Both 
 The search system is robust, user-friendly, and provides excellent results for both products and articles.
 
 
+
