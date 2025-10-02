@@ -176,3 +176,4 @@ The WordPress blog functionality is working perfectly, and the WooCommerce shop 
 
 The WooCommerce integration just needs the final API debugging, but the WordPress blog functionality is **100% ready for testing and use**.
 
+

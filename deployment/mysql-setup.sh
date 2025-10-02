@@ -79,3 +79,4 @@ echo "Database: mymeds_db"
 echo "User: mymeds_user"
 echo "Password: MyMeds2025!SecurePassword"
 echo "Connection: mysql://mymeds_user:MyMeds2025!SecurePassword@localhost:3306/mymeds_db"
+
