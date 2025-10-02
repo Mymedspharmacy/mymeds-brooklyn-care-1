@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { HIPAACompliance } from '@/components/HIPAACompliance';
 import { SEOHead } from '@/components/SEOHead';
@@ -332,6 +332,9 @@ const PatientResources = () => {
                     <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                       <DialogHeader>
                         <DialogTitle>{calculator.title}</DialogTitle>
+                        <DialogDescription>
+                          {calculator.description}
+                        </DialogDescription>
                       </DialogHeader>
                       {renderCalculator()}
                     </DialogContent>

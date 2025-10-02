@@ -1156,6 +1156,7 @@ router.get('/products', async (req: Request, res: Response) => {
         categories: product.categories,
         images: product.images,
         stock_quantity: product.stock_quantity,
+        stock_status: product.stock_status || (product.stock_quantity > 0 ? 'instock' : 'outofstock'),
         average_rating: product.average_rating,
         rating_count: product.rating_count,
         tags: product.tags,
@@ -1604,6 +1605,29 @@ router.post('/clear-cache', unifiedAdminAuth, async (req: AuthRequest, res: Resp
     res.status(500).json({ 
       error: 'Failed to clear cache',
       details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+  }
+});
+
+// Public: clear cache (for development only)
+router.post('/clear-cache-dev', async (req: Request, res: Response) => {
+  try {
+    if (process.env.NODE_ENV !== 'development') {
+      return res.status(403).json({ error: 'Only available in development' });
+    }
+    
+    clearProductCache();
+    
+    res.json({ 
+      success: true, 
+      message: 'Cache cleared successfully (dev)',
+      timestamp: new Date().toISOString()
+    });
+  } catch (err: any) {
+    console.error('Error clearing cache:', err);
+    res.status(500).json({ 
+      error: 'Failed to clear cache',
+      details: err.message
     });
   }
 });

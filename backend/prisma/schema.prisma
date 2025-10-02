@@ -11,7 +11,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -266,6 +266,8 @@ model WooCommerceSettings {
   storeUrl            String    @default("")
   username            String    @default("")
   applicationPassword String    @default("")
+  consumerKey         String    @default("")
+  consumerSecret      String    @default("")
   webhookSecret       String    @default("")
   lastSync            DateTime?
   lastError           String?

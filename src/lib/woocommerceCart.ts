@@ -95,7 +95,7 @@ class WooCommerceCartService {
 
     try {
       const response = await api.get('/woocommerce-cart/session');
-      if (response.data.success) {
+      if (response.data.success && response.data.sessionKey) {
         this.sessionKey = response.data.sessionKey;
         return this.sessionKey;
       }
@@ -105,6 +105,7 @@ class WooCommerceCartService {
 
     // Fallback: generate a local session key
     this.sessionKey = `cart_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    console.log('Using fallback session key:', this.sessionKey);
     return this.sessionKey;
   }
 
@@ -119,6 +120,11 @@ class WooCommerceCartService {
       }
 
       const sessionKey = await this.getSessionKey();
+      if (!sessionKey) {
+        console.warn('No session key available for cart request');
+        return null;
+      }
+
       const response = await api.get('/woocommerce-cart', {
         headers: {
           'X-Cart-Session': sessionKey,
@@ -134,7 +140,25 @@ class WooCommerceCartService {
       return null;
     } catch (error) {
       console.error('Error getting cart:', error);
-      return null;
+      // Return empty cart on error to prevent UI issues
+      return {
+        sessionKey: this.sessionKey || '',
+        items: [],
+        itemCount: 0,
+        totals: {
+          subtotal: '0.00',
+          subtotal_tax: '0.00',
+          fee_total: '0.00',
+          fee_tax: '0.00',
+          discount_total: '0.00',
+          discount_tax: '0.00',
+          shipping_total: '0.00',
+          shipping_tax: '0.00',
+          total: '0.00',
+          total_tax: '0.00',
+        },
+        needsShipping: false,
+      };
     }
   }
 

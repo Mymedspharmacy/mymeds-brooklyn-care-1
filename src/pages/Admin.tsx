@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import api from '../lib/api';
@@ -91,7 +91,6 @@ export default function Admin() {
   const [refillsLoading, setRefillsLoading] = useState(false);
   const [transfersLoading, setTransfersLoading] = useState(false);
   const [contactsLoading, setContactsLoading] = useState(false);
-  const [formSubmissionsLoading, setFormSubmissionsLoading] = useState(false);
   const [notificationsLoading, setNotificationsLoading] = useState(false);
   
   // Inventory state
@@ -5112,6 +5111,9 @@ export default function Admin() {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Session Timeout Warning</DialogTitle>
+                <DialogDescription>
+                  Your session will expire soon. Extend it to continue working.
+                </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <p>Your session will expire in 5 minutes. Would you like to extend it?</p>
@@ -5133,6 +5135,9 @@ export default function Admin() {
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Add New Delivery Zone</DialogTitle>
+              <DialogDescription>
+                Create a new delivery zone with specific fees and time slots.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
@@ -5240,6 +5245,9 @@ export default function Admin() {
                   </span>
                 )}
               </DialogTitle>
+              <DialogDescription>
+                Update delivery fees for different zones and time slots.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
@@ -5383,6 +5391,9 @@ export default function Admin() {
           <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>{editingTimeSlot ? 'Edit Time Slot' : 'Add New Time Slot'}</DialogTitle>
+              <DialogDescription>
+                Configure available time slots for appointments and deliveries.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
@@ -5439,6 +5450,9 @@ export default function Admin() {
           <DialogContent className="max-w-lg">
             <DialogHeader>
               <DialogTitle>{editingAppointmentType ? 'Edit Appointment Type' : 'Add New Appointment Type'}</DialogTitle>
+              <DialogDescription>
+                Manage different types of appointments and their settings.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -5523,6 +5537,9 @@ export default function Admin() {
           <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>Create New Appointment</DialogTitle>
+              <DialogDescription>
+                Schedule a new appointment for a patient.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
@@ -5588,6 +5605,9 @@ export default function Admin() {
           <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>Block Time Slot</DialogTitle>
+              <DialogDescription>
+                Block a time slot to prevent appointments from being scheduled.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
@@ -5662,6 +5682,9 @@ export default function Admin() {
           <DialogContent className="max-w-lg">
             <DialogHeader>
               <DialogTitle>WordPress Settings</DialogTitle>
+              <DialogDescription>
+                Configure WordPress integration settings and credentials.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
@@ -5710,6 +5733,9 @@ export default function Admin() {
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Create WordPress Post</DialogTitle>
+              <DialogDescription>
+                Create a new blog post for the WordPress site.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
@@ -5765,6 +5791,9 @@ export default function Admin() {
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Product Details</DialogTitle>
+              <DialogDescription>
+                View detailed information about the selected product.
+              </DialogDescription>
             </DialogHeader>
             {selectedProduct && (
               <div className="space-y-4">
@@ -5844,6 +5873,9 @@ export default function Admin() {
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Edit Product</DialogTitle>
+              <DialogDescription>
+                Modify product information and settings.
+              </DialogDescription>
             </DialogHeader>
             {selectedProduct && (
               <div className="space-y-4">
@@ -5928,6 +5960,9 @@ export default function Admin() {
           <DialogContent className="max-w-3xl">
             <DialogHeader>
               <DialogTitle>Contact Request Details</DialogTitle>
+              <DialogDescription>
+                View detailed information about the contact request.
+              </DialogDescription>
             </DialogHeader>
             {selectedContact && (
               <div className="space-y-6">

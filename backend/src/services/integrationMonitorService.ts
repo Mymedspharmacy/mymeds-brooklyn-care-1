@@ -145,7 +145,7 @@ export class IntegrationMonitorService {
       try {
         const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/products?per_page=1`, {
           headers: {
-            'Authorization': `Basic ${Buffer.from(`${settings.username}:${settings.applicationPassword}`).toString('base64')}`,
+            'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`,
             'Content-Type': 'application/json'
           },
           signal: AbortSignal.timeout(10000) // 10 second timeout

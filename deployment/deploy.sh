@@ -15,14 +15,21 @@ git pull origin main
 # Install dependencies
 npm ci --production
 
+# Build backend
+cd backend
+npm run build
+cd ..
+
 # Build frontend
 npm run build
 
 # Generate Prisma client
+cd backend
 npx prisma generate
 
-# Push database schema
+# Push database schema (MySQL)
 npx prisma db push
+cd ..
 
 # Start PM2 processes
 pm2 start ecosystem.config.js

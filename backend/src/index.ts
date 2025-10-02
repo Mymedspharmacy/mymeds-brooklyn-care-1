@@ -525,6 +525,7 @@ app.use('/api/refill-requests', currentLimiter, refillRequestRoutes);
 app.use('/api/transfer-requests', currentLimiter, transferRequestRoutes);
 
 // API aliases for frontend compatibility
+app.use('/api/blog', currentLimiter, blogRoutes); // Alias for /api/blogs
 app.use('/api/refills', currentLimiter, refillRequestRoutes);
 app.use('/api/transfers', currentLimiter, transferRequestRoutes);
 app.use('/api/notifications', currentLimiter, notificationRoutes);

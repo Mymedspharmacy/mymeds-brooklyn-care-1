@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Search, Filter, ShoppingCart, Heart, Star, Eye, Package, Truck, Shield, Clock, CheckCircle, ArrowRight, Minus, Plus, Home, Baby, Loader2 } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -622,6 +622,9 @@ export default function Shop() {
                 <Eye className="h-5 w-5 text-[#57BBB6]" />
                 Quick View
               </DialogTitle>
+              <DialogDescription>
+                View product details and add to cart without leaving the page.
+              </DialogDescription>
             </DialogHeader>
             
             {quickViewProduct && (

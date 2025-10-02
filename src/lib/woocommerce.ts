@@ -3,7 +3,7 @@ import api from './api';
 
 // In-memory cache for products (in production, use a more robust solution)
 const productCache = new Map();
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const CACHE_TTL = 1 * 60 * 1000; // 1 minute cache for better performance
 
 // Cache management functions
 const getCachedProducts = (key: string) => {
