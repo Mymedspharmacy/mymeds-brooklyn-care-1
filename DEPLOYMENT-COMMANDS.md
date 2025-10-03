@@ -39,6 +39,17 @@ apt install -y git
 
 # Install certbot for SSL
 apt install -y certbot python3-certbot-nginx
+
+# Install PHP and WordPress dependencies
+apt install -y php8.1 php8.1-fpm php8.1-mysql php8.1-xml php8.1-curl php8.1-gd php8.1-mbstring php8.1-zip php8.1-intl php8.1-bcmath
+
+# Install WP-CLI globally
+curl -O https://raw.githubusercontent.com/wp-cli/wp-cli/stable/bin/wp-cli.phar
+chmod +x wp-cli.phar
+mv wp-cli.phar /usr/local/bin/wp
+
+# Verify WP-CLI installation
+wp --info
 ```
 
 ---
@@ -52,12 +63,44 @@ mysql_secure_installation
 # Login to MySQL
 mysql -u root -p
 
-# Create database and user (run these in MySQL console)
+# Create databases and users (run these in MySQL console)
 CREATE DATABASE mymeds_production CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE wordpress_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER 'mymeds_user'@'localhost' IDENTIFIED BY 'SecurePassword123!';
+CREATE USER 'wp_user'@'localhost' IDENTIFIED BY 'WPSecurePassword123!';
 GRANT ALL PRIVILEGES ON mymeds_production.* TO 'mymeds_user'@'localhost';
+GRANT ALL PRIVILEGES ON wordpress_db.* TO 'wp_user'@'localhost';
 FLUSH PRIVILEGES;
 exit;
+```
+
+---
+
+## Step 4: Install WordPress
+
+```bash
+# Create WordPress directory
+mkdir -p /var/www/wordpress
+cd /var/www/wordpress
+
+# Download WordPress
+wp core download --allow-root
+
+# Create WordPress configuration
+wp config create --dbname=wordpress_db --dbuser=wp_user --dbpass=WPSecurePassword123! --dbhost=localhost --allow-root
+
+# Install WordPress
+wp core install --url="https://mymedspharmacyinc.com" --title="MyMeds Pharmacy Blog" --admin_user=admin --admin_password=AdminSecure2025! --admin_email=admin@mymedspharmacyinc.com --allow-root
+
+# Install WooCommerce plugin
+wp plugin install woocommerce --activate --allow-root
+
+# Install additional plugins for SEO and forms
+wp plugin install wordpress-seo contact-form-7 --activate --allow-root
+
+# Set proper permissions
+chown -R www-data:www-data /var/www/wordpress
+chmod -R 755 /var/www/wordpress
 ```
 
 ---
@@ -105,19 +148,19 @@ DATABASE_URL="mysql://mymeds_user:SecurePassword123!@localhost:3306/mymeds_produ
 JWT_SECRET="your_super_secure_jwt_secret_key_minimum_64_characters_long_for_production_security_2025"
 JWT_EXPIRES_IN=24h
 BCRYPT_ROUNDS=12
-WOOCOMMERCE_STORE_URL=https://yourdomain.com/shop
-WOOCOMMERCE_CONSUMER_KEY=your_woocommerce_key
-WOOCOMMERCE_CONSUMER_SECRET=your_woocommerce_secret
-VITE_WORDPRESS_URL=https://yourdomain.com/wp-api
-WORDPRESS_USERNAME=your_wordpress_username
-WORDPRESS_PASSWORD=your_wordpress_password
+WOOCOMMERCE_STORE_URL=https://mymedspharmacyinc.com/wp-admin
+WOOCOMMERCE_CONSUMER_KEY=ck_auto_generated_key
+WOOCOMMERCE_CONSUMER_SECRET=cs_auto_generated_secret
+VITE_WORDPRESS_URL=https://mymedspharmacyinc.com/wp-json
+WORDPRESS_USERNAME=admin
+WORDPRESS_PASSWORD=AdminSecure2025!
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
-SMTP_USER=support@yourdomain.com
+SMTP_USER=support@mymedspharmacyinc.com
 SMTP_PASS=your_smtp_password
-FROM_EMAIL=support@yourdomain.com
+FROM_EMAIL=support@mymedspharmacyinc.com
 FROM_NAME="MyMeds Pharmacy Inc."
-ADMIN_EMAIL=admin@yourdomain.com
+ADMIN_EMAIL=admin@mymedspharmacyinc.com
 ADMIN_PASSWORD_HASH=your_bcrypt_hashed_password
 EOF
 ```
@@ -189,7 +232,7 @@ pm2 startup
 cp deployment/nginx.conf /etc/nginx/sites-available/mymeds-pharmacy
 
 # Update domain name in config
-sed -i 's/your-domain.com/yourdomain.com/g' /etc/nginx/sites-available/mymeds-pharmacy
+sed -i 's/your-domain.com/mymedspharmacyinc.com/g' /etc/nginx/sites-available/mymeds-pharmacy
 
 # Enable site
 ln -s /etc/nginx/sites-available/mymeds-pharmacy /etc/nginx/sites-enabled/
@@ -230,7 +273,7 @@ ufw status
 
 ```bash
 # Get SSL certificate
-certbot --nginx -d yourdomain.com -d www.yourdomain.com
+certbot --nginx -d mymedspharmacyinc.com -d www.mymedspharmacyinc.com
 
 # Test auto-renewal
 certbot renew --dry-run
@@ -309,7 +352,7 @@ tail -f /var/log/nginx/access.log
 mysql -u mymeds_user -p mymeds_production
 
 # Check network connectivity
-curl -I https://yourdomain.com
+curl -I https://mymedspharmacyinc.com
 ```
 
 ---
@@ -330,9 +373,9 @@ chmod +x deployment/deploy-vps.sh
 
 ## ✅ Verification Checklist
 
-- [ ] Application running: `https://yourdomain.com`
-- [ ] Admin panel accessible: `https://yourdomain.com/admin`
-- [ ] API health check: `https://yourdomain.com/api/health`
+- [ ] Application running: `https://mymedspharmacyinc.com`
+- [ ] Admin panel accessible: `https://mymedspharmacyinc.com/admin`
+- [ ] API health check: `https://mymedspharmacyinc.com/api/health`
 - [ ] SSL certificate active
 - [ ] PM2 shows application running
 - [ ] Nginx serving content properly
@@ -343,8 +386,8 @@ chmod +x deployment/deploy-vps.sh
 ## 🌟 **Your pharmacy management system is now live!**
 
 **Admin Access:**
-- URL: `https://yourdomain.com/admin`
-- Email: `admin@yourdomain.com` 
+- URL: `https://mymedspharmacyinc.com/admin`
+- Email: `admin@mymedspharmacyinc.com` 
 - Password: Check your environment configuration
 
 **Estimated deployment time: 30-45 minutes**
