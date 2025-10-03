@@ -44,7 +44,7 @@ router.get('/', locationLimiter, async (req: Request, res: Response) => {
   try {
     const { active, primary } = req.query;
     
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (active !== undefined) {
       where.isActive = active === 'true';
     }
@@ -64,11 +64,11 @@ router.get('/', locationLimiter, async (req: Request, res: Response) => {
       success: true,
       locations
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching locations:', error);
     res.status(500).json({
       error: 'Failed to fetch locations',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -94,11 +94,11 @@ router.get('/:id', locationLimiter, async (req: Request, res: Response) => {
       success: true,
       location
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching location:', error);
     res.status(500).json({
       error: 'Failed to fetch location',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -157,7 +157,7 @@ router.post('/', locationLimiter, async (req: Request, res: Response) => {
       message: 'Location created successfully',
       location
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating location:', error);
     
     if (error.name === 'ZodError') {
@@ -169,7 +169,7 @@ router.post('/', locationLimiter, async (req: Request, res: Response) => {
 
     res.status(500).json({
       error: 'Failed to create location',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -232,7 +232,7 @@ router.put('/:id', locationLimiter, async (req: Request, res: Response) => {
       message: 'Location updated successfully',
       location
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error updating location:', error);
     
     if (error.name === 'ZodError') {
@@ -244,7 +244,7 @@ router.put('/:id', locationLimiter, async (req: Request, res: Response) => {
 
     res.status(500).json({
       error: 'Failed to update location',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -280,11 +280,11 @@ router.delete('/:id', locationLimiter, async (req: Request, res: Response) => {
       success: true,
       message: 'Location deleted successfully'
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error deleting location:', error);
     res.status(500).json({
       error: 'Failed to delete location',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -316,11 +316,11 @@ router.patch('/:id/toggle-active', locationLimiter, async (req: Request, res: Re
       message: `Location ${updatedLocation.isActive ? 'activated' : 'deactivated'} successfully`,
       location: updatedLocation
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error toggling location status:', error);
     res.status(500).json({
       error: 'Failed to toggle location status',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -359,11 +359,11 @@ router.patch('/:id/set-primary', locationLimiter, async (req: Request, res: Resp
       message: 'Location set as primary successfully',
       location: updatedLocation
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error setting primary location:', error);
     res.status(500).json({
       error: 'Failed to set primary location',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });

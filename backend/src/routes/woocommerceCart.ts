@@ -70,12 +70,12 @@ router.get('/', async (req: Request, res: Response) => {
         needsShipping: cart.needs_shipping,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error getting cart:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to get cart',
-      message: error.message,
+      message: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 });
@@ -114,7 +114,7 @@ router.post('/add', async (req: Request, res: Response) => {
         currency: cart.currency,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error adding item to cart:', error);
     
     if (error.name === 'ZodError') {
@@ -128,7 +128,7 @@ router.post('/add', async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: 'Failed to add item to cart',
-      message: error.message,
+      message: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 });
@@ -192,7 +192,7 @@ router.put('/update', async (req: Request, res: Response) => {
     // Store session for persistence
     await cartService.storeCartSession(sessionKey);
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error updating cart item:', error);
     
     if (error.name === 'ZodError') {
@@ -206,7 +206,7 @@ router.put('/update', async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: 'Failed to update cart item',
-      message: error.message,
+      message: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 });
@@ -247,12 +247,12 @@ router.delete('/remove', async (req: Request, res: Response) => {
         currency: cart.currency,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error removing item from cart:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to remove item from cart',
-      message: error.message,
+      message: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 });
@@ -287,12 +287,12 @@ router.delete('/clear', async (req: Request, res: Response) => {
         },
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error clearing cart:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to clear cart',
-      message: error.message,
+      message: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 });
@@ -327,7 +327,7 @@ router.post('/coupon', async (req: Request, res: Response) => {
         couponLines: cart.coupon_lines,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error applying coupon:', error);
     
     if (error.name === 'ZodError') {
@@ -341,7 +341,7 @@ router.post('/coupon', async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: 'Failed to apply coupon',
-      message: error.message,
+      message: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 });
@@ -383,12 +383,12 @@ router.delete('/coupon', async (req: Request, res: Response) => {
         couponLines: cart.coupon_lines,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error removing coupon:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to remove coupon',
-      message: error.message,
+      message: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 });
@@ -429,12 +429,12 @@ router.post('/sync', async (req: Request, res: Response) => {
         currency: cart.currency,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error syncing cart:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to sync cart',
-      message: error.message,
+      message: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 });
@@ -449,12 +449,12 @@ router.get('/session', async (req: Request, res: Response) => {
       sessionKey,
       message: 'Cart session created/retrieved successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error getting cart session:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to get cart session',
-      message: error.message,
+      message: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 });

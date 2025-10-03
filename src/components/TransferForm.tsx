@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { getErrorStatus } from "@/utils/errorUtils";
 import api from '../lib/api';
 
 interface TransferFormProps {
@@ -75,9 +76,9 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
           title: 'Transfer Request Submitted!', 
           description: "We'll process your prescription transfer request within 24 hours and notify you when it's ready." 
         });
-      } catch (backendError: any) {
+      } catch (backendError: unknown) {
         // If backend endpoint doesn't exist, save to localStorage as fallback
-        if (backendError.response?.status === 404) {
+        if (getErrorStatus(backendError) === 404) {
           const transferData = {
             ...formData,
             prescriptionFile: prescriptionFile ? prescriptionFile.name : null,
@@ -703,4 +704,5 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
       </div>
     </div>
   );
+};
 };

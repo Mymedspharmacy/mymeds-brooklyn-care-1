@@ -113,8 +113,8 @@ My Meds Pharmacy System
           html: notificationContent.replace(/\n/g, '<br>')
         });
       }
-    } catch (emailError: any) {
-      console.log('Welcome email failed (optional):', emailError.message);
+    } catch (emailError: unknown) {
+      console.log('Welcome email failed (optional):', emailError instanceof Error ? emailError.message : 'Unknown error');
       // Don't fail the request if email fails
     }
     
@@ -124,11 +124,11 @@ My Meds Pharmacy System
       alreadySubscribed: false
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Newsletter subscription error:', error);
     res.status(500).json({
       error: 'Failed to subscribe to newsletter',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -163,11 +163,11 @@ router.post('/unsubscribe', async (req: Request, res: Response) => {
       message: 'Successfully unsubscribed from newsletter'
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Newsletter unsubscribe error:', error);
     res.status(500).json({
       error: 'Failed to unsubscribe from newsletter',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -194,11 +194,11 @@ router.get('/stats', unifiedAdminAuth, async (req: Request, res: Response) => {
       }
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Newsletter stats error:', error);
     res.status(500).json({
       error: 'Failed to get newsletter statistics',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });

@@ -16,6 +16,7 @@ import { SEOHead } from '@/components/SEOHead';
 import { useScrollToTop } from '@/hooks/useScrollToTop';
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import api from '@/lib/api';
 
 interface Prescription {
   id: string;
@@ -765,3 +766,4 @@ const PatientPortal = () => {
 };
 
 export default PatientPortal;
+

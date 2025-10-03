@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { getErrorStatus } from "@/utils/errorUtils";
 import api from '../lib/api';
 
 interface AppointmentFormProps {
@@ -96,9 +97,9 @@ export const AppointmentForm = ({ isOpen, onClose, selectedService }: Appointmen
           title: 'Appointment Request Submitted!', 
           description: "We'll contact you within 24 hours to confirm your appointment." 
         });
-      } catch (backendError: any) {
+      } catch (backendError: unknown) {
         // If backend endpoint doesn't exist, save to localStorage as fallback
-        if (backendError.response?.status === 404) {
+        if (getErrorStatus(backendError) === 404) {
           const appointmentData = {
             ...formData,
             timestamp: new Date().toISOString(),
@@ -351,4 +352,5 @@ export const AppointmentForm = ({ isOpen, onClose, selectedService }: Appointmen
       </Card>
     </div>
   );
+};
 };

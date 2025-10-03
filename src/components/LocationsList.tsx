@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { getErrorMessage, getErrorStatus } from '@/utils/errorUtils';
 import api from '@/lib/api';
 import LocationForm from './LocationForm';
 
@@ -62,9 +63,9 @@ export const LocationsList: React.FC<LocationsListProps> = ({
       const response = await api.get('/locations');
       console.log('Locations API response:', response.data);
       setLocations(response.data.locations || []);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error fetching locations:', err);
-      setError(err.response?.data?.error || 'Failed to fetch locations');
+      setError(getErrorMessage(err, 'Failed to fetch locations'));
       toast({
         title: 'Error',
         description: 'Failed to load locations',
@@ -99,11 +100,11 @@ export const LocationsList: React.FC<LocationsListProps> = ({
       });
       
       fetchLocations();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error deleting location:', err);
       
       let errorMessage = 'Failed to delete location';
-      if (err.response?.data?.error) {
+      if (err && typeof err === 'object' && 'response' in err && err.response && typeof err.response === 'object' && 'data' in err.response && err.response.data && typeof err.response.data === 'object' && 'error' in err.response.data && typeof err.response.data.error === 'string') {
         errorMessage = err.response.data.error;
       }
       
@@ -127,7 +128,7 @@ export const LocationsList: React.FC<LocationsListProps> = ({
       });
       
       fetchLocations();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error toggling location status:', err);
       toast({
         title: 'Error',
@@ -147,7 +148,7 @@ export const LocationsList: React.FC<LocationsListProps> = ({
       });
       
       fetchLocations();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error setting primary location:', err);
       toast({
         title: 'Error',
@@ -386,3 +387,4 @@ export const LocationsList: React.FC<LocationsListProps> = ({
 };
 
 export default LocationsList;
+

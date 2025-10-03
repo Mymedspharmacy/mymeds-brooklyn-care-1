@@ -6,7 +6,7 @@ import fs from 'fs';
 import FormData from 'form-data';
 
 interface AuthRequest extends Request {
-  user?: any;
+  user?: unknown;
 }
 
 const router = Router();
@@ -63,7 +63,7 @@ const getCachedPosts = (key: string) => {
   return null;
 };
 
-const setCachedPosts = (key: string, data: any) => {
+const setCachedPosts = (key: string, data: unknown) => {
   postCache.set(key, {
     data,
     timestamp: Date.now()
@@ -75,7 +75,7 @@ const clearPostCache = () => {
 };
 
 // Enhanced error handling with retry logic for production
-const makeWordPressRequest = async (url: string, options: any = {}, params: any = {}) => {
+const makeWordPressRequest = async (url: string, options: unknown = {}, params: unknown = {}) => {
   // Validate required environment variables for production
   if (!process.env.WORDPRESS_APP_PASSWORD || !process.env.WORDPRESS_URL || !process.env.WORDPRESS_USERNAME) {
     throw new Error('WordPress credentials not configured. Please set WORDPRESS_URL, WORDPRESS_USERNAME, and WORDPRESS_APP_PASSWORD environment variables.');
@@ -160,11 +160,11 @@ router.get('/settings', unifiedAdminAuth, async (req: AuthRequest, res: Response
     };
 
     res.json(safeSettings);
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error fetching WordPress settings:', err);
     res.status(500).json({ 
       error: 'Failed to fetch WordPress settings',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });
@@ -183,7 +183,7 @@ router.put('/settings', unifiedAdminAuth, async (req: AuthRequest, res: Response
       });
     }
 
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       enabled: enabled || false,
       updatedAt: new Date()
     };
@@ -216,11 +216,11 @@ router.put('/settings', unifiedAdminAuth, async (req: AuthRequest, res: Response
     };
 
     res.json(safeSettings);
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error updating WordPress settings:', err);
     res.status(500).json({ 
       error: 'Failed to update WordPress settings',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });
@@ -269,11 +269,11 @@ router.post('/test-connection', unifiedAdminAuth, async (req: AuthRequest, res: 
         apiStatus: 'Connected'
       }
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error testing WordPress connection:', err);
     res.status(500).json({ 
       error: 'Failed to test connection',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined,
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined,
       suggestion: 'Check your WordPress site URL, username, and application password'
     });
   }
@@ -343,7 +343,7 @@ router.post('/sync-posts', unifiedAdminAuth, async (req: AuthRequest, res: Respo
         });
 
         syncedCount++;
-      } catch (postError: any) {
+      } catch (postError: unknown) {
         errorCount++;
         errors.push(`Post ${post.id}: ${postError.message}`);
       }
@@ -368,7 +368,7 @@ router.post('/sync-posts', unifiedAdminAuth, async (req: AuthRequest, res: Respo
       errors: errorCount,
       errorDetails: errors.length > 0 ? errors : undefined
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error syncing WordPress posts:', err);
     
     // Update sync status with error
@@ -382,7 +382,7 @@ router.post('/sync-posts', unifiedAdminAuth, async (req: AuthRequest, res: Respo
 
     res.status(500).json({ 
       error: 'Failed to sync posts',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined,
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined,
       suggestion: 'Check your WordPress credentials and site URL'
     });
   }
@@ -408,11 +408,11 @@ router.get('/sync-status', unifiedAdminAuth, async (req: AuthRequest, res: Respo
       cacheStatus: postCache.size > 0 ? 'active' : 'empty',
       status: settings?.lastError ? 'error' : 'idle' // idle, syncing, error
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error fetching WordPress sync status:', err);
     res.status(500).json({ 
       error: 'Failed to fetch sync status',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });
@@ -475,11 +475,11 @@ router.post('/posts', unifiedAdminAuth, async (req: AuthRequest, res: Response) 
         date: newPost.date
       }
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error creating WordPress post:', err);
     res.status(500).json({ 
       error: 'Failed to create post',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined,
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined,
       suggestion: 'Check your WordPress credentials and ensure the post content is valid'
     });
   }
@@ -519,7 +519,7 @@ router.get('/pages', unifiedAdminAuth, async (req: AuthRequest, res: Response) =
     const totalPagesCount = response.headers.get('X-WP-TotalPages');
 
     res.json({
-      pages: pages.map((page: any) => ({
+      pages: pages.map((page: unknown) => ({
         id: page.id,
         title: page.title.rendered,
         content: page.content.rendered,
@@ -537,11 +537,11 @@ router.get('/pages', unifiedAdminAuth, async (req: AuthRequest, res: Response) =
         total_pages: parseInt(totalPagesCount || '0')
       }
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error fetching WordPress pages:', err);
     res.status(500).json({ 
       error: 'Failed to fetch pages',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });
@@ -604,11 +604,11 @@ router.post('/pages', unifiedAdminAuth, async (req: AuthRequest, res: Response) 
         date: newPage.date
       }
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error creating WordPress page:', err);
     res.status(500).json({ 
       error: 'Failed to create page',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });
@@ -649,7 +649,7 @@ router.get('/media', unifiedAdminAuth, async (req: AuthRequest, res: Response) =
     const totalPages = response.headers.get('X-WP-TotalPages');
 
     res.json({
-      media: media.map((item: any) => ({
+      media: media.map((item: unknown) => ({
         id: item.id,
         title: item.title.rendered,
         description: item.description.rendered,
@@ -669,11 +669,11 @@ router.get('/media', unifiedAdminAuth, async (req: AuthRequest, res: Response) =
         total_pages: parseInt(totalPages || '0')
       }
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error fetching WordPress media:', err);
     res.status(500).json({ 
       error: 'Failed to fetch media',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });
@@ -699,7 +699,7 @@ router.post('/media', unifiedAdminAuth, upload.single('file'), async (req: AuthR
       return res.status(400).json({ error: 'WordPress integration is not enabled' });
     }
 
-    let mediaData: any;
+    let mediaData: unknown;
     let sourceUrl: string;
 
     if (uploadedFile) {
@@ -777,7 +777,7 @@ router.post('/media', unifiedAdminAuth, upload.single('file'), async (req: AuthR
         modified: mediaData.modified
       }
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error uploading media to WordPress:', err);
     
     // Clean up uploaded file if it exists and there was an error
@@ -787,7 +787,7 @@ router.post('/media', unifiedAdminAuth, upload.single('file'), async (req: AuthR
     
     res.status(500).json({ 
       error: 'Failed to upload media',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });
@@ -827,11 +827,11 @@ router.get('/post-types', unifiedAdminAuth, async (req: AuthRequest, res: Respon
         ...postTypes[key]
       }))
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error fetching WordPress post types:', err);
     res.status(500).json({ 
       error: 'Failed to fetch post types',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });
@@ -872,7 +872,7 @@ router.get('/post-types/:type/posts', unifiedAdminAuth, async (req: AuthRequest,
 
     res.json({
       postType: type,
-      posts: posts.map((post: any) => ({
+      posts: posts.map((post: unknown) => ({
         id: post.id,
         title: post.title?.rendered || post.title || '',
         content: post.content?.rendered || post.content || '',
@@ -890,11 +890,11 @@ router.get('/post-types/:type/posts', unifiedAdminAuth, async (req: AuthRequest,
         total_pages: parseInt(totalPages || '0')
       }
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error(`Error fetching ${req.params.type} posts:`, err);
     res.status(500).json({ 
       error: `Failed to fetch ${req.params.type} posts`,
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });
@@ -928,7 +928,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
           });
           clearPostCache();
           console.log(`Webhook: Post deleted - ID: ${data.id}`);
-        } catch (error: any) {
+        } catch (error: unknown) {
           console.error(`Error deleting post ${data.id}:`, error);
         }
         break;
@@ -944,7 +944,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, message: 'Webhook processed' });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error processing WordPress webhook:', err);
     res.status(500).json({ error: 'Failed to process webhook' });
   }
@@ -961,11 +961,11 @@ router.post('/clear-cache', unifiedAdminAuth, async (req: AuthRequest, res: Resp
       success: true,
       message: 'Cache cleared successfully'
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error clearing cache:', err);
     res.status(500).json({ 
       error: 'Failed to clear cache',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });
@@ -1033,7 +1033,7 @@ router.post('/auto-sync', async (req: Request, res: Response) => {
         });
 
         syncedCount++;
-      } catch (postError: any) {
+      } catch (postError: unknown) {
         errorCount++;
         errors.push(`Post ${post.id}: ${postError.message}`);
       }
@@ -1059,7 +1059,7 @@ router.post('/auto-sync', async (req: Request, res: Response) => {
       errorDetails: errors.length > 0 ? errors : undefined,
       timestamp: new Date()
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error in auto-sync:', err);
     
     // Update sync status with error
@@ -1073,7 +1073,7 @@ router.post('/auto-sync', async (req: Request, res: Response) => {
 
     res.status(500).json({ 
       error: 'Auto-sync failed',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });
@@ -1202,7 +1202,7 @@ router.get('/posts', async (req: Request, res: Response) => {
     }
 
     // Build query parameters
-    const params: any = {
+    const params: Record<string, unknown> = {
       page: parseInt(page.toString()),
       per_page: parseInt(per_page.toString()),
       _embed: true
@@ -1238,7 +1238,7 @@ router.get('/posts', async (req: Request, res: Response) => {
     }
 
     const result = {
-      posts: posts.map((post: any) => ({
+      posts: posts.map((post: unknown) => ({
         id: post.id,
         title: post.title?.rendered || post.title || '',
         content: post.content?.rendered || post.content || '',
@@ -1265,7 +1265,7 @@ router.get('/posts', async (req: Request, res: Response) => {
     setCachedPosts(cacheKey, result);
 
     res.json(result);
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error fetching posts:', err);
     // Return empty posts instead of error for better UX
     res.json({ posts: [], pagination: { total: 0, pages: 0 } });
@@ -1339,7 +1339,7 @@ router.get('/categories', async (req: Request, res: Response) => {
     }
 
     const categoriesData = await response.json();
-    const categories = categoriesData.map((category: any) => ({
+    const categories = categoriesData.map((category: unknown) => ({
       id: category.id,
       name: category.name,
       count: category.count,
@@ -1351,11 +1351,11 @@ router.get('/categories', async (req: Request, res: Response) => {
     setCachedPosts(cacheKey, categories);
 
     res.json(categories);
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error fetching categories:', err);
     res.status(500).json({ 
       error: 'Failed to fetch categories',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });

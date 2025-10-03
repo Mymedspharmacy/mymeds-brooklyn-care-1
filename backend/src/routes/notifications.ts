@@ -4,7 +4,7 @@ import { secureAdminAuthMiddleware } from '../services/SecureAdminAuth';
 import { io } from '../index';
 
 interface AuthRequest extends Request {
-  user?: any;
+  user?: unknown;
 }
 
 const router = Router();
@@ -17,7 +17,7 @@ async function createNotification(data: {
   message: string;
   userId?: number;
   adminOnly?: boolean;
-  data?: any;
+  data?: unknown;
 }) {
   try {
     const notification = await prisma.notification.create({
@@ -47,7 +47,7 @@ async function createNotification(data: {
 }
 
 // ✅ IMPLEMENTED: System notification triggers
-export async function triggerSystemNotification(event: string, data: any) {
+export async function triggerSystemNotification(event: string, data: unknown) {
   const notifications: Record<string, {
     type: string;
     title: string;
@@ -115,7 +115,7 @@ router.get('/', secureAdminAuthMiddleware, async (req: AuthRequest, res: Respons
     const { type, read, limit = '50' } = req.query;
     const limitNum = Math.min(parseInt(limit as string), 100);
     
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (type) where.type = type;
     if (read !== undefined) where.read = read === 'true';
 

@@ -145,8 +145,8 @@ export default function Blog() {
         
         // Filter out posts with empty titles or content
         const validPosts = typedPostsData.filter(post => {
-          const title = post.title?.rendered || post.title || '';
-          const content = post.content?.rendered || post.content || '';
+          const title = typeof post.title === 'string' ? post.title : post.title?.rendered || '';
+          const content = typeof post.content === 'string' ? post.content : post.content?.rendered || '';
           return title.trim() !== '' && content.trim() !== '';
         });
         
@@ -212,8 +212,8 @@ export default function Blog() {
         } else {
           setPosts(validPosts);
           setFeaturedPosts(typedFeaturedData.filter(post => {
-            const title = post.title?.rendered || post.title || '';
-            const content = post.content?.rendered || post.content || '';
+            const title = typeof post.title === 'string' ? post.title : post.title?.rendered || '';
+            const content = typeof post.content === 'string' ? post.content : post.content?.rendered || '';
             return title.trim() !== '' && content.trim() !== '';
           }));
           setRecentPosts(validPosts.slice(0, 6));
@@ -244,15 +244,15 @@ export default function Blog() {
 
   const filteredPosts = posts.filter(post => {
     // Handle both WordPress format (title.rendered) and our sample format (title directly)
-    const postTitle = post.title?.rendered || post.title || '';
-    const postExcerpt = post.excerpt?.rendered || post.excerpt || '';
-    const postContent = post.content?.rendered || post.content || '';
+    const postTitle = typeof post.title === 'string' ? post.title : post.title?.rendered || '';
+    const postExcerpt = typeof post.excerpt === 'string' ? post.excerpt : post.excerpt?.rendered || '';
+    const postContent = typeof post.content === 'string' ? post.content : post.content?.rendered || '';
     
     if (!searchQuery.trim()) {
       // If no search query, only filter by category
       const postCategories = Array.isArray(post.categories) ? post.categories : [];
       const categoryIds = postCategories.map(cat => 
-        typeof cat === 'number' ? cat : cat.id
+        typeof cat === 'number' ? cat : (cat as any)?.id || cat
       );
       const matchesCategory = selectedCategory === "all" || 
                              categoryIds.includes(parseInt(selectedCategory));
@@ -275,7 +275,7 @@ export default function Blog() {
     // Handle categories - could be array of IDs or array of category objects
     const postCategories = Array.isArray(post.categories) ? post.categories : [];
     const categoryIds = postCategories.map(cat => 
-      typeof cat === 'number' ? cat : cat.id
+      typeof cat === 'number' ? cat : (cat as any)?.id || cat
     );
     
     const matchesCategory = selectedCategory === "all" || 
@@ -523,7 +523,7 @@ export default function Blog() {
                       {post._embedded?.['wp:featuredmedia']?.[0]?.source_url ? (
                         <img 
                           src={post._embedded['wp:featuredmedia'][0].source_url} 
-                          alt={post._embedded['wp:featuredmedia'][0].alt_text || (post.title?.rendered || post.title || '')}
+                          alt={post._embedded['wp:featuredmedia'][0].alt_text || (typeof post.title === 'string' ? post.title : post.title?.rendered || '')}
                           className="w-full h-full object-cover"
                         />
                       ) : (
@@ -553,19 +553,19 @@ export default function Blog() {
 
                       {/* Post Title */}
                       <CardTitle className="text-lg sm:text-xl font-bold text-[#376F6B] mb-3 group-hover:text-[#57BBB6] transition-colors duration-300 line-clamp-2">
-                        {(post.title?.rendered || post.title || '')}
+                        {(typeof post.title === 'string' ? post.title : post.title?.rendered || '')}
                       </CardTitle>
 
                       {/* Post Excerpt */}
                       <CardDescription className="text-gray-600 mb-4 leading-relaxed line-clamp-2 text-sm">
-                        {(post.excerpt?.rendered || post.excerpt || '').replace(/<[^>]*>/g, '')}
+                        {(typeof post.excerpt === 'string' ? post.excerpt : post.excerpt?.rendered || '').replace(/<[^>]*>/g, '')}
                       </CardDescription>
 
                       {/* Read Time */}
                       <div className="flex items-center gap-3 text-gray-500 text-xs mb-4">
                         <div className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          {getReadTime(post.content?.rendered)}
+                          {getReadTime(typeof post.content === 'string' ? post.content : post.content?.rendered || '')}
                         </div>
                       </div>
 
@@ -607,7 +607,7 @@ export default function Blog() {
                       {post._embedded?.['wp:featuredmedia']?.[0]?.source_url ? (
                         <img 
                           src={post._embedded['wp:featuredmedia'][0].source_url} 
-                          alt={post._embedded['wp:featuredmedia'][0].alt_text || (post.title?.rendered || post.title || '')}
+                          alt={post._embedded['wp:featuredmedia'][0].alt_text || (typeof post.title === 'string' ? post.title : post.title?.rendered || '')}
                           className="w-full h-full object-cover"
                         />
                       ) : (
@@ -637,19 +637,19 @@ export default function Blog() {
 
                       {/* Post Title */}
                       <CardTitle className="text-lg sm:text-xl font-bold text-[#376F6B] mb-3 group-hover:text-[#57BBB6] transition-colors duration-300 line-clamp-2">
-                        {(post.title?.rendered || post.title || '')}
+                        {(typeof post.title === 'string' ? post.title : post.title?.rendered || '')}
                       </CardTitle>
 
                       {/* Post Excerpt */}
                       <CardDescription className="text-gray-600 mb-4 leading-relaxed line-clamp-2 text-sm">
-                        {(post.excerpt?.rendered || post.excerpt || '').replace(/<[^>]*>/g, '')}
+                        {(typeof post.excerpt === 'string' ? post.excerpt : post.excerpt?.rendered || '').replace(/<[^>]*>/g, '')}
                       </CardDescription>
 
                       {/* Read Time */}
                       <div className="flex items-center gap-3 text-gray-500 text-xs mb-4">
                         <div className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          {getReadTime(post.content?.rendered)}
+                          {getReadTime(typeof post.content === 'string' ? post.content : post.content?.rendered || '')}
                         </div>
                       </div>
 

@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { getErrorStatus } from '@/utils/errorUtils';
 import api from '@/lib/api';
 
 interface ReviewFormProps {
@@ -119,18 +120,18 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({
         setSuccess(false);
       }, 2000);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error submitting review:', error);
       
       let errorMessage = 'Failed to submit review. Please try again.';
       
-      if (error.response?.data?.error) {
+      if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'error' in error.response.data && typeof error.response.data.error === 'string') {
         errorMessage = error.response.data.error;
-      } else if (error.response?.status === 400) {
+      } else if (getErrorStatus(error) === 400) {
         errorMessage = 'Please check your input and try again.';
-      } else if (error.response?.status === 404) {
+      } else if (getErrorStatus(error) === 404) {
         errorMessage = 'Product not found.';
-      } else if (error.response?.status === 409) {
+      } else if (getErrorStatus(error) === 409) {
         errorMessage = 'You have already reviewed this product.';
       }
 
@@ -354,4 +355,5 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({
 };
 
 export default ReviewForm;
+
 

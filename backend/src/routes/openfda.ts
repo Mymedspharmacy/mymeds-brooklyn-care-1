@@ -18,14 +18,14 @@ router.get('/health', async (req: Request, res: Response) => {
       }
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('OpenFDA: Health check failed', { 
       error: error.message 
     });
     
     res.status(500).json({
       error: 'Health check failed',
-      message: error.message,
+      message: error instanceof Error ? error.message : 'Unknown error',
       code: 'HEALTH_CHECK_FAILED'
     });
   }
@@ -71,7 +71,7 @@ router.get('/search', async (req: Request, res: Response) => {
       }
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('OpenFDA: Search failed', { 
       error: error.message,
       query: req.query.query
@@ -79,7 +79,7 @@ router.get('/search', async (req: Request, res: Response) => {
     
     res.status(500).json({
       error: 'Failed to search drugs',
-      message: error.message,
+      message: error instanceof Error ? error.message : 'Unknown error',
       code: 'SEARCH_FAILED'
     });
   }
@@ -113,7 +113,7 @@ router.get('/drug/:drugId', secureAdminAuthMiddleware, async (req: Request, res:
       }
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('OpenFDA: Drug details failed', { 
       drugId: req.params.drugId,
       error: error.message,
@@ -122,7 +122,7 @@ router.get('/drug/:drugId', secureAdminAuthMiddleware, async (req: Request, res:
     
     res.status(500).json({
       error: 'Failed to fetch drug details',
-      message: error.message,
+      message: error instanceof Error ? error.message : 'Unknown error',
       code: 'DRUG_DETAILS_FAILED'
     });
   }
@@ -156,7 +156,7 @@ router.get('/drug/:drugId/interactions', secureAdminAuthMiddleware, async (req: 
       }
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('OpenFDA: Drug interactions failed', { 
       drugId: req.params.drugId,
       error: error.message,
@@ -165,7 +165,7 @@ router.get('/drug/:drugId/interactions', secureAdminAuthMiddleware, async (req: 
     
     res.status(500).json({
       error: 'Failed to fetch drug interactions',
-      message: error.message,
+      message: error instanceof Error ? error.message : 'Unknown error',
       code: 'INTERACTIONS_FAILED'
     });
   }
@@ -199,7 +199,7 @@ router.get('/drug/:drugId/reactions', secureAdminAuthMiddleware, async (req: Req
       }
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('OpenFDA: Adverse reactions failed', { 
       drugId: req.params.drugId,
       error: error.message,
@@ -208,7 +208,7 @@ router.get('/drug/:drugId/reactions', secureAdminAuthMiddleware, async (req: Req
     
     res.status(500).json({
       error: 'Failed to fetch adverse reactions',
-      message: error.message,
+      message: error instanceof Error ? error.message : 'Unknown error',
       code: 'REACTIONS_FAILED'
     });
   }
@@ -227,7 +227,7 @@ router.get('/cache/stats', secureAdminAuthMiddleware, async (req: Request, res: 
       }
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('OpenFDA: Cache stats failed', { 
       error: error.message,
       userId: (req.user as any)?.userId 
@@ -235,7 +235,7 @@ router.get('/cache/stats', secureAdminAuthMiddleware, async (req: Request, res: 
     
     res.status(500).json({
       error: 'Failed to get cache statistics',
-      message: error.message,
+      message: error instanceof Error ? error.message : 'Unknown error',
       code: 'CACHE_STATS_FAILED'
     });
   }
@@ -258,7 +258,7 @@ router.delete('/cache', secureAdminAuthMiddleware, async (req: Request, res: Res
       }
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('OpenFDA: Cache clear failed', { 
       error: error.message,
       userId: (req.user as any)?.userId 
@@ -266,7 +266,7 @@ router.delete('/cache', secureAdminAuthMiddleware, async (req: Request, res: Res
     
     res.status(500).json({
       error: 'Failed to clear cache',
-      message: error.message,
+      message: error instanceof Error ? error.message : 'Unknown error',
       code: 'CACHE_CLEAR_FAILED'
     });
   }

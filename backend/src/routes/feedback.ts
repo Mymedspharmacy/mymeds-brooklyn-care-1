@@ -59,17 +59,17 @@ router.post('/', async (req: Request, res: Response) => {
       }
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating feedback:', error);
-    if (error.name === 'ZodError') {
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
       return res.status(400).json({
         error: 'Validation error',
-        details: error.errors
+        details: 'errors' in error ? error.errors : []
       });
     }
     res.status(500).json({
       error: 'Failed to submit feedback',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -120,7 +120,7 @@ router.get('/track/:ticketNumber', async (req: Request, res: Response) => {
       }
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error tracking feedback:', error);
     res.status(500).json({
       error: 'Failed to track feedback',
@@ -138,7 +138,7 @@ router.get('/admin/all', async (req: Request, res: Response) => {
     const limitNum = parseInt(limit.toString());
     const skip = (pageNum - 1) * limitNum;
     
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (status) where.status = status;
     if (category) where.category = category;
     if (priority) where.priority = priority;
@@ -167,7 +167,7 @@ router.get('/admin/all', async (req: Request, res: Response) => {
       }
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching feedback:', error);
     res.status(500).json({
       error: 'Failed to fetch feedback',
@@ -232,7 +232,7 @@ router.get('/admin/stats', async (req: Request, res: Response) => {
       recentFeedback
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching feedback stats:', error);
     res.status(500).json({
       error: 'Failed to fetch feedback statistics',
@@ -266,7 +266,7 @@ router.put('/:id/status', async (req: Request, res: Response) => {
       feedback
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error updating feedback status:', error);
     res.status(500).json({
       error: 'Failed to update feedback status',
@@ -305,7 +305,7 @@ router.post('/:id/response', async (req: Request, res: Response) => {
       response
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error adding response:', error);
     res.status(500).json({
       error: 'Failed to add response',
@@ -334,7 +334,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
       message: 'Feedback deleted successfully'
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error deleting feedback:', error);
     res.status(500).json({
       error: 'Failed to delete feedback',

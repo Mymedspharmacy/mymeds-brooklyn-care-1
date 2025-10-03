@@ -187,7 +187,7 @@ router.post('/admin-reset', async (req, res) => {
       return res.status(400).json({ error: 'Invalid or expired token' });
     }
     if (typeof payload === 'object' && payload !== null && 'userId' in payload) {
-      const user = await prisma.user.findUnique({ where: { id: (payload as any).userId } });
+      const user = await prisma.user.findUnique({ where: { id: (payload as { userId: string }).userId } });
       if (!user || user.role !== 'ADMIN') return res.status(400).json({ error: 'Invalid user' });
       const hash = await bcrypt.hash(password, 10);
       await prisma.user.update({ where: { id: user.id }, data: { password: hash } });
@@ -205,7 +205,7 @@ router.post('/admin-reset', async (req, res) => {
 router.get('/me', unifiedAdminAuth, async (req, res) => {
   try {
     const user = await prisma.user.findUnique({ 
-      where: { id: (req as any).user.userId },
+      where: { id: (req as { user: { userId: string } }).user.userId },
       select: {
         id: true,
         email: true,

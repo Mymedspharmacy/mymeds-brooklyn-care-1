@@ -32,14 +32,14 @@ export class AppError extends Error {
   public readonly statusCode: number;
   public readonly isOperational: boolean;
   public readonly timestamp: Date;
-  public readonly context?: any;
+  public readonly context?: unknown;
 
   constructor(
     message: string,
     code: ErrorCode = ErrorCode.INTERNAL_ERROR,
     statusCode: number = 500,
     isOperational: boolean = true,
-    context?: any
+    context?: unknown
   ) {
     super(message);
     
@@ -68,7 +68,7 @@ export class AppError extends Error {
 
 // Specific error classes
 export class ValidationError extends AppError {
-  constructor(message: string, context?: any) {
+  constructor(message: string, context?: unknown) {
     super(message, ErrorCode.VALIDATION_ERROR, 400, true, context);
   }
 }
@@ -93,19 +93,19 @@ export class ForbiddenError extends AppError {
 }
 
 export class ConflictError extends AppError {
-  constructor(message: string, context?: any) {
+  constructor(message: string, context?: unknown) {
     super(message, ErrorCode.CONFLICT, 409, true, context);
   }
 }
 
 export class ExternalServiceError extends AppError {
-  constructor(service: string, message: string, context?: any) {
+  constructor(service: string, message: string, context?: unknown) {
     super(`${service}: ${message}`, ErrorCode.EXTERNAL_SERVICE_ERROR, 502, true, context);
   }
 }
 
 export class DatabaseError extends AppError {
-  constructor(message: string, context?: any) {
+  constructor(message: string, context?: unknown) {
     super(message, ErrorCode.DATABASE_ERROR, 500, true, context);
   }
 }

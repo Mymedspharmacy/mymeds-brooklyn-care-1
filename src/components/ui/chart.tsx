@@ -1,7 +1,7 @@
 import { ResponsiveContainer } from 'recharts';
 
 interface ChartProps {
-  children: React.ReactNode;
+  children: React.ReactElement;
   className?: string;
 }
 

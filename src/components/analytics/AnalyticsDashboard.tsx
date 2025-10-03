@@ -11,13 +11,13 @@ import { TrendingUp, TrendingDown, DollarSign, Users, ShoppingCart, Package } fr
 import { Chart } from '@/components/ui/chart';
 
 interface AnalyticsData {
-  orders: any[];
-  revenue: any[];
-  customers: any[];
-  products: any[];
-  monthlyStats: any[];
-  topProducts: any[];
-  customerSegments: any[];
+  orders: Array<{ value: number; total?: number; [key: string]: unknown }>;
+  revenue: Array<{ value: number; [key: string]: unknown }>;
+  customers: Array<{ value: number; [key: string]: unknown }>;
+  products: Array<{ value: number; [key: string]: unknown }>;
+  monthlyStats: Array<{ value: number; [key: string]: unknown }>;
+  topProducts: Array<{ value: number; [key: string]: unknown }>;
+  customerSegments: Array<{ value: number; [key: string]: unknown }>;
 }
 
 interface AnalyticsDashboardProps {
@@ -40,7 +40,7 @@ export function AnalyticsDashboard({ data, timeRange, onTimeRangeChange }: Analy
     : 0;
 
   const orderGrowth = data.orders.length > 1 
-    ? ((data.orders[data.orders.length - 1]?.total || 0) - (data.orders[data.orders.length - 2]?.total || 0)) / (data.orders[data.orders.length - 2]?.total || 1) * 100 
+    ? ((typeof data.orders[data.orders.length - 1]?.total === 'number' ? data.orders[data.orders.length - 1].total : 0) - (typeof data.orders[data.orders.length - 2]?.total === 'number' ? data.orders[data.orders.length - 2].total : 0)) / (typeof data.orders[data.orders.length - 2]?.total === 'number' ? data.orders[data.orders.length - 2].total : 1) * 100 
     : 0;
 
   const COLORS = ['#376f6b', '#57bbb6', '#2e8f88', '#31968a', '#ff6b6b', '#4ecdc4'];
@@ -167,7 +167,7 @@ export function AnalyticsDashboard({ data, timeRange, onTimeRangeChange }: Analy
                     borderRadius: '8px',
                     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                   }}
-                  formatter={(value: any) => [`$${value}`, 'Revenue']}
+                  formatter={(value: unknown) => [`$${typeof value === 'number' ? value : 0}`, 'Revenue']}
                 />
                 <Line 
                   type="monotone" 

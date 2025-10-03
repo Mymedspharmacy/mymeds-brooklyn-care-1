@@ -35,9 +35,16 @@ const ShopSection: React.FC = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const data: any = await wooCommerceAPI.getCategories();
-        const normalized = (data.categories ?? data ?? [])
-          .map((c: any) => ({ id: c.id, name: c.name, slug: c.slug }));
+        const data: unknown = await wooCommerceAPI.getCategories();
+        const dataArray = Array.isArray(data) ? data : (data && typeof data === 'object' && 'categories' in data && Array.isArray((data as { categories: unknown }).categories) ? (data as { categories: unknown[] }).categories : []);
+        const normalized = dataArray
+          .map((c: unknown) => {
+            if (c && typeof c === 'object' && 'id' in c && 'name' in c && 'slug' in c) {
+              return { id: (c as { id: number }).id, name: (c as { name: string }).name, slug: (c as { slug: string }).slug };
+            }
+            return null;
+          })
+          .filter((item): item is { id: number; name: string; slug: string } => item !== null);
         setCategories(normalized);
       } catch (err) {
         console.error('Error fetching categories:', err);
@@ -52,25 +59,35 @@ const ShopSection: React.FC = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const params: any = { per_page: 12 };
+        const params: Record<string, unknown> = { per_page: 12 };
         if (selectedCategory !== 'all') params.category = selectedCategory;
-        const data: any = await wooCommerceAPI.getProducts(params);
-        const items = data.products ?? data ?? [];
-        const normalized: Product[] = items.map((p: any) => ({
-          id: p.id,
-          name: p.name,
-          price: p.price ?? p.regular_price ?? '0',
-          regular_price: p.regular_price ?? p.price ?? '0',
-          sale_price: p.sale_price ?? '0',
-          description: p.description ?? '',
-          short_description: p.short_description ?? '',
-          images: (p.images ?? []).map((img: any) => ({ id: img.id ?? 0, src: img.src, alt: img.alt ?? '' })),
-          categories: p.categories ?? [],
-          stock_status: p.stock_status ?? 'instock',
-          average_rating: p.average_rating ?? '0',
-          rating_count: p.rating_count ?? 0,
-          on_sale: !!p.on_sale,
-        }));
+        const data: unknown = await wooCommerceAPI.getProducts(params);
+        const items = Array.isArray(data) ? data : (data && typeof data === 'object' && 'products' in data && Array.isArray((data as { products: unknown }).products) ? (data as { products: unknown[] }).products : []);
+        const normalized: Product[] = items.map((p: unknown) => {
+          if (p && typeof p === 'object' && 'id' in p && 'name' in p) {
+            return {
+              id: (p as { id: number }).id,
+              name: (p as { name: string }).name,
+              price: ('price' in p ? (p as { price: string }).price : 'regular_price' in p ? (p as { regular_price: string }).regular_price : '0'),
+              regular_price: ('regular_price' in p ? (p as { regular_price: string }).regular_price : 'price' in p ? (p as { price: string }).price : '0'),
+              sale_price: ('sale_price' in p ? (p as { sale_price: string }).sale_price : '0'),
+              description: ('description' in p ? (p as { description: string }).description : ''),
+              short_description: ('short_description' in p ? (p as { short_description: string }).short_description : ''),
+              images: ('images' in p && Array.isArray((p as { images: unknown }).images) ? (p as { images: unknown[] }).images.map((img: unknown) => {
+                if (img && typeof img === 'object' && 'src' in img) {
+                  return { id: ('id' in img ? (img as { id: number }).id : 0), src: (img as { src: string }).src, alt: ('alt' in img ? (img as { alt: string }).alt : '') };
+                }
+                return { id: 0, src: '', alt: '' };
+              }) : []),
+              categories: ('categories' in p && Array.isArray((p as { categories: unknown }).categories) ? (p as { categories: unknown[] }).categories : []),
+              stock_status: ('stock_status' in p ? (p as { stock_status: string }).stock_status : 'instock'),
+              average_rating: ('average_rating' in p ? (p as { average_rating: string }).average_rating : '0'),
+              rating_count: ('rating_count' in p ? (p as { rating_count: number }).rating_count : 0),
+              on_sale: ('on_sale' in p ? !!(p as { on_sale: boolean }).on_sale : false),
+            };
+          }
+          return null;
+        }).filter((item): item is Product => item !== null);
         setProducts(normalized);
         setError(null);
       } catch (err) {
@@ -277,6 +294,23 @@ const ShopSection: React.FC = () => {
       <div className="text-center mt-12">
         <a
           href="/shop"
+          className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200"
+        >
+          View All Products
+          <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  );
+};
+
+export default ShopSection;
+
+
+
+
           className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200"
         >
           View All Products

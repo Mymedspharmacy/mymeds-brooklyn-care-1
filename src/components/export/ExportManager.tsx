@@ -161,7 +161,7 @@ export function ExportManager({
                           ? 'border-[#376F6B] bg-[#376F6B]/5 text-[#376F6B]'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
-                      onClick={() => setExportOptions(prev => ({ ...prev, format: format as any }))}
+                      onClick={() => setExportOptions(prev => ({ ...prev, format: format as "csv" | "excel" | "pdf" | "json" }))}
                     >
                       <div className="flex items-center space-x-2">
                         <IconComponent className="h-4 w-4" />
@@ -185,7 +185,7 @@ export function ExportManager({
                         ? 'border-[#376F6B] bg-[#376F6B]/5 text-[#376F6B]'
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
-                    onClick={() => setExportOptions(prev => ({ ...prev, dateRange: range as any }))}
+                    onClick={() => setExportOptions(prev => ({ ...prev, dateRange: range as "all" | "7d" | "30d" | "90d" | "custom" }))}
                   >
                     <span className="text-sm font-medium">{label}</span>
                   </div>

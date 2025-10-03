@@ -47,7 +47,7 @@ interface OpenFDASearchResult {
 
 class OpenFDAService {
   private baseUrl = 'https://api.fda.gov';
-  private cache = new Map<string, { data: any; timestamp: number }>();
+  private cache = new Map<string, { data: unknown; timestamp: number }>();
   private cacheTimeout = 30 * 60 * 1000; // 30 minutes
   private rateLimitDelay = 1000; // 1 second between requests
   private lastRequestTime = 0;
@@ -96,7 +96,7 @@ class OpenFDAService {
       });
       
       return result;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('OpenFDA: Search failed', { 
         query, 
         error: error.message,
@@ -182,7 +182,7 @@ class OpenFDAService {
       logger.info('OpenFDA: Drug details fetched successfully', { drugId });
       
       return result;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('OpenFDA: Failed to fetch drug details', { 
         drugId, 
         error: error.message,
@@ -222,7 +222,7 @@ class OpenFDAService {
       });
       
       return interactions;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('OpenFDA: Failed to fetch drug interactions', { 
         drugId, 
         error: error.message 
@@ -252,7 +252,7 @@ class OpenFDAService {
       });
       
       return reactions;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('OpenFDA: Failed to fetch adverse reactions', { 
         drugId, 
         error: error.message 
@@ -295,7 +295,7 @@ class OpenFDAService {
         message: 'OpenFDA API is accessible',
         timestamp: new Date().toISOString()
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         status: 'unhealthy',
         message: `OpenFDA API error: ${error.message}`,

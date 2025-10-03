@@ -1,10 +1,10 @@
 // Dependency Injection Container
 // Clean Architecture: Dependency Injection Layer
 
-export type Constructor<T = {}> = new (...args: any[]) => T;
+export type Constructor<T = {}> = new (...args: unknown[]) => T;
 export type Factory<T> = () => T;
 
-export interface ServiceDefinition<T = any> {
+export interface ServiceDefinition<T = unknown> {
   factory: Factory<T>;
   singleton: boolean;
 }
@@ -12,7 +12,7 @@ export interface ServiceDefinition<T = any> {
 export class Container {
   private static instance: Container;
   private services = new Map<string, ServiceDefinition>();
-  private instances = new Map<string, any>();
+  private instances = new Map<string, unknown>();
 
   private constructor() {}
 
@@ -85,7 +85,7 @@ export class Container {
   /**
    * Check if a service is registered
    */
-  public isRegistered(token: string | Constructor<any>): boolean {
+  public isRegistered(token: string | Constructor<unknown>): boolean {
     const key = typeof token === 'string' ? token : token.name;
     return this.services.has(key);
   }

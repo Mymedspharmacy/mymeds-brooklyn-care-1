@@ -85,7 +85,7 @@ export function useNotifications(soundEnabled: boolean = true) {
 
   const leaveUserRoom = (userId: number) => {
     if (socket) {
-      socket.leave(`user-${userId}`);
+      socket.emit('leave', `user-${userId}`);
     }
   };
 

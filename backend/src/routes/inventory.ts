@@ -18,7 +18,7 @@ router.get('/admin/all', secureAdminAuthMiddleware, async (req: Request, res: Re
 
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     
     if (search) {
       where.OR = [
@@ -66,11 +66,11 @@ router.get('/admin/all', secureAdminAuthMiddleware, async (req: Request, res: Re
         }
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Admin get inventory error:', error);
     res.status(500).json({
       error: 'Failed to fetch inventory',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -122,11 +122,11 @@ router.get('/admin/stats', secureAdminAuthMiddleware, async (req: Request, res: 
         recentMovements
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Admin inventory stats error:', error);
     res.status(500).json({
       error: 'Failed to fetch inventory statistics',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -170,11 +170,11 @@ router.get('/admin/:id', secureAdminAuthMiddleware, async (req: Request, res: Re
       success: true,
       data: product
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Admin get product error:', error);
     res.status(500).json({
       error: 'Failed to fetch product',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -226,11 +226,11 @@ router.put('/admin/:id/stock', secureAdminAuthMiddleware, async (req: Request, r
       data: updatedProduct,
       message: 'Stock updated successfully'
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Admin update stock error:', error);
     res.status(500).json({
       error: 'Failed to update stock',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -297,11 +297,11 @@ router.put('/admin/bulk-update', secureAdminAuthMiddleware, async (req: Request,
       data: results,
       message: 'Bulk update completed'
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Admin bulk update error:', error);
     res.status(500).json({
       error: 'Failed to perform bulk update',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -316,7 +316,7 @@ router.get('/admin/movements', secureAdminAuthMiddleware, async (req: Request, r
 
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     
     if (productId) {
       where.productId = parseInt(productId);
@@ -363,11 +363,11 @@ router.get('/admin/movements', secureAdminAuthMiddleware, async (req: Request, r
         }
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Admin get movements error:', error);
     res.status(500).json({
       error: 'Failed to fetch inventory movements',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -399,11 +399,11 @@ router.get('/admin/export', secureAdminAuthMiddleware, async (req: Request, res:
         data: products
       });
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Admin export inventory error:', error);
     res.status(500).json({
       error: 'Failed to export inventory',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -433,11 +433,11 @@ router.get('/admin/alerts', secureAdminAuthMiddleware, async (req: Request, res:
         count: lowStockProducts.length
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Admin get alerts error:', error);
     res.status(500).json({
       error: 'Failed to fetch low stock alerts',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });

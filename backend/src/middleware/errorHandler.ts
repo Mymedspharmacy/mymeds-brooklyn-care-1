@@ -20,11 +20,11 @@ export class AppError extends Error {
 }
 
 export class ValidationError extends AppError {
-  constructor(message: string, details?: any) {
+  constructor(message: string, details?: unknown) {
     super(message, 400, 'VALIDATION_ERROR');
     this.details = details;
   }
-  public details?: any;
+  public details?: unknown;
 }
 
 export class AuthenticationError extends AppError {
@@ -76,7 +76,7 @@ export const errorHandler = (
       url: req.url,
       ip: req.ip,
       userAgent: req.get('User-Agent'),
-      userId: (req as any).user?.userId || 'anonymous'
+      userId: (req as { user?: { userId: string } }).user?.userId || 'anonymous'
     }
   });
 
@@ -84,7 +84,7 @@ export const errorHandler = (
   let statusCode = 500;
   let message = 'Internal Server Error';
   let code = 'INTERNAL_ERROR';
-  let details: any = null;
+  let details: unknown = null;
 
   // Handle different error types
   if (error instanceof AppError) {
@@ -163,7 +163,7 @@ export const errorHandler = (
 };
 
 // Async error wrapper
-export const asyncHandler = (fn: Function) => {
+export const asyncHandler = (fn: (...args: unknown[]) => unknown) => {
   return (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
@@ -189,7 +189,7 @@ export const notFoundHandler = (req: Request, res: Response) => {
 };
 
 // Graceful shutdown handler
-export const gracefulShutdown = (server: any) => {
+export const gracefulShutdown = (server: { close: (callback: () => void) => void }) => {
   return (signal: string) => {
     logger.info(`Received ${signal}, shutting down gracefully...`);
     

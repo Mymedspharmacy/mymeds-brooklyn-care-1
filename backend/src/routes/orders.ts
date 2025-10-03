@@ -183,11 +183,11 @@ router.post('/guest-checkout', async (req: Request, res: Response) => {
       }
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating guest order:', error);
     res.status(500).json({
       error: 'Failed to create order',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -253,11 +253,11 @@ router.get('/guest-track', async (req: Request, res: Response) => {
       }
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error tracking guest order:', error);
     res.status(500).json({
       error: 'Failed to track order',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -283,11 +283,11 @@ router.get('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
     });
     
     res.json(orders);
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error fetching orders:', err);
     res.status(500).json({ 
       error: 'Failed to fetch orders',
-      message: err.message 
+      message: err instanceof Error ? err.message : 'Unknown error' 
     });
   }
 });
@@ -315,11 +315,11 @@ router.get('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) => 
     }
     
     res.json(order);
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error fetching order:', err);
     res.status(500).json({ 
       error: 'Failed to fetch order',
-      message: err.message 
+      message: err instanceof Error ? err.message : 'Unknown error' 
     });
   }
 });
@@ -355,11 +355,11 @@ router.put('/:id/status', unifiedAdminAuth, async (req: AuthRequest, res: Respon
       order
     });
     
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error updating order status:', err);
     res.status(500).json({ 
       error: 'Failed to update order status',
-      message: err.message 
+      message: err instanceof Error ? err.message : 'Unknown error' 
     });
   }
 });
@@ -378,11 +378,11 @@ router.delete('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) 
       message: 'Order deleted successfully'
     });
     
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error deleting order:', err);
     res.status(500).json({ 
       error: 'Failed to delete order',
-      message: err.message 
+      message: err instanceof Error ? err.message : 'Unknown error' 
     });
   }
 });
@@ -406,7 +406,7 @@ router.get('/admin/all', secureAdminAuthMiddleware, async (req: Request, res: Re
     const skip = (page - 1) * limit;
 
     // Build where clause
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (status) {
       where.status = status;
     }
@@ -443,11 +443,11 @@ router.get('/admin/all', secureAdminAuthMiddleware, async (req: Request, res: Re
         }
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Admin get orders error:', error);
     res.status(500).json({
       error: 'Failed to fetch orders',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -519,11 +519,11 @@ router.get('/admin/stats', secureAdminAuthMiddleware, async (req: Request, res: 
         }
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Admin order stats error:', error);
     res.status(500).json({
       error: 'Failed to fetch order statistics',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -558,11 +558,11 @@ router.put('/admin/:orderId/status', secureAdminAuthMiddleware, async (req: Requ
       data: order,
       message: `Order status updated to ${status}`
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Admin update order status error:', error);
     res.status(500).json({
       error: 'Failed to update order status',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -590,11 +590,11 @@ router.get('/admin/:orderId', secureAdminAuthMiddleware, async (req: Request, re
       success: true,
       data: order
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Admin get order error:', error);
     res.status(500).json({
       error: 'Failed to fetch order details',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -618,11 +618,11 @@ router.put('/admin/:orderId/cancel', secureAdminAuthMiddleware, async (req: Requ
       data: order,
       message: 'Order cancelled successfully'
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Admin cancel order error:', error);
     res.status(500).json({
       error: 'Failed to cancel order',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -632,7 +632,7 @@ router.get('/admin/export', secureAdminAuthMiddleware, async (req: Request, res:
   try {
     const { format = 'csv', status, startDate, endDate } = req.query;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (status) where.status = status;
     if (startDate || endDate) {
       where.createdAt = {};
@@ -663,11 +663,11 @@ router.get('/admin/export', secureAdminAuthMiddleware, async (req: Request, res:
         data: orders
       });
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Admin export orders error:', error);
     res.status(500).json({
       error: 'Failed to export orders',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -776,12 +776,12 @@ router.post('/admin/create', secureAdminAuthMiddleware, async (req: Request, res
       message: 'Order created successfully'
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Create order error:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to create order',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });

@@ -132,11 +132,11 @@ router.get('/', async (req: Request, res: Response) => {
       }
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error getting cart:', error);
     res.status(500).json({
       error: 'Failed to get cart',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -254,11 +254,11 @@ router.post('/add', async (req: Request, res: Response) => {
       }
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error adding item to cart:', error);
     res.status(500).json({
       error: 'Failed to add item to cart',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -302,11 +302,11 @@ router.put('/update/:itemId', async (req: Request, res: Response) => {
       message: 'Cart item updated'
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error updating cart item:', error);
     res.status(500).json({
       error: 'Failed to update cart item',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -325,11 +325,11 @@ router.delete('/remove/:itemId', async (req: Request, res: Response) => {
       message: 'Item removed from cart'
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error removing cart item:', error);
     res.status(500).json({
       error: 'Failed to remove item from cart',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -352,11 +352,11 @@ router.delete('/clear/:cartId', async (req: Request, res: Response) => {
       message: 'Cart cleared'
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error clearing cart:', error);
     res.status(500).json({
       error: 'Failed to clear cart',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -396,11 +396,11 @@ router.get('/summary/:cartId', async (req: Request, res: Response) => {
       }
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error getting cart summary:', error);
     res.status(500).json({
       error: 'Failed to get cart summary',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });

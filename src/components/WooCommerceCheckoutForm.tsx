@@ -14,7 +14,7 @@ interface WooCommerceCheckoutFormProps {
     quantity: number;
     total: string;
     product_id: number;
-    meta_data: Array<{ key: string; value: string }>;
+    meta_data?: Array<{ key: string; value: string }>;
   }>;
   total: number;
   onSuccess: (orderId: number) => void;
@@ -126,9 +126,9 @@ export const WooCommerceCheckoutForm = ({
       } else {
         throw new Error('Failed to create order');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error creating WooCommerce order:', err);
-      setError(err.message || 'Failed to create order. Please try again.');
+      setError(err instanceof Error ? err.message : 'Failed to create order. Please try again.');
     } finally {
       setLoading(false);
     }

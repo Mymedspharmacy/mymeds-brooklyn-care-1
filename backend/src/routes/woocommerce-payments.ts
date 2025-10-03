@@ -243,15 +243,15 @@ router.get('/payment-methods', async (req: Request, res: Response) => {
 
     // Get available payment gateways from WooCommerce
     const response = await wooCommerce.get('payment_gateways');
-    const paymentMethods = response.data.filter((gateway: any) => gateway.enabled);
+    const paymentMethods = response.data.filter((gateway: unknown) => gateway && typeof gateway === 'object' && 'enabled' in gateway && gateway.enabled);
 
     res.json({
       success: true,
-      paymentMethods: paymentMethods.map((method: any) => ({
-        id: method.id,
-        title: method.title,
-        description: method.description,
-        enabled: method.enabled
+      paymentMethods: paymentMethods.map((method: unknown) => ({
+        id: method && typeof method === 'object' && 'id' in method ? method.id : '',
+        title: method && typeof method === 'object' && 'title' in method ? method.title : '',
+        description: method && typeof method === 'object' && 'description' in method ? method.description : '',
+        enabled: method && typeof method === 'object' && 'enabled' in method ? method.enabled : false
       }))
     });
 

@@ -159,7 +159,7 @@ router.post('/', reviewSubmissionLimiter, sanitizeInput, async (req: Request, re
       }
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating review:', error);
     if (error.name === 'ZodError') {
       return res.status(400).json({
@@ -169,7 +169,7 @@ router.post('/', reviewSubmissionLimiter, sanitizeInput, async (req: Request, re
     }
     res.status(500).json({
       error: 'Failed to create review',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -183,7 +183,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limitNum = parseInt(limit.toString());
     const skip = (pageNum - 1) * limitNum;
     
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (status) where.status = status;
     
     const reviews = await prisma.review.findMany({
@@ -213,11 +213,11 @@ router.get('/', async (req: Request, res: Response) => {
       }
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching reviews:', error);
     res.status(500).json({
       error: 'Failed to fetch reviews',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -286,11 +286,11 @@ router.get('/product/:productId', async (req: Request, res: Response) => {
       totalReviews: totalReviews
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching reviews:', error);
     res.status(500).json({
       error: 'Failed to fetch reviews',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -304,7 +304,7 @@ router.get('/admin/all', async (req: Request, res: Response) => {
     const limitNum = parseInt(limit.toString());
     const skip = (pageNum - 1) * limitNum;
     
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (status) where.status = status;
     if (productId) where.productId = parseInt(productId.toString());
     
@@ -336,11 +336,11 @@ router.get('/admin/all', async (req: Request, res: Response) => {
       }
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching all reviews:', error);
     res.status(500).json({
       error: 'Failed to fetch reviews',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -383,11 +383,11 @@ router.put('/:id/status', async (req: Request, res: Response) => {
       review
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error updating review status:', error);
     res.status(500).json({
       error: 'Failed to update review status',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -418,11 +418,11 @@ router.delete('/:id', async (req: Request, res: Response) => {
       message: 'Review deleted successfully'
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error deleting review:', error);
     res.status(500).json({
       error: 'Failed to delete review',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });

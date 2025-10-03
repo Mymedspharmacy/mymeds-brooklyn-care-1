@@ -42,7 +42,7 @@ const DosageCalculator: React.FC = () => {
     let liquidML = 0;
     let liquidTsp = 0;
     let warning: string | null = null;
-    let recommendations: string[] = [];
+    const recommendations: string[] = [];
 
     if (formType === 'tablet') {
       tablets = prescribed / available;

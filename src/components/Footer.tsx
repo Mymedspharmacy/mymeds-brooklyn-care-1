@@ -1,5 +1,6 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { useState } from 'react';
+import { getErrorStatus } from "@/utils/errorUtils";
 import { 
   Phone, 
   Mail, 
@@ -319,12 +320,12 @@ export const Footer = () => {
                           alert('Thank you for subscribing! Check your email for confirmation.');
                         }
                       }
-                    } catch (error: any) {
+                    } catch (error: unknown) {
                       console.error('Newsletter subscription error:', error);
                       
-                      if (error.response?.status === 400) {
+                      if (getErrorStatus(error) === 400) {
                         alert('Please enter a valid email address.');
-                      } else if (error.response?.status === 500) {
+                      } else if (getErrorStatus(error) === 500) {
                         alert('Subscription failed. Please try again later or contact us directly.');
                       } else {
                         alert('Unable to subscribe at the moment. Please try again later.');
@@ -392,3 +393,4 @@ export const Footer = () => {
     </footer>
   );
 };
+

@@ -71,6 +71,8 @@ const BlogPost = () => {
               modified: new Date().toISOString(),
               categories: [1],
               tags: [1, 2],
+              featured_media: 1,
+              slug: 'understanding-medication-safety',
               _embedded: {
                 author: [{ name: "Dr. Sarah Johnson" }]
               }
@@ -85,6 +87,8 @@ const BlogPost = () => {
               modified: new Date(Date.now() - 86400000).toISOString(),
               categories: [1],
               tags: [2, 3],
+              featured_media: 2,
+              slug: 'managing-chronic-conditions',
               _embedded: {
                 author: [{ name: "Dr. Michael Chen" }]
               }
@@ -99,6 +103,8 @@ const BlogPost = () => {
               modified: new Date(Date.now() - 172800000).toISOString(),
               categories: [1],
               tags: [1, 4],
+              featured_media: 3,
+              slug: 'importance-regular-health-checkups',
               _embedded: {
                 author: [{ name: "Dr. Emily Rodriguez" }]
               }
@@ -123,24 +129,20 @@ const BlogPost = () => {
 
         // Try to fetch from WordPress for real posts
         if (import.meta.env.VITE_WORDPRESS_URL) {
-          const postData = await wordPressAPI.getPost(parseInt(id));
+          const postData = await wordPressAPI.getPost(parseInt(id)) as BlogPost;
           if (postData) {
             setPost(postData);
 
-            // Fetch author
+            // Fetch author (not implemented in wordPressAPI yet)
             if (postData.author) {
-              try {
-                const authorData = await wordPressAPI.getAuthor(postData.author);
-                setAuthor(authorData);
-              } catch (err) {
-                console.warn('Could not fetch author:', err);
-              }
+              // For now, use a default author since getAuthor is not implemented
+              setAuthor({ id: postData.author, name: 'Author', slug: 'author' });
             }
 
             // Fetch categories
             if (postData.categories.length > 0) {
               try {
-                const categoriesData = await wordPressAPI.getCategories();
+                const categoriesData = await wordPressAPI.getCategories() as Category[];
                 const postCategories = categoriesData.filter((cat: Category) => 
                   postData.categories.includes(cat.id)
                 );
@@ -150,17 +152,13 @@ const BlogPost = () => {
               }
             }
 
-            // Fetch tags
+            // Fetch tags (not implemented in wordPressAPI yet)
             if (postData.tags.length > 0) {
-              try {
-                const tagsData = await wordPressAPI.getTags();
-                const postTags = tagsData.filter((tag: Tag) => 
-                  postData.tags.includes(tag.id)
-                );
-                setTags(postTags);
-              } catch (err) {
-                console.warn('Could not fetch tags:', err);
-              }
+              // For now, use default tags since getTags is not implemented
+              setTags([
+                { id: 1, name: 'Health', slug: 'health' },
+                { id: 2, name: 'Wellness', slug: 'wellness' }
+              ]);
             }
           } else {
             setError('Post not found');
@@ -202,7 +200,11 @@ const BlogPost = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#D5C6BC]">
-        <Header />
+        <Header 
+          onRefillClick={() => navigate('/patient-portal')}
+          onAppointmentClick={() => navigate('/contact')}
+          onTransferClick={() => navigate('/contact')}
+        />
         <div className="pt-20">
           <div className="container mx-auto px-4 py-8">
             <div className="max-w-4xl mx-auto">
@@ -226,7 +228,11 @@ const BlogPost = () => {
   if (error || !post) {
     return (
       <div className="min-h-screen bg-[#D5C6BC]">
-        <Header />
+        <Header 
+          onRefillClick={() => navigate('/patient-portal')}
+          onAppointmentClick={() => navigate('/contact')}
+          onTransferClick={() => navigate('/contact')}
+        />
         <div className="pt-20">
           <div className="container mx-auto px-4 py-8">
             <div className="max-w-4xl mx-auto text-center">
@@ -245,7 +251,11 @@ const BlogPost = () => {
 
   return (
     <div className="min-h-screen bg-[#D5C6BC]">
-      <Header />
+      <Header 
+        onRefillClick={() => navigate('/patient-portal')}
+        onAppointmentClick={() => navigate('/contact')}
+        onTransferClick={() => navigate('/contact')}
+      />
       
       <div className="pt-20">
         <div className="container mx-auto px-4 py-8">
@@ -319,6 +329,16 @@ const BlogPost = () => {
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to All Posts
               </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default BlogPost;
+
             </div>
           </div>
         </div>

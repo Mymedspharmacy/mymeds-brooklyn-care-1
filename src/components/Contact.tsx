@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import api from '../lib/api';
 import { safeClipboard } from "@/utils/errorHandling";
 import { getPhoneNumber, getEmail, getTelLink, getMailtoLink } from "@/lib/contact";
+import { getErrorStatus } from "@/utils/errorUtils";
 
 export const Contact = () => {
   const [formData, setFormData] = useState({
@@ -133,9 +134,9 @@ export const Contact = () => {
           title: 'Message Sent Successfully!', 
           description: "Thank you for contacting us. We'll get back to you within 24 hours." 
         });
-      } catch (backendError: any) {
+      } catch (backendError: unknown) {
         // If backend endpoint doesn't exist, save to localStorage as fallback
-        if (backendError.response?.status === 404) {
+        if (getErrorStatus(backendError) === 404) {
           const contactData = {
             ...formData,
             fullName: `${formData.firstName} ${formData.lastName}`,
@@ -165,9 +166,7 @@ export const Contact = () => {
       });
       setCurrentStep(1);
       
-      setTimeout(() => {
-        onClose?.();
-      }, 2000);
+      // Success message will be shown, no need to close anything
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to send message. Please try again.';
       setError(errorMessage);

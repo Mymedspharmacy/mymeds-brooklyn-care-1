@@ -63,7 +63,7 @@ router.get('/', secureAdminAuthMiddleware, async (req: AuthRequest, res: Respons
     const { status, urgency, limit = '50' } = req.query;
     const limitNum = Math.min(parseInt(limit as string), 100);
     
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (status) where.status = status;
     if (urgency) where.urgency = urgency;
 
@@ -126,7 +126,7 @@ router.put('/:id', secureAdminAuthMiddleware, async (req: AuthRequest, res: Resp
     const { status, notes, completedDate } = req.body;
     const id = Number(req.params.id);
 
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     if (status) updateData.status = status;
     if (notes !== undefined) updateData.notes = notes;
     if (status === 'completed' && !completedDate) {
@@ -284,12 +284,12 @@ router.post('/admin/create', secureAdminAuthMiddleware, async (req: Request, res
       message: 'Refill request created successfully'
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Create refill request error:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to create refill request',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });

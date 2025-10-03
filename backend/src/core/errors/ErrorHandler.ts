@@ -25,8 +25,8 @@ export class ErrorHandler {
   ): void {
     const errorResponse: ErrorResponse = {
       success: false,
-      error: error.message,
-      code: error.code,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      code: error && typeof error === 'object' && 'code' in error ? error.code : undefined,
       timestamp: error.timestamp.toISOString(),
       path: req.path,
       method: req.method
@@ -34,8 +34,8 @@ export class ErrorHandler {
 
     // Log error with context
     logger.error('Operational Error', {
-      error: error.message,
-      code: error.code,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      code: error && typeof error === 'object' && 'code' in error ? error.code : undefined,
       statusCode: error.statusCode,
       path: req.path,
       method: req.method,
@@ -86,11 +86,11 @@ export class ErrorHandler {
    * Handle validation errors from express-validator
    */
   public static handleValidationError(
-    errors: any[],
+    errors: unknown[],
     req: Request,
     res: Response
   ): void {
-    const errorMessages = errors.map(err => err.msg).join(', ');
+    const errorMessages = errors.map(err => err && typeof err === 'object' && 'msg' in err && typeof err.msg === 'string' ? err.msg : 'Unknown error').join(', ');
     
     logger.warn('Validation Error', {
       errors: errors,
@@ -149,13 +149,13 @@ export class ErrorHandler {
    * Handle database errors
    */
   public static handleDatabaseError(
-    error: any,
+    error: unknown,
     req: Request,
     res: Response
   ): void {
     logger.error('Database Error', {
-      error: error.message,
-      code: error.code,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      code: error && typeof error === 'object' && 'code' in error ? error.code : undefined,
       path: req.path,
       method: req.method,
       ip: req.ip
@@ -189,7 +189,7 @@ export class ErrorHandler {
    * Main error handling middleware
    */
   public static handle(
-    error: any,
+    error: unknown,
     req: Request,
     res: Response,
     next: NextFunction
@@ -239,7 +239,7 @@ export class ErrorHandler {
    * Handle unhandled promise rejections
    */
   public static handleUnhandledRejection(): void {
-    process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
+    process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) => {
       logger.error('Unhandled Rejection', {
         reason: reason,
         promise: promise

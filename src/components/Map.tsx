@@ -194,7 +194,7 @@ export const Map = ({ showDetails = true, className = "" }: MapProps) => {
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveTab(tab.id as "map" | "street" | "satellite")}
               className={`px-3 py-2 rounded-lg text-xs font-medium transition-all duration-300 ${
                 activeTab === tab.id
                   ? 'bg-[#376F6B] text-white shadow-lg'

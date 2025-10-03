@@ -22,7 +22,7 @@ const getCachedProducts = (key: string) => {
   return null;
 };
 
-const setCachedProducts = (key: string, data: any) => {
+const setCachedProducts = (key: string, data: unknown) => {
   productCache.set(key, {
     data,
     timestamp: Date.now()
@@ -34,7 +34,7 @@ const clearProductCache = () => {
 };
 
 // Enhanced error handling with retry logic and development mode support
-const makeWooCommerceRequest = async (url: string, options: any, params?: any, retries = 3) => {
+const makeWooCommerceRequest = async (url: string, options: unknown, params?: unknown, retries = 3) => {
   // Validate required environment variables for production
   if (!process.env.WOOCOMMERCE_CONSUMER_KEY || !process.env.WOOCOMMERCE_CONSUMER_SECRET || !process.env.WOOCOMMERCE_STORE_URL) {
     throw new Error('WooCommerce credentials not configured. Please set WOOCOMMERCE_CONSUMER_KEY, WOOCOMMERCE_CONSUMER_SECRET, and WOOCOMMERCE_STORE_URL environment variables.');
@@ -121,11 +121,11 @@ router.get('/settings', unifiedAdminAuth, async (req: AuthRequest, res: Response
     };
 
     res.json(safeSettings);
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error fetching WooCommerce settings:', err);
     res.status(500).json({ 
       error: 'Failed to fetch WooCommerce settings',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });
@@ -144,7 +144,7 @@ router.put('/settings', unifiedAdminAuth, async (req: AuthRequest, res: Response
       });
     }
 
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       enabled: enabled || false,
       updatedAt: new Date()
     };
@@ -180,11 +180,11 @@ router.put('/settings', unifiedAdminAuth, async (req: AuthRequest, res: Response
     };
 
     res.json(safeSettings);
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error updating WooCommerce settings:', err);
     res.status(500).json({ 
       error: 'Failed to update WooCommerce settings',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });
@@ -232,11 +232,11 @@ router.post('/test-connection', unifiedAdminAuth, async (req: AuthRequest, res: 
         apiVersion: 'v3'
       }
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error testing WooCommerce connection:', err);
     res.status(500).json({ 
       error: 'Failed to test connection',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined,
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined,
       suggestion: 'Check your store URL, consumer key, and consumer secret'
     });
   }
@@ -285,7 +285,7 @@ router.post('/sync-products', unifiedAdminAuth, async (req: AuthRequest, res: Re
     let errorCount = 0;
     let lowStockCount = 0;
     const errors: string[] = [];
-    const lowStockAlerts: any[] = [];
+    const lowStockAlerts: unknown[] = [];
 
     for (const product of products) {
       try {
@@ -318,10 +318,10 @@ router.post('/sync-products', unifiedAdminAuth, async (req: AuthRequest, res: Re
           
           if (variationsResponse) {
             const variations = await variationsResponse.json();
-            totalStock = variations.reduce((sum: number, variation: any) => sum + (variation.stock_quantity || 0), 0);
+            totalStock = variations.reduce((sum: number, variation: unknown) => sum + (variation && typeof variation === 'object' && 'stock_quantity' in variation && typeof variation.stock_quantity === 'number' ? variation.stock_quantity : 0), 0);
             
             // Check for low stock variations
-            variations.forEach((variation: any) => {
+            variations.forEach((variation: unknown) => {
               if (variation.stock_quantity > 0 && variation.stock_quantity <= 5) {
                 hasLowStock = true;
                 lowStockAlerts.push({
@@ -408,7 +408,7 @@ router.post('/sync-products', unifiedAdminAuth, async (req: AuthRequest, res: Re
 
         syncedCount++;
         if (hasLowStock) lowStockCount++;
-      } catch (productError: any) {
+      } catch (productError: unknown) {
         errorCount++;
         errors.push(`Product ${product.id}: ${productError.message}`);
       }
@@ -435,7 +435,7 @@ router.post('/sync-products', unifiedAdminAuth, async (req: AuthRequest, res: Re
       lowStockAlerts: lowStockAlerts.length > 0 ? lowStockAlerts : undefined,
       errorDetails: errors.length > 0 ? errors : undefined
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error syncing WooCommerce products:', err);
     
     // Update sync status with error
@@ -449,7 +449,7 @@ router.post('/sync-products', unifiedAdminAuth, async (req: AuthRequest, res: Re
 
     res.status(500).json({ 
       error: 'Failed to sync products',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined,
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined,
       suggestion: 'Check your WooCommerce credentials and store URL'
     });
   }
@@ -495,11 +495,11 @@ router.post('/generate-api-keys', unifiedAdminAuth, async (req: AuthRequest, res
         note: 'Keep these keys secure and do not share them publicly'
       }
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error generating API keys:', err);
     res.status(500).json({ 
       error: 'Failed to generate API keys',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });
@@ -566,11 +566,11 @@ router.post('/media/upload', unifiedAdminAuth, async (req: AuthRequest, res: Res
         alt: uploadedMedia.alt_text
       }
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error uploading media to WooCommerce:', err);
     res.status(500).json({ 
       error: 'Failed to upload media to WooCommerce',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined,
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined,
       suggestion: 'Check your WooCommerce API credentials and ensure the media URL is accessible'
     });
   }
@@ -620,8 +620,8 @@ router.post('/products/upload', unifiedAdminAuth, async (req: AuthRequest, res: 
         width: dimensions.width || '',
         height: dimensions.height || ''
       } : undefined,
-      categories: categories ? categories.map((cat: any) => ({ id: cat.id })) : [],
-      images: images ? images.map((img: any) => ({ src: img.src, alt: img.alt || name })) : []
+      categories: categories ? categories.map((cat: unknown) => ({ id: cat && typeof cat === 'object' && 'id' in cat ? cat.id : 0 })) : [],
+      images: images ? images.map((img: unknown) => ({ src: img && typeof img === 'object' && 'src' in img && typeof img.src === 'string' ? img.src : '', alt: img && typeof img === 'object' && 'alt' in img && typeof img.alt === 'string' ? img.alt : name })) : []
     };
 
     // Create product in WooCommerce
@@ -654,11 +654,11 @@ router.post('/products/upload', unifiedAdminAuth, async (req: AuthRequest, res: 
         permalink: createdProduct.permalink
       }
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error uploading product to WooCommerce:', err);
     res.status(500).json({ 
       error: 'Failed to upload product to WooCommerce',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined,
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined,
       suggestion: 'Check your WooCommerce API credentials and product data'
     });
   }
@@ -699,7 +699,7 @@ router.get('/media', unifiedAdminAuth, async (req: AuthRequest, res: Response) =
     const totalPages = response.headers.get('X-WP-TotalPages');
 
     res.json({
-      media: media.map((item: any) => ({
+      media: media.map((item: unknown) => ({
         id: item.id,
         title: item.title,
         src: item.src,
@@ -714,11 +714,11 @@ router.get('/media', unifiedAdminAuth, async (req: AuthRequest, res: Response) =
         total_pages: parseInt(totalPages || '0')
       }
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error fetching WooCommerce media:', err);
     res.status(500).json({ 
       error: 'Failed to fetch WooCommerce media',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });
@@ -772,27 +772,27 @@ router.get('/inventory-status', unifiedAdminAuth, async (req: AuthRequest, res: 
         totalProducts,
         lowStockCount: lowStockProducts.length,
         outOfStockCount: outOfStockProducts.length,
-        totalStockValue: lowStockProducts.reduce((sum: number, p: any) => sum + (p.price * p.stock), 0)
+        totalStockValue: lowStockProducts.reduce((sum: number, p: unknown) => sum + (p && typeof p === 'object' && 'price' in p && 'stock' in p && typeof p.price === 'number' && typeof p.stock === 'number' ? p.price * p.stock : 0), 0)
       },
-      lowStockProducts: lowStockProducts.map((p: any) => ({
+      lowStockProducts: lowStockProducts.map((p: unknown) => ({
         id: p.id,
         name: p.name,
         stock: p.stock,
         price: p.price,
         category: p.category.name
       })),
-      outOfStockProducts: outOfStockProducts.map((p: any) => ({
+      outOfStockProducts: outOfStockProducts.map((p: unknown) => ({
         id: p.id,
         name: p.name,
         category: p.category.name
       })),
       categoryStock
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error fetching inventory status:', err);
     res.status(500).json({ 
       error: 'Failed to fetch inventory status',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });
@@ -861,11 +861,11 @@ router.put('/products/:id/stock', unifiedAdminAuth, async (req: AuthRequest, res
         updatedAt: new Date()
       }
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error updating product stock:', err);
     res.status(500).json({ 
       error: 'Failed to update stock',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });
@@ -908,7 +908,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
               }
             });
           }
-        } catch (error: any) {
+        } catch (error: unknown) {
           console.error(`Error updating product ${data.id}:`, error);
         }
         break;
@@ -921,7 +921,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
           });
           clearProductCache();
           console.log(`Webhook: Product deleted - ID: ${data.id}`);
-        } catch (error: any) {
+        } catch (error: unknown) {
           console.error(`Error deleting product ${data.id}:`, error);
         }
         break;
@@ -937,7 +937,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
     }
 
     res.json({ success: true, message: 'Webhook processed' });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error processing WooCommerce webhook:', err);
     res.status(500).json({ error: 'Failed to process webhook' });
   }
@@ -1014,7 +1014,7 @@ router.post('/auto-sync', async (req: Request, res: Response) => {
           
           if (variationsResponse) {
             const variations = await variationsResponse.json();
-            totalStock = variations.reduce((sum: number, variation: any) => sum + (variation.stock_quantity || 0), 0);
+            totalStock = variations.reduce((sum: number, variation: unknown) => sum + (variation && typeof variation === 'object' && 'stock_quantity' in variation && typeof variation.stock_quantity === 'number' ? variation.stock_quantity : 0), 0);
           }
         }
 
@@ -1058,7 +1058,7 @@ router.post('/auto-sync', async (req: Request, res: Response) => {
         }
 
         syncedCount++;
-      } catch (productError: any) {
+      } catch (productError: unknown) {
         errorCount++;
         errors.push(`Product ${product.id}: ${productError.message}`);
       }
@@ -1084,7 +1084,7 @@ router.post('/auto-sync', async (req: Request, res: Response) => {
       errorDetails: errors.length > 0 ? errors : undefined,
       timestamp: new Date()
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error in auto-sync:', err);
     
     // Update sync status with error
@@ -1098,7 +1098,7 @@ router.post('/auto-sync', async (req: Request, res: Response) => {
 
     res.status(500).json({ 
       error: 'Auto-sync failed',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });
@@ -1125,7 +1125,7 @@ router.get('/products', async (req: Request, res: Response) => {
     }
 
     // Build query parameters
-    const params: any = {
+    const params: Record<string, unknown> = {
       page: parseInt(page.toString()),
       per_page: parseInt(per_page.toString())
     };
@@ -1159,7 +1159,7 @@ router.get('/products', async (req: Request, res: Response) => {
     }
 
     const result = {
-      products: products.map((product: any) => ({
+      products: products.map((product: unknown) => ({
         id: product.id,
         name: product.name,
         description: product.description,
@@ -1187,11 +1187,11 @@ router.get('/products', async (req: Request, res: Response) => {
     setCachedProducts(cacheKey, result);
 
     res.json(result);
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error fetching products:', err);
     res.status(500).json({ 
       error: 'Failed to fetch products',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });
@@ -1264,11 +1264,11 @@ router.post('/orders', async (req: Request, res: Response) => {
       }
     });
 
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error creating WooCommerce order:', err);
     res.status(500).json({ 
       error: 'Failed to create order',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });
@@ -1327,7 +1327,7 @@ router.get('/orders', async (req: Request, res: Response) => {
 
     res.json({
       success: true,
-      orders: orders.map((order: any) => ({
+      orders: orders.map((order: unknown) => ({
         id: order.id,
         order_number: order.number || order.id,
         status: order.status,
@@ -1379,11 +1379,11 @@ router.get('/orders', async (req: Request, res: Response) => {
       }
     });
 
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error fetching WooCommerce orders:', err);
     res.status(500).json({ 
       error: 'Failed to fetch orders',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });
@@ -1419,8 +1419,8 @@ router.get('/orders/stats', async (req: Request, res: Response) => {
     const recentOrders = await recentOrdersResponse.json();
 
     // Calculate total revenue from completed orders
-    const totalRevenue = recentOrders.reduce((sum: number, order: any) => {
-      return sum + parseFloat(order.total || '0');
+    const totalRevenue = recentOrders.reduce((sum: number, order: unknown) => {
+      return sum + parseFloat(order && typeof order === 'object' && 'total' in order && typeof order.total === 'string' ? order.total : '0');
     }, 0);
 
     // Calculate average order value
@@ -1440,11 +1440,11 @@ router.get('/orders/stats', async (req: Request, res: Response) => {
       }
     });
 
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error fetching WooCommerce order statistics:', err);
     res.status(500).json({ 
       error: 'Failed to fetch order statistics',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });
@@ -1480,11 +1480,11 @@ router.get('/orders/:id', async (req: Request, res: Response) => {
       order
     });
 
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error(`Error fetching WooCommerce order ${req.params.id}:`, err);
     res.status(500).json({ 
       error: 'Failed to fetch order',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });
@@ -1533,11 +1533,11 @@ router.put('/orders/:id/status', async (req: Request, res: Response) => {
       }
     });
 
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error(`Error updating WooCommerce order ${req.params.id} status:`, err);
     res.status(500).json({ 
       error: 'Failed to update order status',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });
@@ -1588,11 +1588,11 @@ router.get('/status', async (req: Request, res: Response) => {
         error: error instanceof Error ? error.message : 'Unknown error'
       });
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error checking WooCommerce status:', err);
     res.status(500).json({ 
       error: 'Failed to check WooCommerce status',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });
@@ -1617,11 +1617,11 @@ router.get('/sync-status', unifiedAdminAuth, async (req: AuthRequest, res: Respo
       cacheStatus: productCache.size > 0 ? 'active' : 'empty',
       status: settings?.lastError ? 'error' : 'idle' // idle, syncing, error
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error fetching WooCommerce sync status:', err);
     res.status(500).json({ 
       error: 'Failed to fetch sync status',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });
@@ -1637,11 +1637,11 @@ router.post('/clear-cache', unifiedAdminAuth, async (req: AuthRequest, res: Resp
       success: true,
       message: 'Cache cleared successfully'
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error clearing cache:', err);
     res.status(500).json({ 
       error: 'Failed to clear cache',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
 });
@@ -1660,7 +1660,7 @@ router.post('/clear-cache-dev', async (req: Request, res: Response) => {
       message: 'Cache cleared successfully (dev)',
       timestamp: new Date().toISOString()
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error clearing cache:', err);
     res.status(500).json({ 
       error: 'Failed to clear cache',
@@ -1688,7 +1688,7 @@ router.get('/categories', async (req, res) => {
     }
     const categories = await response.json();
     res.json(categories);
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Return empty array instead of error for better UX
     res.json([]);
   }
@@ -1713,7 +1713,7 @@ router.get('/products/:id', async (req, res) => {
     }
     const product = await response.json();
     res.json({ product });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({ error: 'Failed to fetch product', details: error.message });
   }
 });

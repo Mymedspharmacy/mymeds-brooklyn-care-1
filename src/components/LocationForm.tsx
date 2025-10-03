@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
+import { getErrorStatus } from '@/utils/errorUtils';
 import api from '@/lib/api';
 
 interface Location {
@@ -178,16 +179,16 @@ export const LocationForm: React.FC<LocationFormProps> = ({
         setSuccess(false);
       }, 2000);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving location:', error);
       
       let errorMessage = isEditing ? 'Failed to update location' : 'Failed to create location';
       
-      if (error.response?.data?.error) {
+      if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'error' in error.response.data && typeof error.response.data.error === 'string') {
         errorMessage = error.response.data.error;
-      } else if (error.response?.status === 400) {
+      } else if (getErrorStatus(error) === 400) {
         errorMessage = 'Please check your input and try again.';
-      } else if (error.response?.status === 404) {
+      } else if (getErrorStatus(error) === 404) {
         errorMessage = 'Location not found.';
       }
 
@@ -583,3 +584,4 @@ export const LocationForm: React.FC<LocationFormProps> = ({
 };
 
 export default LocationForm;
+

@@ -67,7 +67,7 @@ export const WooCommerceCheckout: React.FC<WooCommerceCheckoutProps> = ({
       setCustomerInfo(prev => ({
         ...prev,
         [parent]: {
-          ...prev[parent as keyof CustomerInfo],
+          ...(prev[parent as keyof CustomerInfo] as Record<string, unknown>),
           [child]: value
         }
       }));
@@ -84,7 +84,7 @@ export const WooCommerceCheckout: React.FC<WooCommerceCheckoutProps> = ({
     setLoading(true);
 
     try {
-      const response = await fetch(`${env.API_URL}/api/woocommerce-payments/create-order`, {
+      const response = await fetch(`${env.BACKEND_URL}/api/woocommerce-payments/create-order`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

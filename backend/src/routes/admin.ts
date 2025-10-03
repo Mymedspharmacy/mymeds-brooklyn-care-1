@@ -446,7 +446,7 @@ router.get('/health/public', async (req: Request, res: Response) => {
       adminUserExists = !!adminUser;
       
       await prisma.$disconnect();
-    } catch (dbError: any) {
+    } catch (dbError: unknown) {
       dbStatus = 'error';
       console.error('Database connection error:', dbError);
     }
@@ -486,7 +486,7 @@ router.get('/export/:format', secureAdminAuthMiddleware, async (req: Request, re
       return res.status(400).json({ error: 'Invalid format. Use csv, json, or excel' });
     }
 
-    let data: any[] = [];
+    let data: unknown[] = [];
     let filename = '';
 
     switch (dataType) {
@@ -644,7 +644,7 @@ router.post('/test-notification', secureAdminAuthMiddleware, async (req: Request
         title: 'Test Notification',
         message: message || 'This is a test notification from the admin panel',
         type: type,
-        userId: parseInt((req as any).user?.userId),
+        userId: parseInt((req as { user?: { userId: string } }).user?.userId || '0'),
         read: false
       }
     });

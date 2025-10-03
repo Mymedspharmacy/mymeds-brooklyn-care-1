@@ -149,8 +149,8 @@ class BackupService {
 
       return finalFilepath;
 
-    } catch (error: any) {
-      logger.error('Database backup failed', { error: error.message });
+    } catch (error: unknown) {
+      logger.error('Database backup failed', { error: error instanceof Error ? error.message : 'Unknown error' });
       throw error;
     }
   }
@@ -191,7 +191,7 @@ class BackupService {
 
       return filepath;
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Files backup failed', { error: error.message });
       throw error;
     }
@@ -234,7 +234,7 @@ class BackupService {
       if (this.config.storage.ftp) {
         await this.uploadToFTP(filepath);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Remote storage upload failed', { 
         filepath, 
         error: error.message 
@@ -326,7 +326,7 @@ class BackupService {
         fs.unlinkSync(restoreFile);
       }
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Database restore failed', { error: error.message });
       throw error;
     }
@@ -381,7 +381,7 @@ class BackupService {
         logger.info('Cleanup completed', { deletedCount });
       }
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Backup cleanup failed', { error: error.message });
     }
   }
@@ -425,7 +425,7 @@ class BackupService {
         nextScheduledBackup: 'Daily at 2 AM' // This should be calculated based on cron schedule
       };
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to get backup status', { error: error.message });
       throw error;
     }

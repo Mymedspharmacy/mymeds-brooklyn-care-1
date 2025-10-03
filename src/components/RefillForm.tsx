@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { getErrorStatus } from "@/utils/errorUtils";
 import { HIPAAFormBanner } from "@/components/HIPAACompliance";
 import api from '../lib/api';
 
@@ -69,7 +70,7 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
     
     if (!formData.phone.trim()) {
       newErrors.phone = 'Phone number is required';
-    } else if (!/^[\+]?[1-9][\d]{0,15}$/.test(formData.phone.replace(/[\s\-\(\)]/g, ''))) {
+    } else if (!/^[+]?[1-9][\d]{0,15}$/.test(formData.phone.replace(/[\s\-()]/g, ''))) {
       newErrors.phone = 'Please enter a valid phone number';
     }
     
@@ -159,9 +160,9 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
           title: 'Refill Request Submitted!', 
           description: "We'll process your prescription refill and contact you when it's ready." 
         });
-      } catch (backendError: any) {
+      } catch (backendError: unknown) {
         // If backend endpoint doesn't exist, save to localStorage as fallback
-        if (backendError.response?.status === 404) {
+        if (getErrorStatus(backendError) === 404) {
           const refillData = {
             ...formData,
             prescriptionFile: prescriptionFile ? prescriptionFile.name : null,
@@ -723,4 +724,5 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
       </div>
     </div>
   );
+};
 };

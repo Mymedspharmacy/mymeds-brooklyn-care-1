@@ -157,6 +157,16 @@ class WooCommerceCartService {
           total: '0.00',
           total_tax: '0.00',
         },
+        currency: {
+          currency_code: 'USD',
+          currency_symbol: '$',
+          currency_minor_unit: 2,
+          currency_decimal_separator: '.',
+          currency_thousand_separator: ',',
+          currency_prefix: '$',
+          currency_suffix: '',
+        },
+        needsPayment: false,
         needsShipping: false,
       };
     }
@@ -405,6 +415,16 @@ class WooCommerceCartService {
 
     return {
       itemCount: cart.itemCount,
+      total: parseFloat(cart.totals.total),
+      formattedTotal: this.formatPrice(cart.totals.total, cart.currency),
+      isEmpty: cart.itemCount === 0,
+    };
+  }
+}
+
+export default WooCommerceCartService;
+
+
       total: parseFloat(cart.totals.total),
       formattedTotal: this.formatPrice(cart.totals.total, cart.currency),
       isEmpty: cart.itemCount === 0,

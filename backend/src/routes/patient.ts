@@ -449,7 +449,7 @@ router.get('/messages', auth, async (req: AuthRequest, res: Response) => {
     
     // For now, return empty messages array
     // In a real implementation, this would query a messages table
-    const messages: any[] = [];
+    const messages: unknown[] = [];
 
     res.json({ messages });
   } catch (err) {

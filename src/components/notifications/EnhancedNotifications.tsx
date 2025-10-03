@@ -21,7 +21,7 @@ interface Notification {
   message: string;
   read: boolean;
   createdAt: string;
-  data?: any;
+  data?: unknown;
   acknowledged?: boolean;
   acknowledgedAt?: string;
 }

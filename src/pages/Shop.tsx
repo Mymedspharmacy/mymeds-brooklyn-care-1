@@ -37,12 +37,6 @@ interface CartItem {
 }
 
 // WooCommerce checkout success handler
-const handleCheckoutSuccess = (orderId: number) => {
-  alert(`Order placed successfully! Your order number is: ${orderId}`);
-  // Clear WooCommerce cart
-  WooCommerceCartService.getInstance().clearCart();
-  setShowCheckout(false);
-};
 
 export default function Shop() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -58,6 +52,14 @@ export default function Shop() {
   const [cartLoading, setCartLoading] = useState(false);
 
   const cartService = WooCommerceCartService.getInstance();
+
+  // Handle checkout success
+  const handleCheckoutSuccess = (orderId: number) => {
+    alert(`Order placed successfully! Your order number is: ${orderId}`);
+    // Clear WooCommerce cart
+    WooCommerceCartService.getInstance().clearCart();
+    setShowCheckout(false);
+  };
 
   // Load WooCommerce cart on component mount
   useEffect(() => {
@@ -807,5 +809,7 @@ export default function Shop() {
       <Footer />
         </div>
       </>
+    );
+} 
     );
 } 

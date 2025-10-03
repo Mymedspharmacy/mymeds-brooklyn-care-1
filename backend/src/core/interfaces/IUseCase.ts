@@ -5,9 +5,9 @@ export interface IUseCase<Request, Response> {
   execute(request: Request): Promise<Response>;
 }
 
-export interface ICommand<Request, Response> extends IUseCase<Request, Response> {}
+export type ICommand<Request, Response> = IUseCase<Request, Response>
 
-export interface IQuery<Request, Response> extends IUseCase<Request, Response> {}
+export type IQuery<Request, Response> = IUseCase<Request, Response>
 
 // Base request and response types
 export interface BaseRequest {

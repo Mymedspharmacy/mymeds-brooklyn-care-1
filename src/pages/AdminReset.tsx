@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
 import api from '../lib/api';
+import { getErrorMessage } from '@/utils/errorUtils';
 import { Loader2, Lock, Eye, EyeOff, ArrowLeft, CheckCircle, XCircle } from 'lucide-react';
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -13,7 +14,8 @@ export default function AdminReset() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState('');
+  const [success, setSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const [tokenValid, setTokenValid] = useState(true);
@@ -27,12 +29,14 @@ export default function AdminReset() {
     e.preventDefault();
     setLoading(true);
     setError('');
-    setSuccess('');
+    setSuccess(false);
+    setSuccessMessage('');
     try {
       await api.post('/auth/admin-reset', { token, password });
-      setSuccess('Password reset successful! You can now sign in.');
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to reset password. The link may be invalid or expired.');
+      setSuccess(true);
+      setSuccessMessage('Password reset successful! You can now sign in.');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to reset password. The link may be invalid or expired.'));
     } finally {
       setLoading(false);
     }
@@ -79,7 +83,7 @@ export default function AdminReset() {
           {/* Success Message */}
           {success && (
             <div className="mb-4 flex items-center gap-2 text-green-600 bg-[#e6f7f6] px-3 py-2 rounded-lg w-full text-center border border-[#b2dfdb]">
-              <CheckCircle size={20} /> {success}
+              <CheckCircle size={20} /> {successMessage}
             </div>
           )}
 
@@ -153,6 +157,10 @@ export default function AdminReset() {
     </div>
 
       <Footer />
+        </div>
+      </>
+    );
+} 
         </div>
       </>
     );

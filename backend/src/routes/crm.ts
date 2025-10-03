@@ -16,7 +16,7 @@ router.get('/admin/customers', secureAdminAuthMiddleware, async (req: Request, r
 
     const skip = (page - 1) * limit;
 
-    const where: any = {
+    const where: Record<string, unknown> = {
       role: 'USER' // Only show customers/users, exclude admin accounts
     };
     
@@ -113,11 +113,11 @@ router.get('/admin/customers', secureAdminAuthMiddleware, async (req: Request, r
         }
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Admin get customers error:', error);
     res.status(500).json({
       error: 'Failed to fetch customers',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -210,11 +210,11 @@ router.get('/admin/customers/:id', secureAdminAuthMiddleware, async (req: Reques
         }
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Admin get customer error:', error);
     res.status(500).json({
       error: 'Failed to fetch customer details',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -262,11 +262,11 @@ router.put('/admin/customers/:id', secureAdminAuthMiddleware, async (req: Reques
       data: updatedCustomer,
       message: 'Customer updated successfully'
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Admin update customer error:', error);
     res.status(500).json({
       error: 'Failed to update customer',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -353,11 +353,11 @@ router.get('/admin/stats', secureAdminAuthMiddleware, async (req: Request, res: 
         customerSegments
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Admin CRM stats error:', error);
     res.status(500).json({
       error: 'Failed to fetch CRM statistics',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -402,11 +402,11 @@ router.get('/admin/customers/:id/interactions', secureAdminAuthMiddleware, async
         }
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Admin get interactions error:', error);
     res.status(500).json({
       error: 'Failed to fetch customer interactions',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -451,11 +451,11 @@ router.post('/admin/customers/:id/interactions', secureAdminAuthMiddleware, asyn
       data: interaction,
       message: 'Interaction added successfully'
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Admin add interaction error:', error);
     res.status(500).json({
       error: 'Failed to add interaction',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -504,11 +504,11 @@ router.get('/admin/customers/:id/orders', secureAdminAuthMiddleware, async (req:
         }
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Admin get customer orders error:', error);
     res.status(500).json({
       error: 'Failed to fetch customer orders',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -547,11 +547,11 @@ router.get('/admin/customers/export', secureAdminAuthMiddleware, async (req: Req
         data: customers
       });
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Admin export customers error:', error);
     res.status(500).json({
       error: 'Failed to export customer data',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });

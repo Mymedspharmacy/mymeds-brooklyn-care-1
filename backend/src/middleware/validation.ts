@@ -48,7 +48,7 @@ export const userSchemas = {
         .regex(/^[a-zA-Z\s'-]+$/, 'Name contains invalid characters')
         .transform(val => val.trim()),
       phone: z.string()
-        .regex(/^\+?[\d\s\-\(\)]+$/, 'Invalid phone number format')
+        .regex(/^\+?[\d\s\-()]+$/, 'Invalid phone number format')
         .optional(),
       dateOfBirth: z.string()
         .regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)')
@@ -75,7 +75,7 @@ export const userSchemas = {
         .transform(val => val.trim())
         .optional(),
       phone: z.string()
-        .regex(/^\+?[\d\s\-\(\)]+$/, 'Invalid phone number format')
+        .regex(/^\+?[\d\s\-()]+$/, 'Invalid phone number format')
         .optional(),
       address: z.object({
         street: z.string().min(5).max(200).optional(),
@@ -192,7 +192,7 @@ export const contactSchemas = {
         .email('Invalid email format')
         .transform(val => val.toLowerCase().trim()),
       phone: z.string()
-        .regex(/^\+?[\d\s\-\(\)]+$/, 'Invalid phone number format')
+        .regex(/^\+?[\d\s\-()]+$/, 'Invalid phone number format')
         .optional(),
       subject: z.string()
         .min(5, 'Subject too short')

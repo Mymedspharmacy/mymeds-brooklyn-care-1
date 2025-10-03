@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { unifiedAdminAuth } from './auth';
 
 interface AuthRequest extends Request {
-  user?: any;
+  user?: unknown;
 }
 
 const router = Router();

@@ -56,11 +56,11 @@ router.post('/', async (req: Request, res: Response) => {
       message: 'Contact form submitted successfully',
       contactId: contact.id
     });
-  } catch (err: any) {
+    } catch (err: unknown) {
     console.error('Error handling contact form:', err);
     res.status(500).json({ 
       error: 'Failed to submit contact form',
-      message: err.message 
+      message: err instanceof Error ? err.message : 'Unknown error' 
     });
   }
 });
@@ -79,11 +79,11 @@ router.get('/', secureAdminAuthMiddleware, async (req, res) => {
     });
     
     res.json(contacts);
-  } catch (err: any) {
+    } catch (err: unknown) {
     console.error('Error fetching contact forms:', err);
     res.status(500).json({ 
       error: 'Failed to fetch contact forms',
-      message: err.message 
+      message: err instanceof Error ? err.message : 'Unknown error' 
     });
   }
 });
@@ -102,11 +102,11 @@ router.put('/:id/read', secureAdminAuthMiddleware, async (req, res) => {
       message: 'Contact marked as read',
       contact
     });
-  } catch (err: any) {
+    } catch (err: unknown) {
     console.error('Error marking contact as read:', err);
     res.status(500).json({ 
       error: 'Failed to mark contact as read',
-      message: err.message 
+      message: err instanceof Error ? err.message : 'Unknown error' 
     });
   }
 });
@@ -123,11 +123,11 @@ router.delete('/:id', secureAdminAuthMiddleware, async (req, res) => {
       success: true,
       message: 'Contact form deleted successfully'
     });
-  } catch (err: any) {
+    } catch (err: unknown) {
     console.error('Error deleting contact form:', err);
     res.status(500).json({ 
       error: 'Failed to delete contact form',
-      message: err.message 
+      message: err instanceof Error ? err.message : 'Unknown error' 
     });
   }
 });
@@ -174,11 +174,11 @@ router.get('/stats/overview', secureAdminAuthMiddleware, async (req, res) => {
       thisMonth,
       recentContacts
     });
-  } catch (err: any) {
+    } catch (err: unknown) {
     console.error('Error fetching contact statistics:', err);
     res.status(500).json({ 
       error: 'Failed to fetch contact statistics',
-      message: err.message 
+      message: err instanceof Error ? err.message : 'Unknown error' 
     });
   }
 });
