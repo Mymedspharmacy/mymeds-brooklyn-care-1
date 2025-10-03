@@ -433,27 +433,27 @@ export class WooCommerceCartService {
         throw new Error('WooCommerce credentials not configured for cart service');
       }
 
-      // Fetch from WooCommerce API
-      const WooCommerceAPI = require('woocommerce-api');
-      const wooCommerce = new WooCommerceAPI({
-        url: process.env.WOOCOMMERCE_STORE_URL,
-        consumerKey: process.env.WOOCOMMERCE_CONSUMER_KEY,
-        consumerSecret: process.env.WOOCOMMERCE_CONSUMER_SECRET,
-        wpAPI: true,
-        version: 'wc/v3'
-      });
+      // Fetch from WooCommerce API using axios instead
+      const axios = (await import('axios')).default;
+      
+      const auth = Buffer.from(
+        `${process.env.WOOCOMMERCE_CONSUMER_KEY}:${process.env.WOOCOMMERCE_CONSUMER_SECRET}`
+      ).toString('base64');
 
-      const response = await new Promise((resolve, reject) => {
-        wooCommerce.get(`products/${productId}`, (err: any, data: any, res: any) => {
-          if (err) reject(err);
-          else resolve(JSON.parse(res));
-        });
-      });
+      const response = await axios.get(
+        `${process.env.WOOCOMMERCE_STORE_URL}/wp-json/wc/v3/products/${productId}`,
+        {
+          headers: {
+            'Authorization': `Basic ${auth}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
 
-      const product = response as any;
+      const product = response.data as Record<string, unknown>;
       return {
-        name: product.name,
-        price: product.price,
+        name: String(product.name || ''),
+        price: String(product.price || '0'),
       };
     } catch (error) {
       console.error('Error fetching product details:', error);

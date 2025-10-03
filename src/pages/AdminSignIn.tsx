@@ -33,7 +33,7 @@ export default function AdminSignIn() {
     
     const emailInput = document.getElementById('admin-email');
     if (emailInput) emailInput.focus();
-  }, []); // Empty dependency array to prevent infinite loop
+  }, [navigate]); // Add navigate to dependency array
 
   async function handleSubmit(e) {
     e.preventDefault();

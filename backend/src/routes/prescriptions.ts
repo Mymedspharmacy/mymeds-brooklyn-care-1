@@ -7,9 +7,7 @@ import fs from 'fs';
 import nodemailer from 'nodemailer';
 import { unifiedAdminAuth } from './auth';
 
-interface AuthRequest extends Request {
-  user?: any;
-}
+import { AuthRequest } from '../types/express';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -198,7 +196,7 @@ router.post('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
     const { medication, dosage, instructions } = req.body;
     const prescription = await prisma.prescription.create({
       data: {
-        userId: req.user.userId,
+        userId: parseInt(req.user.userId),
         patientName: req.user.name || 'Unknown Patient',
         medication,
         dosage,
@@ -215,7 +213,7 @@ router.post('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
 // User: get own prescriptions
 router.get('/my', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
-    const prescriptions = await prisma.prescription.findMany({ where: { userId: req.user.userId } });
+    const prescriptions = await prisma.prescription.findMany({ where: { userId: parseInt(req.user.userId) } });
     res.json(prescriptions);
   } catch (err) {
     console.error('Error fetching prescriptions:', err);

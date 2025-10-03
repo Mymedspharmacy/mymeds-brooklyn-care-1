@@ -9,7 +9,11 @@ import {
   trackLoginAttempt,
   isAccountRateLimited
 } from '../services/SecureAdminAuth';
+import { authenticateAdmin } from '../middleware/auth';
 import { PrismaClient } from '@prisma/client';
+import jwt from 'jsonwebtoken';
+import fs from 'fs';
+import path from 'path';
 
 const prisma = new PrismaClient();
 
@@ -52,11 +56,12 @@ router.post('/login', async (req: Request, res: Response) => {
       });
     }
 
-  } catch (error: any) {
-    console.error('Admin login error:', error.message);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('Admin login error:', errorMessage);
     
     // Check if it's a database connection error
-    if (error.message && error.message.includes("Can't reach database server")) {
+    if (errorMessage.includes("Can't reach database server")) {
       return res.status(500).json({
         error: 'Database connection failed. Please try again later.',
         code: 'DATABASE_ERROR'
@@ -64,7 +69,7 @@ router.post('/login', async (req: Request, res: Response) => {
     }
     
     // Check if it's a configuration error
-    if (error.message && error.message.includes('configuration')) {
+    if (errorMessage.includes('configuration')) {
       return res.status(500).json({
         error: 'Server configuration error. Please contact support.',
         code: 'CONFIG_ERROR'
@@ -91,7 +96,8 @@ router.post('/logout', secureAdminAuthMiddleware, async (req: Request, res: Resp
 
     const result = await secureAdminLogout(token);
     res.json(result);
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('Admin logout error:', error);
     res.status(500).json({
       error: 'Logout failed',
@@ -101,7 +107,7 @@ router.post('/logout', secureAdminAuthMiddleware, async (req: Request, res: Resp
 });
 
 // Get admin profile
-router.get('/profile', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
+router.get('/profile', authenticateAdmin, async (req: Request, res: Response) => {
   try {
     const userId = req.user?.userId;
     if (!userId) {
@@ -112,7 +118,7 @@ router.get('/profile', secureAdminAuthMiddleware, async (req: Request, res: Resp
     }
 
     const adminUser = await prisma.user.findUnique({
-      where: { id: userId, role: 'ADMIN' },
+      where: { id: parseInt(userId), role: 'ADMIN' },
       select: {
         id: true,
         email: true,
@@ -135,7 +141,8 @@ router.get('/profile', secureAdminAuthMiddleware, async (req: Request, res: Resp
       success: true,
       user: adminUser
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('Get admin profile error:', error);
     res.status(500).json({
       error: 'Failed to get admin profile',
@@ -145,7 +152,7 @@ router.get('/profile', secureAdminAuthMiddleware, async (req: Request, res: Resp
 });
 
 // Admin dashboard endpoint
-router.get('/dashboard', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
+router.get('/dashboard', authenticateAdmin, async (req: Request, res: Response) => {
   try {
     // Get dashboard statistics
     const [
@@ -225,11 +232,12 @@ router.get('/dashboard', secureAdminAuthMiddleware, async (req: Request, res: Re
       },
       message: 'Dashboard data retrieved successfully'
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('Admin dashboard error:', error);
     res.status(500).json({
       error: 'Failed to retrieve dashboard data',
-      message: error.message
+      message: errorMessage
     });
   }
 });
@@ -255,7 +263,7 @@ router.post('/change-password', secureAdminAuthMiddleware, csrfProtectionMiddlew
       });
     }
 
-    const result = await changeAdminPasswordSecurely(userId, currentPassword, newPassword);
+    const result = await changeAdminPasswordSecurely(parseInt(userId), currentPassword, newPassword);
     
     if (result.success) {
       res.json({
@@ -269,8 +277,9 @@ router.post('/change-password', secureAdminAuthMiddleware, csrfProtectionMiddlew
       });
     }
 
-  } catch (error: any) {
-    console.error('Change password error:', error.message);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('Change password error:', errorMessage);
     
     res.status(500).json({
       error: 'Password change failed',
@@ -293,10 +302,9 @@ router.post('/validate-session', async (req: Request, res: Response) => {
 
     // Use the secure auth middleware logic to validate session
     try {
-      const jwt = require('jsonwebtoken');
-      const { SECURITY_CONFIG } = require('../services/SecureAdminAuth');
+      const { SECURITY_CONFIG } = await import('../services/SecureAdminAuth');
       
-      const decoded = jwt.verify(token, SECURITY_CONFIG.JWT_SECRET) as any;
+      const decoded = jwt.verify(token, SECURITY_CONFIG.JWT_SECRET) as { id: string; userId: string; role: string; email: string; name?: string };
       
       if (!decoded || decoded.role !== 'ADMIN') {
         return res.status(401).json({
@@ -324,7 +332,7 @@ router.post('/validate-session', async (req: Request, res: Response) => {
         user: {
           id: decoded.userId,
           email: decoded.email,
-          name: decoded.name,
+          name: decoded.name || `${decoded.email}`,
           role: decoded.role
         }
       });
@@ -336,7 +344,8 @@ router.post('/validate-session', async (req: Request, res: Response) => {
       });
     }
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('Validate session error:', error);
     res.status(500).json({
       error: 'Session validation failed',
@@ -348,7 +357,7 @@ router.post('/validate-session', async (req: Request, res: Response) => {
 // Initialize admin user (for setup)
 router.post('/init', async (req: Request, res: Response) => {
   try {
-    const { SECURITY_CONFIG } = require('../services/SecureAdminAuth');
+    const { SECURITY_CONFIG } = await import('../services/SecureAdminAuth');
     
     // Check if admin user already exists
     let adminUser = await prisma.user.findUnique({
@@ -380,7 +389,8 @@ router.post('/init', async (req: Request, res: Response) => {
       }
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('Admin initialization error:', error);
     res.status(500).json({
       error: 'Failed to initialize admin user',
@@ -399,11 +409,12 @@ router.get('/health', secureAdminAuthMiddleware, async (req: Request, res: Respo
       user: {
         id: req.user?.userId,
         email: req.user?.email,
-        name: req.user?.name,
+        name: req.user?.name || req.user?.email,
         role: req.user?.role
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('Admin health check error:', error);
     res.status(500).json({
       error: 'Admin system health check failed',
@@ -455,7 +466,8 @@ router.get('/health/public', async (req: Request, res: Response) => {
         hasAdminPassword: !!process.env.ADMIN_PASSWORD
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('Public health check error:', error);
     res.status(500).json({
       error: 'Health check failed',
@@ -552,14 +564,15 @@ router.get('/export/:format', secureAdminAuthMiddleware, async (req: Request, re
       res.json({ data, format: 'excel', filename });
     }
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('Export error:', error);
-    res.status(500).json({ error: 'Failed to export data', message: error.message });
+    res.status(500).json({ error: 'Failed to export data', message: errorMessage });
   }
 });
 
 // Helper function to convert data to CSV
-function convertToCSV(data: any[]): string {
+function convertToCSV(data: Record<string, unknown>[]): string {
   if (!data || data.length === 0) return '';
   
   const headers = Object.keys(data[0]);
@@ -614,9 +627,10 @@ router.post('/backup', secureAdminAuthMiddleware, async (req: Request, res: Resp
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Content-Disposition', `attachment; filename=backup-${new Date().toISOString().split('T')[0]}.json`);
     res.json(backupData);
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('Backup error:', error);
-    res.status(500).json({ error: 'Failed to create backup', message: error.message });
+    res.status(500).json({ error: 'Failed to create backup', message: errorMessage });
   }
 });
 
@@ -630,7 +644,7 @@ router.post('/test-notification', secureAdminAuthMiddleware, async (req: Request
         title: 'Test Notification',
         message: message || 'This is a test notification from the admin panel',
         type: type,
-        userId: (req as any).user?.userId,
+        userId: parseInt((req as any).user?.userId),
         read: false
       }
     });
@@ -640,9 +654,10 @@ router.post('/test-notification', secureAdminAuthMiddleware, async (req: Request
       notification,
       message: 'Test notification sent successfully'
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('Test notification error:', error);
-    res.status(500).json({ error: 'Failed to send test notification', message: error.message });
+    res.status(500).json({ error: 'Failed to send test notification', message: errorMessage });
   }
 });
 
@@ -699,9 +714,10 @@ router.get('/delivery-orders', secureAdminAuthMiddleware, async (req: Request, r
       message: 'Delivery orders retrieved successfully'
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('Delivery orders error:', error);
-    res.status(500).json({ error: 'Failed to fetch delivery orders', message: error.message });
+    res.status(500).json({ error: 'Failed to fetch delivery orders', message: errorMessage });
   }
 });
 
@@ -712,8 +728,6 @@ router.get('/delivery-settings', secureAdminAuthMiddleware, async (req: Request,
     let settings;
     try {
       // In production, you'd have a settings table. For now, we'll use a simple file-based approach
-      const fs = require('fs');
-      const path = require('path');
       const settingsFile = path.join(__dirname, '../data/delivery-settings.json');
       
       if (fs.existsSync(settingsFile)) {
@@ -802,9 +816,10 @@ router.get('/delivery-settings', secureAdminAuthMiddleware, async (req: Request,
       message: 'Delivery settings retrieved successfully'
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('Get delivery settings error:', error);
-    res.status(500).json({ error: 'Failed to retrieve delivery settings', message: error.message });
+    res.status(500).json({ error: 'Failed to retrieve delivery settings', message: errorMessage });
   }
 });
 
@@ -844,8 +859,6 @@ router.put('/delivery-settings', secureAdminAuthMiddleware, async (req: Request,
 
     // Save to file system
     try {
-      const fs = require('fs');
-      const path = require('path');
       const settingsFile = path.join(__dirname, '../data/delivery-settings.json');
       
       // Ensure directory exists
@@ -868,9 +881,10 @@ router.put('/delivery-settings', secureAdminAuthMiddleware, async (req: Request,
       message: 'Delivery settings updated successfully'
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('Update delivery settings error:', error);
-    res.status(500).json({ error: 'Failed to update delivery settings', message: error.message });
+    res.status(500).json({ error: 'Failed to update delivery settings', message: errorMessage });
   }
 });
 

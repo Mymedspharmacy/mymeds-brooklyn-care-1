@@ -1,13 +1,26 @@
 import { Request } from 'express';
 
+export interface User {
+  id: string;
+  userId: string; // Alias for id for backward compatibility
+  email: string;
+  role: 'ADMIN' | 'CUSTOMER' | 'PHARMACIST' | 'STAFF';
+  firstName?: string;
+  lastName?: string;
+  name?: string; // Alias for firstName + lastName
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface AuthRequest extends Request {
-  user?: any;
+  user?: User;
 }
 
 // Augment Express Request globally
 declare module 'express-serve-static-core' {
   interface Request {
-    user?: any;
+    user?: User;
   }
 }
 

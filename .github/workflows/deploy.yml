@@ -1,0 +1,110 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: [ main, latest ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        npm ci
+        cd backend && npm ci
+        
+    - name: Build application
+      run: |
+        npm run build:prod
+        cd backend && npm run build
+        
+    - name: Deploy to VPS
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USERNAME }}
+        key: ${{ secrets.VPS_SSH_KEY }}
+        port: ${{ secrets.VPS_PORT }}
+        script: |
+          cd /var/www/mymeds-pharmacy
+          
+          # Create backup of current deployment
+          if [ -d "current" ]; then
+            sudo cp -r current backup-$(date +%Y%m%d-%H%M%S)
+            echo "✅ Backup created"
+          fi
+          
+          # Pull latest changes
+          git pull origin latest
+          echo "✅ Code updated"
+          
+          # Install/update dependencies
+          npm ci --production
+          cd backend && npm ci --production
+          cd ..
+          echo "✅ Dependencies updated"
+          
+          # Build application
+          npm run build:prod
+          cd backend && npm run build
+          cd ..
+          echo "✅ Application built"
+          
+          # Copy environment files
+          sudo cp env.production backend/.env
+          echo "✅ Environment configured"
+          
+          # Run database migrations
+          cd backend && npm run prisma:migrate
+          cd ..
+          echo "✅ Database migrated"
+          
+          # Restart services
+          sudo pm2 restart mymeds-backend
+          sudo systemctl reload nginx
+          echo "✅ Services restarted"
+          
+          # Health check
+          sleep 10
+          if curl -f http://localhost:4000/api/health > /dev/null 2>&1; then
+            echo "✅ Deployment successful - Health check passed"
+          else
+            echo "❌ Deployment failed - Health check failed"
+            # Rollback to previous version
+            if [ -d "backup-$(date +%Y%m%d-%H%M%S)" ]; then
+              sudo rm -rf current
+              sudo mv backup-$(date +%Y%m%d-%H%M%S) current
+              sudo pm2 restart mymeds-backend
+              echo "🔄 Rolled back to previous version"
+            fi
+            exit 1
+          fi
+          
+    - name: Notify deployment status
+      if: always()
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USERNAME }}
+        key: ${{ secrets.VPS_SSH_KEY }}
+        port: ${{ secrets.VPS_PORT }}
+        script: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "🚀 Deployment successful at $(date)"
+            # You can add notification logic here (email, Slack, etc.)
+          else
+            echo "❌ Deployment failed at $(date)"
+            # You can add failure notification logic here
+          fi

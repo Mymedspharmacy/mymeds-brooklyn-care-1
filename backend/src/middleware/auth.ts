@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { User } from '../types/express';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -15,12 +16,17 @@ interface AuthPayload {
   exp: number;
 }
 
-declare global {
-  namespace Express {
-    interface Request {
-      user?: AuthPayload;
-    }
-  }
+// Convert AuthPayload to User interface
+function convertAuthPayloadToUser(payload: AuthPayload): User {
+  return {
+    id: payload.userId,
+    userId: payload.userId,
+    email: payload.email,
+    role: payload.role as 'ADMIN' | 'CUSTOMER' | 'PHARMACIST' | 'STAFF',
+    isActive: true,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  };
 }
 
 export function authenticateToken(req: Request, res: Response, next: NextFunction) {
@@ -33,7 +39,7 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
 
   try {
     const payload = jwt.verify(token, JWT_SECRET) as AuthPayload;
-    req.user = payload;
+    req.user = convertAuthPayloadToUser(payload);
     next();
   } catch (error) {
     return res.status(403).json({ error: 'Invalid or expired token' });
@@ -55,7 +61,7 @@ export function authenticateAdmin(req: Request, res: Response, next: NextFunctio
       return res.status(403).json({ error: 'Admin access required' });
     }
     
-    req.user = payload;
+    req.user = convertAuthPayloadToUser(payload);
     next();
   } catch (error) {
     return res.status(403).json({ error: 'Invalid or expired token' });
@@ -69,7 +75,7 @@ export function optionalAuth(req: Request, res: Response, next: NextFunction) {
   if (token) {
     try {
       const payload = jwt.verify(token, JWT_SECRET) as AuthPayload;
-      req.user = payload;
+      req.user = convertAuthPayloadToUser(payload);
     } catch (error) {
       // Token is invalid, but we continue without authentication
       console.warn('Invalid token in optional auth:', error);

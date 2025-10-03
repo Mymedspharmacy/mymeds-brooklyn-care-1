@@ -1,7 +1,8 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 import rateLimit from 'express-rate-limit';
+import { AuthRequest } from '../types/express';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -19,7 +20,7 @@ const reviewSubmissionLimiter = rateLimit({
 });
 
 // Security middleware for input sanitization
-const sanitizeInput = (req: Request, res: Response, next: any) => {
+const sanitizeInput = (req: Request, res: Response, next: NextFunction) => {
   const sanitizeString = (str: string): string => {
     return str
       .trim()

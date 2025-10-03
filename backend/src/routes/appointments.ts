@@ -3,9 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { unifiedAdminAuth } from './auth';
 
-interface AuthRequest extends Request {
-  user?: any;
-}
+import { AuthRequest } from '../types/express';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -71,7 +69,7 @@ router.post('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
     const { date, reason, status } = req.body;
     const appointment = await prisma.appointment.create({
       data: {
-        userId: req.user.userId,
+        userId: parseInt(req.user.userId),
         patientName: req.user.name || 'Admin User',
         email: req.user.email || 'mymedspharmacy@outlook.com',
         phone: '',
@@ -91,7 +89,7 @@ router.post('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
 // User: get own appointments
 router.get('/my', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
-    const appointments = await prisma.appointment.findMany({ where: { userId: req.user.userId } });
+    const appointments = await prisma.appointment.findMany({ where: { userId: parseInt(req.user.userId) } });
     res.json(appointments);
   } catch (err) {
     console.error('Error fetching appointments:', err);

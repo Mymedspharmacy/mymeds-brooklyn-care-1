@@ -3,9 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 import { unifiedAdminAuth } from './auth';
 
-interface AuthRequest extends Request {
-  user?: any;
-}
+import { AuthRequest } from '../types/express';
 
 const router = Router();
 const prisma = new PrismaClient();

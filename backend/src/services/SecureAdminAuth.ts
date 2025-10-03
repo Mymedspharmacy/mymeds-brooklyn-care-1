@@ -435,7 +435,7 @@ export async function csrfProtectionMiddleware(req: Request, res: Response, next
     });
   }
 
-  const isValid = await validateCSRFToken(csrfToken, userId);
+  const isValid = await validateCSRFToken(csrfToken, parseInt(userId));
   if (!isValid) {
     return res.status(403).json({
       error: 'Invalid CSRF token',

@@ -6,9 +6,7 @@ import bcrypt from 'bcrypt';
 import multer from 'multer';
 import { unifiedAdminAuth } from './auth';
 
-interface AuthRequest extends Request {
-  user?: any;
-}
+import { AuthRequest } from '../types/express';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -67,7 +65,16 @@ function auth(req: AuthRequest, res: Response, next: NextFunction) {
     const token = header.split(' ')[1];
     const payload = jwt.verify(token, JWT_SECRET_ASSERTED);
     if (typeof payload === 'object' && 'userId' in payload) {
-      req.user = payload;
+      const jwtPayload = payload as { userId: string; email: string; role: string };
+      req.user = {
+        id: jwtPayload.userId,
+        userId: jwtPayload.userId,
+        email: jwtPayload.email,
+        role: jwtPayload.role as 'ADMIN' | 'CUSTOMER' | 'PHARMACIST' | 'STAFF',
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
       next();
     } else {
       res.status(401).json({ error: 'Invalid token' });
@@ -292,7 +299,7 @@ router.post('/register', upload.fields([
 // GET /api/patient/profile - Get patient profile
 router.get('/profile', auth, async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user.userId;
+    const userId = parseInt(req.user.userId);
     
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -319,7 +326,7 @@ router.get('/profile', auth, async (req: AuthRequest, res: Response) => {
 // PUT /api/patient/profile - Update patient profile
 router.put('/profile', auth, async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user.userId;
+    const userId = parseInt(req.user.userId);
     const { name, email } = req.body;
 
     const updatedUser = await prisma.user.update({
@@ -347,7 +354,7 @@ router.put('/profile', auth, async (req: AuthRequest, res: Response) => {
 // GET /api/patient/prescriptions - Get patient's prescriptions
 router.get('/prescriptions', auth, async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user.userId;
+    const userId = parseInt(req.user.userId);
     
     const prescriptions = await prisma.prescription.findMany({
       where: { userId },
@@ -377,7 +384,7 @@ router.get('/prescriptions', auth, async (req: AuthRequest, res: Response) => {
 // GET /api/patient/appointments - Get patient's appointments
 router.get('/appointments', auth, async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user.userId;
+    const userId = parseInt(req.user.userId);
     
     const appointments = await prisma.appointment.findMany({
       where: { userId },
@@ -405,7 +412,7 @@ router.get('/appointments', auth, async (req: AuthRequest, res: Response) => {
 // GET /api/patient/health-records - Get patient's health records (simulated)
 router.get('/health-records', auth, async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user.userId;
+    const userId = parseInt(req.user.userId);
     
     // For now, return simulated health records
     // In a real implementation, this would query a health records table
@@ -438,7 +445,7 @@ router.get('/health-records', auth, async (req: AuthRequest, res: Response) => {
 // GET /api/patient/messages - Get patient's messages
 router.get('/messages', auth, async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user.userId;
+    const userId = parseInt(req.user.userId);
     
     // For now, return empty messages array
     // In a real implementation, this would query a messages table
@@ -454,7 +461,7 @@ router.get('/messages', auth, async (req: AuthRequest, res: Response) => {
 // POST /api/patient/messages - Send a message to pharmacy team
 router.post('/messages', auth, async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user.userId;
+    const userId = parseInt(req.user.userId);
     const { subject, message } = req.body;
 
     if (!subject || !message) {
@@ -508,7 +515,7 @@ router.post('/messages', auth, async (req: AuthRequest, res: Response) => {
 // GET /api/patient/refill-requests - Get patient's refill requests
 router.get('/refill-requests', auth, async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user.userId;
+    const userId = parseInt(req.user.userId);
     
     const refillRequests = await prisma.refillRequest.findMany({
       where: { userId },
@@ -525,7 +532,7 @@ router.get('/refill-requests', auth, async (req: AuthRequest, res: Response) => 
 // GET /api/patient/transfer-requests - Get patient's transfer requests
 router.get('/transfer-requests', auth, async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user.userId;
+    const userId = parseInt(req.user.userId);
     
     const transferRequests = await prisma.transferRequest.findMany({
       where: { userId },
@@ -542,7 +549,7 @@ router.get('/transfer-requests', auth, async (req: AuthRequest, res: Response) =
 // GET /api/patient/dashboard - Get dashboard overview data
 router.get('/dashboard', auth, async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user.userId;
+    const userId = parseInt(req.user.userId);
     
     // Get counts for dashboard
     const [prescriptions, appointments, refillRequests, transferRequests] = await Promise.all([

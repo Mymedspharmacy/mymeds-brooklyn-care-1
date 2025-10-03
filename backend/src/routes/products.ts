@@ -5,9 +5,7 @@ import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { unifiedAdminAuth } from './auth';
 
-interface AuthRequest extends Request {
-  user?: any;
-}
+import { AuthRequest } from '../types/express';
 
 const router = Router();
 const prisma = new PrismaClient();

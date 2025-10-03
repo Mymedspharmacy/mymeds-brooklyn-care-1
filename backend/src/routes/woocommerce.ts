@@ -1,9 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { unifiedAdminAuth } from './auth';
-
-interface AuthRequest extends Request {
-  user?: any;
-}
+import { AuthRequest } from '../types/express';
 
 const router = Router();
 

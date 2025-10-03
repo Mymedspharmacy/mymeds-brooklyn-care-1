@@ -5,6 +5,7 @@ import { PrismaClient } from '@prisma/client';
 import nodemailer from 'nodemailer';
 import { Request, Response, NextFunction } from 'express';
 import { validate, userSchemas } from '../middleware/validation';
+import { User } from '../types/express';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -232,8 +233,17 @@ export function unifiedAdminAuth(req: Request, res: Response, next: NextFunction
   try {
     const token = header.split(' ')[1];
     const payload = jwt.verify(token, JWT_SECRET_ASSERTED);
-    if (typeof payload === 'object' && (payload as any).role === 'ADMIN') {
-      req.user = payload;
+    if (typeof payload === 'object' && (payload as { role: string }).role === 'ADMIN') {
+      const jwtPayload = payload as { userId: string; email: string; role: string };
+      req.user = {
+        id: jwtPayload.userId,
+        userId: jwtPayload.userId,
+        email: jwtPayload.email,
+        role: jwtPayload.role as 'ADMIN' | 'CUSTOMER' | 'PHARMACIST' | 'STAFF',
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
       return next();
     }
     return res.status(403).json({ error: 'Forbidden: admin only' });

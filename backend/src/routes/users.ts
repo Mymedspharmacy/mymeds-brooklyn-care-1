@@ -2,9 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { unifiedAdminAuth } from './auth';
 
-interface AuthRequest extends Request {
-  user?: any;
-}
+import { AuthRequest } from '../types/express';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -13,7 +11,7 @@ const prisma = new PrismaClient();
 router.get('/me', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
     const user = await prisma.user.findUnique({ 
-      where: { id: req.user.userId }, 
+      where: { id: parseInt(req.user.userId) }, 
       select: { id: true, email: true, name: true, role: true, createdAt: true } 
     });
     res.json(user);

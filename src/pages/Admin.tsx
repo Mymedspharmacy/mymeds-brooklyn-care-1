@@ -9,7 +9,7 @@ import {
   BarChart3, PieChart, LineChart, Activity,
   Package, Volume2, VolumeX, Shield, Plus, Clock,
   Truck, Navigation, AlertTriangle, AlertCircle,
-  Save, Zap, Check, ExternalLink
+  Save, Zap, Check, ExternalLink, FileText
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
