@@ -259,3 +259,4 @@ tar -czf /backups/mymeds_app_$(date +%Y%m%d_%H%M%S).tar.gz /var/www/mymeds
 
 ## Contact
 For deployment issues, check the troubleshooting section or review the application logs.
+

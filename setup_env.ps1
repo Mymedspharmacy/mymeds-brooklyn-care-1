@@ -122,3 +122,4 @@ Write-Host "Frontend: npm run dev" -ForegroundColor White
 Write-Host "Backend: cd backend && npm run dev" -ForegroundColor White
 Write-Host ""
 Write-Host "Note: Fill in actual values for WordPress/WooCommerce integration" -ForegroundColor Cyan
+
