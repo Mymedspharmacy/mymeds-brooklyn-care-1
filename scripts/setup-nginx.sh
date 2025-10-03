@@ -4,7 +4,7 @@
 # Nginx Setup Script for MyMeds Pharmacy
 # =============================================================================
 # This script configures Nginx web server with SSL and security settings
-# Domain: mymedspharmaceuticals.com
+# Domain: mymedspharmacyinc.com
 # =============================================================================
 
 set -e  # Exit on any error
@@ -17,7 +17,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-DOMAIN="mymedspharmaceuticals.com"
+DOMAIN="mymedspharmacyinc.com"
 APP_DIR="/var/www/mymeds"
 BACKEND_PORT="4000"
 
@@ -57,7 +57,7 @@ create_nginx_config() {
     
     cat > /etc/nginx/sites-available/mymeds <<'EOF'
 # MyMeds Pharmacy Inc. - Comprehensive Nginx Configuration
-# Domain: mymedspharmaceuticals.com
+# Domain: mymedspharmacyinc.com
 
 # Rate limiting zones
 limit_req_zone $binary_remote_addr zone=api:10m rate=10r/m;
@@ -66,7 +66,7 @@ limit_req_zone $binary_remote_addr zone=login:10m rate=1r/m;
 # Main MyMeds Site - HTTP (redirects to HTTPS)
 server {
     listen 80;
-    server_name mymedspharmaceuticals.com www.mymedspharmaceuticals.com;
+    server_name mymedspharmacyinc.com www.mymedspharmacyinc.com;
     
     # Redirect all HTTP traffic to HTTPS
     return 301 https://$server_name$request_uri;
@@ -75,25 +75,25 @@ server {
 # WordPress Blog Subdomain - HTTP
 server {
     listen 80;
-    server_name blog.mymedspharmaceuticals.com;
+    server_name blog.mymedspharmacyinc.com;
     return 301 https://blog.$server_name$request_uri;
 }
 
 # WooCommerce Shop Subdomain - HTTP
 server {
     listen 80;
-    server_name shop.mymedspharmaceuticals.com;
+    server_name shop.mymedspharmacyinc.com;
     return 301 https://shop.$server_name$request_uri;
 }
 
 # HTTPS - Main MyMeds Site
 server {
     listen 443 ssl http2;
-    server_name mymedspharmaceuticals.com www.mymedspharmaceuticals.com;
+    server_name mymedspharmacyinc.com www.mymedspharmacyinc.com;
     
     # SSL Configuration
-    ssl_certificate /etc/letsencrypt/live/mymedspharmaceuticals.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/mymedspharmaceuticals.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/mymedspharmacyinc.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/mymedspharmacyinc.com/privkey.pem;
     
     # Include SSL configuration
     include /etc/nginx/snippets/ssl-mymeds.conf;
@@ -183,11 +183,11 @@ server {
 # HTTPS - WordPress Blog
 server {
     listen 443 ssl http2;
-    server_name blog.mymedspharmaceuticals.com;
+    server_name blog.mymedspharmacyinc.com;
     
     # SSL Configuration
-    ssl_certificate /etc/letsencrypt/live/mymedspharmaceuticals.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/mymedspharmaceuticals.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/mymedspharmacyinc.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/mymedspharmacyinc.com/privkey.pem;
     
     # Include SSL configuration
     include /etc/nginx/snippets/ssl-mymeds.conf;
@@ -241,11 +241,11 @@ server {
 # HTTPS - WooCommerce Shop
 server {
         listen 443 ssl http2;
-        server_name shop.mymedspharmaceuticals.com;
+        server_name shop.mymedspharmacyinc.com;
     
         # SSL Configuration
-        ssl_certificate /etc/letsencrypt/live/mymedspharmaceuticals.com/fullchain.pem;
-        ssl_certificate_key /etc/letsencrypt/live/mymedspharmaceuticals.com/privkey.pem;
+        ssl_certificate /etc/letsencrypt/live/mymedspharmacyinc.com/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/mymedspharmacyinc.com/privkey.pem;
     
     # Include SSL configuration
     include /etc/nginx/snippets/ssl-mymeds.conf;
@@ -329,7 +329,7 @@ ssl_dhparam /etc/ssl/certs/dhparam.pem;
 # OCSP Stapling
 ssl_stapling on;
 ssl_stapling_verify on;
-ssl_trusted_certificate /etc/letsencrypt/live/mymedspharmaceuticals.com/chain.pem;
+ssl_trusted_certificate /etc/letsencrypt/live/mymedspharmacyinc.com/chain.pem;
 resolver 8.8.8.8 8.8.4.4 valid=300s;
 resolver_timeout 5s;
 EOF
@@ -582,5 +582,6 @@ main() {
 
 # Run main function
 main "$@"
+
 
 

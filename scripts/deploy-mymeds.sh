@@ -20,7 +20,7 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # Configuration
-DOMAIN="mymedspharmaceuticals.com"
+DOMAIN="mymedspharmacyinc.com"
 VPS_IP="72.60.116.253"
 APP_NAME="MyMeds Pharmacy Inc."
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -649,5 +649,6 @@ main() {
 
 # Run main function
 main "$@"
+
 
 

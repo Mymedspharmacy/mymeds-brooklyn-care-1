@@ -19,12 +19,12 @@ NC='\033[0m' # No Color
 # Configuration
 DOMAIN="mymedspharmacyinc.com"
 DOMAINS=(
-    "mymedspharmaceuticals.com"
-    "www.mymedspharmaceuticals.com"
-    "blog.mymedspharmaceuticals.com"
-    "shop.mymedspharmaceuticals.com"
+    "mymedspharmacyinc.com"
+    "www.mymedspharmacyinc.com"
+    "blog.mymedspharmacyinc.com"
+    "shop.mymedspharmacyinc.com"
 )
-EMAIL="admin@mymedspharmaceuticals.com"
+EMAIL="admin@mymedspharmacyinc.com"
 WEBROOT="/var/www/html"
 
 print_status() {
@@ -285,10 +285,10 @@ create_ssl_monitoring() {
 # MyMeds SSL Certificate Monitoring
 
 DOMAINS=(
-    "mymedspharmaceuticals.com"
-    "www.mymedspharmaceuticals.com"
-    "blog.mymedspharmaceuticals.com"
-    "shop.mymedspharmaceuticals.com"
+    "mymedspharmacyinc.com"
+    "www.mymedspharmacyinc.com"
+    "blog.mymedspharmacyinc.com"
+    "shop.mymedspharmacyinc.com"
 )
 
 LOG_FILE="/var/log/mymeds-ssl-monitor.log"
@@ -355,7 +355,7 @@ ssl_dhparam /etc/ssl/certs/dhparam.pem;
 # OCSP Stapling
 ssl_stapling on;
 ssl_stapling_verify on;
-ssl_trusted_certificate /etc/letsencrypt/live/mymedspharmaceuticals.com/chain.pem;
+ssl_trusted_certificate /etc/letsencrypt/live/mymedspharmacyinc.com/chain.pem;
 resolver 8.8.8.8 8.8.4.4 valid=300s;
 resolver_timeout 5s;
 EOF
@@ -486,5 +486,6 @@ main() {
 
 # Run main function
 main "$@"
+
 
 

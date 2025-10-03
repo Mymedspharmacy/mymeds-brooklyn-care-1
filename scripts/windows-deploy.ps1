@@ -9,7 +9,7 @@ param(
     [string]$Username = "root",
     
     [Parameter(Mandatory=$false)]
-    [string]$Domain = "mymedspharmaceuticals.com"
+    [string]$Domain = "mymedspharmacyinc.com"
 )
 
 Write-Host "==========================================" -ForegroundColor Cyan
@@ -76,5 +76,6 @@ Write-Host "`n==========================================" -ForegroundColor Cyan
 Write-Host "Deployment scripts ready on VPS!" -ForegroundColor Green
 Write-Host "Don't forget to configure DNS records first!" -ForegroundColor Yellow
 Write-Host "==========================================" -ForegroundColor Cyan
+
 
 
