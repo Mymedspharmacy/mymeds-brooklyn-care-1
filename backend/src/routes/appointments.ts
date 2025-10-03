@@ -98,6 +98,37 @@ router.get('/my', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
 });
 
 // Admin: get all appointments
+router.get('/admin/all', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+  try {
+    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
+    
+    const appointments = await prisma.appointment.findMany({
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true
+          }
+        }
+      },
+      orderBy: { date: 'asc' }
+    });
+
+    res.json({
+      success: true,
+      data: {
+        appointments
+      }
+    });
+  } catch (err) {
+    console.error('Error fetching all appointments:', err);
+    res.status(500).json({ error: 'Failed to fetch appointments' });
+  }
+});
+
+// Admin: get all appointments (legacy endpoint)
 router.get('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
@@ -108,6 +139,70 @@ router.get('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
   } catch (err) {
     console.error('Error fetching all appointments:', err);
     res.status(500).json({ error: 'Failed to fetch appointments' });
+  }
+});
+
+// Admin: get appointment statistics
+router.get('/admin/stats', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+  try {
+    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const [
+      totalAppointments,
+      todayAppointments,
+      pendingAppointments,
+      thisWeekAppointments,
+      thisMonthAppointments
+    ] = await Promise.all([
+      prisma.appointment.count(),
+      prisma.appointment.count({
+        where: {
+          date: {
+            gte: today,
+            lt: tomorrow
+          }
+        }
+      }),
+      prisma.appointment.count({
+        where: { status: 'PENDING' }
+      }),
+      prisma.appointment.count({
+        where: {
+          date: {
+            gte: new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
+          }
+        }
+      }),
+      prisma.appointment.count({
+        where: {
+          date: {
+            gte: new Date(today.getFullYear(), today.getMonth(), 1)
+          }
+        }
+      })
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        total: totalAppointments,
+        today: todayAppointments,
+        pending: pendingAppointments,
+        thisWeek: thisWeekAppointments,
+        thisMonth: thisMonthAppointments,
+        completed: await prisma.appointment.count({ where: { status: 'COMPLETED' } }),
+        cancelled: await prisma.appointment.count({ where: { status: 'CANCELLED' } }),
+        confirmed: await prisma.appointment.count({ where: { status: 'CONFIRMED' } })
+      }
+    });
+  } catch (err) {
+    console.error('Error fetching appointment stats:', err);
+    res.status(500).json({ error: 'Failed to fetch appointment statistics' });
   }
 });
 

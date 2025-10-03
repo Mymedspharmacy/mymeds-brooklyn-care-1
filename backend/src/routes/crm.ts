@@ -16,13 +16,20 @@ router.get('/admin/customers', secureAdminAuthMiddleware, async (req: Request, r
 
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: any = {
+      role: 'USER' // Only show customers/users, exclude admin accounts
+    };
     
     if (search) {
-      where.OR = [
-        { name: { contains: search } },
-        { email: { contains: search } },
-        { phone: { contains: search } }
+      where.AND = [
+        where,
+        {
+          OR: [
+            { name: { contains: search } },
+            { email: { contains: search } },
+            { phone: { contains: search } }
+          ]
+        }
       ];
     }
 

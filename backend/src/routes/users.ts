@@ -27,6 +27,7 @@ router.get('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
     let limit = parseInt(req.query.limit as string) || 20;
     if (limit > 100) limit = 100;
     const users = await prisma.user.findMany({ 
+      where: { role: 'USER' }, // Only return customers/users, not admin accounts
       select: { id: true, email: true, name: true, role: true, createdAt: true }, 
       take: limit 
     });

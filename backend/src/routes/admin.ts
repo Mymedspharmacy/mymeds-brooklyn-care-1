@@ -698,14 +698,12 @@ router.get('/delivery-orders', secureAdminAuthMiddleware, async (req: Request, r
       orderBy: { createdAt: 'desc' }
     });
 
-    // Add mock coordinates for demonstration (in production, you'd geocode the addresses)
-    const ordersWithLocations = orders.map((order, index) => ({
+    // Process orders with delivery locations
+    const ordersWithLocations = orders.map((order) => ({
       ...order,
-      coordinates: {
-        lat: 40.7128 + (Math.random() - 0.5) * 0.1, // NYC area with some variance
-        lng: -74.0060 + (Math.random() - 0.5) * 0.1
-      },
-      deliveryStatus: order.status === 'OUT_FOR_DELIVERY' ? 'IN_TRANSIT' : 'PREPARING'
+      coordinates: null, // Will be filled by address geocoding service in production
+      deliveryStatus: order.status === 'OUT_FOR_DELIVERY' ? 'IN_TRANSIT' : 'PREPARING',
+      note: 'Address geocoding required for delivery coordinates'
     }));
 
     res.json({

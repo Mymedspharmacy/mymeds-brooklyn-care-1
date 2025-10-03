@@ -243,9 +243,16 @@ const PatientPortal = () => {
     }
   };
 
-  // Mock data for demo
+  // Load real patient data
   useEffect(() => {
     if (isLoggedIn) {
+      loadPatientData();
+    }
+  }, [isLoggedIn]);
+
+  const loadPatientData = async () => {
+    try {
+      // Load prescriptions - using mock data for now since prescription endpoint needs refinement
       setPrescriptions([
         {
           id: '1',
@@ -266,23 +273,20 @@ const PatientPortal = () => {
           refills: 0,
           status: 'refill-needed',
           lastFilled: '2024-01-15',
-          nextRefill: '2024-01-15',
+          nextRefill: '2024:01-15',
           prescriber: 'Dr. Johnson'
         }
       ]);
 
-      setAppointments([
-        {
-          id: '1',
-          type: 'Medication Review',
-          date: '2024-02-15',
-          time: '10:00 AM',
-          status: 'scheduled',
-          provider: 'Dr. Chen',
-          notes: 'Annual medication review and consultation'
-        }
-      ]);
+      // Load real appointments from API
+      const appointmentsResponse = await api.get('/patient/appointments');
+      if (appointmentsResponse.data && appointmentsResponse.data.appointments) {
+        setAppointments(appointmentsResponse.data.appointments);
+      } else {
+        setAppointments([]);
+      }
 
+      // Health records - using mock data for now since health records endpoint needs implementation
       setHealthRecords([
         {
           id: '1',
@@ -301,8 +305,14 @@ const PatientPortal = () => {
           status: 'normal'
         }
       ]);
+    } catch (error) {
+      console.error('Failed to load patient data:', error);
+      // Set empty arrays on error
+      setPrescriptions([]);
+      setAppointments([]);
+      setHealthRecords([]);
     }
-  }, [isLoggedIn]);
+  };
 
   if (!isLoggedIn) {
     return (
