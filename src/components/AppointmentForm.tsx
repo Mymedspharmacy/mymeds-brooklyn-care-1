@@ -353,4 +353,3 @@ export const AppointmentForm = ({ isOpen, onClose, selectedService }: Appointmen
     </div>
   );
 };
-};

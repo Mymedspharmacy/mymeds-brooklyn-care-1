@@ -139,38 +139,38 @@ class WooCommerceCartService {
 
       return null;
     } catch (error) {
-      console.error('Error getting cart:', error);
-      // Return empty cart on error to prevent UI issues
-      return {
-        sessionKey: this.sessionKey || '',
-        items: [],
-        itemCount: 0,
-        totals: {
-          subtotal: '0.00',
-          subtotal_tax: '0.00',
-          fee_total: '0.00',
-          fee_tax: '0.00',
-          discount_total: '0.00',
-          discount_tax: '0.00',
-          shipping_total: '0.00',
-          shipping_tax: '0.00',
-          total: '0.00',
-          total_tax: '0.00',
-        },
-        currency: {
-          currency_code: 'USD',
-          currency_symbol: '$',
-          currency_minor_unit: 2,
-          currency_decimal_separator: '.',
-          currency_thousand_separator: ',',
-          currency_prefix: '$',
-          currency_suffix: '',
-        },
-        needsPayment: false,
-        needsShipping: false,
-      };
+        console.error('Error getting cart:', error);
+        // Return empty cart on error to prevent UI issues
+        return {
+          sessionKey: this.sessionKey || '',
+          items: [],
+          itemCount: 0,
+          totals: {
+            subtotal: '0.00',
+            subtotal_tax: '0.00',
+            fee_total: '0.00',
+            fee_tax: '0.00',
+            discount_total: '0.00',
+            discount_tax: '0.00',
+            shipping_total: '0.00',
+            shipping_tax: '0.00',
+            total: '0.00',
+            total_tax: '0.00',
+          },
+          currency: {
+            currency_code: 'USD',
+            currency_symbol: '$',
+            currency_minor_unit: 2,
+            currency_decimal_separator: '.',
+            currency_thousand_separator: ',',
+            currency_prefix: '$',
+            currency_suffix: '',
+          },
+          needsPayment: false,
+          needsShipping: false,
+        };
+      }
     }
-  }
 
   /**
    * Add item to cart
@@ -405,6 +405,8 @@ class WooCommerceCartService {
     const cart = await this.getCart();
     
     if (!cart) {
+
+
       return {
         itemCount: 0,
         total: 0,
@@ -423,14 +425,3 @@ class WooCommerceCartService {
 }
 
 export default WooCommerceCartService;
-
-
-      total: parseFloat(cart.totals.total),
-      formattedTotal: this.formatPrice(cart.totals.total, cart.currency),
-      isEmpty: cart.itemCount === 0,
-    };
-  }
-}
-
-export default WooCommerceCartService;
-

@@ -705,4 +705,3 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
     </div>
   );
 };
-};

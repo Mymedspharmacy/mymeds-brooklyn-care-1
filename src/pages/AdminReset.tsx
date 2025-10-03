@@ -93,7 +93,7 @@ export default function AdminReset() {
               <label className="block text-[#31968a] font-semibold mb-1" htmlFor="admin-reset-password">New Password</label>
               <input
                 id="admin-reset-password"
-                className="w-full border border-[#57bbb6] focus:border-[#2e8f88] focus:ring-2 focus:ring-[#57bbb6] p-3 pr-12 rounded-xl outline-none transition bg-[#f5fefd] placeholder-[#57bbb6] text-lg"
+                className="w-full border border-[#57bbb6] focus:border-[#2e8f88] focus:ring-2 focus:ring-[#57bbb6] p-3 pr-12 rounded-xl outline-none transition bg-[#f5fefd] placeholder-[# p-3 pr-12 rounded-xl outline-none transition bg-[#f5fefd] placeholder-[#57bbb6] text-lg"
                 placeholder="New password (min 8 characters)"
                 type={showPassword ? 'text' : 'password'}
                 value={password}
@@ -154,14 +154,10 @@ export default function AdminReset() {
           }
         `}</style>
       </div>
-    </div>
+      </div>
 
       <Footer />
         </div>
       </>
     );
-} 
-        </div>
-      </>
-    );
-} 
+}

@@ -117,7 +117,7 @@ const BlogPost = () => {
             setAuthor({ id: 1, name: samplePost._embedded.author[0].name, slug: 'sample-author' });
             setCategories([{ id: 1, name: 'Health & Wellness', slug: 'health-wellness' }]);
             setTags([
-              { id: 1, name: 'Medication Safety', slug: 'medication-safety' },
+              { id: 1, name: 'MedicationSafety', slug: 'medication-safety' },
               { id: 2, name: 'Health Tips', slug: 'health-tips' },
               { id: 3, name: 'Chronic Conditions', slug: 'chronic-conditions' },
               { id: 4, name: 'Preventive Care', slug: 'preventive-care' }
@@ -247,7 +247,7 @@ const BlogPost = () => {
         </div>
       </div>
     );
-  }
+ } 
 
   return (
     <div className="min-h-screen bg-[#D5C6BC]">
@@ -329,16 +329,6 @@ const BlogPost = () => {
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to All Posts
               </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default BlogPost;
-
             </div>
           </div>
         </div>
