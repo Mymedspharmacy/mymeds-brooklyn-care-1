@@ -100,24 +100,23 @@ class AdminAuth {
       throw new Error('No authentication token');
     }
 
-    try {
-      // Ensure token is set in headers
-      api.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
-      
-      // Use profile endpoint to get user info
-      const response = await api.get('/admin/profile');
-      if (response.status === 200 && response.data.success) {
-        this.user = response.data.user;
-        return this.user;
-      }
-      throw new Error('Invalid response from server');
-    } catch (error: any) {
-      // If token is invalid, clear it
-      if (error.response?.status === 401) {
-        await this.logout();
-      }
-      throw new Error(error.response?.data?.error || 'Failed to get user');
+    // Return cached user if available (since we don't have a profile endpoint)
+    if (this.user) {
+      return this.user;
     }
+
+    // Try to get user from localStorage
+    const storedUser = localStorage.getItem('admin-user');
+    if (storedUser) {
+      try {
+        this.user = JSON.parse(storedUser);
+        return this.user;
+      } catch (error) {
+        console.error('Failed to parse stored user:', error);
+      }
+    }
+
+    throw new Error('No user data available');
   }
 
   // Check if user is authenticated

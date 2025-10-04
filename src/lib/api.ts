@@ -26,38 +26,11 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Add response interceptor for token refresh
+// Add response interceptor for error handling (removed token refresh logic)
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config;
-    
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      
-      const token = localStorage.getItem('admin-token');
-      if (token) {
-        try {
-          // Try to refresh the token
-          const refreshResponse = await axios.post(`${API_BASE_URL}/auth/refresh`, {
-            token: token
-          });
-          
-          const newToken = refreshResponse.data.token;
-          localStorage.setItem('admin-token', newToken);
-          api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-          originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
-          
-          return api(originalRequest);
-        } catch (refreshError) {
-          // If refresh fails, clear the token and redirect to login
-          localStorage.removeItem('admin-token');
-          window.location.href = '/admin-signin';
-          return Promise.reject(refreshError);
-        }
-      }
-    }
-    
+    // Just return the error without trying to refresh tokens
     return Promise.reject(error);
   }
 );
