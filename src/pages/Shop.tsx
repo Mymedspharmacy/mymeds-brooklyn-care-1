@@ -11,7 +11,7 @@ import { NewsTicker } from "@/components/NewsTicker";
 import { SEOHead } from "@/components/SEOHead";
 import { wooCommerceAPI } from "@/lib/woocommerce";
 import WooCommerceCartService, { WooCommerceCart, WooCommerceCartItem } from "@/lib/woocommerceCart";
-import { BasicCheckoutForm } from "@/components/BasicCheckoutForm";
+import { WooCommerceCheckoutForm } from "@/components/WooCommerceCheckoutForm";
 
 // WooCommerce checkout configuration
 
@@ -618,14 +618,17 @@ export default function Shop() {
                 </div>
               </div>
 
-              {/* Basic Checkout Form */}
-              <BasicCheckoutForm 
+              {/* WooCommerce Checkout Form */}
+              <WooCommerceCheckoutForm 
                 cart={woocommerceCart?.items || []}
                 total={cartTotal}
-                onSuccess={(orderDetails) => {
+                onSuccess={(orderId, paymentDetails) => {
                   setShowCheckout(false);
-                  const successMessage = `🎉 Order Submitted Successfully!\n\nOrder Number: ${orderDetails.orderNumber}\nTotal: $${orderDetails.total.toFixed(2)}\n\nOur team will contact you to arrange payment and delivery.\n\nThank you for shopping with MyMeds Pharmacy!`;
+                  const successMessage = `🎉 Order Created Successfully!\n\nOrder Number: #${orderId}\nPayment Method: ${paymentDetails.paymentMethod}\nTotal: $${cartTotal.toFixed(2)}\n\n${paymentDetails.paymentUrl ? 'You will be redirected to complete payment securely.' : 'Your order is being processed.'}\n\nThank you for shopping with MyMeds Pharmacy!`;
                   alert(successMessage);
+                  
+                  // Clear cart after successful order
+                  WooCommerceCartService.getInstance().clearCart();
                 }}
                 onCancel={() => setShowCheckout(false)}
               />

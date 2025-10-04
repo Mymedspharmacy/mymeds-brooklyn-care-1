@@ -1,35 +1,28 @@
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, CreditCard, Lock } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Loader2, CreditCard, CheckCircle, AlertCircle, Lock, ExternalLink } from 'lucide-react';
+import { WooCommerceCartItem } from '@/lib/woocommerceCart';
 import { wooCommerceAPI } from '@/lib/woocommerce';
-import { WooCommercePaymentGateways } from './WooCommercePaymentGateways';
 
 interface WooCommerceCheckoutFormProps {
-  cart: Array<{
-    id: number;
-    name: string;
-    price: string;
-    quantity: number;
-    total: string;
-    product_id: number;
-    meta_data?: Array<{ key: string; value: string }>;
-  }>;
+  cart: WooCommerceCartItem[];
   total: number;
-  onSuccess: (orderId: number) => void;
+  currency?: string;
+  onSuccess: (orderId: number, paymentDetails: any) => void;
   onCancel: () => void;
 }
 
-export const WooCommerceCheckoutForm = ({ 
-  cart, 
-  total, 
-  onSuccess, 
-  onCancel 
-}: WooCommerceCheckoutFormProps) => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export const WooCommerceCheckoutForm: React.FC<WooCommerceCheckoutFormProps> = ({
+  cart,
+  total,
+  currency = 'USD',
+  onSuccess,
+  onCancel
+}) => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -39,11 +32,15 @@ export const WooCommerceCheckoutForm = ({
     city: '',
     state: '',
     zipCode: '',
-    country: 'USA',
-    notes: '',
-    paymentMethod: '',
-    paymentMethodTitle: ''
+    country: 'US',
+    notes: ''
   });
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [paymentGateways, setPaymentGateways] = useState<any[]>([]);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('');
+  const [loadingGateways, setLoadingGateways] = useState(true);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -52,38 +49,74 @@ export const WooCommerceCheckoutForm = ({
     }));
   };
 
-  const handlePaymentMethodChange = (method: string, title: string) => {
-    setFormData(prev => ({
-      ...prev,
-      paymentMethod: method,
-      paymentMethodTitle: title
-    }));
-  };
+  // Load available payment gateways
+  useEffect(() => {
+    const loadPaymentGateways = async () => {
+      try {
+        setLoadingGateways(true);
+        const gateways = await wooCommerceAPI.getPaymentGateways();
+        console.log('Payment gateways loaded:', gateways);
+        
+        if (Array.isArray(gateways) && gateways.length > 0) {
+          setPaymentGateways(gateways);
+          // Set default payment method
+          if (gateways.length > 0) {
+            setSelectedPaymentMethod(gateways[0].id);
+          }
+        } else {
+          console.warn('No payment gateways available');
+          // Set default to bank transfer if no gateways available
+          setSelectedPaymentMethod('bacs');
+        }
+      } catch (err) {
+        console.error('Error loading payment gateways:', err);
+        // Fallback to bank transfer
+        setSelectedPaymentMethod('bacs');
+        setError('Payment methods could not be loaded. Using bank transfer as default.');
+      } finally {
+        setLoadingGateways(false);
+      }
+    };
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    
-    // Validate required fields
-    const requiredFields = ['firstName', 'lastName', 'email', 'address', 'city', 'state', 'zipCode', 'paymentMethod'];
+    loadPaymentGateways();
+  }, []);
+
+  const validateForm = () => {
+    const requiredFields = ['firstName', 'lastName', 'email', 'address', 'city', 'state', 'zipCode'];
     for (const field of requiredFields) {
       if (!formData[field as keyof typeof formData]) {
-        setError(`${field === 'paymentMethod' ? 'Payment method' : field.charAt(0).toUpperCase() + field.slice(1)} is required`);
-        return;
+        setError(`${field.charAt(0).toUpperCase() + field.slice(1)} is required`);
+        return false;
       }
     }
 
-    // Validate email format
+    // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       setError('Please enter a valid email address');
-      return;
+      return false;
     }
 
-    setLoading(true);
-    setError(null);
+    if (!selectedPaymentMethod) {
+      setError('Please select a payment method');
+      return false;
+    }
 
+    return true;
+  };
+
+  const handleSubmitOrder = async () => {
     try {
-      // Create order through WooCommerce API
+      if (!validateForm()) {
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+
+      console.log('Creating order with data:', { formData, selectedPaymentMethod, cart, total });
+
+      // Create order data for WooCommerce
       const orderData = {
         billing: {
           first_name: formData.firstName,
@@ -106,201 +139,354 @@ export const WooCommerceCheckoutForm = ({
           country: formData.country
         },
         line_items: cart.map(item => ({
-          product_id: item.product_id,
+          product_id: item.id,
           quantity: item.quantity
         })),
-        payment_method: formData.paymentMethod,
-        payment_method_title: formData.paymentMethodTitle || formData.paymentMethod,
-        set_paid: false,
         customer_note: formData.notes || '',
+        payment_method: selectedPaymentMethod,
+        payment_method_title: getPaymentMethodTitle(selectedPaymentMethod),
+        set_paid: false, // Let WooCommerce handle payment processing
         status: 'pending'
       };
+
+      console.log('Order data prepared:', orderData);
 
       // Create order via WooCommerce API
       const response = await wooCommerceAPI.createOrder(orderData);
       
+      console.log('Order creation response:', response);
+
       if (response && response.order) {
-        // Order created successfully
-        onSuccess(response.order.id);
+        const order = response.order;
+        
+        // If there's a payment URL, redirect to it
+        if (order.payment_url) {
+          window.open(order.payment_url, '_blank');
+          onSuccess(order.id, {
+            paymentMethod: selectedPaymentMethod,
+            orderStatus: order.status,
+            paymentUrl: order.payment_url
+          });
+        } else {
+          // Direct success for orders without payment URL
+          onSuccess(order.id, {
+            paymentMethod: selectedPaymentMethod,
+            orderStatus: order.status
+          });
+        }
       } else {
-        throw new Error('Failed to create order');
+        throw new Error('Failed to create order - invalid response');
       }
-      
-    } catch (err: unknown) {
-      console.error('Error creating order:', err);
-      setError(err instanceof Error ? err.message : 'An error occurred while creating your order');
+    } catch (err) {
+      console.error('Order creation error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create order';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Customer Information */}
-      <div className="space-y-4">
-        <h4 className="font-semibold text-lg text-[#376F6B]">Customer Information</h4>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="firstName">First Name *</Label>
-            <Input
-              id="firstName"
-              value={formData.firstName}
-              onChange={(e) => handleInputChange('firstName', e.target.value)}
-              placeholder="John"
-              required
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="lastName">Last Name *</Label>
-            <Input
-              id="lastName"
-              value={formData.lastName}
-              onChange={(e) => handleInputChange('lastName', e.target.value)}
-              placeholder="Doe"
-              required
-            />
-          </div>
-        </div>
+  const getPaymentMethodTitle = (methodId: string) => {
+    const gateway = paymentGateways.find(g => g.id === methodId);
+    if (gateway) {
+      return gateway.title;
+    }
+    
+    // Fallback titles
+    switch (methodId) {
+      case 'bacs':
+        return 'Direct Bank Transfer';
+      case 'stripe':
+        return 'Credit Card (Stripe)';
+      case 'ppcp-gateway':
+        return 'PayPal';
+      case 'woocommerce_payments':
+        return 'WooPayments';
+      default:
+        return methodId;
+    }
+  };
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="email">Email *</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) => handleInputChange('email', e.target.value)}
-              placeholder="john.doe@example.com"
-              required
-            />
+  const getPaymentMethodDescription = (methodId: string) => {
+    switch (methodId) {
+      case 'bacs':
+        return 'Make your payment directly into our bank account. Please use your Order ID as the payment reference.';
+      case 'stripe':
+        return 'Pay securely with your credit or debit card.';
+      case 'ppcp-gateway':
+        return 'Pay with PayPal, Venmo, or Pay Later options.';
+      case 'woocommerce_payments':
+        return 'Pay with credit/debit card, Apple Pay, or Google Pay.';
+      default:
+        return 'Secure payment processing.';
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Customer Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Customer Information</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="firstName">First Name *</Label>
+              <Input
+                id="firstName"
+                value={formData.firstName}
+                onChange={(e) => handleInputChange('firstName', e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="lastName">Last Name *</Label>
+              <Input
+                id="lastName"
+                value={formData.lastName}
+                onChange={(e) => handleInputChange('lastName', e.target.value)}
+                required
+              />
+            </div>
           </div>
           
-          <div>
-            <Label htmlFor="phone">Phone</Label>
-            <Input
-              id="phone"
-              type="tel"
-              value={formData.phone}
-              onChange={(e) => handleInputChange('phone', e.target.value)}
-              placeholder="(555) 123-4567"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="email">Email Address *</Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleInputChange('email', e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => handleInputChange('phone', e.target.value)}
+              />
+            </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Shipping Address */}
-      <div className="space-y-4">
-        <h4 className="font-semibold text-lg text-[#376F6B]">Shipping Address</h4>
-        
-        <div>
-          <Label htmlFor="address">Street Address *</Label>
-          <Input
-            id="address"
-            value={formData.address}
-            onChange={(e) => handleInputChange('address', e.target.value)}
-            placeholder="123 Main St"
-            required
-          />
-        </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Shipping Address</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label htmlFor="address">Street Address *</Label>
+            <Input
+              id="address"
+              value={formData.address}
+              onChange={(e) => handleInputChange('address', e.target.value)}
+              required
+            />
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <Label htmlFor="city">City *</Label>
+              <Input
+                id="city"
+                value={formData.city}
+                onChange={(e) => handleInputChange('city', e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="state">State *</Label>
+              <Input
+                id="state"
+                value={formData.state}
+                onChange={(e) => handleInputChange('state', e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="zipCode">ZIP Code *</Label>
+              <Input
+                id="zipCode"
+                value={formData.zipCode}
+                onChange={(e) => handleInputChange('zipCode', e.target.value)}
+                required
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <Label htmlFor="city">City *</Label>
-            <Input
-              id="city"
-              value={formData.city}
-              onChange={(e) => handleInputChange('city', e.target.value)}
-              placeholder="Brooklyn"
-              required
-            />
+      {/* Payment Methods */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <CreditCard className="h-5 w-5" />
+            Payment Method
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {loadingGateways ? (
+            <div className="flex items-center justify-center p-4">
+              <Loader2 className="h-5 w-5 animate-spin mr-2" />
+              <span>Loading payment methods...</span>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {/* Bank Transfer (Always available) */}
+              <div 
+                className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                  selectedPaymentMethod === 'bacs' 
+                    ? 'border-[#57BBB6] bg-[#57BBB6]/5' 
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+                onClick={() => setSelectedPaymentMethod('bacs')}
+              >
+                <div className="flex items-center gap-3">
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="bacs"
+                    checked={selectedPaymentMethod === 'bacs'}
+                    onChange={() => setSelectedPaymentMethod('bacs')}
+                    className="text-[#57BBB6] focus:ring-[#57BBB6]"
+                  />
+                  <CreditCard className="h-5 w-5 text-[#57BBB6]" />
+                  <div className="flex-1">
+                    <h4 className="font-medium">Direct Bank Transfer</h4>
+                    <p className="text-sm text-gray-600">Pay directly to our bank account</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Dynamic Payment Gateways */}
+              {paymentGateways.map((gateway) => (
+                <div 
+                  key={gateway.id}
+                  className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                    selectedPaymentMethod === gateway.id 
+                      ? 'border-[#57BBB6] bg-[#57BBB6]/5' 
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                  onClick={() => setSelectedPaymentMethod(gateway.id)}
+                >
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value={gateway.id}
+                      checked={selectedPaymentMethod === gateway.id}
+                      onChange={() => setSelectedPaymentMethod(gateway.id)}
+                      className="text-[#57BBB6] focus:ring-[#57BBB6]"
+                    />
+                    <CreditCard className="h-5 w-5 text-[#57BBB6]" />
+                    <div className="flex-1">
+                      <h4 className="font-medium">{gateway.title}</h4>
+                      <p className="text-sm text-gray-600">{gateway.description || getPaymentMethodDescription(gateway.id)}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-center gap-2 text-blue-700 mb-2">
+              <Lock className="h-4 w-4" />
+              <span className="text-sm font-medium">Secure Payment</span>
+            </div>
+            <p className="text-xs text-blue-600">
+              {getPaymentMethodDescription(selectedPaymentMethod)}
+            </p>
           </div>
-          
-          <div>
-            <Label htmlFor="state">State *</Label>
-            <Input
-              id="state"
-              value={formData.state}
-              onChange={(e) => handleInputChange('state', e.target.value)}
-              placeholder="NY"
-              required
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="zipCode">ZIP Code *</Label>
-            <Input
-              id="zipCode"
-              value={formData.zipCode}
-              onChange={(e) => handleInputChange('zipCode', e.target.value)}
-              placeholder="11201"
-              required
-            />
-          </div>
-        </div>
-      </div>
+
+          {error && (
+            <div className="flex items-center gap-2 text-red-600 bg-red-50 p-3 rounded-lg">
+              <AlertCircle className="h-4 w-4" />
+              <span className="text-sm">{error}</span>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Order Notes */}
-      <div>
-        <Label htmlFor="notes">Order Notes (Optional)</Label>
-        <Input
-          id="notes"
-          value={formData.notes}
-          onChange={(e) => handleInputChange('notes', e.target.value)}
-          placeholder="Special instructions or delivery preferences"
-        />
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Order Notes</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Label htmlFor="notes">Special Instructions (Optional)</Label>
+          <Textarea
+            id="notes"
+            value={formData.notes}
+            onChange={(e) => handleInputChange('notes', e.target.value)}
+            placeholder="Any special instructions for your order..."
+            rows={3}
+          />
+        </CardContent>
+      </Card>
 
-      {/* Payment Information */}
-      <div className="space-y-4">
-        <h4 className="font-semibold text-lg text-[#376F6B]">Payment Information</h4>
-        
-        <WooCommercePaymentGateways
-          selectedMethod={formData.paymentMethod}
-          onPaymentMethodChange={handlePaymentMethodChange}
-        />
-      </div>
-
-      {/* Error Display */}
-      {error && (
-        <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg border border-red-200">
-          {error}
-        </div>
-      )}
+      {/* Order Summary */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Order Summary</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            {cart.map((item) => (
+              <div key={item.id} className="flex justify-between items-center py-2 border-b">
+                <div>
+                  <p className="font-medium">{item.name}</p>
+                  <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+                </div>
+                <p className="font-medium">${(parseFloat(item.price) * item.quantity).toFixed(2)}</p>
+              </div>
+            ))}
+            <div className="flex justify-between items-center py-2 font-bold text-lg border-t-2">
+              <span>Total:</span>
+              <span>${total.toFixed(2)}</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Action Buttons */}
-      <div className="flex gap-3">
-        <Button 
-          type="submit" 
-          disabled={loading} 
-          className="flex-1 bg-[#57BBB6] hover:bg-[#376F6B]"
-        >
-          {loading ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              Processing...
-            </>
-          ) : (
-            `Place Order - $${total.toFixed(2)}`
-          )}
-        </Button>
-        
-        <Button 
-          type="button" 
-          variant="outline" 
+      <div className="flex gap-4">
+        <Button
+          type="button"
+          variant="outline"
           onClick={onCancel}
-          disabled={loading}
+          className="flex-1"
         >
           Cancel
         </Button>
+        <Button
+          type="button"
+          onClick={handleSubmitOrder}
+          disabled={loading || loadingGateways || !validateForm()}
+          className="flex-1 bg-[#57BBB6] hover:bg-[#376F6B] text-white"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Creating Order...
+            </>
+          ) : (
+            <>
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Place Order ${total.toFixed(2)}
+            </>
+          )}
+        </Button>
       </div>
-
-      {/* Security Notice */}
-      <div className="text-xs text-gray-500 text-center">
-        Your payment information is secure and encrypted. 
-        Orders are processed through WooCommerce's secure payment system.
-      </div>
-    </form>
+    </div>
   );
 };
+
+export default WooCommerceCheckoutForm;
