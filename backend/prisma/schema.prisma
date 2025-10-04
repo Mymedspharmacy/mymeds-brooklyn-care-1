@@ -514,9 +514,9 @@ model CSRFToken {
 model AdminSession {
   id        Int      @id @default(autoincrement())
   userId    Int
-  token     String   @unique
+  token     String   @unique @db.Text
   ipAddress String
-  userAgent String?
+  userAgent String?  @db.Text
   expiresAt DateTime
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())

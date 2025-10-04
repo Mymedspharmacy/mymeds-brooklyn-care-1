@@ -223,7 +223,7 @@ export class ErrorHandler {
     }
 
     // Handle all other errors as programming errors
-    this.handleProgrammingError(error, req, res);
+    ErrorHandler.handleProgrammingError(error, req, res);
   }
 
   /**
