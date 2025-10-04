@@ -11,7 +11,7 @@ import { NewsTicker } from "@/components/NewsTicker";
 import { SEOHead } from "@/components/SEOHead";
 import { wooCommerceAPI } from "@/lib/woocommerce";
 import WooCommerceCartService, { WooCommerceCart, WooCommerceCartItem } from "@/lib/woocommerceCart";
-import { SimpleCheckoutForm } from "@/components/SimpleCheckoutForm";
+import { BasicCheckoutForm } from "@/components/BasicCheckoutForm";
 
 // WooCommerce checkout configuration
 
@@ -618,11 +618,15 @@ export default function Shop() {
                 </div>
               </div>
 
-              {/* Simple Checkout Form */}
-              <SimpleCheckoutForm 
+              {/* Basic Checkout Form */}
+              <BasicCheckoutForm 
                 cart={woocommerceCart?.items || []}
                 total={cartTotal}
-                onSuccess={handleCheckoutSuccess}
+                onSuccess={(orderDetails) => {
+                  setShowCheckout(false);
+                  const successMessage = `🎉 Order Submitted Successfully!\n\nOrder Number: ${orderDetails.orderNumber}\nTotal: $${orderDetails.total.toFixed(2)}\n\nOur team will contact you to arrange payment and delivery.\n\nThank you for shopping with MyMeds Pharmacy!`;
+                  alert(successMessage);
+                }}
                 onCancel={() => setShowCheckout(false)}
               />
             </div>
