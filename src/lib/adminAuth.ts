@@ -41,25 +41,23 @@ class AdminAuth {
     try {
       console.log('Attempting login with:', credentials);
       console.log('API base URL:', api.defaults.baseURL);
-      const response = await api.post('/admin/login', credentials);
+      const response = await api.post('/auth/login', credentials);
       console.log('Login response:', response.data);
       
       // Handle the correct response format from backend
-      if (response.data.success && response.data.token) {
-        const { token, user, csrfToken } = response.data;
+      if (response.data.token && response.data.user) {
+        const { token, user } = response.data;
         
         this.token = token;
         this.user = user;
         
-        // Store token and CSRF token in localStorage
+        // Store token and user data in localStorage
         localStorage.setItem('admin-token', token);
         localStorage.setItem('admin-user', JSON.stringify(user));
         localStorage.setItem('admin-auth', 'true');
-        localStorage.setItem('admin-csrf-token', csrfToken);
         
         // Set token for future API requests
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        api.defaults.headers.common['X-CSRF-Token'] = csrfToken;
         
         return { token, user };
       } else {
