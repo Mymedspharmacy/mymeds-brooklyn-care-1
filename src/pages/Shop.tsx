@@ -11,7 +11,7 @@ import { NewsTicker } from "@/components/NewsTicker";
 import { SEOHead } from "@/components/SEOHead";
 import { wooCommerceAPI } from "@/lib/woocommerce";
 import WooCommerceCartService, { WooCommerceCart, WooCommerceCartItem } from "@/lib/woocommerceCart";
-import { WooCommerceCheckoutForm } from "@/components/WooCommerceCheckoutForm";
+import { WooPaymentsCheckout } from "@/components/WooPaymentsCheckout";
 
 // WooCommerce checkout configuration
 
@@ -56,17 +56,19 @@ export default function Shop() {
   const cartService = WooCommerceCartService.getInstance();
 
   // Handle checkout success
-  const handleCheckoutSuccess = (orderId: number) => {
+  const handleCheckoutSuccess = (orderId: number, paymentDetails: any) => {
     // Clear WooCommerce cart
     WooCommerceCartService.getInstance().clearCart();
     setShowCheckout(false);
     
     // Show success message with order details
-    const successMessage = `🎉 Order placed successfully!\n\nOrder Number: #${orderId}\n\nYou will receive an email confirmation shortly with your order details and payment instructions.\n\nThank you for shopping with MyMeds Pharmacy!`;
+    const successMessage = `🎉 Order Created Successfully!\n\nOrder Number: #${orderId}\nPayment Method: ${paymentDetails.paymentMethod}\nTotal: $${paymentDetails.total || '0.00'}\n\nYou will be redirected to complete your payment securely.\nThank you for shopping with MyMeds Pharmacy!`;
     alert(successMessage);
     
-    // Optionally redirect to a thank you page or order tracking
-    // window.location.href = `/order-confirmation/${orderId}`;
+    // Redirect to WooCommerce checkout page for payment completion
+    if (paymentDetails.paymentUrl) {
+      window.open(paymentDetails.paymentUrl, '_blank');
+    }
   };
 
   // Load WooCommerce cart on component mount
@@ -616,8 +618,8 @@ export default function Shop() {
                 </div>
               </div>
 
-              {/* WooCommerce Checkout Form */}
-              <WooCommerceCheckoutForm 
+              {/* WooPayments Checkout Form */}
+              <WooPaymentsCheckout 
                 cart={woocommerceCart?.items || []}
                 total={cartTotal}
                 onSuccess={handleCheckoutSuccess}
