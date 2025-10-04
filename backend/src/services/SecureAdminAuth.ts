@@ -249,45 +249,36 @@ export async function secureAdminLogin(
       };
     }
 
-    // Verify credentials
-    if (email !== SECURITY_CONFIG.ADMIN_EMAIL) {
-      await trackLoginAttempt(email, ipAddress, userAgent, false, 'Invalid email');
+    // Find admin user in database by email
+    const adminUser = await prisma.user.findUnique({
+      where: { email }
+    });
+
+    if (!adminUser) {
+      await trackLoginAttempt(email, ipAddress, userAgent, false, 'User not found');
+      return { success: false, error: 'Invalid credentials' };
+    }
+
+    if (adminUser.role !== 'ADMIN') {
+      await trackLoginAttempt(email, ipAddress, userAgent, false, 'Not an admin user');
       return { success: false, error: 'Invalid credentials' };
     }
 
     // Verify password using bcrypt
-    const isValidPassword = await bcrypt.compare(password, SECURITY_CONFIG.ADMIN_PASSWORD_HASH);
+    const isValidPassword = await bcrypt.compare(password, adminUser.password);
     if (!isValidPassword) {
       await trackLoginAttempt(email, ipAddress, userAgent, false, 'Invalid password');
       return { success: false, error: 'Invalid credentials' };
     }
 
-    // Find or create admin user in database
-    let adminUser = await prisma.user.findUnique({
-      where: { email: SECURITY_CONFIG.ADMIN_EMAIL }
-    });
-
-    if (!adminUser) {
-      // Create admin user if it doesn't exist
-      adminUser = await prisma.user.create({
-        data: {
-          email: SECURITY_CONFIG.ADMIN_EMAIL,
-          password: SECURITY_CONFIG.ADMIN_PASSWORD_HASH,
-          name: SECURITY_CONFIG.ADMIN_NAME,
-          role: 'ADMIN',
-          isActive: true,
-          emailVerified: true
-        }
-      });
-    }
 
     // Generate JWT token
     const token = jwt.sign(
       { 
         userId: adminUser.id,
-        email: SECURITY_CONFIG.ADMIN_EMAIL, 
-        role: 'ADMIN',
-        name: SECURITY_CONFIG.ADMIN_NAME,
+        email: adminUser.email, 
+        role: adminUser.role,
+        name: adminUser.name,
         iat: Math.floor(Date.now() / 1000)
       },
       SECURITY_CONFIG.JWT_SECRET,
@@ -324,9 +315,9 @@ export async function secureAdminLogin(
       token,
       user: {
         id: adminUser.id,
-        email: SECURITY_CONFIG.ADMIN_EMAIL,
-        name: SECURITY_CONFIG.ADMIN_NAME,
-        role: 'ADMIN'
+        email: adminUser.email,
+        name: adminUser.name,
+        role: adminUser.role
       }
     };
 
