@@ -62,7 +62,7 @@ const SECURITY_CONFIG = {
   
   // JWT configuration
   JWT_SECRET: process.env.JWT_SECRET!,
-  JWT_EXPIRES_IN: '2h' as const, // Reduced from 24h for better security
+  JWT_EXPIRES_IN: '7d' as const, // Match regular auth expiration
   
   // Rate limiting configuration
   MAX_LOGIN_ATTEMPTS: 5,
@@ -75,7 +75,7 @@ const SECURITY_CONFIG = {
   PASSWORD_HISTORY_SIZE: 5,
   
   // Session configuration
-  SESSION_TIMEOUT: 30 * 60 * 1000, // 30 minutes
+  SESSION_TIMEOUT: 7 * 24 * 60 * 60 * 1000, // 7 days
   CSRF_TOKEN_EXPIRES_IN: '1h' as const,
   
   // Security headers
