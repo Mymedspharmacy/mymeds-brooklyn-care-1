@@ -478,10 +478,13 @@ export default function Shop() {
                       {/* Stock Status */}
                       <div className="mb-4">
                         <Badge 
-                          variant={product.stock_quantity > 0 ? "default" : "destructive"}
-                          className={product.stock_quantity > 0 ? "bg-green-500" : "bg-red-500"}
+                          variant={product.stock_status === 'instock' ? "default" : "destructive"}
+                          className={product.stock_status === 'instock' ? "bg-green-500" : "bg-red-500"}
                         >
-                          {product.stock_quantity > 0 ? `In Stock (${product.stock_quantity})` : 'Out of Stock'}
+                          {product.stock_status === 'instock' 
+                            ? (product.manage_stock ? `In Stock (${product.stock_quantity})` : 'In Stock')
+                            : 'Out of Stock'
+                          }
                         </Badge>
                       </div>
                     </div>
@@ -490,7 +493,7 @@ export default function Shop() {
                     <div className="flex gap-2">
                       <Button 
                         onClick={() => addToCart(product)}
-                        disabled={product.stock_quantity <= 0}
+                        disabled={product.stock_status !== 'instock'}
                         className="flex-1 bg-[#57BBB6] hover:bg-[#376F6B] text-white disabled:opacity-50"
                       >
                         <ShoppingCart className="h-4 w-4 mr-2" />
@@ -671,10 +674,13 @@ export default function Shop() {
                   {/* Stock Status */}
                   <div>
                     <Badge 
-                      variant={quickViewProduct.stock_quantity > 0 ? "default" : "destructive"}
-                      className={quickViewProduct.stock_quantity > 0 ? "bg-green-500" : "bg-red-500"}
+                      variant={quickViewProduct.stock_status === 'instock' ? "default" : "destructive"}
+                      className={quickViewProduct.stock_status === 'instock' ? "bg-green-500" : "bg-red-500"}
                     >
-                      {quickViewProduct.stock_quantity > 0 ? `In Stock (${quickViewProduct.stock_quantity})` : 'Out of Stock'}
+                      {quickViewProduct.stock_status === 'instock' 
+                        ? (quickViewProduct.manage_stock ? `In Stock (${quickViewProduct.stock_quantity})` : 'In Stock')
+                        : 'Out of Stock'
+                      }
                     </Badge>
                   </div>
 
@@ -706,7 +712,7 @@ export default function Shop() {
                         addToCart(quickViewProduct);
                         closeQuickView();
                       }}
-                      disabled={quickViewProduct.stock_quantity <= 0}
+                      disabled={quickViewProduct.stock_status !== 'instock'}
                       className="flex-1 bg-[#57BBB6] hover:bg-[#376F6B] text-white disabled:opacity-50"
                     >
                       <ShoppingCart className="h-4 w-4 mr-2" />

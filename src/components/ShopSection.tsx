@@ -198,7 +198,7 @@ const ShopSection: React.FC = () => {
                   SALE
                 </div>
               )}
-              {product.stock_quantity <= 0 && (
+              {product.stock_status !== 'instock' && (
                 <div className="absolute top-2 left-2 bg-gray-500 text-white px-2 py-1 rounded-full text-sm font-semibold">
                   OUT OF STOCK
                 </div>
@@ -258,14 +258,14 @@ const ShopSection: React.FC = () => {
               
               <button
                 onClick={() => handleAddToCart(product)}
-                disabled={product.stock_quantity <= 0}
+                disabled={product.stock_status !== 'instock'}
                 className={`w-full py-2 px-4 rounded-md font-medium transition-colors duration-200 ${
-                  product.stock_quantity <= 0
+                  product.stock_status !== 'instock'
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     : 'bg-blue-600 text-white hover:bg-blue-700'
                 }`}
               >
-                {product.stock_quantity <= 0 ? 'Out of Stock' : 'Add to Cart'}
+                {product.stock_status !== 'instock' ? 'Out of Stock' : 'Add to Cart'}
               </button>
             </div>
           </div>
