@@ -1200,7 +1200,7 @@ router.get('/products', async (req: Request, res: Response) => {
         categories: product.categories,
         images: product.images,
         stock_quantity: product.stock_quantity || 0,
-        stock_status: product.stock_status || ((product.manage_stock === true && product.stock_quantity > 0) ? 'instock' : (product.manage_stock === false ? 'instock' : 'outofstock')),
+        stock_status: product.stock_status || 'outofstock',
         manage_stock: product.manage_stock,
         average_rating: product.average_rating,
         rating_count: product.rating_count,
