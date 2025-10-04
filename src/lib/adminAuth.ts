@@ -41,12 +41,12 @@ class AdminAuth {
     try {
       console.log('Attempting login with:', credentials);
       console.log('API base URL:', api.defaults.baseURL);
-      const response = await api.post('/auth/login', credentials);
+      const response = await api.post('/admin/login', credentials);
       console.log('Login response:', response.data);
       
       // Handle the correct response format from backend
-      if (response.data.token && response.data.user) {
-        const { token, user } = response.data;
+      if (response.data.success && response.data.token && response.data.user) {
+        const { token, user, csrfToken } = response.data;
         
         this.token = token;
         this.user = user;
@@ -55,9 +55,15 @@ class AdminAuth {
         localStorage.setItem('admin-token', token);
         localStorage.setItem('admin-user', JSON.stringify(user));
         localStorage.setItem('admin-auth', 'true');
+        if (csrfToken) {
+          localStorage.setItem('admin-csrf-token', csrfToken);
+        }
         
         // Set token for future API requests
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        if (csrfToken) {
+          api.defaults.headers.common['X-CSRF-Token'] = csrfToken;
+        }
         
         return { token, user };
       } else {
