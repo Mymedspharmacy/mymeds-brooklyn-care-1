@@ -11,7 +11,7 @@ import { NewsTicker } from "@/components/NewsTicker";
 import { SEOHead } from "@/components/SEOHead";
 import { wooCommerceAPI } from "@/lib/woocommerce";
 import WooCommerceCartService, { WooCommerceCart, WooCommerceCartItem } from "@/lib/woocommerceCart";
-import { WooPaymentsCheckout } from "@/components/WooPaymentsCheckout";
+import { SimpleCheckoutForm } from "@/components/SimpleCheckoutForm";
 
 // WooCommerce checkout configuration
 
@@ -618,8 +618,8 @@ export default function Shop() {
                 </div>
               </div>
 
-              {/* WooPayments Checkout Form */}
-              <WooPaymentsCheckout 
+              {/* Simple Checkout Form */}
+              <SimpleCheckoutForm 
                 cart={woocommerceCart?.items || []}
                 total={cartTotal}
                 onSuccess={handleCheckoutSuccess}
