@@ -4,6 +4,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError, ErrorCode } from './AppError';
 import logger from '../../utils/logger';
+import { isErrorWithMessage, isErrorWithCode, isValidationError } from '../utils/typeGuards';
 
 export interface ErrorResponse {
   success: false;
@@ -51,14 +52,14 @@ export class ErrorHandler {
    * Handle programming errors (unknown errors)
    */
   public static handleProgrammingError(
-    error: Error,
+    error: unknown,
     req: Request,
     res: Response
   ): void {
     // Log full error details
     logger.error('Programming Error', {
-      error: error.message,
-      stack: error.stack,
+      error: isErrorWithMessage(error) ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
       path: req.path,
       method: req.method,
       ip: req.ip,
@@ -68,7 +69,7 @@ export class ErrorHandler {
     // Don't expose internal errors in production
     const errorMessage = process.env.NODE_ENV === 'production' 
       ? 'Internal server error' 
-      : error.message;
+      : (isErrorWithMessage(error) ? error.message : 'Unknown error');
 
     const errorResponse: ErrorResponse = {
       success: false,
@@ -114,20 +115,22 @@ export class ErrorHandler {
   /**
    * Handle JWT errors
    */
-  public static handleJWTError(error: Error, req: Request, res: Response): void {
+  public static handleJWTError(error: unknown, req: Request, res: Response): void {
     let message = 'Invalid token';
     const statusCode = 401;
 
-    if (error.name === 'TokenExpiredError') {
-      message = 'Token expired';
-    } else if (error.name === 'JsonWebTokenError') {
-      message = 'Invalid token';
-    } else if (error.name === 'NotBeforeError') {
-      message = 'Token not active';
+    if (isErrorWithMessage(error)) {
+      if (error.name === 'TokenExpiredError') {
+        message = 'Token expired';
+      } else if (error.name === 'JsonWebTokenError') {
+        message = 'Invalid token';
+      } else if (error.name === 'NotBeforeError') {
+        message = 'Token not active';
+      }
     }
 
     logger.warn('JWT Error', {
-      error: error.message,
+      error: isErrorWithMessage(error) ? error.message : 'Unknown error',
       path: req.path,
       method: req.method,
       ip: req.ip
@@ -165,10 +168,10 @@ export class ErrorHandler {
     let message = 'Database error occurred';
     let statusCode = 500;
 
-    if (error.code === 'P2002') {
+    if (isErrorWithCode(error) && error.code === 'P2002') {
       message = 'Duplicate entry';
       statusCode = 409;
-    } else if (error.code === 'P2025') {
+    } else if (isErrorWithCode(error) && error.code === 'P2025') {
       message = 'Record not found';
       statusCode = 404;
     }
@@ -200,19 +203,22 @@ export class ErrorHandler {
     }
 
     // Handle validation errors
-    if (error.name === 'ValidationError' || Array.isArray(error)) {
+    if (isValidationError(error)) {
+      return this.handleValidationError([error], req, res);
+    } else if (Array.isArray(error)) {
       return this.handleValidationError(error, req, res);
     }
 
     // Handle JWT errors
-    if (error.name === 'JsonWebTokenError' || 
+    if (isErrorWithMessage(error) && (
+        error.name === 'JsonWebTokenError' || 
         error.name === 'TokenExpiredError' || 
-        error.name === 'NotBeforeError') {
+        error.name === 'NotBeforeError')) {
       return this.handleJWTError(error, req, res);
     }
 
     // Handle Prisma errors
-    if (error.code && error.code.startsWith('P')) {
+    if (isErrorWithCode(error) && error.code.startsWith('P')) {
       return this.handleDatabaseError(error, req, res);
     }
 

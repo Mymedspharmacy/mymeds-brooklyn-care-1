@@ -2,10 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 import { unifiedAdminAuth } from './auth';
-
-interface AuthRequest extends Request {
-  user?: unknown;
-}
+import { AuthRequest } from '../types/express';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -17,8 +14,8 @@ function auth(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     const token = header.split(' ')[1];
     const payload = jwt.verify(token, JWT_SECRET);
-    if (typeof payload === 'object' && 'userId' in payload) {
-      req.user = payload;
+    if (typeof payload === 'object' && payload !== null && 'userId' in payload) {
+      req.user = payload as any; // Type assertion for JWT payload
       next();
     } else {
       res.status(401).json({ error: 'Invalid token' });

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import logger from '../utils/logger';
+import { isErrorWithMessage, hasProperty } from '../core/utils/typeGuards';
 
 interface OpenFDADrug {
   openfda: {
@@ -61,7 +62,7 @@ class OpenFDAService {
     
     if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
       logger.info('OpenFDA: Returning cached search results', { query, limit });
-      return cached.data;
+      return cached.data as OpenFDASearchResult;
     }
 
     try {
@@ -99,23 +100,26 @@ class OpenFDAService {
     } catch (error: unknown) {
       logger.error('OpenFDA: Search failed', { 
         query, 
-        error: error.message,
-        status: error.response?.status,
-        response: error.response?.data 
+        error: isErrorWithMessage(error) ? error.message : 'Unknown error',
+        status: hasProperty(error, 'response') && hasProperty(error.response, 'status') ? error.response.status : undefined,
+        response: hasProperty(error, 'response') && hasProperty(error.response, 'data') ? error.response.data : undefined 
       });
       
       // Handle specific error cases
-      if (error.response?.status === 404) {
+      const responseStatus = hasProperty(error, 'response') && hasProperty(error.response, 'status') ? error.response.status : undefined;
+      const errorCode = hasProperty(error, 'code') ? error.code : undefined;
+      
+      if (responseStatus === 404) {
         throw new Error(`No drugs found matching query: ${query}`);
-      } else if (error.response?.status === 429) {
+      } else if (responseStatus === 429) {
         throw new Error('OpenFDA API rate limit exceeded. Please try again later.');
-      } else if (error.code === 'ECONNABORTED') {
+      } else if (errorCode === 'ECONNABORTED') {
         throw new Error('OpenFDA API request timed out. Please try again.');
-      } else if (error.code === 'ENOTFOUND') {
+      } else if (errorCode === 'ENOTFOUND') {
         throw new Error('Unable to connect to OpenFDA API. Please check your internet connection.');
       }
       
-      throw new Error(`Failed to search drugs: ${error.message}`);
+      throw new Error(`Failed to search drugs: ${isErrorWithMessage(error) ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -128,7 +132,7 @@ class OpenFDAService {
     
     if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
       logger.info('OpenFDA: Returning cached drug details', { drugId });
-      return cached.data;
+      return cached.data as OpenFDADrug;
     }
 
     try {
@@ -185,20 +189,23 @@ class OpenFDAService {
     } catch (error: unknown) {
       logger.error('OpenFDA: Failed to fetch drug details', { 
         drugId, 
-        error: error.message,
-        status: error.response?.status 
+        error: isErrorWithMessage(error) ? error.message : 'Unknown error',
+        status: hasProperty(error, 'response') && hasProperty(error.response, 'status') ? error.response.status : undefined 
       });
       
       // Handle specific error cases
-      if (error.response?.status === 404) {
+      const responseStatus = hasProperty(error, 'response') && hasProperty(error.response, 'status') ? error.response.status : undefined;
+      const errorCode = hasProperty(error, 'code') ? error.code : undefined;
+      
+      if (responseStatus === 404) {
         throw new Error(`Drug not found: ${drugId}`);
-      } else if (error.response?.status === 429) {
+      } else if (responseStatus === 429) {
         throw new Error('OpenFDA API rate limit exceeded. Please try again later.');
-      } else if (error.code === 'ECONNABORTED') {
+      } else if (errorCode === 'ECONNABORTED') {
         throw new Error('OpenFDA API request timed out. Please try again.');
       }
       
-      throw new Error(`Failed to fetch drug details: ${error.message}`);
+      throw new Error(`Failed to fetch drug details: ${isErrorWithMessage(error) ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -225,10 +232,10 @@ class OpenFDAService {
     } catch (error: unknown) {
       logger.error('OpenFDA: Failed to fetch drug interactions', { 
         drugId, 
-        error: error.message 
+        error: isErrorWithMessage(error) ? error.message : 'Unknown error' 
       });
       
-      throw new Error(`Failed to fetch drug interactions: ${error.message}`);
+      throw new Error(`Failed to fetch drug interactions: ${isErrorWithMessage(error) ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -255,10 +262,10 @@ class OpenFDAService {
     } catch (error: unknown) {
       logger.error('OpenFDA: Failed to fetch adverse reactions', { 
         drugId, 
-        error: error.message 
+        error: isErrorWithMessage(error) ? error.message : 'Unknown error' 
       });
       
-      throw new Error(`Failed to fetch adverse reactions: ${error.message}`);
+      throw new Error(`Failed to fetch adverse reactions: ${isErrorWithMessage(error) ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -298,7 +305,7 @@ class OpenFDAService {
     } catch (error: unknown) {
       return {
         status: 'unhealthy',
-        message: `OpenFDA API error: ${error.message}`,
+        message: `OpenFDA API error: ${isErrorWithMessage(error) ? error.message : 'Unknown error'}`,
         timestamp: new Date().toISOString()
       };
     }

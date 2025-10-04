@@ -636,8 +636,8 @@ router.get('/admin/export', secureAdminAuthMiddleware, async (req: Request, res:
     if (status) where.status = status;
     if (startDate || endDate) {
       where.createdAt = {};
-      if (startDate) where.createdAt.gte = new Date(startDate as string);
-      if (endDate) where.createdAt.lte = new Date(endDate as string);
+      if (startDate) (where.createdAt as any).gte = new Date(startDate as string);
+      if (endDate) (where.createdAt as any).lte = new Date(endDate as string);
     }
 
     const orders = await prisma.order.findMany({

@@ -46,3 +46,5 @@ WOOCOMMERCE_CONSUMER_SECRET="your_secret"
 - Form management
 - WordPress blog integration
 
+
+

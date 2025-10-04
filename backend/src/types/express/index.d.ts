@@ -14,7 +14,7 @@ export interface User {
 }
 
 export interface AuthRequest extends Request {
-  user?: User;
+  user: User;
 }
 
 // Augment Express Request globally

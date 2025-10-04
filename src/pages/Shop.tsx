@@ -25,6 +25,8 @@ interface WooCommerceProduct {
   categories: Array<{ id: number; name: string }>;
   images: Array<{ src: string; alt: string }>;
   stock_quantity: number;
+  stock_status: string;
+  manage_stock: boolean;
   average_rating: string;
   rating_count: number;
   tags: Array<{ id: number; name: string }>;
@@ -55,10 +57,16 @@ export default function Shop() {
 
   // Handle checkout success
   const handleCheckoutSuccess = (orderId: number) => {
-    alert(`Order placed successfully! Your order number is: ${orderId}`);
     // Clear WooCommerce cart
     WooCommerceCartService.getInstance().clearCart();
     setShowCheckout(false);
+    
+    // Show success message with order details
+    const successMessage = `🎉 Order placed successfully!\n\nOrder Number: #${orderId}\n\nYou will receive an email confirmation shortly with your order details and payment instructions.\n\nThank you for shopping with MyMeds Pharmacy!`;
+    alert(successMessage);
+    
+    // Optionally redirect to a thank you page or order tracking
+    // window.location.href = `/order-confirmation/${orderId}`;
   };
 
   // Load WooCommerce cart on component mount

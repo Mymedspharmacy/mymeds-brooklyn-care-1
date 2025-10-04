@@ -72,6 +72,7 @@ export const Footer = () => {
     { to: '/shop', label: 'Shop', icon: ArrowRight },
     { to: '/special-offers', label: 'Special Offers', icon: Star },
     { to: '/blog', label: 'Health Blog', icon: ArrowRight },
+    { to: '/patient-resources', label: 'Patient Resources', icon: ArrowRight },
   ];
 
   const servicesLinks = [
@@ -182,6 +183,16 @@ export const Footer = () => {
                     <ArrowRight className="h-4 w-4 mr-2 group-hover:translate-x-1 transition-transform duration-300" />
                     Contact
                   </a>
+                </li>
+                <li>
+                  <Link 
+                    to="/patient-resources"
+                    className="text-gray-600 hover:text-[#57BBB6] transition-colors duration-300 flex items-center group"
+                    aria-label="Access patient resources"
+                  >
+                    <Stethoscope className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
+                    Patient Resources
+                  </Link>
                 </li>
                 <li>
                   <Link 

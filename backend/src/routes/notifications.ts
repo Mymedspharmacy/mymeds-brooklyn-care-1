@@ -2,10 +2,8 @@ import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { secureAdminAuthMiddleware } from '../services/SecureAdminAuth';
 import { io } from '../index';
-
-interface AuthRequest extends Request {
-  user?: unknown;
-}
+import { AuthRequest } from '../types/express';
+import { hasProperty } from '../core/utils/typeGuards';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -57,43 +55,43 @@ export async function triggerSystemNotification(event: string, data: unknown) {
     'new-order': {
       type: 'ORDER',
       title: 'New Order Received',
-      message: `Order #${data.orderNumber || data.id} has been placed for $${data.total}`,
+      message: `Order #${hasProperty(data, 'orderNumber') ? data.orderNumber : hasProperty(data, 'id') ? data.id : 'Unknown'} has been placed for $${hasProperty(data, 'total') ? data.total : '0'}`,
       adminOnly: true
     },
     'new-appointment': {
       type: 'APPOINTMENT',
       title: 'New Appointment Request',
-      message: `Appointment request from ${data.patientName || 'Patient'} for ${data.service || 'service'}`,
+      message: `Appointment request from ${hasProperty(data, 'patientName') ? data.patientName : 'Patient'} for ${hasProperty(data, 'service') ? data.service : 'service'}`,
       adminOnly: true
     },
     'new-prescription': {
       type: 'PRESCRIPTION',
       title: 'New Prescription Request',
-      message: `Prescription request for ${data.medication} from ${data.patientName || 'Patient'}`,
+      message: `Prescription request for ${hasProperty(data, 'medication') ? data.medication : 'Unknown'} from ${hasProperty(data, 'patientName') ? data.patientName : 'Patient'}`,
       adminOnly: true
     },
     'new-contact': {
       type: 'CONTACT',
       title: 'New Contact Form Submission',
-      message: `Contact form submitted by ${data.name || 'User'}: ${data.subject || 'No subject'}`,
+      message: `Contact form submitted by ${hasProperty(data, 'name') ? data.name : 'User'}: ${hasProperty(data, 'subject') ? data.subject : 'No subject'}`,
       adminOnly: true
     },
     'low-stock': {
       type: 'INVENTORY',
       title: 'Low Stock Alert',
-      message: `Product ${data.productName} is running low (${data.quantity} remaining)`,
+      message: `Product ${hasProperty(data, 'productName') ? data.productName : 'Unknown'} is running low (${hasProperty(data, 'quantity') ? data.quantity : 0} remaining)`,
       adminOnly: true
     },
     'payment-success': {
       type: 'PAYMENT',
       title: 'Payment Successful',
-      message: `Payment of $${data.amount} for order #${data.orderId} was successful`,
+      message: `Payment of $${hasProperty(data, 'amount') ? data.amount : 0} for order #${hasProperty(data, 'orderId') ? data.orderId : 'Unknown'} was successful`,
       adminOnly: true
     },
     'payment-failed': {
       type: 'PAYMENT',
       title: 'Payment Failed',
-      message: `Payment of $${data.amount} for order #${data.orderId} failed`,
+      message: `Payment of $${hasProperty(data, 'amount') ? data.amount : 0} for order #${hasProperty(data, 'orderId') ? data.orderId : 'Unknown'} failed`,
       adminOnly: true
     }
   };

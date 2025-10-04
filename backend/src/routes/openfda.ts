@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { isErrorWithMessage } from '../core/utils/typeGuards';
 import { secureAdminAuthMiddleware } from '../services/SecureAdminAuth';
 import openfdaService from '../services/openfdaService';
 import logger from '../utils/logger';
@@ -20,7 +21,7 @@ router.get('/health', async (req: Request, res: Response) => {
 
   } catch (error: unknown) {
     logger.error('OpenFDA: Health check failed', { 
-      error: error.message 
+      error: isErrorWithMessage(error) ? error.message : 'Unknown error' 
     });
     
     res.status(500).json({
@@ -73,7 +74,7 @@ router.get('/search', async (req: Request, res: Response) => {
 
   } catch (error: unknown) {
     logger.error('OpenFDA: Search failed', { 
-      error: error.message,
+      error: isErrorWithMessage(error) ? error.message : 'Unknown error',
       query: req.query.query
     });
     
@@ -116,7 +117,7 @@ router.get('/drug/:drugId', secureAdminAuthMiddleware, async (req: Request, res:
   } catch (error: unknown) {
     logger.error('OpenFDA: Drug details failed', { 
       drugId: req.params.drugId,
-      error: error.message,
+      error: isErrorWithMessage(error) ? error.message : 'Unknown error',
       userId: (req.user as any)?.userId 
     });
     
@@ -159,7 +160,7 @@ router.get('/drug/:drugId/interactions', secureAdminAuthMiddleware, async (req: 
   } catch (error: unknown) {
     logger.error('OpenFDA: Drug interactions failed', { 
       drugId: req.params.drugId,
-      error: error.message,
+      error: isErrorWithMessage(error) ? error.message : 'Unknown error',
       userId: (req.user as any)?.userId 
     });
     
@@ -202,7 +203,7 @@ router.get('/drug/:drugId/reactions', secureAdminAuthMiddleware, async (req: Req
   } catch (error: unknown) {
     logger.error('OpenFDA: Adverse reactions failed', { 
       drugId: req.params.drugId,
-      error: error.message,
+      error: isErrorWithMessage(error) ? error.message : 'Unknown error',
       userId: (req.user as any)?.userId 
     });
     
@@ -229,7 +230,7 @@ router.get('/cache/stats', secureAdminAuthMiddleware, async (req: Request, res: 
 
   } catch (error: unknown) {
     logger.error('OpenFDA: Cache stats failed', { 
-      error: error.message,
+      error: isErrorWithMessage(error) ? error.message : 'Unknown error',
       userId: (req.user as any)?.userId 
     });
     
@@ -260,7 +261,7 @@ router.delete('/cache', secureAdminAuthMiddleware, async (req: Request, res: Res
 
   } catch (error: unknown) {
     logger.error('OpenFDA: Cache clear failed', { 
-      error: error.message,
+      error: isErrorWithMessage(error) ? error.message : 'Unknown error',
       userId: (req.user as any)?.userId 
     });
     

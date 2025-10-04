@@ -68,7 +68,7 @@ export class Container {
 
     // Return existing instance if singleton
     if (definition.singleton && this.instances.has(key)) {
-      return this.instances.get(key);
+      return this.instances.get(key) as T;
     }
 
     // Create new instance
@@ -79,7 +79,7 @@ export class Container {
       this.instances.set(key, instance);
     }
 
-    return instance;
+    return instance as T;
   }
 
   /**

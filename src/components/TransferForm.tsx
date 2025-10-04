@@ -49,6 +49,17 @@ export const TransferForm = ({ isOpen, onClose }: TransferFormProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate required fields
+    if (!formData.firstName || !formData.lastName || !formData.phone || !formData.medication) {
+      setError('Please fill in all required fields: First name, last name, phone, and medication are required');
+      toast({ 
+        title: 'Validation Error', 
+        description: 'Please fill in all required fields: First name, last name, phone, and medication are required', 
+        variant: 'destructive' 
+      });
+      return;
+    }
+    
     setLoading(true);
     setError('');
     setSuccess(false);

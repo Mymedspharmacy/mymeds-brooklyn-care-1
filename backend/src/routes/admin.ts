@@ -549,7 +549,7 @@ router.get('/export/:format', secureAdminAuthMiddleware, async (req: Request, re
     }
 
     if (format === 'csv') {
-      const csv = convertToCSV(data);
+      const csv = convertToCSV(data as Record<string, unknown>[]);
       res.setHeader('Content-Type', 'text/csv');
       res.setHeader('Content-Disposition', `attachment; filename=${filename}.csv`);
       res.send(csv);

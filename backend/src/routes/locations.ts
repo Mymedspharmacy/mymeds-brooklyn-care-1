@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
+import { isValidationError } from '../core/utils/typeGuards';
 import rateLimit from 'express-rate-limit';
 
 const router = Router();
@@ -160,10 +161,10 @@ router.post('/', locationLimiter, async (req: Request, res: Response) => {
   } catch (error: unknown) {
     console.error('Error creating location:', error);
     
-    if (error.name === 'ZodError') {
+    if ((error as any).name === 'ZodError') {
       return res.status(400).json({
         error: 'Validation failed',
-        details: error.errors
+        details: (error as any).errors
       });
     }
 
@@ -235,10 +236,10 @@ router.put('/:id', locationLimiter, async (req: Request, res: Response) => {
   } catch (error: unknown) {
     console.error('Error updating location:', error);
     
-    if (error.name === 'ZodError') {
+    if ((error as any).name === 'ZodError') {
       return res.status(400).json({
         error: 'Validation failed',
-        details: error.errors
+        details: (error as any).errors
       });
     }
 

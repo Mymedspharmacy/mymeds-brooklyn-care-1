@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
+import { isValidationError } from '../core/utils/typeGuards';
 import rateLimit from 'express-rate-limit';
 import { AuthRequest } from '../types/express';
 
@@ -161,10 +162,10 @@ router.post('/', reviewSubmissionLimiter, sanitizeInput, async (req: Request, re
     
   } catch (error: unknown) {
     console.error('Error creating review:', error);
-    if (error.name === 'ZodError') {
+    if ((error as any).name === 'ZodError') {
       return res.status(400).json({
         error: 'Validation error',
-        details: error.errors
+        details: (error as any).errors
       });
     }
     res.status(500).json({

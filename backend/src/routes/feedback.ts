@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
+import { isErrorWithMessage } from '../core/utils/typeGuards';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -124,7 +125,7 @@ router.get('/track/:ticketNumber', async (req: Request, res: Response) => {
     console.error('Error tracking feedback:', error);
     res.status(500).json({
       error: 'Failed to track feedback',
-      message: error.message
+      message: isErrorWithMessage(error) ? error.message : 'Unknown error'
     });
   }
 });
@@ -171,7 +172,7 @@ router.get('/admin/all', async (req: Request, res: Response) => {
     console.error('Error fetching feedback:', error);
     res.status(500).json({
       error: 'Failed to fetch feedback',
-      message: error.message
+      message: isErrorWithMessage(error) ? error.message : 'Unknown error'
     });
   }
 });
@@ -236,7 +237,7 @@ router.get('/admin/stats', async (req: Request, res: Response) => {
     console.error('Error fetching feedback stats:', error);
     res.status(500).json({
       error: 'Failed to fetch feedback statistics',
-      message: error.message
+      message: isErrorWithMessage(error) ? error.message : 'Unknown error'
     });
   }
 });
@@ -270,7 +271,7 @@ router.put('/:id/status', async (req: Request, res: Response) => {
     console.error('Error updating feedback status:', error);
     res.status(500).json({
       error: 'Failed to update feedback status',
-      message: error.message
+      message: isErrorWithMessage(error) ? error.message : 'Unknown error'
     });
   }
 });
@@ -309,7 +310,7 @@ router.post('/:id/response', async (req: Request, res: Response) => {
     console.error('Error adding response:', error);
     res.status(500).json({
       error: 'Failed to add response',
-      message: error.message
+      message: isErrorWithMessage(error) ? error.message : 'Unknown error'
     });
   }
 });
@@ -338,7 +339,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     console.error('Error deleting feedback:', error);
     res.status(500).json({
       error: 'Failed to delete feedback',
-      message: error.message
+      message: isErrorWithMessage(error) ? error.message : 'Unknown error'
     });
   }
 });

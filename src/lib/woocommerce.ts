@@ -303,9 +303,9 @@ export const wooCommerceAPI = {
     try {
       console.log('💳 Fetching payment gateways from WooCommerce...');
       
-      const { data } = await api.get('/woocommerce/payment_gateways');
-      if (!data) throw new Error('No response data received from WooCommerce');
-      return data;
+      const { data } = await api.get('/woocommerce/payment-gateways');
+      if (!data || !data.success) throw new Error('No payment gateways data received from WooCommerce');
+      return data.paymentGateways || [];
     } catch (error: any) {
       console.error('Error fetching payment gateways:', error);
       throw new Error(`Failed to fetch payment gateways: ${error.message}`);

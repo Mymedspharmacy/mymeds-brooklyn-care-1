@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
+import { isValidationError } from '../core/utils/typeGuards';
 import WooCommerceCartService, { WooCommerceCart } from '../services/woocommerceCartService';
 
 const router = Router();
@@ -117,11 +118,11 @@ router.post('/add', async (req: Request, res: Response) => {
   } catch (error: unknown) {
     console.error('Error adding item to cart:', error);
     
-    if (error.name === 'ZodError') {
+    if ((error as any).name === 'ZodError') {
       return res.status(400).json({
         success: false,
         error: 'Invalid input data',
-        details: error.errors,
+        details: (error as any).errors,
       });
     }
     
@@ -195,11 +196,11 @@ router.put('/update', async (req: Request, res: Response) => {
   } catch (error: unknown) {
     console.error('Error updating cart item:', error);
     
-    if (error.name === 'ZodError') {
+    if ((error as any).name === 'ZodError') {
       return res.status(400).json({
         success: false,
         error: 'Invalid input data',
-        details: error.errors,
+        details: (error as any).errors,
       });
     }
     
@@ -330,11 +331,11 @@ router.post('/coupon', async (req: Request, res: Response) => {
   } catch (error: unknown) {
     console.error('Error applying coupon:', error);
     
-    if (error.name === 'ZodError') {
+    if ((error as any).name === 'ZodError') {
       return res.status(400).json({
         success: false,
         error: 'Invalid coupon code',
-        details: error.errors,
+        details: (error as any).errors,
       });
     }
     

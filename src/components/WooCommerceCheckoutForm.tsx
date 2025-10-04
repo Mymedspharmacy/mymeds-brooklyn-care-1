@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2, CreditCard, Lock } from 'lucide-react';
 import { wooCommerceAPI } from '@/lib/woocommerce';
+import { WooCommercePaymentGateways } from './WooCommercePaymentGateways';
 
 interface WooCommerceCheckoutFormProps {
   cart: Array<{
@@ -39,7 +40,9 @@ export const WooCommerceCheckoutForm = ({
     state: '',
     zipCode: '',
     country: 'USA',
-    notes: ''
+    notes: '',
+    paymentMethod: '',
+    paymentMethodTitle: ''
   });
 
   const handleInputChange = (field: string, value: string) => {
@@ -49,14 +52,22 @@ export const WooCommerceCheckoutForm = ({
     }));
   };
 
+  const handlePaymentMethodChange = (method: string, title: string) => {
+    setFormData(prev => ({
+      ...prev,
+      paymentMethod: method,
+      paymentMethodTitle: title
+    }));
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     
     // Validate required fields
-    const requiredFields = ['firstName', 'lastName', 'email', 'address', 'city', 'state', 'zipCode'];
+    const requiredFields = ['firstName', 'lastName', 'email', 'address', 'city', 'state', 'zipCode', 'paymentMethod'];
     for (const field of requiredFields) {
       if (!formData[field as keyof typeof formData]) {
-        setError(`${field.charAt(0).toUpperCase() + field.slice(1)} is required`);
+        setError(`${field === 'paymentMethod' ? 'Payment method' : field.charAt(0).toUpperCase() + field.slice(1)} is required`);
         return;
       }
     }
@@ -72,7 +83,7 @@ export const WooCommerceCheckoutForm = ({
     setError(null);
 
     try {
-      // Prepare order data for WooCommerce
+      // Create order through WooCommerce API
       const orderData = {
         billing: {
           first_name: formData.firstName,
@@ -98,37 +109,26 @@ export const WooCommerceCheckoutForm = ({
           product_id: item.product_id,
           quantity: item.quantity
         })),
-        payment_method: 'bacs', // Bank transfer - you can change this based on your WooCommerce setup
-        payment_method_title: 'Direct Bank Transfer',
-        set_paid: false, // Set to false initially, will be updated when payment is received
-        customer_note: formData.notes
+        payment_method: formData.paymentMethod,
+        payment_method_title: formData.paymentMethodTitle || formData.paymentMethod,
+        set_paid: false,
+        customer_note: formData.notes || '',
+        status: 'pending'
       };
 
-      // Create order through backend WooCommerce endpoint
-      const response = await fetch('/api/woocommerce/orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(orderData)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create order');
-      }
-
-      const result = await response.json();
+      // Create order via WooCommerce API
+      const response = await wooCommerceAPI.createOrder(orderData);
       
-      if (result.success && result.order && result.order.id) {
-        console.log('✅ WooCommerce order created:', result.order.id);
-        onSuccess(result.order.id);
+      if (response && response.order) {
+        // Order created successfully
+        onSuccess(response.order.id);
       } else {
         throw new Error('Failed to create order');
       }
+      
     } catch (err: unknown) {
-      console.error('Error creating WooCommerce order:', err);
-      setError(err instanceof Error ? err.message : 'Failed to create order. Please try again.');
+      console.error('Error creating order:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred while creating your order');
     } finally {
       setLoading(false);
     }
@@ -256,20 +256,10 @@ export const WooCommerceCheckoutForm = ({
       <div className="space-y-4">
         <h4 className="font-semibold text-lg text-[#376F6B]">Payment Information</h4>
         
-        <Card className="bg-gray-50 border-gray-200">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3 text-gray-600">
-              <CreditCard className="h-5 w-5" />
-              <span className="text-sm">
-                Payment will be processed through WooCommerce secure payment gateway
-              </span>
-            </div>
-            <div className="flex items-center gap-2 mt-2 text-green-600">
-              <Lock className="h-4 w-4" />
-              <span className="text-xs font-medium">Secure Payment</span>
-            </div>
-          </CardContent>
-        </Card>
+        <WooCommercePaymentGateways
+          selectedMethod={formData.paymentMethod}
+          onPaymentMethodChange={handlePaymentMethodChange}
+        />
       </div>
 
       {/* Error Display */}

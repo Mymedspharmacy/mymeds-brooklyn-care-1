@@ -3,6 +3,7 @@ import { promisify } from 'util';
 import fs from 'fs';
 import path from 'path';
 import logger from '../utils/logger';
+import { isErrorWithMessage } from '../core/utils/typeGuards';
 import { DatabaseShardingManager } from '../config/database-sharding';
 
 const execAsync = promisify(exec);
@@ -192,7 +193,7 @@ class BackupService {
       return filepath;
 
     } catch (error: unknown) {
-      logger.error('Files backup failed', { error: error.message });
+      logger.error('Files backup failed', { error: isErrorWithMessage(error) ? error.message : 'Unknown error' });
       throw error;
     }
   }
@@ -237,7 +238,7 @@ class BackupService {
     } catch (error: unknown) {
       logger.error('Remote storage upload failed', { 
         filepath, 
-        error: error.message 
+        error: isErrorWithMessage(error) ? error.message : 'Unknown error' 
       });
       // Don't throw error - backup is still successful locally
     }
@@ -327,7 +328,7 @@ class BackupService {
       }
 
     } catch (error: unknown) {
-      logger.error('Database restore failed', { error: error.message });
+      logger.error('Database restore failed', { error: isErrorWithMessage(error) ? error.message : 'Unknown error' });
       throw error;
     }
   }
@@ -382,7 +383,7 @@ class BackupService {
       }
 
     } catch (error: unknown) {
-      logger.error('Backup cleanup failed', { error: error.message });
+      logger.error('Backup cleanup failed', { error: isErrorWithMessage(error) ? error.message : 'Unknown error' });
     }
   }
 
@@ -426,7 +427,7 @@ class BackupService {
       };
 
     } catch (error: unknown) {
-      logger.error('Failed to get backup status', { error: error.message });
+      logger.error('Failed to get backup status', { error: isErrorWithMessage(error) ? error.message : 'Unknown error' });
       throw error;
     }
   }

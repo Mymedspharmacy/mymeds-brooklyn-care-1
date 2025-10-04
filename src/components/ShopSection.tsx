@@ -19,7 +19,9 @@ interface Product {
     name: string;
     slug: string;
   }>;
+  stock_quantity: number;
   stock_status: string;
+  manage_stock: boolean;
   average_rating: string;
   rating_count: number;
   on_sale: boolean;
@@ -66,7 +68,9 @@ const ShopSection: React.FC = () => {
           short_description: p.short_description ?? '',
           images: (p.images ?? []).map((img: any) => ({ id: img.id ?? 0, src: img.src, alt: img.alt ?? '' })),
           categories: p.categories ?? [],
-          stock_status: p.stock_status ?? 'instock',
+          stock_quantity: p.stock_quantity ?? 0,
+          stock_status: p.stock_status ?? ((p.manage_stock === true && (p.stock_quantity ?? 0) > 0) ? 'instock' : (p.manage_stock === false ? 'instock' : 'outofstock')),
+          manage_stock: p.manage_stock ?? false,
           average_rating: p.average_rating ?? '0',
           rating_count: p.rating_count ?? 0,
           on_sale: !!p.on_sale,
@@ -102,7 +106,7 @@ const ShopSection: React.FC = () => {
       if (result?.success) {
         console.log('✅ Product added to cart:', product.name);
         // You could add a toast notification here
-        alert(`${product.name} added to cart successfully!`);
+        alert(`${product.name} added to cart successfully!\n\nVisit the Shop page to complete your checkout.`);
       } else {
         console.error('❌ Failed to add product to cart');
         alert('Failed to add product to cart. Please try again.');
@@ -194,7 +198,7 @@ const ShopSection: React.FC = () => {
                   SALE
                 </div>
               )}
-              {product.stock_status === 'outofstock' && (
+              {product.stock_quantity <= 0 && (
                 <div className="absolute top-2 left-2 bg-gray-500 text-white px-2 py-1 rounded-full text-sm font-semibold">
                   OUT OF STOCK
                 </div>
@@ -254,14 +258,14 @@ const ShopSection: React.FC = () => {
               
               <button
                 onClick={() => handleAddToCart(product)}
-                disabled={product.stock_status === 'outofstock'}
+                disabled={product.stock_quantity <= 0}
                 className={`w-full py-2 px-4 rounded-md font-medium transition-colors duration-200 ${
-                  product.stock_status === 'outofstock'
+                  product.stock_quantity <= 0
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     : 'bg-blue-600 text-white hover:bg-blue-700'
                 }`}
               >
-                {product.stock_status === 'outofstock' ? 'Out of Stock' : 'Add to Cart'}
+                {product.stock_quantity <= 0 ? 'Out of Stock' : 'Add to Cart'}
               </button>
             </div>
           </div>

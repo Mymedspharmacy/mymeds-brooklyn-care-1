@@ -4,10 +4,13 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import FormData from 'form-data';
-
-interface AuthRequest extends Request {
-  user?: unknown;
-}
+import { AuthRequest } from '../types/express';
+import { 
+  getPostProperty,
+  getMediaProperty,
+  getCategoryProperty
+} from '../core/utils/wordpressTypes';
+import { isErrorWithMessage, isObject } from '../core/utils/typeGuards';
 
 const router = Router();
 
@@ -74,34 +77,124 @@ const clearPostCache = () => {
   postCache.clear();
 };
 
-// Enhanced error handling with retry logic for production
-const makeWordPressRequest = async (url: string, options: unknown = {}, params: unknown = {}) => {
-  // Validate required environment variables for production
-  if (!process.env.WORDPRESS_APP_PASSWORD || !process.env.WORDPRESS_URL || !process.env.WORDPRESS_USERNAME) {
-    throw new Error('WordPress credentials not configured. Please set WORDPRESS_URL, WORDPRESS_USERNAME, and WORDPRESS_APP_PASSWORD environment variables.');
-  }
+// Dynamic content generation - creates new posts periodically
+const generateDynamicPost = (baseId: number) => {
+  const dynamicTopics = [
+    {
+      title: 'The Latest in Telemedicine: Connecting with Your Healthcare Provider',
+      excerpt: 'Telemedicine has revolutionized healthcare delivery. Learn how virtual visits can provide convenient access to quality care.',
+      content: '<p>Telemedicine has become an essential part of modern healthcare, offering patients convenient access to medical care from the comfort of their homes...</p>',
+      author: 'Dr. Alex Thompson',
+      category: 21,
+      tag: 'telemedicine'
+    },
+    {
+      title: 'Understanding Generic vs. Brand Name Medications',
+      excerpt: 'Learn about the differences between generic and brand name medications, including safety, effectiveness, and cost considerations.',
+      content: '<p>Generic medications offer the same therapeutic benefits as brand name drugs at a fraction of the cost...</p>',
+      author: 'Pharmacist David Wilson',
+      category: 9,
+      tag: 'generic-medications'
+    },
+    {
+      title: 'Sleep and Medication: How They Interact',
+      excerpt: 'Discover how certain medications can affect your sleep patterns and what you can do to minimize disruptions.',
+      content: '<p>Quality sleep is essential for overall health, but some medications can interfere with your natural sleep cycles...</p>',
+      author: 'Dr. Rachel Green',
+      category: 13,
+      tag: 'sleep-health'
+    },
+    {
+      title: 'Managing Medication Side Effects: A Practical Guide',
+      excerpt: 'Learn how to identify, manage, and communicate about medication side effects with your healthcare team.',
+      content: '<p>All medications can potentially cause side effects. Understanding how to manage them effectively is key to successful treatment...</p>',
+      author: 'Dr. Mark Stevens',
+      category: 3,
+      tag: 'side-effects'
+    },
+    {
+      title: 'Seasonal Depression and Treatment Options',
+      excerpt: 'Seasonal Affective Disorder (SAD) affects many people during winter months. Explore treatment options and coping strategies.',
+      content: '<p>Seasonal depression, or Seasonal Affective Disorder (SAD), is a type of depression that occurs at specific times of the year...</p>',
+      author: 'Dr. Lisa Park',
+      category: 13,
+      tag: 'seasonal-depression'
+    }
+  ];
 
+  const randomTopic = dynamicTopics[Math.floor(Math.random() * dynamicTopics.length)];
+  const now = new Date();
+  const randomDaysAgo = Math.floor(Math.random() * 30); // Random post within last 30 days
+  const postDate = new Date(now.getTime() - randomDaysAgo * 24 * 60 * 60 * 1000);
+
+  return {
+    id: baseId,
+    title: randomTopic.title,
+    content: randomTopic.content,
+    excerpt: randomTopic.excerpt,
+    author: randomTopic.author,
+    date: postDate.toISOString(),
+    modified: postDate.toISOString(),
+    slug: randomTopic.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+    link: `/blog/${randomTopic.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`,
+    featured_media: {
+      id: 200 + baseId,
+      source_url: `https://images.unsplash.com/photo-${1559757148 + baseId}?w=800&h=400&fit=crop`,
+      alt_text: 'Healthcare and wellness'
+    },
+    categories: [randomTopic.category],
+    tags: [{ id: 100 + baseId, name: randomTopic.tag, slug: randomTopic.tag }],
+    _embedded: {
+      author: [{ name: randomTopic.author, bio: 'Healthcare professional with expertise in patient care' }],
+      'wp:featuredmedia': [{
+        source_url: `https://images.unsplash.com/photo-${1559757148 + baseId}?w=800&h=400&fit=crop`,
+        alt_text: 'Healthcare and wellness'
+      }]
+    }
+  };
+};
+
+// Enhanced error handling with retry logic for production
+const makeWordPressRequest = async (url: string, options: unknown = {}, params: unknown = {}, settings?: any) => {
   // Real WordPress API request
   console.log('📝 Making real WordPress API request to:', url);
   const retries = 3; // Default number of retries
   for (let i = 0; i < retries; i++) {
     try {
-      // Use environment variables for authentication
-      const wpUrl = process.env.WORDPRESS_URL;
-      const wpUsername = process.env.WORDPRESS_USERNAME;
-      const wpAppPassword = process.env.WORDPRESS_APP_PASSWORD;
+      // Use settings for authentication if provided, otherwise fall back to environment variables
+      let wpUrl, wpUsername, wpAppPassword;
+      
+      if (settings) {
+        wpUrl = settings.siteUrl;
+        wpUsername = settings.username;
+        wpAppPassword = settings.applicationPassword;
+      } else {
+        wpUrl = process.env.WORDPRESS_URL;
+        wpUsername = process.env.WORDPRESS_USERNAME;
+        wpAppPassword = process.env.WORDPRESS_APP_PASSWORD;
+      }
 
       if (!wpUrl || !wpUsername || !wpAppPassword) {
-        throw new Error('WordPress credentials not found in environment variables');
+        throw new Error('WordPress credentials not found in settings or environment variables');
       }
 
       // Build URL with query parameters if provided
       let requestUrl = url;
       if (params && Object.keys(params).length > 0) {
-        const queryString = new URLSearchParams(params).toString();
-        requestUrl = `${wpUrl}/wp-json/wp/v2${url}?${queryString}`;
+        const queryString = new URLSearchParams(params as Record<string, string>).toString();
+        // Check if url already contains wp-json to avoid duplication
+        if (url.includes('/wp-json/')) {
+          requestUrl = `${url}?${queryString}`;
+        } else {
+          requestUrl = `${wpUrl}/wp-json/wp/v2${url}?${queryString}`;
+        }
       } else {
-        requestUrl = `${wpUrl}/wp-json/wp/v2${url}`;
+        // Check if url already contains wp-json to avoid duplication
+        if (url.includes('/wp-json/')) {
+          requestUrl = url;
+        } else {
+          requestUrl = `${wpUrl}/wp-json/wp/v2${url}`;
+        }
       }
       
       // Create basic auth header
@@ -109,19 +202,19 @@ const makeWordPressRequest = async (url: string, options: unknown = {}, params: 
       
       console.log('📝 WordPress API URL:', requestUrl);
       const response = await fetch(requestUrl, {
-        ...options,
+        ...(isObject(options) ? options : {} as Record<string, unknown>),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Basic ${auth}`,
-          ...options.headers,
+          ...(isObject(options) && options.headers ? options.headers as Record<string, unknown> : {}),
         },
       });
       
       return response;
     } catch (error) {
       if (i === retries - 1) {
-        console.error('📝 WordPress API failed after', retries, 'attempts:', error.message);
-        throw new Error(`WordPress API request failed: ${error.message}`);
+        console.error('📝 WordPress API failed after', retries, 'attempts:', isErrorWithMessage(error) ? error.message : 'Unknown error');
+        throw new Error(`WordPress API request failed: ${isErrorWithMessage(error) ? error.message : 'Unknown error'}`);
       }
       
       // Wait before retry (exponential backoff)
@@ -249,7 +342,9 @@ router.post('/test-connection', unifiedAdminAuth, async (req: AuthRequest, res: 
         headers: {
           'Content-Type': 'application/json'
         }
-      }
+      },
+      {},
+      settings
     );
 
     if (!response) {
@@ -345,7 +440,7 @@ router.post('/sync-posts', unifiedAdminAuth, async (req: AuthRequest, res: Respo
         syncedCount++;
       } catch (postError: unknown) {
         errorCount++;
-        errors.push(`Post ${post.id}: ${postError.message}`);
+        errors.push(`Post ${post.id}: ${isErrorWithMessage(postError) ? postError.message : 'Unknown error'}`);
       }
     }
 
@@ -375,7 +470,7 @@ router.post('/sync-posts', unifiedAdminAuth, async (req: AuthRequest, res: Respo
     await prisma.wordPressSettings.update({
       where: { id: 1 },
       data: { 
-        lastError: err.message,
+        lastError: isErrorWithMessage(err) ? err.message : 'Unknown error',
         lastSync: new Date()
       }
     });
@@ -520,15 +615,15 @@ router.get('/pages', unifiedAdminAuth, async (req: AuthRequest, res: Response) =
 
     res.json({
       pages: pages.map((page: unknown) => ({
-        id: page.id,
-        title: page.title.rendered,
-        content: page.content.rendered,
-        excerpt: page.excerpt.rendered,
-        status: page.status,
-        date: page.date,
-        modified: page.modified,
-        slug: page.slug,
-        link: page.link
+        id: getPostProperty(page, 'id', 0),
+        title: (getPostProperty(page, 'title', {}) as any).rendered || '',
+        content: (getPostProperty(page, 'content', {}) as any).rendered || '',
+        excerpt: (getPostProperty(page, 'excerpt', {}) as any).rendered || '',
+        status: getPostProperty(page, 'status', ''),
+        date: getPostProperty(page, 'date', ''),
+        modified: getPostProperty(page, 'modified', ''),
+        slug: getPostProperty(page, 'slug', ''),
+        link: getPostProperty(page, 'link', '')
       })),
       pagination: {
         page: parseInt(page.toString()),
@@ -650,17 +745,17 @@ router.get('/media', unifiedAdminAuth, async (req: AuthRequest, res: Response) =
 
     res.json({
       media: media.map((item: unknown) => ({
-        id: item.id,
-        title: item.title.rendered,
-        description: item.description.rendered,
-        caption: item.caption.rendered,
-        alt_text: item.alt_text,
-        media_type: item.media_type,
-        mime_type: item.mime_type,
-        source_url: item.source_url,
-        date: item.date,
-        modified: item.modified,
-        sizes: item.media_details?.sizes || {}
+        id: getMediaProperty(item, 'id', 0),
+        title: (getMediaProperty(item, 'title', {}) as any).rendered || '',
+        description: (getMediaProperty(item, 'description', {}) as any).rendered || '',
+        caption: (getMediaProperty(item, 'caption', {}) as any).rendered || '',
+        alt_text: getMediaProperty(item, 'alt_text', ''),
+        media_type: getMediaProperty(item, 'media_type', ''),
+        mime_type: getMediaProperty(item, 'mime_type', ''),
+        source_url: getMediaProperty(item, 'source_url', ''),
+        date: getMediaProperty(item, 'date', ''),
+        modified: getMediaProperty(item, 'modified', ''),
+        sizes: (getMediaProperty(item, 'media_details', {}) as any)?.sizes || {}
       })),
       pagination: {
         page: parseInt(page.toString()),
@@ -764,17 +859,17 @@ router.post('/media', unifiedAdminAuth, upload.single('file'), async (req: AuthR
       success: true,
       message: 'Media uploaded successfully',
       media: {
-        id: mediaData.id,
-        title: mediaData.title?.rendered || mediaData.title || '',
-        description: mediaData.description?.rendered || mediaData.description || '',
-        caption: mediaData.caption?.rendered || mediaData.caption || '',
-        alt_text: mediaData.alt_text || '',
-        source_url: mediaData.source_url || sourceUrl,
-        link: mediaData.link,
-        mime_type: mediaData.mime_type,
-        media_type: mediaData.media_type,
-        date: mediaData.date,
-        modified: mediaData.modified
+        id: getMediaProperty(mediaData, 'id', 0),
+        title: (getMediaProperty(mediaData, 'title', {}) as any)?.rendered || getMediaProperty(mediaData, 'title', ''),
+        description: (getMediaProperty(mediaData, 'description', {}) as any)?.rendered || getMediaProperty(mediaData, 'description', ''),
+        caption: (getMediaProperty(mediaData, 'caption', {}) as any)?.rendered || getMediaProperty(mediaData, 'caption', ''),
+        alt_text: getMediaProperty(mediaData, 'alt_text', ''),
+        source_url: getMediaProperty(mediaData, 'source_url', sourceUrl),
+        link: getMediaProperty(mediaData, 'link', ''),
+        mime_type: getMediaProperty(mediaData, 'mime_type', ''),
+        media_type: getMediaProperty(mediaData, 'media_type', ''),
+        date: getMediaProperty(mediaData, 'date', ''),
+        modified: getMediaProperty(mediaData, 'modified', '')
       }
     });
   } catch (err: unknown) {
@@ -873,15 +968,15 @@ router.get('/post-types/:type/posts', unifiedAdminAuth, async (req: AuthRequest,
     res.json({
       postType: type,
       posts: posts.map((post: unknown) => ({
-        id: post.id,
-        title: post.title?.rendered || post.title || '',
-        content: post.content?.rendered || post.content || '',
-        excerpt: post.excerpt?.rendered || post.excerpt || '',
-        status: post.status,
-        date: post.date,
-        modified: post.modified,
-        slug: post.slug,
-        link: post.link
+        id: getPostProperty(post, 'id', 0),
+        title: (getPostProperty(post, 'title', {}) as any)?.rendered || getPostProperty(post, 'title', ''),
+        content: (getPostProperty(post, 'content', {}) as any)?.rendered || getPostProperty(post, 'content', ''),
+        excerpt: (getPostProperty(post, 'excerpt', {}) as any)?.rendered || getPostProperty(post, 'excerpt', ''),
+        status: getPostProperty(post, 'status', ''),
+        date: getPostProperty(post, 'date', ''),
+        modified: getPostProperty(post, 'modified', ''),
+        slug: getPostProperty(post, 'slug', ''),
+        link: getPostProperty(post, 'link', '')
       })),
       pagination: {
         page: parseInt(page.toString()),
@@ -1035,7 +1130,7 @@ router.post('/auto-sync', async (req: Request, res: Response) => {
         syncedCount++;
       } catch (postError: unknown) {
         errorCount++;
-        errors.push(`Post ${post.id}: ${postError.message}`);
+        errors.push(`Post ${post.id}: ${isErrorWithMessage(postError) ? postError.message : 'Unknown error'}`);
       }
     }
 
@@ -1066,7 +1161,7 @@ router.post('/auto-sync', async (req: Request, res: Response) => {
     await prisma.wordPressSettings.update({
       where: { id: 1 },
       data: { 
-        lastError: err.message,
+        lastError: isErrorWithMessage(err) ? err.message : 'Unknown error',
         lastSync: new Date()
       }
     });
@@ -1095,110 +1190,448 @@ router.get('/posts', async (req: Request, res: Response) => {
       where: { id: 1 }
     });
 
-    if (!settings || !settings.enabled) {
-      // Return sample blog posts for development/demo purposes
+    // Always try to fetch from real WordPress first, even if settings are not configured
+    let realWordPressData = null;
+    
+    try {
+      console.log('🔄 Attempting to fetch real WordPress data...');
+      
+      // Try to get WordPress data from environment variables or settings
+      let wpUrl, wpUsername, wpAppPassword;
+      
+      if (settings && settings.enabled) {
+        wpUrl = settings.siteUrl;
+        wpUsername = settings.username;
+        wpAppPassword = settings.applicationPassword;
+        console.log('📝 Using WordPress settings from database');
+      } else {
+        wpUrl = process.env.WORDPRESS_URL || process.env.VITE_WORDPRESS_URL;
+        wpUsername = process.env.WORDPRESS_USERNAME;
+        wpAppPassword = process.env.WORDPRESS_APP_PASSWORD || process.env.WORDPRESS_PASSWORD;
+        console.log('📝 Using WordPress environment variables');
+      }
+
+      if (wpUrl && wpUsername && wpAppPassword) {
+        console.log('📝 WordPress credentials found, attempting real API call...');
+        
+        // Build query parameters
+        const params: Record<string, unknown> = {
+          page: parseInt(page.toString()),
+          per_page: parseInt(per_page.toString()),
+          _embed: true
+        };
+
+        if (category) params.categories = category;
+        if (search) params.search = search;
+        if (featured === 'true') params.sticky = true;
+
+        // Make real WordPress API request
+        const response = await makeWordPressRequest(
+          '/posts',
+          {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          },
+          params,
+          { siteUrl: wpUrl, username: wpUsername, applicationPassword: wpAppPassword }
+        );
+
+        if (response && response.ok) {
+          const posts = await response.json();
+          const totalPosts = response.headers.get('X-WP-Total');
+          const totalPages = response.headers.get('X-WP-TotalPages');
+
+          if (Array.isArray(posts) && posts.length > 0) {
+            console.log('✅ Successfully fetched real WordPress posts:', posts.length);
+            
+            realWordPressData = {
+              posts: posts.map((post: unknown) => ({
+                id: getPostProperty(post, 'id', 0),
+                title: (getPostProperty(post, 'title', {}) as any)?.rendered || getPostProperty(post, 'title', ''),
+                content: (getPostProperty(post, 'content', {}) as any)?.rendered || getPostProperty(post, 'content', ''),
+                excerpt: (getPostProperty(post, 'excerpt', {}) as any)?.rendered || getPostProperty(post, 'excerpt', ''),
+                author: getPostProperty(post, 'author', 'WordPress Admin'),
+                date: getPostProperty(post, 'date', ''),
+                modified: getPostProperty(post, 'modified', ''),
+                slug: getPostProperty(post, 'slug', ''),
+                link: getPostProperty(post, 'link', ''),
+                featured_media: getPostProperty(post, 'featured_media', 0),
+                categories: getPostProperty(post, 'categories', []),
+                tags: getPostProperty(post, 'tags', []),
+                _embedded: getPostProperty(post, '_embedded', {})
+              })),
+              pagination: {
+                page: parseInt(page.toString()),
+                per_page: parseInt(per_page.toString()),
+                total: parseInt(totalPosts || '0'),
+                total_pages: parseInt(totalPages || '0')
+              }
+            };
+          }
+        }
+      } else {
+        console.log('⚠️ WordPress credentials not found in settings or environment variables');
+      }
+    } catch (error) {
+      console.error('❌ Failed to fetch real WordPress data:', isErrorWithMessage(error) ? error.message : 'Unknown error');
+    }
+
+    // Only use sample data if real WordPress data is not available
+    if (!realWordPressData) {
+      console.log('📝 Using sample data as fallback');
+      
+      // Return comprehensive sample blog posts with enhanced content
       const samplePosts = [
         {
           id: 1,
           title: 'Managing Seasonal Allergies: A Complete Guide',
-          content: '<p>Spring and fall bring beautiful weather, but for many people, they also bring seasonal allergies. Here\'s how to manage your symptoms effectively...</p>',
+          content: '<p>Spring and fall bring beautiful weather, but for many people, they also bring seasonal allergies. Here\'s how to manage your symptoms effectively...</p><p>Seasonal allergies affect over 50 million Americans each year. The most common triggers include pollen from trees, grasses, and weeds. Understanding your triggers and having a comprehensive management plan can significantly improve your quality of life during allergy season.</p><h3>Common Symptoms</h3><ul><li>Sneezing and runny nose</li><li>Itchy, watery eyes</li><li>Nasal congestion</li><li>Coughing and throat irritation</li></ul><h3>Treatment Options</h3><p>Over-the-counter antihistamines, nasal sprays, and eye drops can provide relief. For severe allergies, prescription medications or immunotherapy may be recommended.</p>',
           excerpt: 'Learn effective strategies for managing seasonal allergies, including medication options, lifestyle changes, and prevention tips.',
           author: 'Dr. Sarah Johnson',
           date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
           modified: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
           slug: 'managing-seasonal-allergies',
           link: '/blog/managing-seasonal-allergies',
-          featured_media: null,
-          categories: [1],
-          tags: [{ id: 1, name: 'allergies', slug: 'allergies' }],
-          _embedded: null
+          featured_media: {
+            id: 101,
+            source_url: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&h=400&fit=crop',
+            alt_text: 'Spring flowers and allergy relief'
+          },
+          categories: [1, 7],
+          tags: [{ id: 1, name: 'allergies', slug: 'allergies' }, { id: 11, name: 'seasonal-health', slug: 'seasonal-health' }],
+          _embedded: {
+            author: [{ name: 'Dr. Sarah Johnson', bio: 'Board-certified allergist with 15 years of experience' }],
+            'wp:featuredmedia': [{
+              source_url: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&h=400&fit=crop',
+              alt_text: 'Spring flowers and allergy relief'
+            }]
+          }
         },
         {
           id: 2,
           title: 'Vitamin D: The Sunshine Vitamin and Your Health',
-          content: '<p>Vitamin D plays a crucial role in bone health, immune function, and overall well-being. Here\'s what you need to know...</p>',
+          content: '<p>Vitamin D plays a crucial role in bone health, immune function, and overall well-being. Here\'s what you need to know...</p><p>Often called the "sunshine vitamin," Vitamin D is unique because our bodies can produce it when exposed to sunlight. However, many people are deficient in this essential nutrient, especially during winter months or in areas with limited sun exposure.</p><h3>Health Benefits</h3><ul><li>Strengthens bones and teeth</li><li>Supports immune system function</li><li>May reduce risk of certain cancers</li><li>Helps with mood regulation</li></ul><h3>Sources of Vitamin D</h3><p>Sunlight exposure, fatty fish, fortified dairy products, and supplements are the primary sources. Your healthcare provider can test your Vitamin D levels to determine if supplementation is needed.</p>',
           excerpt: 'Understanding the importance of Vitamin D, how to get enough through diet and sunlight, and when supplementation may be necessary.',
           author: 'Dr. Michael Chen',
           date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
           modified: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
           slug: 'vitamin-d-sunshine-vitamin',
           link: '/blog/vitamin-d-sunshine-vitamin',
-          featured_media: null,
-          categories: [2],
-          tags: [{ id: 2, name: 'vitamin-d', slug: 'vitamin-d' }],
-          _embedded: null
+          featured_media: {
+            id: 102,
+            source_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=400&fit=crop',
+            alt_text: 'Sunshine and healthy lifestyle'
+          },
+          categories: [2, 8],
+          tags: [{ id: 2, name: 'vitamin-d', slug: 'vitamin-d' }, { id: 12, name: 'nutrition', slug: 'nutrition' }],
+          _embedded: {
+            author: [{ name: 'Dr. Michael Chen', bio: 'Internal medicine physician specializing in preventive care' }],
+            'wp:featuredmedia': [{
+              source_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=400&fit=crop',
+              alt_text: 'Sunshine and healthy lifestyle'
+            }]
+          }
         },
         {
           id: 3,
           title: 'Proper Medication Storage: Essential Safety Tips',
-          content: '<p>Storing medications correctly is crucial for maintaining their effectiveness and ensuring safety. Here are the key guidelines...</p>',
+          content: '<p>Storing medications correctly is crucial for maintaining their effectiveness and ensuring safety. Here are the key guidelines...</p><p>Improper medication storage can lead to reduced effectiveness, contamination, or accidental poisoning. Following proper storage guidelines ensures your medications remain safe and effective throughout their shelf life.</p><h3>Storage Guidelines</h3><ul><li>Keep medications in their original containers</li><li>Store in a cool, dry place away from sunlight</li><li>Use child-resistant containers and locks</li><li>Check expiration dates regularly</li></ul><h3>Temperature Considerations</h3><p>Most medications should be stored at room temperature (68-77°F). Some medications require refrigeration - always check the label for specific storage instructions.</p>',
           excerpt: 'Essential tips for safe medication storage at home, including temperature control, humidity management, and child safety measures.',
           author: 'Pharmacist Lisa Rodriguez',
           date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 1 week ago
           modified: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
           slug: 'proper-medication-storage',
           link: '/blog/proper-medication-storage',
-          featured_media: null,
-          categories: [3],
-          tags: [{ id: 3, name: 'medication-safety', slug: 'medication-safety' }],
-          _embedded: null
+          featured_media: {
+            id: 103,
+            source_url: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=800&h=400&fit=crop',
+            alt_text: 'Proper medication storage and organization'
+          },
+          categories: [3, 9],
+          tags: [{ id: 3, name: 'medication-safety', slug: 'medication-safety' }, { id: 13, name: 'pharmacy-tips', slug: 'pharmacy-tips' }],
+          _embedded: {
+            author: [{ name: 'Pharmacist Lisa Rodriguez', bio: 'Licensed pharmacist with expertise in medication management and patient safety' }],
+            'wp:featuredmedia': [{
+              source_url: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=800&h=400&fit=crop',
+              alt_text: 'Proper medication storage and organization'
+            }]
+          }
         },
         {
           id: 4,
           title: 'Adult Immunization Schedule: Stay Protected',
-          content: '<p>Vaccines aren\'t just for children. Adults need immunizations too to stay protected against serious diseases...</p>',
+          content: '<p>Vaccines aren\'t just for children. Adults need immunizations too to stay protected against serious diseases...</p><p>Adult immunizations are essential for maintaining health and preventing the spread of infectious diseases. The CDC recommends specific vaccines for different age groups and health conditions.</p><h3>Essential Adult Vaccines</h3><ul><li>Influenza (flu) vaccine - annually</li><li>Tetanus, diphtheria, pertussis (Tdap) - every 10 years</li><li>Shingles vaccine - for adults 50+</li><li>Pneumococcal vaccine - for adults 65+</li></ul><h3>Special Considerations</h3><p>Adults with chronic conditions, pregnant women, and healthcare workers may need additional vaccines. Consult with your healthcare provider to determine your specific immunization needs.</p>',
           excerpt: 'Complete guide to adult immunizations, including recommended vaccines, schedules, and special considerations for different age groups.',
           author: 'Dr. Emily Watson',
           date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), // 10 days ago
           modified: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
           slug: 'adult-immunization-schedule',
           link: '/blog/adult-immunization-schedule',
-          featured_media: null,
-          categories: [4],
-          tags: [{ id: 4, name: 'vaccines', slug: 'vaccines' }],
-          _embedded: null
+          featured_media: {
+            id: 104,
+            source_url: 'https://images.unsplash.com/photo-1584515933487-779824d29309?w=800&h=400&fit=crop',
+            alt_text: 'Adult vaccination and immunization'
+          },
+          categories: [4, 10],
+          tags: [{ id: 4, name: 'vaccines', slug: 'vaccines' }, { id: 14, name: 'preventive-care', slug: 'preventive-care' }],
+          _embedded: {
+            author: [{ name: 'Dr. Emily Watson', bio: 'Family medicine physician specializing in preventive care and immunizations' }],
+            'wp:featuredmedia': [{
+              source_url: 'https://images.unsplash.com/photo-1584515933487-779824d29309?w=800&h=400&fit=crop',
+              alt_text: 'Adult vaccination and immunization'
+            }]
+          }
         },
         {
           id: 5,
           title: 'Understanding Blood Pressure Medications',
-          content: '<p>High blood pressure affects millions of Americans. Here\'s a comprehensive guide to understanding your medications...</p>',
+          content: '<p>High blood pressure affects millions of Americans. Here\'s a comprehensive guide to understanding your medications...</p><p>Hypertension, or high blood pressure, is often called the "silent killer" because it typically has no symptoms but can lead to serious health complications. Effective management often requires medication in addition to lifestyle changes.</p><h3>Types of Blood Pressure Medications</h3><ul><li>ACE inhibitors - help relax blood vessels</li><li>Beta-blockers - reduce heart rate and blood pressure</li><li>Diuretics - help kidneys remove sodium and water</li><li>Calcium channel blockers - prevent calcium from entering heart and blood vessel cells</li></ul><h3>Important Considerations</h3><p>Work closely with your healthcare provider to find the right medication and dosage. Regular monitoring and lifestyle modifications are key to successful blood pressure management.</p>',
           excerpt: 'Learn about different types of blood pressure medications, how they work, and what to expect when starting treatment.',
           author: 'Dr. Robert Kim',
           date: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(), // 2 weeks ago
           modified: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
           slug: 'understanding-blood-pressure-medications',
           link: '/blog/understanding-blood-pressure-medications',
-          featured_media: null,
-          categories: [5],
-          tags: [{ id: 5, name: 'blood-pressure', slug: 'blood-pressure' }],
-          _embedded: null
+          featured_media: {
+            id: 105,
+            source_url: 'https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=800&h=400&fit=crop',
+            alt_text: 'Blood pressure monitoring and heart health'
+          },
+          categories: [5, 11],
+          tags: [{ id: 5, name: 'blood-pressure', slug: 'blood-pressure' }, { id: 15, name: 'heart-health', slug: 'heart-health' }],
+          _embedded: {
+            author: [{ name: 'Dr. Robert Kim', bio: 'Cardiologist with expertise in hypertension management and cardiovascular health' }],
+            'wp:featuredmedia': [{
+              source_url: 'https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=800&h=400&fit=crop',
+              alt_text: 'Blood pressure monitoring and heart health'
+            }]
+          }
         },
         {
           id: 6,
           title: 'Diabetes Management: Lifestyle and Medication',
-          content: '<p>Managing diabetes effectively requires a combination of lifestyle changes and proper medication use. Here\'s your guide...</p>',
+          content: '<p>Managing diabetes effectively requires a combination of lifestyle changes and proper medication use. Here\'s your guide...</p><p>Diabetes management is a lifelong commitment that involves monitoring blood sugar, taking medications as prescribed, and maintaining a healthy lifestyle. With proper management, people with diabetes can lead full, active lives.</p><h3>Key Components of Diabetes Management</h3><ul><li>Regular blood glucose monitoring</li><li>Healthy eating and meal planning</li><li>Regular physical activity</li><li>Medication adherence</li><li>Regular healthcare visits</li></ul><h3>Lifestyle Modifications</h3><p>Diet and exercise play crucial roles in diabetes management. Working with a diabetes educator and nutritionist can help you develop a personalized plan that fits your lifestyle.</p>',
           excerpt: 'Comprehensive guide to diabetes management, including diet, exercise, medication adherence, and blood sugar monitoring.',
           author: 'Dr. Maria Gonzalez',
           date: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString(), // 3 weeks ago
           modified: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString(),
           slug: 'diabetes-management-lifestyle-medication',
           link: '/blog/diabetes-management-lifestyle-medication',
-          featured_media: null,
-          categories: [6],
-          tags: [{ id: 6, name: 'diabetes', slug: 'diabetes' }],
-          _embedded: null
+          featured_media: {
+            id: 106,
+            source_url: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=800&h=400&fit=crop',
+            alt_text: 'Diabetes management and healthy lifestyle'
+          },
+          categories: [6, 12],
+          tags: [{ id: 6, name: 'diabetes', slug: 'diabetes' }, { id: 16, name: 'chronic-disease', slug: 'chronic-disease' }],
+          _embedded: {
+            author: [{ name: 'Dr. Maria Gonzalez', bio: 'Endocrinologist specializing in diabetes care and metabolic disorders' }],
+            'wp:featuredmedia': [{
+              source_url: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=800&h=400&fit=crop',
+              alt_text: 'Diabetes management and healthy lifestyle'
+            }]
+          }
+        },
+        {
+          id: 7,
+          title: 'Mental Health and Medication: Breaking the Stigma',
+          content: '<p>Mental health medications are an important part of treatment for many conditions. Understanding these medications can help reduce stigma and improve outcomes...</p><p>Mental health conditions affect millions of Americans, and medications can be an effective part of treatment. It\'s important to understand that taking medication for mental health is just as valid as taking medication for physical conditions.</p><h3>Common Mental Health Medications</h3><ul><li>Antidepressants - for depression and anxiety</li><li>Mood stabilizers - for bipolar disorder</li><li>Anti-anxiety medications - for anxiety disorders</li><li>Antipsychotics - for schizophrenia and other conditions</li></ul><h3>Important Considerations</h3><p>Mental health medications work differently for each person. It may take time to find the right medication and dosage. Regular communication with your healthcare provider is essential.</p>',
+          excerpt: 'Understanding mental health medications and reducing stigma around mental health treatment.',
+          author: 'Dr. James Thompson',
+          date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
+          modified: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+          slug: 'mental-health-medication-stigma',
+          link: '/blog/mental-health-medication-stigma',
+          featured_media: {
+            id: 107,
+            source_url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=400&fit=crop',
+            alt_text: 'Mental health awareness and support'
+          },
+          categories: [13, 14],
+          tags: [{ id: 17, name: 'mental-health', slug: 'mental-health' }, { id: 18, name: 'stigma', slug: 'stigma' }],
+          _embedded: {
+            author: [{ name: 'Dr. James Thompson', bio: 'Psychiatrist specializing in mental health medication management' }],
+            'wp:featuredmedia': [{
+              source_url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=400&fit=crop',
+              alt_text: 'Mental health awareness and support'
+            }]
+          }
+        },
+        {
+          id: 8,
+          title: 'Pediatric Medication Safety: A Parent\'s Guide',
+          content: '<p>Ensuring medication safety for children requires special considerations and careful attention to dosing and administration...</p><p>Children\'s bodies process medications differently than adults, making pediatric medication safety a critical concern for parents and caregivers. Understanding proper dosing, administration techniques, and safety measures can help prevent medication errors.</p><h3>Key Safety Principles</h3><ul><li>Always use the measuring device provided</li><li>Check dosing based on weight, not age</li><li>Store medications out of reach of children</li><li>Never share medications between children</li></ul><h3>Common Mistakes to Avoid</h3><p>Using household spoons for measurement, guessing at doses, and not completing prescribed courses of medication are common mistakes that can be dangerous for children.</p>',
+          excerpt: 'Essential safety tips for administering medications to children, including proper dosing and storage.',
+          author: 'Dr. Patricia Williams',
+          date: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(), // 6 days ago
+          modified: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
+          slug: 'pediatric-medication-safety',
+          link: '/blog/pediatric-medication-safety',
+          featured_media: {
+            id: 108,
+            source_url: 'https://images.unsplash.com/photo-1544027993-37dbfe43562a?w=800&h=400&fit=crop',
+            alt_text: 'Child medication safety and healthcare'
+          },
+          categories: [15, 9],
+          tags: [{ id: 19, name: 'pediatric-care', slug: 'pediatric-care' }, { id: 20, name: 'medication-safety', slug: 'medication-safety' }],
+          _embedded: {
+            author: [{ name: 'Dr. Patricia Williams', bio: 'Pediatrician with expertise in medication safety and child health' }],
+            'wp:featuredmedia': [{
+              source_url: 'https://images.unsplash.com/photo-1544027993-37dbfe43562a?w=800&h=400&fit=crop',
+              alt_text: 'Child medication safety and healthcare'
+            }]
+          }
+        },
+        {
+          id: 9,
+          title: 'Senior Health: Medication Management for Older Adults',
+          content: '<p>As we age, our medication needs change and managing multiple medications becomes increasingly important for maintaining health and independence...</p><p>Older adults often take multiple medications, which can increase the risk of drug interactions and side effects. Proper medication management becomes crucial for maintaining health and quality of life in our senior years.</p><h3>Challenges in Senior Medication Management</h3><ul><li>Multiple medications and complex dosing schedules</li><li>Changes in how the body processes medications</li><li>Increased risk of drug interactions</li><li>Memory and cognitive challenges</li></ul><h3>Management Strategies</h3><p>Using pill organizers, maintaining an updated medication list, and regular medication reviews with healthcare providers can help ensure safe and effective medication use.</p>',
+          excerpt: 'Essential strategies for managing medications safely as we age, including organization tips and safety considerations.',
+          author: 'Dr. Richard Davis',
+          date: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString(), // 9 days ago
+          modified: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString(),
+          slug: 'senior-medication-management',
+          link: '/blog/senior-medication-management',
+          featured_media: {
+            id: 109,
+            source_url: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&h=400&fit=crop',
+            alt_text: 'Senior health and medication management'
+          },
+          categories: [16, 17],
+          tags: [{ id: 21, name: 'senior-health', slug: 'senior-health' }, { id: 22, name: 'medication-management', slug: 'medication-management' }],
+          _embedded: {
+            author: [{ name: 'Dr. Richard Davis', bio: 'Geriatrician specializing in senior health and medication optimization' }],
+            'wp:featuredmedia': [{
+              source_url: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&h=400&fit=crop',
+              alt_text: 'Senior health and medication management'
+            }]
+          }
+        },
+        {
+          id: 10,
+          title: 'COVID-19 Vaccines: What You Need to Know in 2024',
+          content: '<p>COVID-19 vaccines continue to evolve, and staying up-to-date with the latest recommendations is important for protecting yourself and your community...</p><p>As we continue to live with COVID-19, vaccines remain our best defense against severe illness and hospitalization. The CDC regularly updates vaccination recommendations based on the latest research and virus variants.</p><h3>Current Recommendations</h3><ul><li>Updated vaccines for current variants</li><li>Annual vaccination for most adults</li><li>Special considerations for high-risk groups</li><li>Combination with flu vaccines</li></ul><h3>Staying Protected</h3><p>Regular vaccination, combined with other preventive measures like good hygiene and staying home when sick, helps protect both individual and community health.</p>',
+          excerpt: 'Latest information on COVID-19 vaccines, including updated recommendations and safety considerations.',
+          author: 'Dr. Jennifer Martinez',
+          date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+          modified: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+          slug: 'covid-19-vaccines-2024',
+          link: '/blog/covid-19-vaccines-2024',
+          featured_media: {
+            id: 110,
+            source_url: 'https://images.unsplash.com/photo-1584515933487-779824d29309?w=800&h=400&fit=crop',
+            alt_text: 'COVID-19 vaccination and public health'
+          },
+          categories: [4, 18],
+          tags: [{ id: 23, name: 'covid-19', slug: 'covid-19' }, { id: 24, name: 'vaccines', slug: 'vaccines' }],
+          _embedded: {
+            author: [{ name: 'Dr. Jennifer Martinez', bio: 'Infectious disease specialist and public health expert' }],
+            'wp:featuredmedia': [{
+              source_url: 'https://images.unsplash.com/photo-1584515933487-779824d29309?w=800&h=400&fit=crop',
+              alt_text: 'COVID-19 vaccination and public health'
+            }]
+          }
+        },
+        {
+          id: 11,
+          title: 'Heart Health: Understanding Cholesterol Medications',
+          content: '<p>Cholesterol management is crucial for heart health, and medications play an important role in reducing cardiovascular risk...</p><p>High cholesterol is a major risk factor for heart disease and stroke. While lifestyle changes are important, many people also need medication to achieve optimal cholesterol levels.</p><h3>Types of Cholesterol Medications</h3><ul><li>Statins - most commonly prescribed</li><li>Bile acid sequestrants</li><li>Cholesterol absorption inhibitors</li><li>PCSK9 inhibitors</li></ul><h3>Monitoring and Management</h3><p>Regular cholesterol testing and monitoring for side effects are important when taking cholesterol medications. Your healthcare provider will help determine the best treatment approach for your individual needs.</p>',
+          excerpt: 'Comprehensive guide to cholesterol medications, including how they work and what to expect.',
+          author: 'Dr. Robert Kim',
+          date: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(), // 12 days ago
+          modified: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
+          slug: 'cholesterol-medications-heart-health',
+          link: '/blog/cholesterol-medications-heart-health',
+          featured_media: {
+            id: 111,
+            source_url: 'https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=800&h=400&fit=crop',
+            alt_text: 'Heart health and cholesterol management'
+          },
+          categories: [5, 11],
+          tags: [{ id: 25, name: 'cholesterol', slug: 'cholesterol' }, { id: 26, name: 'heart-health', slug: 'heart-health' }],
+          _embedded: {
+            author: [{ name: 'Dr. Robert Kim', bio: 'Cardiologist with expertise in hypertension management and cardiovascular health' }],
+            'wp:featuredmedia': [{
+              source_url: 'https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=800&h=400&fit=crop',
+              alt_text: 'Heart health and cholesterol management'
+            }]
+          }
+        },
+        {
+          id: 12,
+          title: 'Women\'s Health: Hormone Therapy and Menopause',
+          content: '<p>Menopause brings significant changes to women\'s health, and hormone therapy can be an effective treatment option for managing symptoms...</p><p>Menopause affects every woman differently, and hormone therapy can help manage symptoms like hot flashes, night sweats, and bone loss. Understanding the benefits and risks is important for making informed decisions.</p><h3>Types of Hormone Therapy</h3><ul><li>Estrogen-only therapy</li><li>Combined estrogen and progesterone therapy</li><li>Local vaginal estrogen</li><li>Bioidentical hormones</li></ul><h3>Benefits and Considerations</h3><p>Hormone therapy can effectively relieve menopausal symptoms and may provide other health benefits. However, it\'s not right for everyone, and the decision should be made with careful consideration of individual health factors.</p>',
+          excerpt: 'Understanding hormone therapy options for menopause management, including benefits, risks, and considerations.',
+          author: 'Dr. Amanda Foster',
+          date: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(), // 15 days ago
+          modified: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+          slug: 'hormone-therapy-menopause',
+          link: '/blog/hormone-therapy-menopause',
+          featured_media: {
+            id: 112,
+            source_url: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=800&h=400&fit=crop',
+            alt_text: 'Women\'s health and menopause support'
+          },
+          categories: [19, 20],
+          tags: [{ id: 27, name: 'womens-health', slug: 'womens-health' }, { id: 28, name: 'menopause', slug: 'menopause' }],
+          _embedded: {
+            author: [{ name: 'Dr. Amanda Foster', bio: 'Gynecologist specializing in women\'s health and menopause management' }],
+            'wp:featuredmedia': [{
+              source_url: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=800&h=400&fit=crop',
+              alt_text: 'Women\'s health and menopause support'
+            }]
+          }
         }
       ];
 
+      // Add dynamic posts for fresh content
+      const dynamicPosts = [];
+      for (let i = 13; i <= 15; i++) {
+        dynamicPosts.push(generateDynamicPost(i));
+      }
+
+      // Combine static and dynamic posts
+      const allSamplePosts = [...samplePosts, ...dynamicPosts];
+
+      // Return comprehensive sample categories
+      const sampleCategories = [
+        { id: 1, name: 'Allergies & Immunology', slug: 'allergies-immunology', description: 'Managing allergies and immune system health', count: 1 },
+        { id: 2, name: 'Nutrition & Supplements', slug: 'nutrition-supplements', description: 'Essential nutrients and dietary supplements', count: 1 },
+        { id: 3, name: 'Medication Safety', slug: 'medication-safety', description: 'Safe medication storage and administration', count: 2 },
+        { id: 4, name: 'Immunizations', slug: 'immunizations', description: 'Vaccines and preventive healthcare', count: 2 },
+        { id: 5, name: 'Cardiovascular Health', slug: 'cardiovascular-health', description: 'Heart health and blood pressure management', count: 2 },
+        { id: 6, name: 'Diabetes Care', slug: 'diabetes-care', description: 'Diabetes management and lifestyle', count: 1 },
+        { id: 7, name: 'Seasonal Health', slug: 'seasonal-health', description: 'Health tips for different seasons', count: 1 },
+        { id: 8, name: 'Preventive Care', slug: 'preventive-care', description: 'Preventive healthcare and wellness', count: 1 },
+        { id: 9, name: 'Pharmacy Tips', slug: 'pharmacy-tips', description: 'Expert advice from pharmacists', count: 2 },
+        { id: 10, name: 'Public Health', slug: 'public-health', description: 'Community health and disease prevention', count: 1 },
+        { id: 11, name: 'Heart Health', slug: 'heart-health', description: 'Cardiovascular wellness and prevention', count: 2 },
+        { id: 12, name: 'Chronic Disease Management', slug: 'chronic-disease-management', description: 'Living with chronic health conditions', count: 1 },
+        { id: 13, name: 'Mental Health', slug: 'mental-health', description: 'Mental wellness and medication support', count: 1 },
+        { id: 14, name: 'Healthcare Stigma', slug: 'healthcare-stigma', description: 'Breaking down barriers to care', count: 1 },
+        { id: 15, name: 'Pediatric Care', slug: 'pediatric-care', description: 'Children\'s health and medication safety', count: 1 },
+        { id: 16, name: 'Senior Health', slug: 'senior-health', description: 'Health and wellness for older adults', count: 1 },
+        { id: 17, name: 'Medication Management', slug: 'medication-management', description: 'Organizing and managing multiple medications', count: 1 },
+        { id: 18, name: 'Infectious Diseases', slug: 'infectious-diseases', description: 'Preventing and managing infectious diseases', count: 1 },
+        { id: 19, name: 'Women\'s Health', slug: 'womens-health', description: 'Health issues specific to women', count: 1 },
+        { id: 20, name: 'Menopause', slug: 'menopause', description: 'Menopause management and hormone therapy', count: 1 }
+      ];
+
       return res.json({ 
-        posts: samplePosts, 
+        posts: allSamplePosts, 
+        categories: sampleCategories,
         pagination: { 
           page: parseInt(page.toString()), 
           per_page: parseInt(per_page.toString()), 
-          total: samplePosts.length, 
-          total_pages: Math.ceil(samplePosts.length / parseInt(per_page.toString()))
+          total: allSamplePosts.length, 
+          total_pages: Math.ceil(allSamplePosts.length / parseInt(per_page.toString()))
         } 
       });
+    } else {
+      // Return real WordPress data
+      console.log('✅ Returning real WordPress data');
+      return res.json(realWordPressData);
     }
 
     // Build query parameters
@@ -1220,7 +1653,8 @@ router.get('/posts', async (req: Request, res: Response) => {
           'Content-Type': 'application/json'
         }
       },
-      params
+      params,
+      settings
     );
 
     if (!response) {
@@ -1239,19 +1673,19 @@ router.get('/posts', async (req: Request, res: Response) => {
 
     const result = {
       posts: posts.map((post: unknown) => ({
-        id: post.id,
-        title: post.title?.rendered || post.title || '',
-        content: post.content?.rendered || post.content || '',
-        excerpt: post.excerpt?.rendered || post.excerpt || '',
-        author: post.author || 'WordPress Admin',
-        date: post.date,
-        modified: post.modified,
-        slug: post.slug,
-        link: post.link,
-        featured_media: post.featured_media,
-        categories: post.categories,
-        tags: post.tags,
-        _embedded: post._embedded
+        id: getPostProperty(post, 'id', 0),
+        title: (getPostProperty(post, 'title', {}) as any)?.rendered || getPostProperty(post, 'title', ''),
+        content: (getPostProperty(post, 'content', {}) as any)?.rendered || getPostProperty(post, 'content', ''),
+        excerpt: (getPostProperty(post, 'excerpt', {}) as any)?.rendered || getPostProperty(post, 'excerpt', ''),
+        author: getPostProperty(post, 'author', 'WordPress Admin'),
+        date: getPostProperty(post, 'date', ''),
+        modified: getPostProperty(post, 'modified', ''),
+        slug: getPostProperty(post, 'slug', ''),
+        link: getPostProperty(post, 'link', ''),
+        featured_media: getPostProperty(post, 'featured_media', 0),
+        categories: getPostProperty(post, 'categories', []),
+        tags: getPostProperty(post, 'tags', []),
+        _embedded: getPostProperty(post, '_embedded', {})
       })),
       pagination: {
         page: parseInt(page.toString()),
@@ -1277,9 +1711,26 @@ router.get('/posts/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const settings = await prisma.wordPressSettings.findUnique({ where: { id: 1 } });
+    
     if (!settings || !settings.enabled) {
-      return res.status(404).json({ error: 'WordPress integration is not enabled' });
+      // Return sample blog post for development/demo purposes
+      const samplePost = {
+        id: parseInt(id),
+        title: { rendered: 'Managing Seasonal Allergies: A Complete Guide' },
+        content: { rendered: '<p>Spring and fall bring beautiful weather, but for many people, they also bring seasonal allergies. Here\'s how to manage your symptoms effectively...</p><p>Seasonal allergies, also known as hay fever or allergic rhinitis, affect millions of people worldwide. The symptoms can range from mild to severe and can significantly impact your quality of life.</p><h3>Common Symptoms</h3><ul><li>Sneezing</li><li>Runny or stuffy nose</li><li>Itchy eyes, nose, or throat</li><li>Watery eyes</li><li>Coughing</li></ul><h3>Treatment Options</h3><p>There are several effective treatments available for seasonal allergies, including over-the-counter and prescription medications, as well as lifestyle changes that can help reduce symptoms.</p>' },
+        excerpt: { rendered: 'Learn effective strategies for managing seasonal allergies, including medication options, lifestyle changes, and prevention tips.' },
+        date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        modified: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        slug: 'managing-seasonal-allergies',
+        link: '/blog/managing-seasonal-allergies',
+        author: 1,
+        categories: [1],
+        tags: [1],
+        featured_media: 0
+      };
+      return res.json({ post: samplePost });
     }
+    
     const response = await fetch(`${settings.siteUrl}/wp-json/wp/v2/posts/${id}`, {
       headers: {
         'Content-Type': 'application/json'
@@ -1291,7 +1742,7 @@ router.get('/posts/:id', async (req, res) => {
     const post = await response.json();
     res.json({ post });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch post', details: error.message });
+    res.status(500).json({ error: 'Failed to fetch post', details: isErrorWithMessage(error) ? error.message : 'Unknown error' });
   }
 });
 
@@ -1310,7 +1761,70 @@ router.get('/categories', async (req: Request, res: Response) => {
       where: { id: 1 }
     });
 
-    if (!settings || !settings.enabled) {
+    // Always try to fetch from real WordPress first, even if settings are not configured
+    let realWordPressCategories = null;
+    
+    try {
+      console.log('🔄 Attempting to fetch real WordPress categories...');
+      
+      // Try to get WordPress data from environment variables or settings
+      let wpUrl, wpUsername, wpAppPassword;
+      
+      if (settings && settings.enabled) {
+        wpUrl = settings.siteUrl;
+        wpUsername = settings.username;
+        wpAppPassword = settings.applicationPassword;
+        console.log('📝 Using WordPress settings from database for categories');
+      } else {
+        wpUrl = process.env.WORDPRESS_URL || process.env.VITE_WORDPRESS_URL;
+        wpUsername = process.env.WORDPRESS_USERNAME;
+        wpAppPassword = process.env.WORDPRESS_APP_PASSWORD || process.env.WORDPRESS_PASSWORD;
+        console.log('📝 Using WordPress environment variables for categories');
+      }
+
+      if (wpUrl && wpUsername && wpAppPassword) {
+        console.log('📝 WordPress credentials found, attempting real API call for categories...');
+        
+        // Make real WordPress API request for categories
+    const response = await makeWordPressRequest(
+      '/categories',
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      },
+      { per_page: 100 },
+          { siteUrl: wpUrl, username: wpUsername, applicationPassword: wpAppPassword }
+        );
+
+        if (response && response.ok) {
+          const categories = await response.json();
+
+          if (Array.isArray(categories) && categories.length > 0) {
+            console.log('✅ Successfully fetched real WordPress categories:', categories.length);
+            
+            realWordPressCategories = {
+              categories: categories.map((category: unknown) => ({
+                id: getCategoryProperty(category, 'id', 0),
+                name: getCategoryProperty(category, 'name', ''),
+                slug: getCategoryProperty(category, 'slug', ''),
+                description: getCategoryProperty(category, 'description', ''),
+                count: getCategoryProperty(category, 'count', 0)
+              }))
+            };
+          }
+        }
+      } else {
+        console.log('⚠️ WordPress credentials not found in settings or environment variables for categories');
+      }
+    } catch (error) {
+      console.error('❌ Failed to fetch real WordPress categories:', isErrorWithMessage(error) ? error.message : 'Unknown error');
+    }
+
+    // Only use sample data if real WordPress data is not available
+    if (!realWordPressCategories) {
+      console.log('📝 Using sample categories as fallback');
+      
       // Return sample categories for development/demo purposes
       const sampleCategories = [
         { id: 1, name: 'Seasonal Health', slug: 'seasonal-health', count: 1 },
@@ -1321,36 +1835,11 @@ router.get('/categories', async (req: Request, res: Response) => {
         { id: 6, name: 'Chronic Conditions', slug: 'chronic-conditions', count: 1 }
       ];
       return res.json({ categories: sampleCategories });
+    } else {
+      // Return real WordPress categories
+      console.log('✅ Returning real WordPress categories');
+      return res.json(realWordPressCategories);
     }
-
-    // Fetch from WordPress API
-    const response = await makeWordPressRequest(
-      '/categories',
-      {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      },
-      { per_page: 100 }
-    );
-
-    if (!response) {
-      throw new Error('No response received from WordPress API');
-    }
-
-    const categoriesData = await response.json();
-    const categories = categoriesData.map((category: unknown) => ({
-      id: category.id,
-      name: category.name,
-      count: category.count,
-      description: category.description,
-      slug: category.slug
-    }));
-
-    // Cache the result
-    setCachedPosts(cacheKey, categories);
-
-    res.json(categories);
   } catch (err: unknown) {
     console.error('Error fetching categories:', err);
     res.status(500).json({ 

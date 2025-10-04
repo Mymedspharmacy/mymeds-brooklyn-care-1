@@ -1,6 +1,22 @@
 import { Router, Request, Response } from 'express';
 import { unifiedAdminAuth } from './auth';
 import { AuthRequest } from '../types/express';
+import { 
+  isWooCommerceProduct, 
+  isWooCommerceOrder, 
+  isErrorWithMessage, 
+  hasProperty, 
+  isObject,
+  isString,
+  isNumber 
+} from '../core/utils/typeGuards';
+import { 
+  assertWooCommerceProduct, 
+  assertWooCommerceOrder, 
+  assertWooCommerceVariation,
+  getProductProperty,
+  getVariationProperty
+} from '../core/utils/woocommerceTypes';
 
 const router = Router();
 
@@ -33,6 +49,14 @@ const clearProductCache = () => {
   productCache.clear();
 };
 
+// Utility function to safely get order properties
+const getOrderProperty = (order: unknown, property: string, defaultValue: unknown): unknown => {
+  if (isObject(order) && hasProperty(order, property)) {
+    return order[property];
+  }
+  return defaultValue;
+};
+
 // Enhanced error handling with retry logic and development mode support
 const makeWooCommerceRequest = async (url: string, options: unknown, params?: unknown, retries = 3) => {
   // Validate required environment variables for production
@@ -55,14 +79,14 @@ const makeWooCommerceRequest = async (url: string, options: unknown, params?: un
 
       // Build URL with query parameters including authentication
       let requestUrl = url;
-      const allParams = {
-        ...params,
+      const allParams: Record<string, unknown> = {
+        ...(params as Record<string, unknown>),
         consumer_key: consumerKey,
         consumer_secret: consumerSecret
       };
       
       if (allParams && Object.keys(allParams).length > 0) {
-        const queryString = new URLSearchParams(allParams).toString();
+        const queryString = new URLSearchParams(allParams as Record<string, string>).toString();
         requestUrl = `${storeUrl}/wp-json/wc/v3${url}?${queryString}`;
       } else {
         requestUrl = `${storeUrl}/wp-json/wc/v3${url}`;
@@ -79,8 +103,8 @@ const makeWooCommerceRequest = async (url: string, options: unknown, params?: un
       return response;
     } catch (error) {
       if (i === retries - 1) {
-        console.error('🛒 WooCommerce API failed after', retries, 'attempts:', error.message);
-        throw new Error(`WooCommerce API request failed: ${error.message}`);
+        console.error('🛒 WooCommerce API failed after', retries, 'attempts:', isErrorWithMessage(error) ? error.message : 'Unknown error');
+        throw new Error(`WooCommerce API request failed: ${isErrorWithMessage(error) ? error.message : 'Unknown error'}`);
       }
       
       // Wait before retry (exponential backoff)
@@ -318,17 +342,21 @@ router.post('/sync-products', unifiedAdminAuth, async (req: AuthRequest, res: Re
           
           if (variationsResponse) {
             const variations = await variationsResponse.json();
-            totalStock = variations.reduce((sum: number, variation: unknown) => sum + (variation && typeof variation === 'object' && 'stock_quantity' in variation && typeof variation.stock_quantity === 'number' ? variation.stock_quantity : 0), 0);
+            totalStock = variations.reduce((sum: number, variation: unknown) => {
+              const stockQuantity = getVariationProperty(variation, 'stock_quantity', 0);
+              return sum + (typeof stockQuantity === 'number' ? stockQuantity : 0);
+            }, 0);
             
             // Check for low stock variations
             variations.forEach((variation: unknown) => {
-              if (variation.stock_quantity > 0 && variation.stock_quantity <= 5) {
+              const stockQuantity = getVariationProperty(variation, 'stock_quantity', 0);
+              if (typeof stockQuantity === 'number' && stockQuantity > 0 && stockQuantity <= 5) {
                 hasLowStock = true;
                 lowStockAlerts.push({
                   productId: product.id,
-                  variationId: variation.id,
-                  name: `${product.name} - ${variation.name || 'Default'}`,
-                  currentStock: variation.stock_quantity,
+                  variationId: getVariationProperty(variation, 'id', 0),
+                  name: `${product.name} - ${getVariationProperty(variation, 'name', 'Default')}`,
+                  currentStock: stockQuantity,
                   threshold: 5
                 });
               }
@@ -410,7 +438,7 @@ router.post('/sync-products', unifiedAdminAuth, async (req: AuthRequest, res: Re
         if (hasLowStock) lowStockCount++;
       } catch (productError: unknown) {
         errorCount++;
-        errors.push(`Product ${product.id}: ${productError.message}`);
+        errors.push(`Product ${product.id}: ${isErrorWithMessage(productError) ? productError.message : 'Unknown error'}`);
       }
     }
 
@@ -442,7 +470,7 @@ router.post('/sync-products', unifiedAdminAuth, async (req: AuthRequest, res: Re
     await prisma.wooCommerceSettings.update({
       where: { id: 1 },
       data: { 
-        lastError: err.message,
+        lastError: isErrorWithMessage(err) ? err.message : 'Unknown error',
         lastSync: new Date()
       }
     });
@@ -700,12 +728,12 @@ router.get('/media', unifiedAdminAuth, async (req: AuthRequest, res: Response) =
 
     res.json({
       media: media.map((item: unknown) => ({
-        id: item.id,
-        title: item.title,
-        src: item.src,
-        alt: item.alt,
-        date: item.date,
-        modified: item.modified
+        id: getProductProperty(item, 'id', 0),
+        title: getProductProperty(item, 'title', ''),
+        src: getProductProperty(item, 'src', ''),
+        alt: getProductProperty(item, 'alt', ''),
+        date: getProductProperty(item, 'date', ''),
+        modified: getProductProperty(item, 'modified', '')
       })),
       pagination: {
         page: parseInt(page.toString()),
@@ -775,16 +803,16 @@ router.get('/inventory-status', unifiedAdminAuth, async (req: AuthRequest, res: 
         totalStockValue: lowStockProducts.reduce((sum: number, p: unknown) => sum + (p && typeof p === 'object' && 'price' in p && 'stock' in p && typeof p.price === 'number' && typeof p.stock === 'number' ? p.price * p.stock : 0), 0)
       },
       lowStockProducts: lowStockProducts.map((p: unknown) => ({
-        id: p.id,
-        name: p.name,
-        stock: p.stock,
-        price: p.price,
-        category: p.category.name
+        id: getProductProperty(p, 'id', 0),
+        name: getProductProperty(p, 'name', ''),
+        stock: getProductProperty(p, 'stock', 0),
+        price: getProductProperty(p, 'price', 0),
+        category: getProductProperty(getProductProperty(p, 'category', {}), 'name', '')
       })),
       outOfStockProducts: outOfStockProducts.map((p: unknown) => ({
-        id: p.id,
-        name: p.name,
-        category: p.category.name
+        id: getProductProperty(p, 'id', 0),
+        name: getProductProperty(p, 'name', ''),
+        category: getProductProperty(getProductProperty(p, 'category', {}), 'name', '')
       })),
       categoryStock
     });
@@ -1060,7 +1088,7 @@ router.post('/auto-sync', async (req: Request, res: Response) => {
         syncedCount++;
       } catch (productError: unknown) {
         errorCount++;
-        errors.push(`Product ${product.id}: ${productError.message}`);
+        errors.push(`Product ${product.id}: ${isErrorWithMessage(productError) ? productError.message : 'Unknown error'}`);
       }
     }
 
@@ -1091,7 +1119,7 @@ router.post('/auto-sync', async (req: Request, res: Response) => {
     await prisma.wooCommerceSettings.update({
       where: { id: 1 },
       data: { 
-        lastError: err.message,
+        lastError: isErrorWithMessage(err) ? err.message : 'Unknown error',
         lastSync: new Date()
       }
     });
@@ -1127,13 +1155,15 @@ router.get('/products', async (req: Request, res: Response) => {
     // Build query parameters
     const params: Record<string, unknown> = {
       page: parseInt(page.toString()),
-      per_page: parseInt(per_page.toString())
+      per_page: parseInt(per_page.toString()),
+      // Request all necessary fields for complete product information
+      status: 'publish'
     };
 
     if (category) params.category = category;
     if (search) params.search = search;
 
-    // Fetch from WooCommerce API
+    // Fetch from WooCommerce API with all necessary fields
     const response = await makeWooCommerceRequest(
       '/products',
       {
@@ -1159,21 +1189,28 @@ router.get('/products', async (req: Request, res: Response) => {
     }
 
     const result = {
-      products: products.map((product: unknown) => ({
+      products: products.map((product: any) => ({
         id: product.id,
         name: product.name,
         description: product.description,
+        short_description: product.short_description,
         price: product.price,
         regular_price: product.regular_price,
         sale_price: product.sale_price,
         categories: product.categories,
         images: product.images,
-        stock_quantity: product.stock_quantity,
-        stock_status: product.stock_status || (product.stock_quantity > 0 ? 'instock' : 'outofstock'),
+        stock_quantity: product.stock_quantity || 0,
+        stock_status: product.stock_status || ((product.manage_stock === true && product.stock_quantity > 0) ? 'instock' : (product.manage_stock === false ? 'instock' : 'outofstock')),
+        manage_stock: product.manage_stock,
         average_rating: product.average_rating,
         rating_count: product.rating_count,
         tags: product.tags,
-        attributes: product.attributes
+        attributes: product.attributes,
+        variations: product.variations,
+        weight: product.weight,
+        dimensions: product.dimensions,
+        permalink: product.permalink,
+        status: product.status
       })),
       pagination: {
         page: parseInt(page.toString()),
@@ -1191,6 +1228,53 @@ router.get('/products', async (req: Request, res: Response) => {
     console.error('Error fetching products:', err);
     res.status(500).json({ 
       error: 'Failed to fetch products',
+      details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
+    });
+  }
+});
+
+// Get available payment gateways from WooCommerce
+router.get('/payment-gateways', async (req: Request, res: Response) => {
+  try {
+    const settings = await prisma.wooCommerceSettings.findUnique({
+      where: { id: 1 }
+    });
+
+    if (!settings || !settings.enabled) {
+      return res.status(503).json({ error: 'WooCommerce is not configured or enabled' });
+    }
+
+    // Fetch payment gateways from WooCommerce
+    const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/payment_gateways?consumer_key=${settings.consumerKey}&consumer_secret=${settings.consumerSecret}`, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`WooCommerce API error: ${response.statusText}`);
+    }
+
+    const gateways = await response.json();
+    
+    // Filter only enabled gateways
+    const enabledGateways = gateways.filter((gateway: any) => gateway.enabled);
+
+    res.json({
+      success: true,
+      paymentGateways: enabledGateways.map((gateway: any) => ({
+        id: gateway.id,
+        title: gateway.title,
+        description: gateway.description,
+        enabled: gateway.enabled,
+        order: gateway.order
+      }))
+    });
+
+  } catch (err: unknown) {
+    console.error('Error fetching payment gateways:', err);
+    res.status(500).json({ 
+      error: 'Failed to fetch payment gateways',
       details: process.env.NODE_ENV === 'development' ? (err instanceof Error ? err.message : 'Unknown error') : undefined
     });
   }
@@ -1222,6 +1306,9 @@ router.post('/orders', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Missing required order information' });
     }
 
+    // Determine if payment should be processed automatically
+    const shouldProcessPayment = payment_method === 'stripe' || payment_method === 'paypal';
+    
     // Prepare order data for WooCommerce
     const orderData = {
       billing,
@@ -1229,9 +1316,9 @@ router.post('/orders', async (req: Request, res: Response) => {
       line_items,
       payment_method: payment_method || 'bacs',
       payment_method_title: payment_method_title || 'Direct Bank Transfer',
-      set_paid: set_paid || false,
+      set_paid: shouldProcessPayment ? (set_paid || false) : false,
       customer_note: customer_note || '',
-      status: 'pending'
+      status: shouldProcessPayment ? (set_paid ? 'processing' : 'pending') : 'pending'
     };
 
     // Create order in WooCommerce
@@ -1327,50 +1414,53 @@ router.get('/orders', async (req: Request, res: Response) => {
 
     res.json({
       success: true,
-      orders: orders.map((order: unknown) => ({
-        id: order.id,
-        order_number: order.number || order.id,
-        status: order.status,
-        total: order.total,
-        currency: order.currency || 'USD',
-        customer: {
-          id: order.customer_id || 0,
-          email: order.billing?.email || 'customer@example.com',
-          first_name: order.billing?.first_name || 'John',
-          last_name: order.billing?.last_name || 'Doe',
-          phone: order.billing?.phone || '555-0123'
-        },
-        billing: order.billing || {
-          first_name: 'John',
-          last_name: 'Doe',
-          email: 'john@example.com',
-          phone: '555-0123',
-          address_1: '123 Main St',
-          city: 'Brooklyn',
-          state: 'NY',
-          postcode: '11201',
-          country: 'US'
-        },
-        shipping: order.shipping || order.billing,
-        line_items: order.line_items || [
-          {
-            name: 'Vitamin D3 1000 IU',
-            quantity: 1,
-            price: '19.99'
+      orders: orders.map((order: unknown) => {
+        const orderData = order as any;
+        return {
+          id: orderData.id || 0,
+          order_number: orderData.number || orderData.id || '',
+          status: orderData.status || '',
+          total: orderData.total || '',
+          currency: orderData.currency || 'USD',
+          customer: {
+            id: orderData.customer_id || 0,
+            email: 'customer@example.com',
+            first_name: 'John',
+            last_name: 'Doe',
+            phone: '555-0123'
           },
-          {
-            name: 'Omega-3 Fish Oil',
-            quantity: 1,
-            price: '24.99'
-          }
-        ],
-        payment_method: order.payment_method || 'credit_card',
-        payment_method_title: order.payment_method_title || 'Credit Card',
-        date_created: order.date_created,
-        date_modified: order.date_modified,
-        customer_note: order.customer_note || '',
-        meta_data: order.meta_data || []
-      })),
+          billing: orderData.billing || {
+            first_name: 'John',
+            last_name: 'Doe',
+            email: 'john@example.com',
+            phone: '555-0123',
+            address_1: '123 Main St',
+            city: 'Brooklyn',
+            state: 'NY',
+            postcode: '11201',
+            country: 'US'
+          },
+          shipping: orderData.shipping || {},
+          line_items: orderData.line_items || [
+            {
+              name: 'Vitamin D3 1000 IU',
+              quantity: 1,
+              price: '19.99'
+            },
+            {
+              name: 'Omega-3 Fish Oil',
+              quantity: 1,
+              price: '24.99'
+            }
+          ],
+          payment_method: orderData.payment_method || 'credit_card',
+          payment_method_title: orderData.payment_method_title || 'Credit Card',
+          date_created: orderData.date_created || '',
+          date_modified: orderData.date_modified || '',
+          customer_note: orderData.customer_note || '',
+          meta_data: orderData.meta_data || []
+        };
+      }),
       pagination: {
         page: parseInt(page.toString()),
         per_page: parseInt(per_page.toString()),
@@ -1585,7 +1675,7 @@ router.get('/status', async (req: Request, res: Response) => {
         enabled: true,
         status: 'error',
         message: 'WooCommerce connection failed',
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: isErrorWithMessage(error) ? error.message : 'Unknown error'
       });
     }
   } catch (err: unknown) {
@@ -1664,7 +1754,7 @@ router.post('/clear-cache-dev', async (req: Request, res: Response) => {
     console.error('Error clearing cache:', err);
     res.status(500).json({ 
       error: 'Failed to clear cache',
-      details: err.message
+      details: isErrorWithMessage(err) ? err.message : 'Unknown error'
     });
   }
 });
@@ -1702,19 +1792,51 @@ router.get('/products/:id', async (req, res) => {
     if (!settings || !settings.enabled) {
       return res.status(404).json({ error: 'WooCommerce is not configured or enabled' });
     }
-    const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/products/${id}`, {
-      headers: {
-          'Authorization': `Basic ${Buffer.from(`${settings.consumerKey}:${settings.consumerSecret}`).toString('base64')}`,
-        'Content-Type': 'application/json'
+    
+    // Use makeWooCommerceRequest for consistency and better error handling
+    const response = await makeWooCommerceRequest(
+      `/products/${id}`,
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
       }
-    });
-    if (!response.ok) {
+    );
+    
+    if (!response) {
       return res.status(404).json({ error: 'Product not found' });
     }
+    
     const product = await response.json();
-    res.json({ product });
+    
+    // Return complete product information
+    res.json({ 
+      product: {
+        id: (product as any).id,
+        name: (product as any).name,
+        description: (product as any).description,
+        short_description: (product as any).short_description,
+        price: (product as any).price,
+        regular_price: (product as any).regular_price,
+        sale_price: (product as any).sale_price,
+        categories: (product as any).categories,
+        images: (product as any).images,
+        stock_quantity: (product as any).stock_quantity || 0,
+        stock_status: ((product as any).stock_quantity !== null && (product as any).stock_quantity > 0) ? 'instock' : 'outofstock',
+        manage_stock: (product as any).manage_stock,
+        average_rating: (product as any).average_rating,
+        rating_count: (product as any).rating_count,
+        tags: (product as any).tags,
+        attributes: (product as any).attributes,
+        variations: (product as any).variations,
+        weight: (product as any).weight,
+        dimensions: (product as any).dimensions,
+        permalink: (product as any).permalink,
+        status: (product as any).status
+      }
+    });
   } catch (error: unknown) {
-    res.status(500).json({ error: 'Failed to fetch product', details: error.message });
+    res.status(500).json({ error: 'Failed to fetch product', details: isErrorWithMessage(error) ? error.message : 'Unknown error' });
   }
 });
 
