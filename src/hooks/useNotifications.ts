@@ -27,6 +27,12 @@ export function useNotifications(soundEnabled: boolean = true) {
     audioRef.current = new Audio('/notification.mp3');
     audioRef.current.volume = 0.5; // Set volume to 50%
     
+    // Disable Socket.io connection for now - backend doesn't support it
+    console.log('Socket.io notifications disabled - backend not configured');
+    setIsConnected(false);
+    
+    // TODO: Enable when backend Socket.io is configured
+    /*
     const newSocket = io(getBackendUrl(), {
       timeout: 5000,
       reconnection: true,
@@ -50,7 +56,9 @@ export function useNotifications(soundEnabled: boolean = true) {
       console.log('Disconnected from notifications:', reason);
       setIsConnected(false);
     });
+    */
 
+    /*
     newSocket.on('new-notification', (notification: Notification) => {
       setNotifications(prev => [notification, ...prev]);
       
@@ -75,18 +83,17 @@ export function useNotifications(soundEnabled: boolean = true) {
     return () => {
       newSocket.close();
     };
+    */
   }, [toast, soundEnabled]); // ✅ ADDED: soundEnabled to dependency array
 
   const joinUserRoom = (userId: number) => {
-    if (socket) {
-      socket.emit('join-user', userId);
-    }
+    // Socket.io disabled
+    console.log('joinUserRoom called but Socket.io disabled:', userId);
   };
 
   const leaveUserRoom = (userId: number) => {
-    if (socket) {
-      socket.emit('leave', `user-${userId}`);
-    }
+    // Socket.io disabled
+    console.log('leaveUserRoom called but Socket.io disabled:', userId);
   };
 
   const markAsRead = async (notificationId: number) => {

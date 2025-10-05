@@ -779,10 +779,13 @@ export default function Admin() {
   const loadCrmData = useCallback(async () => {
     setCrmLoading(true);
     try {
-      const [customersResponse, statsResponse] = await Promise.all([
+      const [customersResponse] = await Promise.all([
         api.get(`/crm/admin/customers?search=${crmSearch}&segment=${crmSegmentFilter === 'all' ? '' : crmSegmentFilter}&limit=50`).catch(err => ({ data: { success: false, data: { customers: [] } } })),
-        api.get('/crm/admin/stats').catch(err => ({ data: { success: false, data: {} } }))
+        // api.get('/crm/admin/stats').catch(err => ({ data: { success: false, data: {} } })) // Route not implemented
       ]);
+      
+      // Mock stats response since route is not implemented
+      const statsResponse = { data: { success: true, data: {} } };
       
       if (customersResponse.data && customersResponse.data.success) {
         const customersData = Array.isArray(customersResponse.data.data?.customers) 
@@ -3087,7 +3090,7 @@ export default function Admin() {
                       onClick={async () => {
                         setWooCommerceStatus(prev => ({ ...prev, syncInProgress: true }));
                         try {
-                          const response = await api.post('/woocommerce/sync');
+                          const response = await api.post('/woocommerce/sync-products');
                           toast({
                             title: "Sync Complete",
                             description: `Synced ${response.data.syncedOrders} orders successfully`,
