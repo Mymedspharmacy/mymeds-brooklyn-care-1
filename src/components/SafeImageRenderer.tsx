@@ -67,29 +67,40 @@ export const SafeContentRenderer: React.FC<SafeContentRendererProps> = ({
   content,
   className = ''
 }) => {
-  // Process content to handle images safely
+  // Process content to handle images safely using regex instead of DOM manipulation
   const processContent = (htmlContent: string) => {
     if (!htmlContent) return '';
     
-    // Create a temporary div to parse HTML
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = htmlContent;
-    
-    // Find all img tags and add error handling
-    const imgTags = tempDiv.querySelectorAll('img');
-    imgTags.forEach((img) => {
-      const originalSrc = img.getAttribute('src');
-      if (originalSrc) {
-        // Add error handling to images
-        img.onerror = function() {
-          this.style.display = 'none';
-        };
-        // Add loading attribute
-        img.setAttribute('loading', 'lazy');
+    // Use regex to find and modify img tags
+    return htmlContent.replace(/<img([^>]*)>/gi, (match, attributes) => {
+      // Extract src attribute
+      const srcMatch = attributes.match(/src\s*=\s*["']([^"']+)["']/i);
+      const src = srcMatch ? srcMatch[1] : '';
+      
+      // Add error handling and loading attributes
+      let newAttributes = attributes;
+      
+      // Add onerror handler if not present
+      if (!newAttributes.includes('onerror')) {
+        newAttributes += ' onerror="this.style.display=\'none\';"';
       }
+      
+      // Add loading attribute if not present
+      if (!newAttributes.includes('loading')) {
+        newAttributes += ' loading="lazy"';
+      }
+      
+      // Add error handling classes
+      if (!newAttributes.includes('class=')) {
+        newAttributes += ' class="max-w-full h-auto rounded-lg"';
+      } else {
+        newAttributes = newAttributes.replace(/class\s*=\s*["']([^"']*)["']/i, (classMatch, classValue) => {
+          return `class="${classValue} max-w-full h-auto rounded-lg"`;
+        });
+      }
+      
+      return `<img${newAttributes}>`;
     });
-    
-    return tempDiv.innerHTML;
   };
 
   return (

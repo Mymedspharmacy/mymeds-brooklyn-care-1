@@ -266,7 +266,7 @@ const BlogPost = () => {
               <CardContent className="p-8">
                 <SafeContentRenderer 
                   content={post.content?.rendered || 'No content available.'}
-                  className="prose prose-lg max-w-none text-gray-700"
+                  className="blog-content prose prose-lg max-w-none text-gray-700"
                 />
               </CardContent>
             </Card>

@@ -1855,4 +1855,112 @@ router.get('/products/:id', async (req, res) => {
   }
 });
 
+// Test connection endpoint
+router.get('/test-connection', async (req: Request, res: Response) => {
+  try {
+    const settings = await prisma.wooCommerceSettings.findUnique({
+      where: { id: 1 }
+    });
+
+    if (!settings || !settings.enabled) {
+      return res.status(400).json({
+        success: false,
+        error: 'WooCommerce settings not configured or disabled'
+      });
+    }
+
+    // Test connection by fetching one product
+    const queryParams = new URLSearchParams({
+      consumer_key: settings.consumerKey,
+      consumer_secret: settings.consumerSecret,
+      per_page: '1'
+    });
+    
+    const apiUrl = `${settings.storeUrl}/wp-json/wc/v3/products?${queryParams}`;
+    
+    const response = await fetch(apiUrl, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`WooCommerce API error: ${response.status}`);
+    }
+
+    const products = await response.json();
+    
+    res.json({
+      success: true,
+      message: 'WooCommerce connection successful',
+      settings: {
+        enabled: settings.enabled,
+        storeUrl: settings.storeUrl,
+        consumerKey: settings.consumerKey.slice(-4) // Show only last 4 chars
+      },
+      testResult: {
+        status: response.status,
+        productsFound: Array.isArray(products) ? products.length : 0
+      }
+    });
+  } catch (error) {
+    console.error('WooCommerce connection test failed:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// Sync endpoint
+router.post('/sync', async (req: Request, res: Response) => {
+  try {
+    const settings = await prisma.wooCommerceSettings.findUnique({
+      where: { id: 1 }
+    });
+
+    if (!settings || !settings.enabled) {
+      return res.status(400).json({
+        success: false,
+        error: 'WooCommerce settings not configured or disabled'
+      });
+    }
+
+    // Clear cache to force fresh data
+    clearProductCache();
+    
+    // Test connection first
+    const queryParams = new URLSearchParams({
+      consumer_key: settings.consumerKey,
+      consumer_secret: settings.consumerSecret,
+      per_page: '1'
+    });
+    
+    const apiUrl = `${settings.storeUrl}/wp-json/wc/v3/products?${queryParams}`;
+    
+    const response = await fetch(apiUrl, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`WooCommerce API error: ${response.status}`);
+    }
+
+    res.json({
+      success: true,
+      message: 'WooCommerce sync initiated successfully',
+      cacheCleared: true,
+      connectionStatus: 'active'
+    });
+  } catch (error) {
+    console.error('WooCommerce sync failed:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 export default router; 

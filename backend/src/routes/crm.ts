@@ -323,22 +323,32 @@ router.get('/admin/stats', secureAdminAuthMiddleware, async (req: Request, res: 
           }
         }
       }),
-      // Customer segmentation
-      prisma.$queryRaw`
-        SELECT 
-          CASE 
-            WHEN COUNT(o.id) = 0 THEN 'New'
-            WHEN COUNT(o.id) BETWEEN 1 AND 3 THEN 'Regular'
-            WHEN COUNT(o.id) BETWEEN 4 AND 10 THEN 'Frequent'
-            ELSE 'VIP'
-          END as segment,
-          COUNT(*) as count
-        FROM users u
-        LEFT JOIN orders o ON u.id = o.userId AND o.status != 'CANCELLED'
-        WHERE u.role = 'USER'
-        GROUP BY segment
-        ORDER BY count DESC
-      `
+      // Customer segmentation - simplified approach to avoid raw SQL issues
+      prisma.user.findMany({
+        where: { role: 'USER' },
+        include: {
+          _count: {
+            select: { orders: true }
+          }
+        }
+      }).then(users => {
+        const segments = {
+          'New': 0,
+          'Regular': 0,
+          'Frequent': 0,
+          'VIP': 0
+        };
+        
+        users.forEach(user => {
+          const orderCount = user._count.orders;
+          if (orderCount === 0) segments['New']++;
+          else if (orderCount >= 1 && orderCount <= 3) segments['Regular']++;
+          else if (orderCount >= 4 && orderCount <= 10) segments['Frequent']++;
+          else segments['VIP']++;
+        });
+        
+        return Object.entries(segments).map(([segment, count]) => ({ segment, count }));
+      })
     ]);
 
     res.json({
