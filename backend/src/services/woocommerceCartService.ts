@@ -226,7 +226,7 @@ export class WooCommerceCartService {
       this.cartSessions.set(sessionKey, cart);
       
       // Store in database
-      await this.storeCartSession(sessionKey);
+      // await this.storeCartSession(sessionKey); // Disabled to prevent foreign key constraint violations
       
       return cart;
     } catch (error) {
@@ -267,7 +267,7 @@ export class WooCommerceCartService {
       this.cartSessions.set(sessionKey, cart);
       
       // Store in database
-      await this.storeCartSession(sessionKey);
+      // await this.storeCartSession(sessionKey); // Disabled to prevent foreign key constraint violations
       
       return cart;
     } catch (error) {
@@ -299,7 +299,7 @@ export class WooCommerceCartService {
       this.cartSessions.set(sessionKey, cart);
       
       // Store in database
-      await this.storeCartSession(sessionKey);
+      // await this.storeCartSession(sessionKey); // Disabled to prevent foreign key constraint violations
       
       return cart;
     } catch (error) {
@@ -318,7 +318,7 @@ export class WooCommerceCartService {
         cart.items = [];
         this.updateCartTotals(cart);
         this.cartSessions.set(sessionKey, cart);
-        await this.storeCartSession(sessionKey);
+        // await this.storeCartSession(sessionKey); // Disabled to prevent foreign key constraint violations
       }
       return true;
     } catch (error) {

@@ -6,7 +6,7 @@ const router = Router();
 // Initialize Stripe (only if API key is provided)
 const stripe = process.env.STRIPE_SECRET_KEY 
   ? new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: '2023-10-16',
+      apiVersion: '2025-09-30.clover',
     })
   : null;
 
@@ -61,8 +61,16 @@ router.post('/confirm-payment', async (req: Request, res: Response) => {
     }
 
     // Create WooCommerce order with payment confirmation
-    const wooCommerceAPI = (await import('./woocommerce')).default;
-    
+    const { PrismaClient } = await import('@prisma/client');
+    const prisma = new PrismaClient();
+    const settings = await prisma.wooCommerceSettings.findUnique({
+      where: { id: 1 }
+    });
+
+    if (!settings || !settings.enabled) {
+      return res.status(503).json({ error: 'WooCommerce is not configured or enabled' });
+    }
+
     const orderDataWithPayment = {
       ...orderData,
       payment_method: 'stripe',
@@ -81,17 +89,32 @@ router.post('/confirm-payment', async (req: Request, res: Response) => {
       ]
     };
 
-    const response = await wooCommerceAPI.createOrder(orderDataWithPayment);
-    
-    if (response && response.order) {
-      res.json({
-        success: true,
-        order: response.order,
-        paymentIntent: paymentIntent
-      });
-    } else {
-      throw new Error('Failed to create WooCommerce order');
+    const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/orders?consumer_key=${settings.consumerKey}&consumer_secret=${settings.consumerSecret}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(orderDataWithPayment)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'WooCommerce API error');
     }
+
+    const order = await response.json();
+
+    res.json({
+      success: true,
+      order: {
+        id: order.id,
+        order_number: order.order_number,
+        status: order.status,
+        total: order.total,
+        created_at: order.created_at
+      },
+      paymentIntent: paymentIntent
+    });
   } catch (error: unknown) {
     console.error('Payment confirmation failed:', error);
     res.status(500).json({

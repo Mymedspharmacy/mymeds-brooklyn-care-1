@@ -85,8 +85,16 @@ const makeWooCommerceRequest = async (url: string, options: unknown, params?: un
         consumer_secret: consumerSecret
       };
       
-      if (allParams && Object.keys(allParams).length > 0) {
-        const queryString = new URLSearchParams(allParams as Record<string, string>).toString();
+      // Filter out undefined values before creating URLSearchParams
+      const filteredParams: Record<string, string> = {};
+      Object.entries(allParams).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== 'undefined') {
+          filteredParams[key] = String(value);
+        }
+      });
+      
+      if (Object.keys(filteredParams).length > 0) {
+        const queryString = new URLSearchParams(filteredParams).toString();
         requestUrl = `${storeUrl}/wp-json/wc/v3${url}?${queryString}`;
       } else {
         requestUrl = `${storeUrl}/wp-json/wc/v3${url}`;
@@ -1397,8 +1405,8 @@ router.get('/orders', async (req: Request, res: Response) => {
       {
         page: page.toString(),
         per_page: per_page.toString(),
-        status: status !== 'all' ? status.toString() : undefined,
-        search: search ? search.toString() : undefined
+        ...(status !== 'all' && { status: status.toString() }),
+        ...(search && { search: search.toString() })
       }
     );
 
