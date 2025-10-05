@@ -42,19 +42,22 @@ export const WooCommerceCheckoutModal: React.FC<WooCommerceCheckoutModalProps> =
   useEffect(() => {
     const loadPaymentMethods = async () => {
       try {
-        const response = await api.get('/woocommerce/payment-gateways');
-        setPaymentMethods(response.data || []);
+        // Only load if we don't have payment methods yet
+        if (paymentMethods.length === 0) {
+          const response = await api.get('/woocommerce/payment-gateways');
+          setPaymentMethods(response.data || []);
+        }
       } catch (err) {
-        console.error('Error loading payment methods:', err);
+        console.warn('Payment gateways not available, using fallback:', err);
         // Fallback to bank transfer
         setPaymentMethods([{ id: 'bacs', title: 'Bank Transfer', description: 'Pay via bank transfer' }]);
       }
     };
 
-    if (isOpen) {
+    if (isOpen && paymentMethods.length === 0) {
       loadPaymentMethods();
     }
-  }, [isOpen]);
+  }, [isOpen, paymentMethods.length]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
