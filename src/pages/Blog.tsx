@@ -13,6 +13,7 @@ import { useFormHandlers } from "@/hooks/useFormHandlers";
 import { RefillForm } from "@/components/RefillForm";
 import { AppointmentForm } from "@/components/AppointmentForm";
 import { TransferForm } from "@/components/TransferForm";
+import { SafeImageRenderer } from '@/components/SafeImageRenderer';
 import api from "@/lib/api";
 
 interface WordPressPost {
@@ -519,15 +520,18 @@ export default function Blog() {
                 <Card key={post.id} className="group border-0 shadow-lg hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2">
                   <CardContent className="p-0">
                     {/* Post Image */}
-                    <div className="w-full h-48 bg-[#D5C6BC] rounded-t-xl flex items-center justify-center overflow-hidden">
+                    <div className="w-full h-48 bg-[#D5C6BC] rounded-t-xl overflow-hidden">
                       {post._embedded?.['wp:featuredmedia']?.[0]?.source_url ? (
-                        <img 
+                        <SafeImageRenderer 
                           src={post._embedded['wp:featuredmedia'][0].source_url} 
                           alt={post._embedded['wp:featuredmedia'][0].alt_text || (typeof post.title === 'string' ? post.title : post.title?.rendered || '')}
                           className="w-full h-full object-cover"
+                          fallbackIcon={<BookOpen className="h-16 w-16 text-[#57BBB6]" />}
                         />
                       ) : (
-                        <BookOpen className="h-16 w-16 text-[#57BBB6]" />
+                        <div className="w-full h-full flex items-center justify-center">
+                          <BookOpen className="h-16 w-16 text-[#57BBB6]" />
+                        </div>
                       )}
                     </div>
 
@@ -603,15 +607,18 @@ export default function Blog() {
                 <Card key={post.id} className="group border-0 shadow-lg hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 bg-white">
                   <CardContent className="p-0">
                     {/* Post Image */}
-                    <div className="w-full h-48 bg-[#D5C6BC] rounded-t-xl flex items-center justify-center overflow-hidden">
+                    <div className="w-full h-48 bg-[#D5C6BC] rounded-t-xl overflow-hidden">
                       {post._embedded?.['wp:featuredmedia']?.[0]?.source_url ? (
-                        <img 
+                        <SafeImageRenderer 
                           src={post._embedded['wp:featuredmedia'][0].source_url} 
                           alt={post._embedded['wp:featuredmedia'][0].alt_text || (typeof post.title === 'string' ? post.title : post.title?.rendered || '')}
                           className="w-full h-full object-cover"
+                          fallbackIcon={<BookOpen className="h-16 w-16 text-[#57BBB6]" />}
                         />
                       ) : (
-                        <BookOpen className="h-16 w-16 text-[#57BBB6]" />
+                        <div className="w-full h-full flex items-center justify-center">
+                          <BookOpen className="h-16 w-16 text-[#57BBB6]" />
+                        </div>
                       )}
                     </div>
 

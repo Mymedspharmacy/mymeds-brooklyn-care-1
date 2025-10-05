@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Calendar, User, Clock, Tag } from 'lucide-react';
 import { wordPressAPI } from '@/lib/wordpress';
+import { SafeContentRenderer } from '@/components/SafeImageRenderer';
 import api from '@/lib/api';
 
 interface BlogPost {
@@ -233,9 +234,9 @@ const BlogPost = () => {
             {/* Post Content */}
             <Card className="mb-8">
               <CardContent className="p-8">
-                <div 
+                <SafeContentRenderer 
+                  content={post.content?.rendered || 'No content available.'}
                   className="prose prose-lg max-w-none text-gray-700"
-                  dangerouslySetInnerHTML={{ __html: post.content?.rendered || 'No content available.' }}
                 />
               </CardContent>
             </Card>

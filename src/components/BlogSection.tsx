@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { SafeImageRenderer } from './SafeImageRenderer';
 import api from '@/lib/api';
 
 interface BlogPost {
@@ -88,10 +89,11 @@ const BlogSection: React.FC = () => {
           <article key={post.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
             {post._embedded?.['wp:featuredmedia']?.[0]?.source_url && (
               <div className="aspect-w-16 aspect-h-9">
-                <img
+                <SafeImageRenderer
                   src={post._embedded['wp:featuredmedia'][0].source_url}
                   alt={post._embedded['wp:featuredmedia'][0].alt_text || post.title.rendered}
                   className="w-full h-48 object-cover"
+                  fallbackIcon={<div className="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-400">No Image</div>}
                 />
               </div>
             )}
