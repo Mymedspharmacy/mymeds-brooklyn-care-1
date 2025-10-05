@@ -48,12 +48,23 @@ export default function Shop() {
   const [categories, setCategories] = useState<Array<{ id: number; name: string; count: number }>>([]);
   const [loading, setLoading] = useState(true);
   const [showCheckout, setShowCheckout] = useState(false);
+  const [showCart, setShowCart] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [wishlist, setWishlist] = useState<number[]>([]);
   const [quickViewProduct, setQuickViewProduct] = useState<WooCommerceProduct | null>(null);
   const [cartLoading, setCartLoading] = useState(false);
 
   const cartService = WooCommerceCartService.getInstance();
+
+  // Refresh cart data
+  const refreshCart = async () => {
+    try {
+      const cart = await cartService.getCart();
+      setWooCommerceCart(cart);
+    } catch (error) {
+      console.error('Error refreshing cart:', error);
+    }
+  };
 
   // Handle checkout success
   const handleCheckoutSuccess = (orderId: number, paymentDetails: any) => {
@@ -132,6 +143,7 @@ export default function Shop() {
       console.error('Error adding to cart:', error);
     } finally {
       setCartLoading(false);
+      await refreshCart(); // Refresh cart after modification
     }
   };
 
@@ -149,6 +161,7 @@ export default function Shop() {
       console.error('Error removing from cart:', error);
     } finally {
       setCartLoading(false);
+      await refreshCart(); // Refresh cart after modification
     }
   };
 
@@ -174,6 +187,7 @@ export default function Shop() {
       console.error('Error updating cart quantity:', error);
     } finally {
       setCartLoading(false);
+      await refreshCart(); // Refresh cart after modification
     }
   };
 
@@ -362,6 +376,18 @@ export default function Shop() {
                   <Filter className="h-5 w-5 mr-2" />
                   Filter
                 </Button>
+                <Button 
+                  className="bg-white text-[#57BBB6] hover:bg-gray-100 px-6 py-3 relative" 
+                  onClick={() => setShowCart(true)}
+                >
+                  <ShoppingCart className="h-5 w-5 mr-2" />
+                  Cart
+                  {cartItemCount > 0 && (
+                    <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs min-w-[20px] h-5 flex items-center justify-center">
+                      {cartItemCount}
+                    </Badge>
+                  )}
+                </Button>
               </div>
 
               {/* Category Tabs */}
@@ -492,35 +518,37 @@ export default function Shop() {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
                       <Button 
                         onClick={() => addToCart(product)}
                         disabled={product.stock_status !== 'instock'}
-                        className="flex-1 bg-[#57BBB6] hover:bg-[#376F6B] text-white disabled:opacity-50"
+                        className="flex-1 bg-[#57BBB6] hover:bg-[#376F6B] text-white disabled:opacity-50 order-1"
                       >
                         <ShoppingCart className="h-4 w-4 mr-2" />
                         Add to Cart
                       </Button>
-                      <Button 
-                        variant="outline" 
-                        size="icon" 
-                        onClick={() => toggleWishlist(product.id)}
-                        className={`border-[#57BBB6] hover:bg-[#57BBB6] hover:text-white ${
-                          wishlist.includes(product.id) 
-                            ? 'bg-[#57BBB6] text-white' 
-                            : 'text-[#57BBB6]'
-                        }`}
-                      >
-                        <Heart className={`h-4 w-4 ${wishlist.includes(product.id) ? 'fill-current' : ''}`} />
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="icon" 
-                        onClick={() => openQuickView(product)}
-                        className="border-[#57BBB6] text-[#57BBB6] hover:bg-[#57BBB6] hover:text-white"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
+                      <div className="flex gap-2 order-2">
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          onClick={() => toggleWishlist(product.id)}
+                          className={`border-[#57BBB6] hover:bg-[#57BBB6] hover:text-white flex-1 sm:flex-none ${
+                            wishlist.includes(product.id) 
+                              ? 'bg-[#57BBB6] text-white' 
+                              : 'text-[#57BBB6]'
+                          }`}
+                        >
+                          <Heart className={`h-4 w-4 ${wishlist.includes(product.id) ? 'fill-current' : ''}`} />
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          onClick={() => openQuickView(product)}
+                          className="border-[#57BBB6] text-[#57BBB6] hover:bg-[#57BBB6] hover:text-white flex-1 sm:flex-none"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -594,10 +622,150 @@ export default function Shop() {
           </div>
         )}
 
+        {/* Cart Modal */}
+        <Dialog open={showCart} onOpenChange={setShowCart}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-0">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <ShoppingCart className="h-5 w-5 text-[#57BBB6]" />
+                Shopping Cart
+              </DialogTitle>
+              <DialogDescription>
+                Review and edit your cart items before checkout.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              {woocommerceCart && woocommerceCart.items.length > 0 ? (
+                <>
+                  {/* Cart Items */}
+                  <div className="space-y-3">
+                    {woocommerceCart.items.map((item) => (
+                      <Card key={item.id} className="p-4">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                          {/* Product Image Placeholder */}
+                          <div className="w-16 h-16 bg-[#D5C6BC] rounded-lg flex items-center justify-center flex-shrink-0">
+                            <Package className="h-8 w-8 text-[#57BBB6]" />
+                          </div>
+                          
+                          {/* Product Details */}
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-[#376F6B] truncate">{item.name}</h4>
+                            <p className="text-sm text-gray-600">Product ID: {item.product_id}</p>
+                            <p className="text-lg font-bold text-[#57BBB6]">
+                              {cartService.formatPrice(item.price, woocommerceCart.currency)}
+                            </p>
+                          </div>
+                          
+                          {/* Mobile Layout: Quantity and Remove in one row */}
+                          <div className="flex items-center gap-2 w-full sm:w-auto">
+                            {/* Quantity Controls */}
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => updateCartQuantity(item.id.toString(), item.quantity - 1)}
+                                disabled={cartLoading}
+                                className="h-8 w-8"
+                              >
+                                <Minus className="h-4 w-4" />
+                              </Button>
+                              <span className="w-8 text-center font-medium">{item.quantity}</span>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => updateCartQuantity(item.id.toString(), item.quantity + 1)}
+                                disabled={cartLoading}
+                                className="h-8 w-8"
+                              >
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            
+                            {/* Item Total */}
+                            <div className="text-right flex-1 sm:flex-none">
+                              <p className="font-bold text-[#57BBB6]">
+                                {cartService.formatPrice(item.total, woocommerceCart.currency)}
+                              </p>
+                            </div>
+                            
+                            {/* Remove Button */}
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => removeFromCart(item.id.toString())}
+                              disabled={cartLoading}
+                              className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
+                            >
+                              ×
+                            </Button>
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                  
+                  {/* Cart Summary */}
+                  <Card className="p-4 bg-[#D5C6BC]">
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span>Subtotal:</span>
+                        <span>{cartService.formatPrice(woocommerceCart.totals.subtotal, woocommerceCart.currency)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Tax:</span>
+                        <span>{cartService.formatPrice(woocommerceCart.totals.total_tax, woocommerceCart.currency)}</span>
+                      </div>
+                      <div className="flex justify-between font-bold text-lg border-t pt-2">
+                        <span>Total:</span>
+                        <span className="text-[#57BBB6]">
+                          {cartService.formatPrice(woocommerceCart.totals.total, woocommerceCart.currency)}
+                        </span>
+                      </div>
+                    </div>
+                  </Card>
+                  
+                  {/* Action Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowCart(false)}
+                      className="flex-1 order-2 sm:order-1"
+                    >
+                      Continue Shopping
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setShowCart(false);
+                        setShowCheckout(true);
+                      }}
+                      className="flex-1 bg-[#57BBB6] hover:bg-[#376F6B] text-white order-1 sm:order-2"
+                    >
+                      Proceed to Checkout
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-8">
+                  <ShoppingCart className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-600 mb-2">Your cart is empty</h3>
+                  <p className="text-gray-500 mb-4">Add some products to get started!</p>
+                  <Button
+                    onClick={() => setShowCart(false)}
+                    className="bg-[#57BBB6] hover:bg-[#376F6B] text-white"
+                  >
+                    Continue Shopping
+                  </Button>
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+
         {/* Checkout Modal */}
         {showCheckout && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full max-h-[80vh] overflow-y-auto">
+            <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
               <h3 className="text-xl font-bold text-[#376F6B] mb-4">Checkout</h3>
               
               {/* Cart Summary */}
@@ -638,7 +806,7 @@ export default function Shop() {
 
         {/* Quick View Modal */}
         <Dialog open={!!quickViewProduct} onOpenChange={closeQuickView}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-0">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Eye className="h-5 w-5 text-[#57BBB6]" />
@@ -715,14 +883,14 @@ export default function Shop() {
                   )}
 
                   {/* Action Buttons */}
-                  <div className="flex gap-3 pt-4">
+                  <div className="flex flex-col sm:flex-row gap-3 pt-4">
                     <Button 
                       onClick={() => {
                         addToCart(quickViewProduct);
                         closeQuickView();
                       }}
                       disabled={quickViewProduct.stock_status !== 'instock'}
-                      className="flex-1 bg-[#57BBB6] hover:bg-[#376F6B] text-white disabled:opacity-50"
+                      className="flex-1 bg-[#57BBB6] hover:bg-[#376F6B] text-white disabled:opacity-50 order-1"
                     >
                       <ShoppingCart className="h-4 w-4 mr-2" />
                       Add to Cart
@@ -731,7 +899,7 @@ export default function Shop() {
                     <Button 
                       variant="outline" 
                       onClick={() => toggleWishlist(quickViewProduct.id)}
-                      className={`border-[#57BBB6] hover:bg-[#57BBB6] hover:text-white ${
+                      className={`border-[#57BBB6] hover:bg-[#57BBB6] hover:text-white order-2 ${
                         wishlist.includes(quickViewProduct.id) 
                           ? 'bg-[#57BBB6] text-white' 
                           : 'text-[#57BBB6]'

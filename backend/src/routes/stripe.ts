@@ -3,14 +3,20 @@ import Stripe from 'stripe';
 
 const router = Router();
 
-// Initialize Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2023-10-16',
-});
+// Initialize Stripe (only if API key is provided)
+const stripe = process.env.STRIPE_SECRET_KEY 
+  ? new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2023-10-16',
+    })
+  : null;
 
 // Create payment intent
 router.post('/create-payment-intent', async (req: Request, res: Response) => {
   try {
+    if (!stripe) {
+      return res.status(503).json({ error: 'Stripe is not configured. Please set STRIPE_SECRET_KEY environment variable.' });
+    }
+
     const { amount, currency } = req.body;
 
     if (!amount || amount <= 0) {
@@ -41,6 +47,10 @@ router.post('/create-payment-intent', async (req: Request, res: Response) => {
 // Confirm payment and create WooCommerce order
 router.post('/confirm-payment', async (req: Request, res: Response) => {
   try {
+    if (!stripe) {
+      return res.status(503).json({ error: 'Stripe is not configured. Please set STRIPE_SECRET_KEY environment variable.' });
+    }
+
     const { paymentIntentId, orderData } = req.body;
 
     // Verify payment intent with Stripe

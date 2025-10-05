@@ -457,12 +457,12 @@ export const WooCommerceCheckoutForm: React.FC<WooCommerceCheckoutFormProps> = (
       </Card>
 
       {/* Action Buttons */}
-      <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row gap-4">
         <Button
           type="button"
           variant="outline"
           onClick={onCancel}
-          className="flex-1"
+          className="flex-1 order-2 sm:order-1"
         >
           Cancel
         </Button>
@@ -470,7 +470,7 @@ export const WooCommerceCheckoutForm: React.FC<WooCommerceCheckoutFormProps> = (
           type="button"
           onClick={handleSubmitOrder}
           disabled={loading || loadingGateways || !validateForm()}
-          className="flex-1 bg-[#57BBB6] hover:bg-[#376F6B] text-white"
+          className="flex-1 bg-[#57BBB6] hover:bg-[#376F6B] text-white order-1 sm:order-2"
         >
           {loading ? (
             <>
