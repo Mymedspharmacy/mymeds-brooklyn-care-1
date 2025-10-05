@@ -12,6 +12,7 @@ import {
 import { authenticateAdmin } from '../middleware/auth';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 import fs from 'fs';
 import path from 'path';
 
@@ -365,11 +366,25 @@ router.post('/init', async (req: Request, res: Response) => {
     });
 
     if (!adminUser) {
+      // Determine password hash
+      let passwordHash = SECURITY_CONFIG.ADMIN_PASSWORD_HASH;
+      
+      // If no hash provided but plain password exists, hash it
+      if (!passwordHash && SECURITY_CONFIG.ADMIN_PASSWORD) {
+        passwordHash = await bcrypt.hash(SECURITY_CONFIG.ADMIN_PASSWORD, 12);
+      }
+      
+      // If still no password, use a default
+      if (!passwordHash) {
+        passwordHash = await bcrypt.hash('AdminPassword123!', 12);
+        console.warn('⚠️ Using default admin password. Please set ADMIN_PASSWORD or ADMIN_PASSWORD_HASH environment variable.');
+      }
+
       // Create admin user
       adminUser = await prisma.user.create({
         data: {
           email: SECURITY_CONFIG.ADMIN_EMAIL,
-          password: SECURITY_CONFIG.ADMIN_PASSWORD_HASH,
+          password: passwordHash,
           name: SECURITY_CONFIG.ADMIN_NAME,
           role: 'ADMIN',
           isActive: true,

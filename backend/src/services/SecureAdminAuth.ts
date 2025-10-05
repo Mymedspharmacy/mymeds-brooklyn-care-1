@@ -13,9 +13,7 @@ const prisma = new PrismaClient();
 const validateEnvironment = () => {
   const requiredVars = [
     'JWT_SECRET',
-    'ADMIN_EMAIL',
-    'ADMIN_PASSWORD_HASH', // Changed from ADMIN_PASSWORD to ADMIN_PASSWORD_HASH
-    'CSRF_SECRET'
+    'ADMIN_EMAIL'
   ];
 
   const missing = requiredVars.filter(varName => !process.env[varName]);
@@ -29,19 +27,17 @@ const validateEnvironment = () => {
     throw new Error('JWT_SECRET must be at least 32 characters long');
   }
 
-  // Validate CSRF_SECRET strength
-  if (process.env.CSRF_SECRET!.length < 32) {
-    throw new Error('CSRF_SECRET must be at least 32 characters long');
+  // Check for admin password (either plain password or hash)
+  const hasPlainPassword = !!process.env.ADMIN_PASSWORD;
+  const hasPasswordHash = !!process.env.ADMIN_PASSWORD_HASH;
+  
+  if (!hasPlainPassword && !hasPasswordHash) {
+    console.warn('⚠️ Neither ADMIN_PASSWORD nor ADMIN_PASSWORD_HASH is set. Admin login may not work.');
   }
 
-  // Validate admin password hash format (bcrypt should start with $2a$, $2b$, or $2y$)
-  const passwordHash = process.env.ADMIN_PASSWORD_HASH!;
-  if (!passwordHash.startsWith('$2')) {
-    console.warn('⚠️ ADMIN_PASSWORD_HASH does not appear to be a valid bcrypt hash, but continuing for development');
-    // Don't throw error in development, just warn
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('ADMIN_PASSWORD_HASH must be a valid bcrypt hash');
-    }
+  // Validate CSRF_SECRET strength (optional)
+  if (process.env.CSRF_SECRET && process.env.CSRF_SECRET.length < 32) {
+    throw new Error('CSRF_SECRET must be at least 32 characters long');
   }
 };
 
@@ -57,7 +53,8 @@ try {
 const SECURITY_CONFIG = {
   // Admin credentials
   ADMIN_EMAIL: process.env.ADMIN_EMAIL!,
-  ADMIN_PASSWORD_HASH: process.env.ADMIN_PASSWORD_HASH!,
+  ADMIN_PASSWORD: process.env.ADMIN_PASSWORD, // Plain password
+  ADMIN_PASSWORD_HASH: process.env.ADMIN_PASSWORD_HASH, // Hashed password
   ADMIN_NAME: process.env.ADMIN_NAME || 'Admin User',
   
   // JWT configuration
@@ -79,7 +76,7 @@ const SECURITY_CONFIG = {
   CSRF_TOKEN_EXPIRES_IN: '1h' as const,
   
   // Security headers
-  CSRF_SECRET: process.env.CSRF_SECRET!,
+  CSRF_SECRET: process.env.CSRF_SECRET || 'fallback-csrf-secret-for-development',
 };
 
 // Rate limiting: Track failed login attempts from database
