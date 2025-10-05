@@ -73,8 +73,15 @@ export default function Blog() {
   };
 
   const handleReadMore = (postId: number) => {
-    // Navigate to individual blog post page
-    navigate(`/blog/${postId}`);
+    try {
+      // Navigate to individual blog post page
+      console.log('Navigating to blog post:', postId);
+      navigate(`/blog/${postId}`);
+    } catch (error) {
+      console.error('Error navigating to blog post:', error);
+      // Fallback: try to navigate to a sample post
+      navigate('/blog/1');
+    }
   };
 
   const handleNewsletterSubscription = async (e: React.FormEvent) => {
