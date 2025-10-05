@@ -10,8 +10,8 @@ import { Footer } from "@/components/Footer";
 import { NewsTicker } from "@/components/NewsTicker";
 import { SEOHead } from "@/components/SEOHead";
 import { wooCommerceAPI } from "@/lib/woocommerce";
+import { WooCommerceCheckoutModal } from '@/components/WooCommerceCheckoutModal';
 import WooCommerceCartService, { WooCommerceCart, WooCommerceCartItem } from "@/lib/woocommerceCart";
-
 
 interface WooCommerceProduct {
   id: number;
@@ -46,6 +46,7 @@ export default function Shop() {
   const [categories, setCategories] = useState<Array<{ id: number; name: string; count: number }>>([]);
   const [loading, setLoading] = useState(true);
   const [showCart, setShowCart] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [wishlist, setWishlist] = useState<number[]>([]);
   const [quickViewProduct, setQuickViewProduct] = useState<WooCommerceProduct | null>(null);
@@ -63,7 +64,7 @@ export default function Shop() {
     }
   };
 
-  // Handle checkout - redirect to WooCommerce checkout
+  // Handle checkout - open checkout modal
   const handleCheckout = () => {
     try {
       // Check if cart has items
@@ -72,13 +73,26 @@ export default function Shop() {
         return;
       }
 
-      // Redirect directly to WooCommerce checkout page
-      console.log('Redirecting to WooCommerce checkout...');
-      window.location.href = 'https://mymedspharmacyinc.com/checkout/';
+      // Open checkout modal
+      console.log('Opening checkout modal...');
+      setShowCheckout(true);
+      
     } catch (error) {
       console.error('Checkout error:', error);
       alert('Unable to proceed to checkout. Please try again or contact support.');
     }
+  };
+
+  // Handle checkout success
+  const handleCheckoutSuccess = (orderId: string) => {
+    console.log('Order created successfully:', orderId);
+    setShowCheckout(false);
+    setShowCart(false);
+    
+    // Clear cart after successful order
+    cartService.clearCart().then(() => {
+      refreshCart();
+    });
   };
 
   // Load WooCommerce cart on component mount
@@ -956,6 +970,14 @@ export default function Shop() {
       </div>
 
       <Footer />
+
+      {/* Checkout Modal */}
+      <WooCommerceCheckoutModal
+        cart={woocommerceCart}
+        isOpen={showCheckout}
+        onClose={() => setShowCheckout(false)}
+        onSuccess={handleCheckoutSuccess}
+      />
         </div>
       </>
     );
