@@ -61,23 +61,38 @@ const BlogPost = () => {
         // Fetch real post from backend API
         const response = await api.get(`/wordpress/posts/${id}`);
         const postData = response.data.post || response.data; // Backend returns { post: ... }
+        
+        console.log('BlogPost API Response:', response.data);
+        console.log('Post Data:', postData);
           
         if (postData) {
           setPost(postData);
 
-          // Set author information
+          // Set author information - handle both string and object formats
           if (postData.author) {
-            setAuthor({ id: postData.author, name: postData.author || 'Admin', slug: 'admin' });
+            if (typeof postData.author === 'string') {
+              setAuthor({ id: 1, name: postData.author, slug: 'admin' });
+            } else if (typeof postData.author === 'number') {
+              setAuthor({ id: postData.author, name: 'Admin', slug: 'admin' });
+            }
           }
 
-          // Set categories
-          if (postData.categories && postData.categories.length > 0) {
-            setCategories(postData.categories);
+          // Set categories - handle both array and object formats
+          if (postData.categories) {
+            if (Array.isArray(postData.categories)) {
+              setCategories(postData.categories);
+            } else if (postData.categories.length > 0) {
+              setCategories([postData.categories]);
+            }
           }
 
-          // Set tags
-          if (postData.tags && postData.tags.length > 0) {
-            setTags(postData.tags);
+          // Set tags - handle both array and object formats
+          if (postData.tags) {
+            if (Array.isArray(postData.tags)) {
+              setTags(postData.tags);
+            } else if (postData.tags.length > 0) {
+              setTags([postData.tags]);
+            }
           }
         } else {
           setError('Post not found');
