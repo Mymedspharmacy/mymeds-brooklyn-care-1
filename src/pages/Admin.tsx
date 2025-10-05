@@ -351,79 +351,23 @@ export default function Admin() {
       if (ordersResponse.data.success && Array.isArray(ordersResponse.data.orders) && ordersResponse.data.orders.length > 0) {
         setWooCommerceOrders(ordersResponse.data.orders);
       } else {
-        // Add sample WooCommerce orders for testing
-        const sampleOrders = [
-          {
-            id: 1001,
-            number: "WC-1001",
-            status: "processing",
-            total: "89.97",
-            currency: "USD",
-            date_created: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-            billing: {
-              first_name: "Sarah",
-              last_name: "Johnson",
-              email: "sarah.johnson@example.com",
-              phone: "555-123-4567"
-            },
-            line_items: [
-              {
-                name: "Vitamin D3 1000 IU",
-                quantity: 2,
-                price: "19.99"
-              },
-              {
-                name: "Omega-3 Fish Oil",
-                quantity: 1,
-                price: "24.99"
-              }
-            ],
-            payment_method: "credit_card",
-            payment_method_title: "Credit Card"
-          },
-          {
-            id: 1002,
-            number: "WC-1002",
-            status: "completed",
-            total: "45.98",
-            currency: "USD",
-            date_created: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-            billing: {
-              first_name: "Michael",
-              last_name: "Brown",
-              email: "michael.brown@example.com",
-              phone: "555-987-6543"
-            },
-            line_items: [
-              {
-                name: "Multivitamin Complex",
-                quantity: 1,
-                price: "29.99"
-              },
-              {
-                name: "Probiotics",
-                quantity: 1,
-                price: "15.99"
-              }
-            ],
-            payment_method: "paypal",
-            payment_method_title: "PayPal"
-          }
-        ];
-        setWooCommerceOrders(sampleOrders);
+        // Production: Only use real WooCommerce orders from API
+        // Sample data removed for production deployment
+        setWooCommerceOrders([]);
       }
       
       if (statsResponse.data.success && statsResponse.data.stats) {
         setWooCommerceOrderStats(statsResponse.data.stats);
       } else {
+        // Production: Default to empty stats when no data available
         setWooCommerceOrderStats({
-          total: 2,
-          processing: 1,
-          completed: 1,
+          total: 0,
+          processing: 0,
+          completed: 0,
           pending: 0,
           cancelled: 0,
           refunded: 0,
-          totalRevenue: 135.95
+          totalRevenue: 0
         });
       }
     } catch (error) {
@@ -497,45 +441,8 @@ export default function Admin() {
         });
       }
       
-      // If no real data, add sample data for testing
-      if (allSubmissions.length === 0) {
-        const sampleSubmissions = [
-          {
-            id: 1,
-            type: 'Contact Form',
-            name: 'John Smith',
-            email: 'john.smith@example.com',
-            subject: 'General Inquiry',
-            message: 'I would like to know more about your pharmacy services and pricing.',
-            timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'New',
-            priority: 'Normal'
-          },
-          {
-            id: 2,
-            type: 'Refill Request',
-            name: 'Sarah Johnson',
-            email: 'sarah.johnson@example.com',
-            subject: 'Refill: Metformin 500mg',
-            message: 'Medication: Metformin 500mg\nDosage: Twice daily\nNotes: Please refill as soon as possible',
-            timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'Pending',
-            priority: 'High'
-          },
-          {
-            id: 3,
-            type: 'Transfer Request',
-            name: 'Michael Brown',
-            email: 'michael.brown@example.com',
-            subject: 'Transfer from CVS Pharmacy',
-            message: 'From: CVS Pharmacy\nMedications: Lisinopril 10mg, Atorvastatin 20mg\nNotes: Transfer all medications',
-            timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-            status: 'Pending',
-            priority: 'Normal'
-          }
-        ];
-        allSubmissions.push(...sampleSubmissions);
-      }
+      // Production: Only use real data from database
+      // Sample data removed for production deployment
       
       // Sort by timestamp (newest first)
       allSubmissions.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
@@ -660,34 +567,16 @@ export default function Admin() {
       if (contactsResponse.data && Array.isArray(contactsResponse.data) && contactsResponse.data.length > 0) {
         setContacts(contactsResponse.data);
       } else {
-        // Add sample contact data for testing
-        const sampleContacts = [
-          {
-            id: 1,
-            name: 'John Smith',
-            email: 'john.smith@example.com',
-            subject: 'General Inquiry',
-            message: 'I would like to know more about your pharmacy services and pricing.',
-            createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-            notified: false
-          },
-          {
-            id: 2,
-            name: 'Jane Doe',
-            email: 'jane.doe@example.com',
-            subject: 'Prescription Question',
-            message: 'I have a question about my prescription refill process.',
-            createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-            notified: true
-          }
-        ];
-        setContacts(sampleContacts);
+        // Production: Only use real contact data from database
+        // Sample data removed for production deployment
+        setContacts([]);
       }
       
       if (statsResponse.data) {
         setContactStats(statsResponse.data);
       } else {
-        setContactStats({ total: 2, unread: 1, today: 1, thisWeek: 2, thisMonth: 2 });
+        // Production: Default to empty stats when no data available
+        setContactStats({ total: 0, unread: 0, today: 0, thisWeek: 0, thisMonth: 0 });
       }
     } catch (error) {
       console.error('Failed to load contacts data:', error);
@@ -970,72 +859,20 @@ export default function Admin() {
       if (appointmentsResponse.data && appointmentsResponse.data.success && Array.isArray(appointmentsResponse.data.data?.appointments) && appointmentsResponse.data.data.appointments.length > 0) {
         setAppointments(appointmentsResponse.data.data.appointments);
       } else {
-        // Add sample appointments data for testing
-        const sampleAppointments = [
-          {
-            id: 1,
-            patientName: "John Smith",
-            email: "john.smith@example.com",
-            phone: "555-123-4567",
-            date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // Tomorrow
-            time: "10:00",
-            reason: "Service: Health Consultation\nNotes: Follow-up appointment for medication review",
-            status: "PENDING",
-            createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-            user: {
-              id: 1,
-              name: "John Smith",
-              email: "john.smith@example.com",
-              phone: "555-123-4567"
-            }
-          },
-          {
-            id: 2,
-            patientName: "Sarah Johnson",
-            email: "sarah.johnson@example.com",
-            phone: "555-987-6543",
-            date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), // Day after tomorrow
-            time: "14:30",
-            reason: "Service: Prescription Consultation\nNotes: New patient consultation",
-            status: "CONFIRMED",
-            createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-            user: {
-              id: 2,
-              name: "Sarah Johnson",
-              email: "sarah.johnson@example.com",
-              phone: "555-987-6543"
-            }
-          },
-          {
-            id: 3,
-            patientName: "Michael Brown",
-            email: "michael.brown@example.com",
-            phone: "555-456-7890",
-            date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // Yesterday
-            time: "09:00",
-            reason: "Service: Vaccination\nNotes: Annual flu vaccination",
-            status: "COMPLETED",
-            createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-            user: {
-              id: 3,
-              name: "Michael Brown",
-              email: "michael.brown@example.com",
-              phone: "555-456-7890"
-            }
-          }
-        ];
-        setAppointments(sampleAppointments);
+        // Production: Only use real appointments data from database
+        // Sample data removed for production deployment
+        setAppointments([]);
       }
       
       if (statsResponse.data && statsResponse.data.success && statsResponse.data.data) {
         setAppointmentStats(statsResponse.data.data);
       } else {
-        // Add sample appointment stats for testing
+        // Production: Default to empty stats when no data available
         setAppointmentStats({
-          total: 3,
+          total: 0,
           today: 0,
-          pending: 1,
-          availableSlots: 8
+          pending: 0,
+          availableSlots: 0
         });
       }
     } catch (error) {
