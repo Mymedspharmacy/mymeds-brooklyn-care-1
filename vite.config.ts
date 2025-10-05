@@ -17,7 +17,9 @@ export default defineConfig(({ mode }) => ({
           router: ['react-router-dom'],
           ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-select'],
           forms: ['react-hook-form', '@hookform/resolvers', 'zod'],
-          utils: ['axios', 'date-fns', 'clsx', 'tailwind-merge']
+          utils: ['axios', 'date-fns', 'clsx', 'tailwind-merge'],
+          charts: ['recharts'],
+          icons: ['lucide-react']
         }
       }
     },
@@ -25,9 +27,15 @@ export default defineConfig(({ mode }) => ({
     terserOptions: {
       compress: {
         drop_console: mode === 'production',
-        drop_debugger: mode === 'production'
+        drop_debugger: mode === 'production',
+        pure_funcs: mode === 'production' ? ['console.log', 'console.info', 'console.debug'] : []
       }
-    }
+    },
+    // Production optimizations
+    target: 'es2015',
+    cssCodeSplit: true,
+    reportCompressedSize: false,
+    emptyOutDir: true
   },
   resolve: {
     alias: {
@@ -39,12 +47,12 @@ export default defineConfig(({ mode }) => ({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost:4000',
+        target: 'http://localhost:3001',
         changeOrigin: true,
         secure: false
       },
       '/socket.io': {
-        target: 'http://localhost:4000',
+        target: 'http://localhost:3001',
         changeOrigin: true,
         secure: false,
         ws: true
@@ -55,12 +63,12 @@ export default defineConfig(({ mode }) => ({
     'import.meta.env.VITE_API_URL': JSON.stringify(
       mode === 'production' 
         ? 'https://mymedspharmacyinc.com/api'
-        : 'http://localhost:4000'
+        : 'http://localhost:3001'
     ),
     'import.meta.env.VITE_BACKEND_URL': JSON.stringify(
       mode === 'production'
         ? 'https://mymedspharmacyinc.com/api'
-        : 'http://localhost:4000'
+        : 'http://localhost:3001'
     ),
     'import.meta.env.VITE_WORDPRESS_URL': JSON.stringify(
       mode === 'production'

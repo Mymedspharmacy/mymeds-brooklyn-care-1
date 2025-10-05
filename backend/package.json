@@ -6,13 +6,17 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "npm run clean && npm run build:ts",
+    "build:production": "NODE_ENV=production npm run clean && npm run build:ts",
     "build:js": "babel src --out-dir dist --extensions \".ts,.js\" --copy-files || cp -r src/* dist/",
     "build:ts": "tsc --noEmitOnError false --skipLibCheck",
     "build:check": "tsc --noEmitOnError true",
     "build:force": "tsc --noEmitOnError false --skipLibCheck || echo 'Continuing despite TypeScript errors'",
     "start": "node dist/index.js",
+    "start:production": "NODE_ENV=production node dist/index.js",
     "prisma:migrate": "prisma migrate deploy",
+    "prisma:migrate:prod": "prisma migrate deploy --schema=./prisma/schema-production.prisma",
     "prisma:generate": "prisma generate",
+    "prisma:generate:prod": "prisma generate --schema=./prisma/schema-production.prisma",
     "postinstall": "npm run build:force",
     "prisma:deploy": "npx prisma migrate deploy",
     "lint": "eslint src/**/*.ts",
@@ -21,10 +25,19 @@
     "clean": "rimraf dist",
     "prebuild": "npm run clean",
     "db:generate": "prisma generate",
+    "db:generate:prod": "prisma generate --schema=./prisma/schema-production.prisma",
     "db:push": "prisma db push",
+    "db:push:prod": "prisma db push --schema=./prisma/schema-production.prisma",
     "db:migrate": "prisma migrate deploy",
     "db:studio": "prisma studio",
-    "db:mysql:migrate": "npm run db:generate && npm run db:migrate"
+    "db:studio:prod": "prisma studio --schema=./prisma/schema-production.prisma",
+    "db:mysql:migrate": "npm run db:generate && npm run db:migrate",
+    "db:setup:prod": "node scripts/setup-production-db.js",
+    "db:setup:mysql": "node scripts/setup-mysql-db.js",
+    "security:audit": "npm audit --audit-level moderate",
+    "security:fix": "npm audit fix",
+    "test": "jest",
+    "test:coverage": "jest --coverage"
   },
   "prisma": {
     "schema": "./prisma/schema.prisma"

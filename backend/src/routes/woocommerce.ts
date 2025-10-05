@@ -1171,19 +1171,26 @@ router.get('/products', async (req: Request, res: Response) => {
     if (category) params.category = category;
     if (search) params.search = search;
 
-    // Fetch from WooCommerce API with all necessary fields
-    const response = await makeWooCommerceRequest(
-      '/products',
-      {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      },
-      params
-    );
+    // Build the WooCommerce API URL with database settings
+    const queryParams = new URLSearchParams({
+      ...params,
+      consumer_key: settings.consumerKey,
+      consumer_secret: settings.consumerSecret
+    });
+    
+    const apiUrl = `${settings.storeUrl}/wp-json/wc/v3/products?${queryParams}`;
+    
+    console.log('🛒 Fetching products from:', apiUrl.replace(settings.consumerSecret, '***'));
+    
+    const response = await fetch(apiUrl, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
 
-    if (!response) {
-      throw new Error('No response received from WooCommerce API');
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`WooCommerce API error: ${response.status} - ${errorText}`);
     }
 
     const products = await response.json();

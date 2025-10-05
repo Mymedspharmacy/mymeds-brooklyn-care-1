@@ -1,8 +1,8 @@
 // =============================================================================
-// PRODUCTION PRISMA SCHEMA - MYSQL DATABASE
+// DEVELOPMENT PRISMA SCHEMA - SQLITE DATABASE
 // =============================================================================
-// MyMeds Pharmacy Inc. - Production Database Schema
-// Generated: September 23, 2025
+// MyMeds Pharmacy Inc. - Development Database Schema
+// Generated: October 5, 2025
 // =============================================================================
 
 generator client {
@@ -11,8 +11,8 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite" // SQLite for development
+  url      = "file:./dev.db"
 }
 
 // =============================================================================
@@ -547,6 +547,36 @@ model InventoryMovement {
   user    User?   @relation(fields: [userId], references: [id])
 
   @@map("inventory_movements")
+}
+
+// =============================================================================
+// LOCATION MANAGEMENT
+// =============================================================================
+
+model Location {
+  id            Int      @id @default(autoincrement())
+  name          String
+  address       String
+  city          String
+  state         String
+  zipCode       String
+  country       String   @default("USA")
+  phone         String?
+  email         String?
+  latitude      Float?
+  longitude     Float?
+  businessHours String?
+  coordinates   String?
+  services      String?
+  description   String?
+  imageUrl      String?
+  notes         String?
+  isActive      Boolean  @default(true)
+  isPrimary     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("locations")
 }
 
 // =============================================================================
