@@ -901,4 +901,46 @@ router.put('/delivery-settings', secureAdminAuthMiddleware, async (req: Request,
   }
 });
 
+// Test admin login endpoint (for debugging)
+router.post('/test-login', async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password required' });
+    }
+    
+    // Find admin user
+    const adminUser = await prisma.user.findFirst({
+      where: { 
+        email: email,
+        role: 'ADMIN' 
+      }
+    });
+    
+    if (!adminUser) {
+      return res.status(401).json({ error: 'Admin user not found' });
+    }
+    
+    // Check password
+    const isValidPassword = await bcrypt.compare(password, adminUser.password);
+    
+    res.json({
+      success: true,
+      userFound: !!adminUser,
+      passwordValid: isValidPassword,
+      userEmail: adminUser.email,
+      userRole: adminUser.role
+    });
+    
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('Test login error:', errorMessage);
+    res.status(500).json({
+      error: 'Test login failed',
+      message: errorMessage
+    });
+  }
+});
+
 export default router; 

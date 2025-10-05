@@ -67,12 +67,35 @@ export const SafeContentRenderer: React.FC<SafeContentRendererProps> = ({
   content,
   className = ''
 }) => {
-  // Simple and safe approach - just render the HTML content directly
-  // The SafeImageRenderer will handle any image errors gracefully
+  // Process content to handle images safely
+  const processContent = (htmlContent: string) => {
+    if (!htmlContent) return '';
+    
+    // Create a temporary div to parse HTML
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlContent;
+    
+    // Find all img tags and add error handling
+    const imgTags = tempDiv.querySelectorAll('img');
+    imgTags.forEach((img) => {
+      const originalSrc = img.getAttribute('src');
+      if (originalSrc) {
+        // Add error handling to images
+        img.onerror = function() {
+          this.style.display = 'none';
+        };
+        // Add loading attribute
+        img.setAttribute('loading', 'lazy');
+      }
+    });
+    
+    return tempDiv.innerHTML;
+  };
+
   return (
     <div 
       className={className}
-      dangerouslySetInnerHTML={{ __html: content }}
+      dangerouslySetInnerHTML={{ __html: processContent(content) }}
     />
   );
 };

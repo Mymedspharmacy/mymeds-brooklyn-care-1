@@ -144,6 +144,7 @@ export const WooCommerceCheckoutModal: React.FC<WooCommerceCheckoutModalProps> =
         // Show success message
         alert(`Order #${response.data.id} created successfully! You will receive an email confirmation shortly.`);
       } else {
+        console.error('Invalid response from server:', response.data);
         throw new Error('Invalid response from server');
       }
 
