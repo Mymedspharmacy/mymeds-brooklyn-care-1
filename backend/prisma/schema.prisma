@@ -11,7 +11,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql" // Change to "mysql" for production
+  provider = "sqlite" // SQLite for local development
   url      = env("DATABASE_URL")
 }
 
@@ -514,9 +514,9 @@ model CSRFToken {
 model AdminSession {
   id        Int      @id @default(autoincrement())
   userId    Int
-  token     String   @unique @db.VarChar(500)here
+  token     String   @unique
   ipAddress String
-  userAgent String?  @db.Text
+  userAgent String?
   expiresAt DateTime
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
