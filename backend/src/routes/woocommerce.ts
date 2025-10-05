@@ -1963,4 +1963,98 @@ router.post('/sync', async (req: Request, res: Response) => {
   }
 });
 
+// Create WooCommerce order endpoint
+router.post('/orders', async (req: Request, res: Response) => {
+  try {
+    const settings = await prisma.wooCommerceSettings.findUnique({
+      where: { id: 1 }
+    });
+
+    if (!settings || !settings.enabled) {
+      return res.status(400).json({
+        success: false,
+        error: 'WooCommerce settings not configured or disabled'
+      });
+    }
+
+    const orderData = req.body;
+    console.log('Creating WooCommerce order:', orderData);
+
+    // Build the WooCommerce API URL
+    const queryParams = new URLSearchParams({
+      consumer_key: settings.consumerKey,
+      consumer_secret: settings.consumerSecret
+    });
+    
+    const apiUrl = `${settings.storeUrl}/wp-json/wc/v3/orders?${queryParams}`;
+    
+    console.log('Posting to WooCommerce API:', apiUrl.replace(settings.consumerSecret, '***'));
+
+    // Create order in WooCommerce
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(orderData)
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('WooCommerce order creation failed:', errorText);
+      throw new Error(`WooCommerce API error: ${response.status} - ${errorText}`);
+    }
+
+    const order = await response.json();
+    console.log('WooCommerce order created successfully:', order.id);
+
+    // Store order in our database for tracking
+    try {
+      const dbOrder = await prisma.order.create({
+        data: {
+          wooCommerceId: order.id,
+          status: order.status || 'pending',
+          total: parseFloat(order.total || '0'),
+          currency: order.currency || 'USD',
+          paymentMethod: order.payment_method || 'bacs',
+          shippingAddress: order.shipping ? 
+            `${order.shipping.address_1 || ''} ${order.shipping.city || ''} ${order.shipping.state || ''} ${order.shipping.postcode || ''}`.trim() : '',
+          billingAddress: order.billing ? 
+            `${order.billing.address_1 || ''} ${order.billing.city || ''} ${order.billing.state || ''} ${order.billing.postcode || ''}`.trim() : '',
+          customerNote: order.customer_note || '',
+          guestEmail: order.billing?.email || '',
+          guestPhone: order.billing?.phone || '',
+          createdAt: new Date(order.date_created || new Date()),
+          items: {
+            create: order.line_items?.map((item: any) => ({
+              productId: item.product_id,
+              quantity: item.quantity,
+              price: parseFloat(item.price || '0'),
+              total: parseFloat(item.total || '0')
+            })) || []
+          }
+        }
+      });
+      console.log('Order stored in database:', dbOrder.id);
+    } catch (dbError) {
+      console.warn('Failed to store order in database, but WooCommerce order was created:', dbError);
+    }
+
+    res.json({
+      success: true,
+      id: order.id,
+      order: order,
+      message: 'Order created successfully'
+    });
+
+  } catch (error) {
+    console.error('WooCommerce order creation error:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      message: 'Failed to create order. Please try again.'
+    });
+  }
+});
+
 export default router; 
