@@ -30,7 +30,7 @@ const BlogSection: React.FC = () => {
         
         // Use your backend API instead of direct WordPress API
         const response = await api.get('/wordpress/posts?per_page=6');
-        setPosts(response.data.posts);
+        setPosts(response.data.posts || response.data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
         console.error('Error fetching blog posts:', err);

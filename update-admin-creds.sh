@@ -52,3 +52,5 @@ echo "📝 New credentials:"
 echo "   Email: $NEW_EMAIL"
 echo "   Password: $NEW_PASSWORD"
 
+
+

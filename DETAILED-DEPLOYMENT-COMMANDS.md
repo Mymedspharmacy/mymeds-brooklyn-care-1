@@ -710,3 +710,5 @@ sudo systemctl start nginx apache2 mysql
 
 Your pharmacy management system is now live at `https://mymedspharmacyinc.com`
 
+
+

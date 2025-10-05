@@ -11,9 +11,7 @@ import { NewsTicker } from "@/components/NewsTicker";
 import { SEOHead } from "@/components/SEOHead";
 import { wooCommerceAPI } from "@/lib/woocommerce";
 import WooCommerceCartService, { WooCommerceCart, WooCommerceCartItem } from "@/lib/woocommerceCart";
-import { WooCommerceCheckoutForm } from "@/components/WooCommerceCheckoutForm";
 
-// WooCommerce checkout configuration
 
 interface WooCommerceProduct {
   id: number;
@@ -47,7 +45,6 @@ export default function Shop() {
   const [products, setProducts] = useState<WooCommerceProduct[]>([]);
   const [categories, setCategories] = useState<Array<{ id: number; name: string; count: number }>>([]);
   const [loading, setLoading] = useState(true);
-  const [showCheckout, setShowCheckout] = useState(false);
   const [showCart, setShowCart] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [wishlist, setWishlist] = useState<number[]>([]);
@@ -66,19 +63,21 @@ export default function Shop() {
     }
   };
 
-  // Handle checkout success
-  const handleCheckoutSuccess = (orderId: number, paymentDetails: any) => {
-    // Clear WooCommerce cart
-    WooCommerceCartService.getInstance().clearCart();
-    setShowCheckout(false);
-    
-    // Show success message with order details
-    const successMessage = `🎉 Order Created Successfully!\n\nOrder Number: #${orderId}\nPayment Method: ${paymentDetails.paymentMethod}\nTotal: $${paymentDetails.total || '0.00'}\n\nYou will be redirected to complete your payment securely.\nThank you for shopping with MyMeds Pharmacy!`;
-    alert(successMessage);
-    
-    // Redirect to WooCommerce checkout page for payment completion
-    if (paymentDetails.paymentUrl) {
-      window.open(paymentDetails.paymentUrl, '_blank');
+  // Handle checkout - redirect to WooCommerce checkout
+  const handleCheckout = () => {
+    try {
+      // Check if cart has items
+      if (!woocommerceCart || !woocommerceCart.items || woocommerceCart.items.length === 0) {
+        alert('Your cart is empty. Please add some products before checkout.');
+        return;
+      }
+
+      // Redirect directly to WooCommerce checkout page
+      console.log('Redirecting to WooCommerce checkout...');
+      window.location.href = 'https://mymedspharmacyinc.com/checkout/';
+    } catch (error) {
+      console.error('Checkout error:', error);
+      alert('Unable to proceed to checkout. Please try again or contact support.');
     }
   };
 
@@ -611,7 +610,7 @@ export default function Shop() {
                     </div>
                   </div>
                   <Button 
-                    onClick={() => setShowCheckout(true)}
+                    onClick={handleCheckout}
                     className="bg-white text-[#57BBB6] hover:bg-gray-100 px-4 py-2 rounded-xl"
                   >
                     Checkout
@@ -737,7 +736,7 @@ export default function Shop() {
                     <Button
                       onClick={() => {
                         setShowCart(false);
-                        setShowCheckout(true);
+                        handleCheckout();
                       }}
                       className="flex-1 bg-[#57BBB6] hover:bg-[#376F6B] text-white order-1 sm:order-2"
                     >
@@ -762,47 +761,6 @@ export default function Shop() {
           </DialogContent>
         </Dialog>
 
-        {/* Checkout Modal */}
-        {showCheckout && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
-              <h3 className="text-xl font-bold text-[#376F6B] mb-4">Checkout</h3>
-              
-              {/* Cart Summary */}
-              <div className="mb-4">
-                <h4 className="font-semibold mb-2">Order Summary</h4>
-                {(woocommerceCart?.items || []).map((item) => (
-                  <div key={item.id} className="flex justify-between items-center py-2 border-b">
-                    <div>
-                      <p className="font-medium">{item.name}</p>
-                      <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
-                    </div>
-                    <p className="font-medium">{cartService.formatPrice(item.total, woocommerceCart?.currency)}</p>
-                  </div>
-                ))}
-                <div className="flex justify-between items-center py-2 font-bold text-lg">
-                  <span>Total:</span>
-                  <span>{cartService.formatPrice(cartTotal, woocommerceCart?.currency)}</span>
-                </div>
-              </div>
-
-              {/* WooCommerce Checkout Form */}
-              <WooCommerceCheckoutForm 
-                cart={woocommerceCart?.items || []}
-                total={cartTotal}
-                onSuccess={(orderId, paymentDetails) => {
-                  setShowCheckout(false);
-                  const successMessage = `🎉 Order Created Successfully!\n\nOrder Number: #${orderId}\nPayment Method: ${paymentDetails.paymentMethod}\nTotal: $${cartTotal.toFixed(2)}\n\n${paymentDetails.paymentUrl ? 'You will be redirected to complete payment securely.' : 'Your order is being processed.'}\n\nThank you for shopping with MyMeds Pharmacy!`;
-                  alert(successMessage);
-                  
-                  // Clear cart after successful order
-                  WooCommerceCartService.getInstance().clearCart();
-                }}
-                onCancel={() => setShowCheckout(false)}
-              />
-            </div>
-          </div>
-        )}
 
         {/* Quick View Modal */}
         <Dialog open={!!quickViewProduct} onOpenChange={closeQuickView}>

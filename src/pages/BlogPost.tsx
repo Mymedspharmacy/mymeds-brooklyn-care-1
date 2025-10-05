@@ -59,8 +59,8 @@ const BlogPost = () => {
 
         // Fetch real post from backend API
         try {
-          const response = await api.get(`/wordpress/posts/${id}`);
-          const postData = response.data.post; // Backend returns { post: ... }
+        const response = await api.get(`/wordpress/posts/${id}`);
+        const postData = response.data.post || response.data; // Backend returns { post: ... }
           
           if (postData) {
             setPost(postData);

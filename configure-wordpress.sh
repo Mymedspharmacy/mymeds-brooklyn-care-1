@@ -77,3 +77,5 @@ rm configure-wordpress.js
 
 echo "🎉 WordPress configuration completed!"
 
+
+

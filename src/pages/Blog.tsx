@@ -133,9 +133,9 @@ export default function Blog() {
 
         // Use your backend API instead of direct WordPress API
         const [postsResponse, categoriesResponse, featuredResponse] = await Promise.all([
-          api.get('/wordpress/posts?per_page=100').then(res => res.data.posts),
-          api.get('/wordpress/categories').then(res => res.data.categories || []),
-          api.get('/wordpress/posts?featured=true&per_page=3').then(res => res.data.posts || [])
+          api.get('/wordpress/posts?per_page=100').then(res => res.data.posts || res.data),
+          api.get('/wordpress/categories').then(res => res.data.categories || res.data || []),
+          api.get('/wordpress/posts?featured=true&per_page=3').then(res => res.data.posts || res.data || [])
         ]);
         
         // Type assertions to fix TypeScript errors
