@@ -10,7 +10,7 @@ import {
   Package, Volume2, VolumeX, Shield, Plus, Clock,
   Truck, Navigation, AlertTriangle, AlertCircle,
   Save, Zap, Check, ExternalLink, FileText, DollarSign,
-  Loader2
+  Loader2, Copy
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -79,6 +79,8 @@ export default function Admin() {
   const [contactStats, setContactStats] = useState(null);
   const [allFormSubmissions, setAllFormSubmissions] = useState([]);
   const [formSubmissionsLoading, setFormSubmissionsLoading] = useState(false);
+  const [selectedFormSubmission, setSelectedFormSubmission] = useState(null);
+  const [showFormSubmissionDialog, setShowFormSubmissionDialog] = useState(false);
   const [adminNotifications, setAdminNotifications] = useState([]);
   const [notificationStats, setNotificationStats] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -1769,7 +1771,33 @@ export default function Admin() {
     }
   }, [loadTransfersData]);
 
-  // Contact management functions
+  // Form submission management functions
+  const handleViewFormSubmission = useCallback((submission: any) => {
+    setSelectedFormSubmission(submission);
+    setShowFormSubmissionDialog(true);
+  }, []);
+
+  const handleUpdateFormSubmissionStatus = useCallback(async (submissionId: string, newStatus: string) => {
+    try {
+      // Update the submission status
+      await api.put(`/contact/${submissionId}/status`, { status: newStatus });
+      
+      // Refresh form submissions data
+      await loadAllFormSubmissions();
+      
+      toast({
+        title: "Status Updated",
+        description: `Form submission status updated to ${newStatus}`,
+      });
+    } catch (error) {
+      console.error('Failed to update form submission status:', error);
+      toast({
+        title: "Update Failed",
+        description: "Failed to update form submission status",
+        variant: "destructive"
+      });
+    }
+  }, [loadAllFormSubmissions, toast]);
   const handleViewContactDetails = useCallback((contact: any) => {
     setSelectedContact(contact);
     setShowContactDetailsDialog(true);
@@ -3478,10 +3506,8 @@ export default function Admin() {
                                     <Button
                                       variant="outline"
                                       size="sm"
-                                      onClick={() => {
-                                        // View detailed submission
-                                        alert(`Form Submission Details:\n\nType: ${submission.type}\nName: ${submission.name}\nEmail: ${submission.email}\nSubject: ${submission.subject}\n\nMessage:\n${submission.message}\n\nStatus: ${submission.status}\nPriority: ${submission.priority}\nDate: ${new Date(submission.timestamp).toLocaleString()}`);
-                                      }}
+                                      onClick={() => handleViewFormSubmission(submission)}
+                                      title="View Form Submission Details"
                                     >
                                       <Eye className="h-3 w-3" />
                                     </Button>
@@ -3489,12 +3515,12 @@ export default function Admin() {
                                       variant="outline"
                                       size="sm"
                                       onClick={() => {
-                                        // Update status
                                         const newStatus = prompt('Enter new status (New, Pending, Completed, Cancelled):', submission.status);
                                         if (newStatus && newStatus !== submission.status) {
-                                          alert(`Status would be updated to: ${newStatus}`);
+                                          handleUpdateFormSubmissionStatus(submission.id, newStatus);
                                         }
                                       }}
+                                      title="Update Status"
                                     >
                                       <Edit className="h-3 w-3" />
                                     </Button>
@@ -6630,6 +6656,176 @@ export default function Admin() {
                 Export Details
               </Button>
             </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Form Submission Details Dialog */}
+        <Dialog open={showFormSubmissionDialog} onOpenChange={setShowFormSubmissionDialog}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-[#57BBB6]" />
+                Form Submission Details
+              </DialogTitle>
+              <DialogDescription>
+                Complete details for this form submission
+              </DialogDescription>
+            </DialogHeader>
+
+            {selectedFormSubmission && (
+              <div className="space-y-6">
+                {/* Header Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Form Type</label>
+                    <Badge 
+                      variant={
+                        selectedFormSubmission.type === 'Contact Form' ? 'default' :
+                        selectedFormSubmission.type === 'Refill Request' ? 'secondary' :
+                        'outline'
+                      }
+                      className="mt-1"
+                    >
+                      {selectedFormSubmission.type}
+                    </Badge>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Status</label>
+                    <Badge 
+                      variant={
+                        selectedFormSubmission.status === 'New' ? 'default' :
+                        selectedFormSubmission.status === 'Pending' ? 'secondary' :
+                        selectedFormSubmission.status === 'Completed' ? 'outline' : 'destructive'
+                      }
+                      className="mt-1"
+                    >
+                      {selectedFormSubmission.status}
+                    </Badge>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Priority</label>
+                    <Badge 
+                      variant={
+                        selectedFormSubmission.priority === 'High' ? 'destructive' :
+                        selectedFormSubmission.priority === 'Normal' ? 'secondary' : 'outline'
+                      }
+                      className="mt-1"
+                    >
+                      {selectedFormSubmission.priority}
+                    </Badge>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Submission Date</label>
+                    <p className="mt-1 text-sm text-gray-900">
+                      {new Date(selectedFormSubmission.timestamp).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Contact Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Name</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedFormSubmission.name}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Email</label>
+                    <p className="mt-1 text-sm text-gray-900">
+                      <a href={`mailto:${selectedFormSubmission.email}`} className="text-[#57BBB6] hover:underline">
+                        {selectedFormSubmission.email}
+                      </a>
+                    </p>
+                  </div>
+                  {selectedFormSubmission.phone && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Phone</label>
+                      <p className="mt-1 text-sm text-gray-900">
+                        <a href={`tel:${selectedFormSubmission.phone}`} className="text-[#57BBB6] hover:underline">
+                          {selectedFormSubmission.phone}
+                        </a>
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Subject */}
+                {selectedFormSubmission.subject && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Subject</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedFormSubmission.subject}</p>
+                  </div>
+                )}
+
+                {/* Message Content */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                  <div className="bg-gray-50 rounded-lg p-4 border">
+                    <pre className="whitespace-pre-wrap text-sm text-gray-900 font-sans">
+                      {selectedFormSubmission.message || 'No message provided'}
+                    </pre>
+                  </div>
+                </div>
+
+                {/* Additional Data */}
+                {selectedFormSubmission.additionalData && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Additional Information</label>
+                    <div className="bg-gray-50 rounded-lg p-4 border">
+                      <pre className="whitespace-pre-wrap text-sm text-gray-900 font-sans">
+                        {JSON.stringify(selectedFormSubmission.additionalData, null, 2)}
+                      </pre>
+                    </div>
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="flex justify-between items-center pt-4 border-t">
+                  <div className="text-sm text-gray-600">
+                    Submission ID: {selectedFormSubmission.id}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        const newStatus = prompt('Enter new status (New, Pending, Completed, Cancelled):', selectedFormSubmission.status);
+                        if (newStatus && newStatus !== selectedFormSubmission.status) {
+                          handleUpdateFormSubmissionStatus(selectedFormSubmission.id, newStatus);
+                          setShowFormSubmissionDialog(false);
+                        }
+                      }}
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Update Status
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        // Copy submission details to clipboard
+                        const details = `Form Submission Details:
+Type: ${selectedFormSubmission.type}
+Name: ${selectedFormSubmission.name}
+Email: ${selectedFormSubmission.email}
+Subject: ${selectedFormSubmission.subject}
+Message: ${selectedFormSubmission.message}
+Status: ${selectedFormSubmission.status}
+Priority: ${selectedFormSubmission.priority}
+Date: ${new Date(selectedFormSubmission.timestamp).toLocaleString()}`;
+                        
+                        navigator.clipboard.writeText(details).then(() => {
+                          toast({
+                            title: "Copied to Clipboard",
+                            description: "Form submission details copied to clipboard",
+                          });
+                        });
+                      }}
+                    >
+                      <Copy className="h-4 w-4 mr-2" />
+                      Copy Details
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
           </DialogContent>
         </Dialog>
 
