@@ -281,3 +281,5 @@ sudo systemctl reload nginx
 - [ ] Update all environment variables
 
 Your My Meds Pharmacy application will be available at: https://mymedspharmacyinc.com
+
+

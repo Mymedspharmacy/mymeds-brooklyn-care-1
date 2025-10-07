@@ -257,3 +257,5 @@ If deployment fails:
 **This BULLETPROOF script guarantees 100% successful deployment of your MyMeds Pharmacy application! 🚀**
 
 **No more failed deployments, no more missing dependencies, no more permission issues!**
+
+

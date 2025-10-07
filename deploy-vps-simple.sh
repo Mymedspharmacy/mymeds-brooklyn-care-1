@@ -533,3 +533,5 @@ echo "WooCommerce Store: https://$DOMAIN/shop"
 echo "Admin Panel: https://$DOMAIN/admin"
 echo ""
 print_success "VPS setup completed! 🎉"
+
+

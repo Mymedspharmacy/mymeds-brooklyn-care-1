@@ -56,3 +56,5 @@ pm2 status && sudo systemctl status nginx
 pm2 logs --err
 sudo tail -f /var/log/nginx/error.log
 ```
+
+

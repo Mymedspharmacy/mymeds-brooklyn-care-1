@@ -107,3 +107,5 @@ echo.
 echo Or use the manual deployment steps in DEPLOYMENT-README.md
 echo.
 pause
+
+
