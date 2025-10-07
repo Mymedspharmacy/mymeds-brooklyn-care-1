@@ -247,7 +247,7 @@ export default function PatientAccountCreation() {
         }
       });
 
-      const response = await api.post('/patient/account-creation', formDataToSend);
+      const response = await api.post('/patient/register', formDataToSend);
       
       if (response.status === 200) {
         alert('Account creation request submitted successfully! Our team will review your information within 24-48 hours.');
