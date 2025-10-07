@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# MyMeds Pharmacy VPS Deployment Script
-# This script deploys the application to the VPS with proper domain configuration
+# My Meds Pharmacy - VPS Deployment Script
+# Run this script on your VPS to deploy the complete system
 
-set -e
+set -e  # Exit on any error
 
-echo "🚀 Starting MyMeds Pharmacy VPS Deployment..."
+echo "🚀 Starting My Meds Pharmacy Deployment..."
 
 # Colors for output
 RED='\033[0;31m'
@@ -15,137 +15,381 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-VPS_USER="root"
-VPS_HOST="your-vps-ip"
+REPO_URL="https://github.com/Mymedspharmacy/mymeds-brooklyn-care-1.git"
+BRANCH="latest"
 APP_DIR="/var/www/mymeds-pharmacy"
-WORDPRESS_DIR="/var/www/wordpress"
-BACKUP_DIR="/var/backups/mymeds-pharmacy"
+BACKEND_PORT="3001"
+FRONTEND_PORT="3000"
+DOMAIN="mymedspharmacyinc.com"
 
-echo -e "${BLUE}📋 Deployment Configuration:${NC}"
-echo "VPS Host: $VPS_HOST"
-echo "App Directory: $APP_DIR"
-echo "WordPress Directory: $WORDPRESS_DIR"
-echo ""
-
-# Function to run commands on VPS
-run_on_vps() {
-    echo -e "${YELLOW}🔧 Running on VPS: $1${NC}"
-    ssh $VPS_USER@$VPS_HOST "$1"
+# Function to print colored output
+print_status() {
+    echo -e "${BLUE}[INFO]${NC} $1"
 }
 
-# Function to copy files to VPS
-copy_to_vps() {
-    echo -e "${YELLOW}📁 Copying to VPS: $1 -> $2${NC}"
-    scp -r "$1" $VPS_USER@$VPS_HOST:"$2"
+print_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
 }
 
-echo -e "${GREEN}✅ Step 1: Preparing VPS environment...${NC}"
+print_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
 
-# Create directories on VPS
-run_on_vps "mkdir -p $APP_DIR $WORDPRESS_DIR $BACKUP_DIR /var/www/mymeds-pharmacy/logs"
+print_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# Check if running as root
+if [[ $EUID -eq 0 ]]; then
+   print_error "This script should not be run as root for security reasons"
+   exit 1
+fi
+
+# Update system packages
+print_status "Updating system packages..."
+sudo apt update && sudo apt upgrade -y
 
 # Install required packages
-run_on_vps "apt update && apt install -y nginx php8.1-fpm php8.1-mysql php8.1-curl php8.1-gd php8.1-mbstring php8.1-xml php8.1-zip mysql-server nodejs npm pm2 certbot python3-certbot-nginx"
+print_status "Installing required packages..."
+sudo apt install -y curl wget git nginx certbot python3-certbot-nginx ufw fail2ban htop
 
-echo -e "${GREEN}✅ Step 2: Building and deploying frontend...${NC}"
+# Install Node.js 18.x
+print_status "Installing Node.js 18.x..."
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
 
-# Build frontend locally
-echo "Building React frontend..."
+# Install PM2 globally
+print_status "Installing PM2 process manager..."
+sudo npm install -g pm2
+
+# Install PostgreSQL (if not already installed)
+print_status "Installing PostgreSQL..."
+sudo apt install -y postgresql postgresql-contrib
+
+# Create application directory
+print_status "Creating application directory..."
+sudo mkdir -p $APP_DIR
+sudo chown $USER:$USER $APP_DIR
+
+# Clone or update repository
+print_status "Cloning/updating repository..."
+if [ -d "$APP_DIR/.git" ]; then
+    cd $APP_DIR
+    git fetch origin
+    git reset --hard origin/$BRANCH
+    print_success "Repository updated"
+else
+    git clone -b $BRANCH $REPO_URL $APP_DIR
+    print_success "Repository cloned"
+fi
+
+cd $APP_DIR
+
+# Install backend dependencies
+print_status "Installing backend dependencies..."
+cd backend
+npm install --production
+
+# Install frontend dependencies
+print_status "Installing frontend dependencies..."
+cd ../src
+npm install --production
+
+# Build frontend
+print_status "Building frontend..."
 npm run build
 
-# Copy built frontend to VPS
-copy_to_vps "dist/" "$APP_DIR/dist/"
+# Go back to root directory
+cd ..
 
-echo -e "${GREEN}✅ Step 3: Deploying backend...${NC}"
+# Create environment files
+print_status "Creating environment files..."
 
-# Copy backend to VPS
-copy_to_vps "backend/" "$APP_DIR/backend/"
+# Backend .env
+cat > backend/.env << EOF
+NODE_ENV=production
+PORT=$BACKEND_PORT
+DATABASE_URL="postgresql://mymeds_user:mymeds_password@localhost:5432/mymeds_pharmacy"
+JWT_SECRET="your-super-secure-jwt-secret-key-change-this"
+JWT_EXPIRES_IN=7d
+CORS_ORIGIN=https://$DOMAIN
+WOOCOMMERCE_STORE_URL="https://your-woocommerce-store.com"
+WOOCOMMERCE_CONSUMER_KEY="your-consumer-key"
+WOOCOMMERCE_CONSUMER_SECRET="your-consumer-secret"
+WORDPRESS_URL="https://your-wordpress-site.com"
+WORDPRESS_USERNAME="your-wp-username"
+WORDPRESS_PASSWORD="your-wp-password"
+STRIPE_SECRET_KEY="your-stripe-secret-key"
+STRIPE_PUBLISHABLE_KEY="your-stripe-publishable-key"
+EMAIL_HOST="smtp.gmail.com"
+EMAIL_PORT=587
+EMAIL_USER="your-email@gmail.com"
+EMAIL_PASS="your-app-password"
+EOF
 
-# Install backend dependencies on VPS
-run_on_vps "cd $APP_DIR/backend && npm install --production"
+# Frontend .env
+cat > .env << EOF
+VITE_API_URL=https://$DOMAIN/api
+VITE_WORDPRESS_URL=https://your-wordpress-site.com
+VITE_WOOCOMMERCE_URL=https://your-woocommerce-store.com
+VITE_STRIPE_PUBLISHABLE_KEY=your-stripe-publishable-key
+EOF
 
-# Build backend on VPS
-run_on_vps "cd $APP_DIR/backend && npm run build"
+# Setup PostgreSQL database
+print_status "Setting up PostgreSQL database..."
+sudo -u postgres psql << EOF
+CREATE DATABASE mymeds_pharmacy;
+CREATE USER mymeds_user WITH PASSWORD 'mymeds_password';
+GRANT ALL PRIVILEGES ON DATABASE mymeds_pharmacy TO mymeds_user;
+\q
+EOF
 
-echo -e "${GREEN}✅ Step 4: Configuring Nginx...${NC}"
+# Run database migrations
+print_status "Running database migrations..."
+cd backend
+npx prisma migrate deploy
+npx prisma generate
 
-# Copy Nginx configuration
-copy_to_vps "deployment/nginx.conf" "/etc/nginx/sites-available/mymeds-pharmacy"
+# Create PM2 ecosystem file
+print_status "Creating PM2 ecosystem configuration..."
+cat > ecosystem.config.js << EOF
+module.exports = {
+  apps: [
+    {
+      name: 'mymeds-backend',
+      script: 'dist/index.js',
+      cwd: '$APP_DIR/backend',
+      instances: 'max',
+      exec_mode: 'cluster',
+      env: {
+        NODE_ENV: 'production',
+        PORT: $BACKEND_PORT
+      },
+      error_file: '/var/log/pm2/mymeds-backend-error.log',
+      out_file: '/var/log/pm2/mymeds-backend-out.log',
+      log_file: '/var/log/pm2/mymeds-backend.log',
+      time: true
+    },
+    {
+      name: 'mymeds-frontend',
+      script: 'serve',
+      args: '-s dist -l $FRONTEND_PORT',
+      cwd: '$APP_DIR/src',
+      instances: 1,
+      env: {
+        NODE_ENV: 'production'
+      },
+      error_file: '/var/log/pm2/mymeds-frontend-error.log',
+      out_file: '/var/log/pm2/mymeds-frontend-out.log',
+      log_file: '/var/log/pm2/mymeds-frontend.log',
+      time: true
+    }
+  ]
+};
+EOF
 
-# Enable site
-run_on_vps "ln -sf /etc/nginx/sites-available/mymeds-pharmacy /etc/nginx/sites-enabled/"
+# Install serve for frontend
+print_status "Installing serve for frontend..."
+cd ../src
+npm install -g serve
 
-# Remove default site
-run_on_vps "rm -f /etc/nginx/sites-enabled/default"
+# Create PM2 log directory
+sudo mkdir -p /var/log/pm2
+sudo chown $USER:$USER /var/log/pm2
+
+# Start applications with PM2
+print_status "Starting applications with PM2..."
+cd $APP_DIR
+pm2 start ecosystem.config.js
+pm2 save
+pm2 startup
+
+# Configure Nginx
+print_status "Configuring Nginx..."
+sudo tee /etc/nginx/sites-available/mymeds-pharmacy << EOF
+server {
+    listen 80;
+    server_name $DOMAIN www.$DOMAIN;
+    
+    # Redirect HTTP to HTTPS
+    return 301 https://\$server_name\$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name $DOMAIN www.$DOMAIN;
+    
+    # SSL configuration (will be updated by certbot)
+    ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;
+    
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "no-referrer-when-downgrade" always;
+    add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
+    
+    # Frontend (React app)
+    location / {
+        proxy_pass http://localhost:$FRONTEND_PORT;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_cache_bypass \$http_upgrade;
+    }
+    
+    # Backend API
+    location /api/ {
+        proxy_pass http://localhost:$BACKEND_PORT/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_cache_bypass \$http_upgrade;
+    }
+    
+    # File uploads
+    location /uploads/ {
+        proxy_pass http://localhost:$BACKEND_PORT/uploads/;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+    
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied expired no-cache no-store private must-revalidate auth;
+    gzip_types text/plain text/css text/xml text/javascript application/x-javascript application/xml+rss application/javascript;
+}
+EOF
+
+# Enable the site
+sudo ln -sf /etc/nginx/sites-available/mymeds-pharmacy /etc/nginx/sites-enabled/
+sudo rm -f /etc/nginx/sites-enabled/default
 
 # Test Nginx configuration
-run_on_vps "nginx -t"
+sudo nginx -t
 
-echo -e "${GREEN}✅ Step 5: Setting up WordPress/WooCommerce...${NC}"
+# Configure firewall
+print_status "Configuring firewall..."
+sudo ufw allow ssh
+sudo ufw allow 'Nginx Full'
+sudo ufw --force enable
 
-# Download and setup WordPress
-run_on_vps "cd /tmp && wget https://wordpress.org/latest.tar.gz && tar -xzf latest.tar.gz"
-run_on_vps "cp -r /tmp/wordpress/* $WORDPRESS_DIR/"
-run_on_vps "chown -R www-data:www-data $WORDPRESS_DIR"
-run_on_vps "chmod -R 755 $WORDPRESS_DIR"
-
-# Create WordPress config
-run_on_vps "cp $WORDPRESS_DIR/wp-config-sample.php $WORDPRESS_DIR/wp-config.php"
-
-echo -e "${GREEN}✅ Step 6: Configuring PM2...${NC}"
-
-# Copy PM2 configuration
-copy_to_vps "deployment/ecosystem.config.js" "$APP_DIR/ecosystem.config.js"
-
-# Start application with PM2
-run_on_vps "cd $APP_DIR && pm2 start ecosystem.config.js --env production"
-
-# Save PM2 configuration
-run_on_vps "pm2 save"
-run_on_vps "pm2 startup"
-
-echo -e "${GREEN}✅ Step 7: Setting up SSL certificate...${NC}"
-
-# Get SSL certificate
-run_on_vps "certbot --nginx -d mymedspharmacyinc.com -d www.mymedspharmacyinc.com --non-interactive --agree-tos --email admin@mymedspharmacyinc.com"
-
-echo -e "${GREEN}✅ Step 8: Starting services...${NC}"
+# Setup SSL certificate with Let's Encrypt
+print_status "Setting up SSL certificate..."
+sudo certbot --nginx -d $DOMAIN -d www.$DOMAIN --non-interactive --agree-tos --email admin@$DOMAIN
 
 # Restart services
-run_on_vps "systemctl restart nginx"
-run_on_vps "systemctl restart php8.1-fpm"
-run_on_vps "systemctl restart mysql"
+print_status "Restarting services..."
+sudo systemctl restart nginx
+sudo systemctl enable nginx
+sudo systemctl restart postgresql
+sudo systemctl enable postgresql
 
-# Enable services
-run_on_vps "systemctl enable nginx"
-run_on_vps "systemctl enable php8.1-fpm"
-run_on_vps "systemctl enable mysql"
+# Setup log rotation
+print_status "Setting up log rotation..."
+sudo tee /etc/logrotate.d/mymeds-pharmacy << EOF
+/var/log/pm2/*.log {
+    daily
+    missingok
+    rotate 52
+    compress
+    delaycompress
+    notifempty
+    create 644 $USER $USER
+    postrotate
+        pm2 reloadLogs
+    endscript
+}
+EOF
 
-echo -e "${GREEN}✅ Step 9: Final configuration...${NC}"
+# Create backup script
+print_status "Creating backup script..."
+sudo tee /usr/local/bin/backup-mymeds.sh << EOF
+#!/bin/bash
+BACKUP_DIR="/var/backups/mymeds-pharmacy"
+DATE=\$(date +%Y%m%d_%H%M%S)
+mkdir -p \$BACKUP_DIR
 
-# Set proper permissions
-run_on_vps "chown -R www-data:www-data $APP_DIR"
-run_on_vps "chmod -R 755 $APP_DIR"
+# Backup database
+pg_dump -h localhost -U mymeds_user mymeds_pharmacy > \$BACKUP_DIR/database_\$DATE.sql
 
-# Create uploads directory
-run_on_vps "mkdir -p $APP_DIR/uploads && chown -R www-data:www-data $APP_DIR/uploads"
+# Backup uploads
+tar -czf \$BACKUP_DIR/uploads_\$DATE.tar.gz $APP_DIR/backend/uploads/
 
-echo -e "${GREEN}🎉 Deployment completed successfully!${NC}"
+# Keep only last 7 days of backups
+find \$BACKUP_DIR -name "*.sql" -mtime +7 -delete
+find \$BACKUP_DIR -name "*.tar.gz" -mtime +7 -delete
+EOF
+
+sudo chmod +x /usr/local/bin/backup-mymeds.sh
+
+# Setup daily backup cron job
+echo "0 2 * * * /usr/local/bin/backup-mymeds.sh" | sudo crontab -
+
+# Create monitoring script
+print_status "Creating monitoring script..."
+sudo tee /usr/local/bin/monitor-mymeds.sh << EOF
+#!/bin/bash
+# Check if services are running
+if ! pm2 list | grep -q "mymeds-backend.*online"; then
+    echo "Backend is down, restarting..."
+    pm2 restart mymeds-backend
+fi
+
+if ! pm2 list | grep -q "mymeds-frontend.*online"; then
+    echo "Frontend is down, restarting..."
+    pm2 restart mymeds-frontend
+fi
+
+# Check disk space
+DISK_USAGE=\$(df / | awk 'NR==2 {print \$5}' | sed 's/%//')
+if [ \$DISK_USAGE -gt 80 ]; then
+    echo "Warning: Disk usage is \${DISK_USAGE}%"
+fi
+
+# Check memory usage
+MEM_USAGE=\$(free | awk 'NR==2{printf "%.0f", \$3*100/\$2}')
+if [ \$MEM_USAGE -gt 80 ]; then
+    echo "Warning: Memory usage is \${MEM_USAGE}%"
+fi
+EOF
+
+sudo chmod +x /usr/local/bin/monitor-mymeds.sh
+
+# Setup monitoring cron job
+echo "*/5 * * * * /usr/local/bin/monitor-mymeds.sh" | sudo crontab -
+
+print_success "Deployment completed successfully!"
+print_status "Your My Meds Pharmacy application is now running at: https://$DOMAIN"
+print_status "Backend API: https://$DOMAIN/api"
+print_status "Admin Panel: https://$DOMAIN/admin"
+
 echo ""
-echo -e "${BLUE}📋 Next steps:${NC}"
-echo "1. Configure your domain DNS to point to the VPS IP"
-echo "2. Set up environment variables in $APP_DIR/backend/.env"
-echo "3. Configure MySQL database for WordPress"
-echo "4. Complete WordPress setup at https://mymedspharmacyinc.com/shop/wp-admin/install.php"
-echo "5. Install and configure WooCommerce plugin"
+print_status "Useful commands:"
+echo "  pm2 status                    - Check application status"
+echo "  pm2 logs                      - View application logs"
+echo "  pm2 restart all              - Restart all applications"
+echo "  sudo systemctl status nginx  - Check Nginx status"
+echo "  sudo systemctl status postgresql - Check PostgreSQL status"
+
 echo ""
-echo -e "${BLUE}🌐 URLs:${NC}"
-echo "Main App: https://mymedspharmacyinc.com"
-echo "WooCommerce Store: https://mymedspharmacyinc.com/shop"
-echo "WordPress Admin: https://mymedspharmacyinc.com/shop/wp-admin"
-echo ""
-echo -e "${BLUE}🔧 Useful commands:${NC}"
-echo "Check app status: ssh $VPS_USER@$VPS_HOST 'pm2 status'"
-echo "View logs: ssh $VPS_USER@$VPS_HOST 'pm2 logs mymeds-backend'"
-echo "Restart app: ssh $VPS_USER@$VPS_HOST 'pm2 restart mymeds-backend'"
-echo "Check Nginx: ssh $VPS_USER@$VPS_HOST 'systemctl status nginx'"
+print_warning "Don't forget to:"
+echo "  1. Update the environment variables in backend/.env with your actual values"
+echo "  2. Update the frontend .env with your actual API URLs"
+echo "  3. Configure your WooCommerce and WordPress credentials"
+echo "  4. Test all functionality after deployment"
+
+print_success "Deployment script completed!"
