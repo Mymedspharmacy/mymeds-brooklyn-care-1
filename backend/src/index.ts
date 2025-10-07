@@ -46,6 +46,7 @@ import openfdaRoutes from './routes/openfda';
 import cartRoutes from './routes/cart';
 import inventoryRoutes from './routes/inventory';
 import crmRoutes from './routes/crm';
+import medicationGuidesRoutes from './routes/medicationGuides';
 import hpp from 'hpp';
 import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
@@ -259,7 +260,7 @@ app.use(cors({
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: [
     'Content-Type', 
     'Authorization', 
@@ -538,6 +539,7 @@ app.use('/api/openfda', currentLimiter, openfdaRoutes);
 app.use('/api/cart', currentLimiter, cartRoutes);
 app.use('/api/inventory', currentLimiter, inventoryRoutes);
 app.use('/api/crm', currentLimiter, crmRoutes);
+app.use('/api/medication-guides', currentLimiter, medicationGuidesRoutes);
 
 // Notification endpoints
 app.get('/api/notifications', secureAdminAuthMiddleware, async (req: Request, res: Response) => {

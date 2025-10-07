@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
-import { unifiedAdminAuth } from './auth';
+import { authenticateAdmin } from '../middleware/auth';
 
 import { AuthRequest } from '../types/express';
 
@@ -67,7 +67,7 @@ router.post('/request', async (req: Request, res: Response) => {
 });
 
 // User: create appointment (authenticated users)
-router.post('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+router.post('/', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const { date, reason, status } = req.body;
     const appointment = await prisma.appointment.create({
@@ -90,7 +90,7 @@ router.post('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
 });
 
 // User: get own appointments
-router.get('/my', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+router.get('/my', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const appointments = await prisma.appointment.findMany({ where: { userId: parseInt(req.user.userId) } });
     res.json(appointments);
@@ -101,7 +101,7 @@ router.get('/my', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
 });
 
 // Admin: get all appointments
-router.get('/admin/all', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+router.get('/admin/all', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -132,13 +132,17 @@ router.get('/admin/all', unifiedAdminAuth, async (req: AuthRequest, res: Respons
 });
 
 // Admin: get all appointments (legacy endpoint)
-router.get('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+router.get('/', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     let limit = parseInt(req.query.limit as string) || 20;
     if (limit > 100) limit = 100;
     const appointments = await prisma.appointment.findMany({ take: limit });
-    res.json(appointments);
+    res.json({
+      success: true,
+      data: appointments,
+      message: 'Appointments retrieved successfully'
+    });
   } catch (err) {
     console.error('Error fetching all appointments:', err);
     res.status(500).json({ error: 'Failed to fetch appointments' });
@@ -146,7 +150,7 @@ router.get('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
 });
 
 // Admin: get appointment statistics
-router.get('/admin/stats', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+router.get('/admin/stats', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
 
@@ -210,7 +214,7 @@ router.get('/admin/stats', unifiedAdminAuth, async (req: AuthRequest, res: Respo
 });
 
 // Admin: delete appointment
-router.delete('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+router.delete('/:id', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     await prisma.appointment.delete({ where: { id: Number(req.params.id) } });

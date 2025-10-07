@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { secureAdminAuthMiddleware } from '../services/SecureAdminAuth';
+import { authenticateAdmin } from '../middleware/auth';
 
 import { AuthRequest } from '../types/express';
 
@@ -56,7 +56,7 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 // Admin: get all refill requests
-router.get('/', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
+router.get('/', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -64,7 +64,7 @@ router.get('/', secureAdminAuthMiddleware, async (req: AuthRequest, res: Respons
     const limitNum = Math.min(parseInt(limit as string), 100);
     
     const where: Record<string, unknown> = {};
-    if (status) where.status = status;
+    if (status && status !== 'all') where.status = status;
     if (urgency) where.urgency = urgency;
 
     const refillRequests = await prisma.refillRequest.findMany({
@@ -82,7 +82,11 @@ router.get('/', secureAdminAuthMiddleware, async (req: AuthRequest, res: Respons
       take: limitNum
     });
 
-    res.json(refillRequests);
+    res.json({
+      success: true,
+      data: refillRequests,
+      message: 'Refill requests retrieved successfully'
+    });
   } catch (err) {
     console.error('Error fetching refill requests:', err);
     res.status(500).json({ error: 'Failed to fetch refill requests' });
@@ -90,7 +94,7 @@ router.get('/', secureAdminAuthMiddleware, async (req: AuthRequest, res: Respons
 });
 
 // Admin: get specific refill request
-router.get('/:id', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
+router.get('/:id', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -119,7 +123,7 @@ router.get('/:id', secureAdminAuthMiddleware, async (req: AuthRequest, res: Resp
 });
 
 // Admin: update refill request status
-router.put('/:id', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
+router.put('/:id', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -129,11 +133,6 @@ router.put('/:id', secureAdminAuthMiddleware, async (req: AuthRequest, res: Resp
     const updateData: Record<string, unknown> = {};
     if (status) updateData.status = status;
     if (notes !== undefined) updateData.notes = notes;
-    if (status === 'completed' && !completedDate) {
-      updateData.completedDate = new Date();
-    } else if (completedDate) {
-      updateData.completedDate = new Date(completedDate);
-    }
 
     const refillRequest = await prisma.refillRequest.update({
       where: { id },
@@ -163,7 +162,7 @@ router.put('/:id', secureAdminAuthMiddleware, async (req: AuthRequest, res: Resp
 });
 
 // Admin: delete refill request
-router.delete('/:id', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
+router.delete('/:id', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -179,7 +178,7 @@ router.delete('/:id', secureAdminAuthMiddleware, async (req: AuthRequest, res: R
 });
 
 // Admin: get refill request statistics
-router.get('/stats/overview', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
+router.get('/stats/overview', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -219,7 +218,7 @@ router.get('/stats/overview', secureAdminAuthMiddleware, async (req: AuthRequest
 });
 
 // Create new refill request (admin only)
-router.post('/admin/create', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
+router.post('/admin/create', authenticateAdmin, async (req: Request, res: Response) => {
   try {
     const { 
       userId, 

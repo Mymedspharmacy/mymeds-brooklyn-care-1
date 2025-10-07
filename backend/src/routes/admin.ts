@@ -192,6 +192,10 @@ router.get('/dashboard', authenticateAdmin, async (req: Request, res: Response) 
       totalAppointments,
       totalContacts,
       totalOrders,
+      totalLocations,
+      totalStaff,
+      monthlyRevenue,
+      businessHours,
       recentUsers,
       recentPrescriptions,
       recentAppointments
@@ -201,6 +205,20 @@ router.get('/dashboard', authenticateAdmin, async (req: Request, res: Response) 
       prisma.appointment.count(),
       prisma.contactForm.count(),
       prisma.order.count(),
+      prisma.location.count({ where: { isActive: true } }),
+      prisma.user.count({ where: { role: { in: ['ADMIN', 'STAFF', 'PHARMACIST'] } } }),
+      // Calculate monthly revenue from orders
+      prisma.order.aggregate({
+        where: {
+          createdAt: {
+            gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+          },
+          status: { not: 'CANCELLED' }
+        },
+        _sum: { total: true }
+      }),
+      // Get business hours from settings
+      prisma.settings.findFirst({ where: { key: 'businessHours' } }),
       prisma.user.findMany({
         take: 5,
         orderBy: { createdAt: 'desc' },
@@ -252,7 +270,11 @@ router.get('/dashboard', authenticateAdmin, async (req: Request, res: Response) 
           totalPrescriptions,
           totalAppointments,
           totalContacts,
-          totalOrders
+          totalOrders,
+          totalLocations,
+          totalStaff,
+          monthlyRevenue: monthlyRevenue._sum.total || 0,
+          businessHours: businessHours?.value || '7:00 AM - 9:00 PM'
         },
         recentActivity: {
           users: recentUsers,

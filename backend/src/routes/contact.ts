@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
-import { secureAdminAuthMiddleware } from '../services/SecureAdminAuth';
+import { authenticateAdmin } from '../middleware/auth';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -76,7 +76,7 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 // Get all contact forms (admin only)
-router.get('/', secureAdminAuthMiddleware, async (req, res) => {
+router.get('/', authenticateAdmin, async (req, res) => {
   try {
     let limit = parseInt(req.query.limit as string) || 20;
     if (limit > 100) limit = 100;
@@ -88,7 +88,11 @@ router.get('/', secureAdminAuthMiddleware, async (req, res) => {
       }
     });
     
-    res.json(contacts);
+    res.json({
+      success: true,
+      data: contacts,
+      message: 'Contact forms retrieved successfully'
+    });
     } catch (err: unknown) {
     console.error('Error fetching contact forms:', err);
     res.status(500).json({ 
@@ -99,7 +103,7 @@ router.get('/', secureAdminAuthMiddleware, async (req, res) => {
 });
 
 // Mark contact as read (admin only)
-router.put('/:id/read', secureAdminAuthMiddleware, async (req, res) => {
+router.put('/:id/read', authenticateAdmin, async (req, res) => {
   try {
     const contactId = parseInt(req.params.id);
     const contact = await prisma.contactForm.update({
@@ -122,7 +126,7 @@ router.put('/:id/read', secureAdminAuthMiddleware, async (req, res) => {
 });
 
 // Delete contact form (admin only)
-router.delete('/:id', secureAdminAuthMiddleware, async (req, res) => {
+router.delete('/:id', authenticateAdmin, async (req, res) => {
   try {
     const contactId = parseInt(req.params.id);
     await prisma.contactForm.delete({
@@ -143,7 +147,7 @@ router.delete('/:id', secureAdminAuthMiddleware, async (req, res) => {
 });
 
 // Get contact form statistics (admin only)
-router.get('/stats/overview', secureAdminAuthMiddleware, async (req, res) => {
+router.get('/stats/overview', authenticateAdmin, async (req, res) => {
   try {
     const [total, unread, today, thisWeek, thisMonth] = await Promise.all([
       prisma.contactForm.count(),

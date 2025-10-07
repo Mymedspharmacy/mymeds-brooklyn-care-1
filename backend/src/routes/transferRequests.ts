@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { secureAdminAuthMiddleware } from '../services/SecureAdminAuth';
+import { authenticateAdmin } from '../middleware/auth';
 
 import { AuthRequest } from '../types/express';
 
@@ -59,7 +59,7 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 // Admin: get all transfer requests
-router.get('/', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
+router.get('/', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -67,7 +67,7 @@ router.get('/', secureAdminAuthMiddleware, async (req: AuthRequest, res: Respons
     const limitNum = Math.min(parseInt(limit as string), 100);
     
     const where: Record<string, unknown> = {};
-    if (status) where.status = status;
+    if (status && status !== 'all') where.status = status;
 
     const transferRequests = await prisma.transferRequest.findMany({
       where,
@@ -85,12 +85,26 @@ router.get('/', secureAdminAuthMiddleware, async (req: AuthRequest, res: Respons
     });
 
     // Parse medications JSON for each request
-    const parsedRequests = transferRequests.map(request => ({
-      ...request,
-      medications: JSON.parse(request.medications)
-    }));
+    const parsedRequests = transferRequests.map(request => {
+      try {
+        return {
+          ...request,
+          medications: typeof request.medications === 'string' ? JSON.parse(request.medications) : request.medications
+        };
+      } catch (parseError) {
+        console.warn(`Failed to parse medications for request ${request.id}:`, parseError);
+        return {
+          ...request,
+          medications: request.medications // Return as-is if parsing fails
+        };
+      }
+    });
 
-    res.json(parsedRequests);
+    res.json({
+      success: true,
+      data: parsedRequests,
+      message: 'Transfer requests retrieved successfully'
+    });
   } catch (err) {
     console.error('Error fetching transfer requests:', err);
     res.status(500).json({ error: 'Failed to fetch transfer requests' });
@@ -98,7 +112,7 @@ router.get('/', secureAdminAuthMiddleware, async (req: AuthRequest, res: Respons
 });
 
 // Admin: get specific transfer request
-router.get('/:id', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
+router.get('/:id', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -119,10 +133,21 @@ router.get('/:id', secureAdminAuthMiddleware, async (req: AuthRequest, res: Resp
       return res.status(404).json({ error: 'Transfer request not found' });
     }
 
-    // Parse medications JSON
+    // Parse medications JSON safely
+    let parsedMedications = transferRequest.medications;
+    if (typeof transferRequest.medications === 'string') {
+      try {
+        parsedMedications = JSON.parse(transferRequest.medications);
+      } catch (parseError) {
+        console.warn(`Failed to parse medications for request ${transferRequest.id}:`, parseError);
+        // Keep as string if parsing fails
+        parsedMedications = transferRequest.medications;
+      }
+    }
+
     const parsedRequest = {
       ...transferRequest,
-      medications: JSON.parse(transferRequest.medications)
+      medications: parsedMedications
     };
 
     res.json(parsedRequest);
@@ -133,7 +158,7 @@ router.get('/:id', secureAdminAuthMiddleware, async (req: AuthRequest, res: Resp
 });
 
 // Admin: update transfer request status
-router.put('/:id', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
+router.put('/:id', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -143,11 +168,6 @@ router.put('/:id', secureAdminAuthMiddleware, async (req: AuthRequest, res: Resp
     const updateData: Record<string, unknown> = {};
     if (status) updateData.status = status;
     if (notes !== undefined) updateData.notes = notes;
-    if (status === 'completed' && !completedDate) {
-      updateData.completedDate = new Date();
-    } else if (completedDate) {
-      updateData.completedDate = new Date(completedDate);
-    }
 
     const transferRequest = await prisma.transferRequest.update({
       where: { id },
@@ -169,10 +189,21 @@ router.put('/:id', secureAdminAuthMiddleware, async (req: AuthRequest, res: Resp
       data: { notified: true }
     });
 
-    // Parse medications JSON
+    // Parse medications JSON safely
+    let parsedMedications = transferRequest.medications;
+    if (typeof transferRequest.medications === 'string') {
+      try {
+        parsedMedications = JSON.parse(transferRequest.medications);
+      } catch (parseError) {
+        console.warn(`Failed to parse medications for request ${transferRequest.id}:`, parseError);
+        // Keep as string if parsing fails
+        parsedMedications = transferRequest.medications;
+      }
+    }
+
     const parsedRequest = {
       ...transferRequest,
-      medications: JSON.parse(transferRequest.medications)
+      medications: parsedMedications
     };
 
     res.json(parsedRequest);
@@ -183,7 +214,7 @@ router.put('/:id', secureAdminAuthMiddleware, async (req: AuthRequest, res: Resp
 });
 
 // Admin: delete transfer request
-router.delete('/:id', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
+router.delete('/:id', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -199,7 +230,7 @@ router.delete('/:id', secureAdminAuthMiddleware, async (req: AuthRequest, res: R
 });
 
 // Admin: get transfer request statistics
-router.get('/stats/overview', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
+router.get('/stats/overview', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -224,10 +255,20 @@ router.get('/stats/overview', secureAdminAuthMiddleware, async (req: AuthRequest
     });
 
     // Parse medications JSON for recent requests
-    const parsedRecentRequests = recentRequests.map(request => ({
-      ...request,
-      medications: JSON.parse(request.medications)
-    }));
+    const parsedRecentRequests = recentRequests.map(request => {
+      try {
+        return {
+          ...request,
+          medications: typeof request.medications === 'string' ? JSON.parse(request.medications) : request.medications
+        };
+      } catch (parseError) {
+        console.warn(`Failed to parse medications for request ${request.id}:`, parseError);
+        return {
+          ...request,
+          medications: request.medications // Return as-is if parsing fails
+        };
+      }
+    });
 
     res.json({
       total,
@@ -243,7 +284,7 @@ router.get('/stats/overview', secureAdminAuthMiddleware, async (req: AuthRequest
 });
 
 // Create new transfer request (admin only)
-router.post('/admin/create', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
+router.post('/admin/create', authenticateAdmin, async (req: Request, res: Response) => {
   try {
     const { 
       userId, 

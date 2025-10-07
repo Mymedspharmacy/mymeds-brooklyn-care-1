@@ -5,7 +5,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import nodemailer from 'nodemailer';
-import { unifiedAdminAuth } from './auth';
+import { authenticateAdmin } from '../middleware/auth';
 
 import { AuthRequest } from '../types/express';
 
@@ -101,6 +101,21 @@ router.post('/refill', upload.single('file'), async (req: Request, res: Response
         instructions: 'PENDING_REFILL'
       }
     });
+
+    // Also create a proper RefillRequest record for admin panel
+    const refillRequest = await prisma.refillRequest.create({
+      data: {
+        userId: defaultUser.id,
+        medication: medication,
+        dosage: `Prescription #: ${prescriptionNumber}\nCurrent Pharmacy: ${pharmacy || 'Not specified'}`,
+        quantity: 30, // Default quantity
+        urgency: 'normal',
+        notes: `Patient: ${firstName} ${lastName}\nPhone: ${phone}\nEmail: ${email || 'Not provided'}\nPrescription File: ${req.file.filename}\nAdditional Notes: ${notes || 'None'}`,
+        status: 'pending',
+        requestedDate: new Date(),
+        notified: false
+      }
+    });
     
     // Send notification email
     try {
@@ -120,6 +135,7 @@ router.post('/refill', upload.single('file'), async (req: Request, res: Response
       success: true, 
       message: 'Refill request submitted successfully',
       prescriptionId: prescription.id,
+      refillRequestId: refillRequest.id,
       fileName: req.file.filename
     });
   } catch (err) {
@@ -169,6 +185,24 @@ router.post('/transfer', upload.single('file'), async (req: Request, res: Respon
         instructions: 'PENDING_TRANSFER'
       }
     });
+
+    // Also create a proper TransferRequest record for admin panel
+    const transferRequest = await prisma.transferRequest.create({
+      data: {
+        userId: defaultUser.id,
+        fromPharmacy: currentPharmacy || 'Not specified',
+        toPharmacy: 'MyMeds Pharmacy',
+        currentPharmacy: currentPharmacy || 'Not specified',
+        medication: medication,
+        medications: medication, // Store as string for now
+        dosage: `Prescription #: ${prescriptionNumber || 'Not provided'}`,
+        quantity: 30, // Default quantity
+        notes: `Patient: ${firstName} ${lastName}\nPhone: ${phone}\nEmail: ${email || 'Not provided'}\nPrescription File: ${req.file ? req.file.filename : 'Not uploaded'}\nAdditional Notes: ${notes || 'None'}`,
+        status: 'pending',
+        requestedDate: new Date(),
+        notified: false
+      }
+    });
     
     // Send notification email
     try {
@@ -188,6 +222,7 @@ router.post('/transfer', upload.single('file'), async (req: Request, res: Respon
       success: true, 
       message: 'Transfer request submitted successfully',
       prescriptionId: prescription.id,
+      transferRequestId: transferRequest.id,
       fileName: req.file ? req.file.filename : null
     });
   } catch (err) {
@@ -197,7 +232,7 @@ router.post('/transfer', upload.single('file'), async (req: Request, res: Respon
 });
 
 // User: create prescription (authenticated users)
-router.post('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+router.post('/', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const { medication, dosage, instructions } = req.body;
     const prescription = await prisma.prescription.create({
@@ -217,7 +252,7 @@ router.post('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
 });
 
 // User: get own prescriptions
-router.get('/my', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+router.get('/my', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const prescriptions = await prisma.prescription.findMany({ where: { userId: parseInt(req.user.userId) } });
     res.json(prescriptions);
@@ -228,7 +263,7 @@ router.get('/my', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
 });
 
 // Admin: get all prescriptions
-router.get('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+router.get('/', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     let limit = parseInt(req.query.limit as string) || 20;
@@ -242,7 +277,7 @@ router.get('/', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
 });
 
 // Admin: delete prescription
-router.delete('/:id', unifiedAdminAuth, async (req: AuthRequest, res: Response) => {
+router.delete('/:id', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     await prisma.prescription.delete({ where: { id: Number(req.params.id) } });

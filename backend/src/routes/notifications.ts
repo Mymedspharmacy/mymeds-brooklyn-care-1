@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { secureAdminAuthMiddleware } from '../services/SecureAdminAuth';
+import { authenticateAdmin } from '../middleware/auth';
 import { io } from '../index';
 import { AuthRequest } from '../types/express';
 import { hasProperty } from '../core/utils/typeGuards';
@@ -106,7 +106,7 @@ export async function triggerSystemNotification(event: string, data: unknown) {
 }
 
 // Admin: get all notifications
-router.get('/', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
+router.get('/', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -131,7 +131,7 @@ router.get('/', secureAdminAuthMiddleware, async (req: AuthRequest, res: Respons
 });
 
 // Admin: get unread notifications count
-router.get('/unread-count', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
+router.get('/unread-count', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -147,7 +147,7 @@ router.get('/unread-count', secureAdminAuthMiddleware, async (req: AuthRequest, 
 });
 
 // Admin: mark notification as read
-router.put('/:id/read', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
+router.put('/:id/read', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -164,7 +164,7 @@ router.put('/:id/read', secureAdminAuthMiddleware, async (req: AuthRequest, res:
 });
 
 // Admin: mark all notifications as read
-router.put('/mark-all-read', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
+router.put('/mark-all-read', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -181,7 +181,7 @@ router.put('/mark-all-read', secureAdminAuthMiddleware, async (req: AuthRequest,
 });
 
 // Admin: delete notification
-router.delete('/:id', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
+router.delete('/:id', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -197,7 +197,7 @@ router.delete('/:id', secureAdminAuthMiddleware, async (req: AuthRequest, res: R
 });
 
 // ✅ IMPLEMENTED: Create notification endpoint
-router.post('/create', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
+router.post('/create', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
@@ -224,7 +224,7 @@ router.post('/create', secureAdminAuthMiddleware, async (req: AuthRequest, res: 
 });
 
 // Admin: get notification statistics
-router.get('/stats/overview', secureAdminAuthMiddleware, async (req: AuthRequest, res: Response) => {
+router.get('/stats/overview', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
     
