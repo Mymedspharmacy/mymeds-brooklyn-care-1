@@ -1,8 +1,8 @@
 // =============================================================================
-// PRODUCTION PRISMA SCHEMA - MYSQL DATABASE
+// UPDATED PRISMA SCHEMA - ACCURATE TO SYSTEM REQUIREMENTS
 // =============================================================================
 // MyMeds Pharmacy Inc. - Production Database Schema
-// Generated: September 23, 2025
+// Updated: December 2024
 // =============================================================================
 
 generator client {
@@ -11,7 +11,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql" // SQLite for development
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -24,7 +24,7 @@ model User {
   email         String    @unique
   name          String?
   password      String
-  role          String    @default("USER")
+  role          String    @default("USER") // USER, ADMIN, CUSTOMER
   phone         String?
   permissions   String?
   isActive      Boolean   @default(true)
@@ -49,49 +49,37 @@ model User {
 }
 
 // =============================================================================
-// PRODUCT MANAGEMENT
+// LOCATION MANAGEMENT
 // =============================================================================
 
-model Category {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  products Product[]
-
-  @@map("categories")
-}
-
-model Product {
+model Location {
   id            Int      @id @default(autoincrement())
   name          String
+  address       String
+  city          String
+  state         String
+  zipCode       String
+  country       String   @default("USA")
+  phone         String?
+  email         String?
+  latitude      Float?
+  longitude     Float?
+  businessHours String?
+  coordinates   String?  // JSON string for coordinates
+  services      String?  // JSON string for services array
   description   String?
-  price         Float
-  stock         Int      @default(0)
   imageUrl      String?
-  categoryId    Int
-  averageRating Float    @default(0)
-  reviewCount   Int      @default(0)
+  notes         String?
+  isActive      Boolean  @default(true)
+  isPrimary     Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  // Relations
-  category   Category         @relation(fields: [categoryId], references: [id])
-  orderItems OrderItem[]
-  reviews    Review[]
-  cartItems  CartItem[]
-  images     ProductImage[]
-  variants   ProductVariant[]
-  inventoryMovements InventoryMovement[]
-
-  @@map("products")
+  @@map("locations")
 }
 
 // =============================================================================
-// ORDER MANAGEMENT
+// ORDER MANAGEMENT (WooCommerce Integration)
 // =============================================================================
 
 model Order {
@@ -141,6 +129,78 @@ model OrderItem {
 }
 
 // =============================================================================
+// PRODUCT MANAGEMENT
+// =============================================================================
+
+model Category {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id            Int      @id @default(autoincrement())
+  name          String
+  description   String?
+  price         Float
+  stock         Int      @default(0)
+  imageUrl      String?
+  categoryId    Int
+  averageRating Float    @default(0)
+  reviewCount   Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  category   Category         @relation(fields: [categoryId], references: [id])
+  orderItems OrderItem[]
+  reviews    Review[]
+  cartItems  CartItem[]
+  images     ProductImage[]
+  variants   ProductVariant[]
+  inventoryMovements InventoryMovement[]
+
+  @@map("products")
+}
+
+model ProductImage {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  url       String
+  alt       String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  // Relations
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("product_images")
+}
+
+model ProductVariant {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  name      String
+  value     String
+  price     Float?
+  stock     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("product_variants")
+}
+
+// =============================================================================
 // PRESCRIPTION MANAGEMENT
 // =============================================================================
 
@@ -186,6 +246,59 @@ model Appointment {
   user User? @relation(fields: [userId], references: [id])
 
   @@map("appointments")
+}
+
+// =============================================================================
+// REFILL & TRANSFER REQUESTS
+// =============================================================================
+
+model RefillRequest {
+  id            Int       @id @default(autoincrement())
+  userId        Int?
+  patientName   String
+  email         String
+  phone         String?
+  medication    String
+  dosage        String
+  quantity      Int
+  urgency       String    @default("normal")
+  status        String    @default("pending")
+  notes         String?
+  requestedDate DateTime?
+  notified      Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("refill_requests")
+}
+
+model TransferRequest {
+  id              Int       @id @default(autoincrement())
+  userId          Int?
+  patientName     String
+  email           String
+  phone           String?
+  fromPharmacy    String
+  toPharmacy      String
+  currentPharmacy String?
+  medication      String
+  medications     String?   // JSON string for multiple medications
+  dosage          String
+  quantity        Int
+  status          String    @default("pending")
+  notes           String?
+  requestedDate   DateTime?
+  notified        Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("transfer_requests")
 }
 
 // =============================================================================
@@ -305,21 +418,34 @@ model WordPressSettings {
 }
 
 // =============================================================================
-// ADDITIONAL MODELS FOR FULL FUNCTIONALITY
+// PATIENT PROFILE
 // =============================================================================
 
-model Blog {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String
-  author    String
-  slug      String   @unique
-  status    String   @default("draft")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model PatientProfile {
+  id               Int       @id @default(autoincrement())
+  userId           Int       @unique
+  firstName        String
+  lastName         String
+  dateOfBirth      DateTime?
+  phone            String?
+  address          String?
+  emergencyContact String?
+  allergies        String?
+  medications      String?
+  medicalHistory   String?
+  ssn              String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
-  @@map("blogs")
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("patient_profiles")
 }
+
+// =============================================================================
+// CART MANAGEMENT
+// =============================================================================
 
 model Cart {
   id        Int       @id @default(autoincrement())
@@ -347,147 +473,6 @@ model CartItem {
   product Product @relation(fields: [productId], references: [id])
 
   @@map("cart_items")
-}
-
-model Notification {
-  id        Int      @id @default(autoincrement())
-  userId    Int?
-  title     String
-  message   String
-  type      String   @default("info")
-  data      String?
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
-
-  @@map("notifications")
-}
-
-model RefillRequest {
-  id            Int       @id @default(autoincrement())
-  userId        Int
-  medication    String
-  dosage        String
-  quantity      Int
-  urgency       String    @default("normal")
-  status        String    @default("pending")
-  notes         String?
-  requestedDate DateTime?
-  notified      Boolean   @default(false)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  // Relations
-  user User @relation(fields: [userId], references: [id])
-
-  @@map("refill_requests")
-}
-
-model TransferRequest {
-  id              Int       @id @default(autoincrement())
-  userId          Int
-  fromPharmacy    String
-  toPharmacy      String
-  currentPharmacy String?
-  medication      String
-  medications     String?
-  dosage          String
-  quantity        Int
-  status          String    @default("pending")
-  notes           String?
-  requestedDate   DateTime?
-  notified        Boolean   @default(false)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-
-  // Relations
-  user User @relation(fields: [userId], references: [id])
-
-  @@map("transfer_requests")
-}
-
-model Settings {
-  id            Int      @id @default(autoincrement())
-  key           String   @unique
-  value         String
-  siteName      String?
-  contactEmail  String?
-  contactPhone  String?
-  address       String?
-  businessHours String?
-  facebook      String?
-  instagram     String?
-  twitter       String?
-  updatedAt     DateTime @updatedAt
-
-  @@map("settings")
-}
-
-model PatientProfile {
-  id               Int       @id @default(autoincrement())
-  userId           Int       @unique
-  firstName        String
-  lastName         String
-  dateOfBirth      DateTime?
-  phone            String?
-  address          String?
-  emergencyContact String?
-  allergies        String?
-  medications      String?
-  medicalHistory   String?
-  ssn              String?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-
-  // Relations
-  user User @relation(fields: [userId], references: [id])
-
-  @@map("patient_profiles")
-}
-
-model ProductImage {
-  id        Int      @id @default(autoincrement())
-  productId Int
-  url       String
-  alt       String?
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
-
-  // Relations
-  product Product @relation(fields: [productId], references: [id])
-
-  @@map("product_images")
-}
-
-model ProductVariant {
-  id        Int      @id @default(autoincrement())
-  productId Int
-  name      String
-  value     String
-  price     Float?
-  stock     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  product Product @relation(fields: [productId], references: [id])
-
-  @@map("product_variants")
-}
-
-model GuestOrderTracking {
-  id             Int      @id @default(autoincrement())
-  orderNumber    String   @unique
-  orderId        Int?
-  email          String
-  status         String   @default("pending")
-  trackingNumber String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  // Relations
-  order Order? @relation(fields: [orderId], references: [id], onDelete: Cascade)
-
-  @@map("guest_order_tracking")
 }
 
 // =============================================================================
@@ -567,36 +552,6 @@ model InventoryMovement {
 }
 
 // =============================================================================
-// LOCATION MANAGEMENT
-// =============================================================================
-
-model Location {
-  id            Int      @id @default(autoincrement())
-  name          String
-  address       String
-  city          String
-  state         String
-  zipCode       String
-  country       String   @default("USA")
-  phone         String?
-  email         String?
-  latitude      Float?
-  longitude     Float?
-  businessHours String?
-  coordinates   String?
-  services      String?
-  description   String?
-  imageUrl      String?
-  notes         String?
-  isActive      Boolean  @default(true)
-  isPrimary     Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  @@map("locations")
-}
-
-// =============================================================================
 // CRM MANAGEMENT
 // =============================================================================
 
@@ -617,55 +572,23 @@ model CustomerInteraction {
 }
 
 // =============================================================================
-// ANALYTICS & REPORTING
-// =============================================================================
-
-model AnalyticsEvent {
-  id          Int      @id @default(autoincrement())
-  eventType   String   // 'page_view', 'order', 'signup', 'contact', 'refill', 'transfer'
-  eventData   String   // JSON string of event data
-  userId      Int?
-  sessionId   String?
-  ipAddress   String?
-  userAgent   String?
-  createdAt   DateTime @default(now())
-
-  @@map("analytics_events")
-}
-
-model DailyStats {
-  id            Int      @id @default(autoincrement())
-  date          DateTime @unique
-  totalOrders   Int      @default(0)
-  totalRevenue  Float    @default(0)
-  totalUsers    Int      @default(0)
-  totalProducts Int      @default(0)
-  totalContacts Int      @default(0)
-  totalRefills  Int      @default(0)
-  totalTransfers Int     @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  @@map("daily_stats")
-}
-
-// =============================================================================
 // DELIVERY & TRACKING
 // =============================================================================
 
-model DeliveryZone {
-  id          Int      @id @default(autoincrement())
-  name        String
-  description String?
-  coordinates String   // JSON array of coordinates
-  radius      Float    // Delivery radius in miles
-  deliveryFee Float    @default(0)
-  minOrder    Float    @default(0)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model GuestOrderTracking {
+  id             Int      @id @default(autoincrement())
+  orderNumber    String   @unique
+  orderId        Int?
+  email          String
+  status         String   @default("pending")
+  trackingNumber String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  @@map("delivery_zones")
+  // Relations
+  order Order? @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("guest_order_tracking")
 }
 
 model DeliveryTracking {
@@ -689,8 +612,61 @@ model DeliveryTracking {
   @@map("delivery_tracking")
 }
 
+model DeliveryZone {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  coordinates String   // JSON array of coordinates
+  radius      Float    // Delivery radius in miles
+  deliveryFee Float    @default(0)
+  minOrder    Float    @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("delivery_zones")
+}
+
 // =============================================================================
-// EMAIL & NOTIFICATIONS
+// SYSTEM SETTINGS
+// =============================================================================
+
+model Settings {
+  id            Int      @id @default(autoincrement())
+  key           String   @unique
+  value         String
+  siteName      String?
+  contactEmail  String?
+  contactPhone  String?
+  address       String?
+  businessHours String?
+  facebook      String?
+  instagram     String?
+  twitter       String?
+  updatedAt     DateTime @updatedAt
+
+  @@map("settings")
+}
+
+// =============================================================================
+// NOTIFICATIONS
+// =============================================================================
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  title     String
+  message   String
+  type      String   @default("info")
+  data      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("notifications")
+}
+
+// =============================================================================
+// EMAIL MANAGEMENT
 // =============================================================================
 
 model EmailTemplate {
@@ -725,6 +701,39 @@ model EmailLog {
   template EmailTemplate? @relation(fields: [templateId], references: [id])
 
   @@map("email_logs")
+}
+
+// =============================================================================
+// ANALYTICS & REPORTING
+// =============================================================================
+
+model AnalyticsEvent {
+  id          Int      @id @default(autoincrement())
+  eventType   String   // 'page_view', 'order', 'signup', 'contact', 'refill', 'transfer'
+  eventData   String   // JSON string of event data
+  userId      Int?
+  sessionId   String?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  @@map("analytics_events")
+}
+
+model DailyStats {
+  id            Int      @id @default(autoincrement())
+  date          DateTime @unique
+  totalOrders   Int      @default(0)
+  totalRevenue  Float    @default(0)
+  totalUsers    Int      @default(0)
+  totalProducts Int      @default(0)
+  totalContacts Int      @default(0)
+  totalRefills  Int      @default(0)
+  totalTransfers Int     @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("daily_stats")
 }
 
 // =============================================================================
