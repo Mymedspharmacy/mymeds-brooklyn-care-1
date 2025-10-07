@@ -47,6 +47,7 @@ import cartRoutes from './routes/cart';
 import inventoryRoutes from './routes/inventory';
 import crmRoutes from './routes/crm';
 import medicationGuidesRoutes from './routes/medicationGuides';
+import medicationsRoutes from './routes/medications';
 import hpp from 'hpp';
 import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
@@ -540,6 +541,7 @@ app.use('/api/cart', currentLimiter, cartRoutes);
 app.use('/api/inventory', currentLimiter, inventoryRoutes);
 app.use('/api/crm', currentLimiter, crmRoutes);
 app.use('/api/medication-guides', currentLimiter, medicationGuidesRoutes);
+app.use('/api/medications', currentLimiter, medicationsRoutes);
 
 // Notification endpoints
 app.get('/api/notifications', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
