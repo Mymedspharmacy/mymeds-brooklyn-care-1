@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { HowItWorks } from "@/components/HowItWorks";
 import { SEOHead } from "@/components/SEOHead";
+import { redirectToShop } from "@/utils/shopRedirect";
 
 interface ServicesProps {
   onRefillClick: () => void;
@@ -427,7 +428,7 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
                   </Button>
                   
                   <Button 
-                    onClick={() => window.location.href = '/shop'}
+                    onClick={() => redirectToShop()}
                     variant="outline"
                     className="border-white text-white hover:bg-white hover:text-[#57BBB6] font-bold px-8 py-4 rounded-xl text-lg"
                   >

@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from "react";
 import { Menu, X, Phone, Pill, ArrowRight, ShoppingCart, User, Truck, Shield, Users, Stethoscope, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { redirectToShop } from "@/utils/shopRedirect";
 import logo from "@/assets/logo.png";
 
 interface HeaderProps {
@@ -219,7 +220,7 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
             </Button>
             
             <Button 
-              onClick={() => navigate('/shop')}
+              onClick={() => redirectToShop()}
               className="bg-[#376F6B] text-white font-semibold px-4 py-2 rounded hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-colors"
             >
               Shop
@@ -303,7 +304,7 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
                     <button onClick={() => { navigate('/patient-resources'); setIsMenuOpen(false); }} className="block text-sm text-[#376F6B] hover:text-[#D5C6BC] py-2 px-3 rounded-lg hover:bg-[#57BBB6]/10 transition-all duration-200 text-left w-full">
                       Patient Resources
                     </button>
-                    <button onClick={() => { navigate('/shop'); setIsMenuOpen(false); }} className="block text-sm text-[#376F6B] hover:text-[#D5C6BC] py-2 px-3 rounded-lg hover:bg-[#57BBB6]/10 transition-all duration-200 text-left w-full">
+                    <button onClick={() => { redirectToShop(); setIsMenuOpen(false); }} className="block text-sm text-[#376F6B] hover:text-[#D5C6BC] py-2 px-3 rounded-lg hover:bg-[#57BBB6]/10 transition-all duration-200 text-left w-full">
                       Shop Products
                     </button>
                     <button onClick={() => { navigate('/admin-signin'); setIsMenuOpen(false); }} className="block text-sm text-[#376F6B] hover:text-[#D5C6BC] py-2 px-3 rounded-lg hover:bg-[#57BBB6]/10 transition-all duration-200 text-left w-full">

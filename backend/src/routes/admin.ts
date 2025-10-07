@@ -84,6 +84,36 @@ router.post('/login', async (req: Request, res: Response) => {
   }
 });
 
+// Admin profile endpoint
+router.get('/profile', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    
+    if (!user) {
+      return res.status(401).json({
+        error: 'User not authenticated',
+        code: 'NOT_AUTHENTICATED'
+      });
+    }
+
+    res.json({
+      success: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role
+      }
+    });
+  } catch (error: unknown) {
+    console.error('Admin profile error:', error);
+    res.status(500).json({
+      error: 'Failed to get profile',
+      code: 'PROFILE_ERROR'
+    });
+  }
+});
+
 // Admin logout endpoint
 router.post('/logout', secureAdminAuthMiddleware, async (req: Request, res: Response) => {
   try {

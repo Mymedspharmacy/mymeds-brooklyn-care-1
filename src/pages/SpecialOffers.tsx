@@ -9,6 +9,7 @@ import { Footer } from "@/components/Footer";
 import { HowItWorks } from "@/components/HowItWorks";
 import { getPhoneNumber, getEmail, getTelLink, getMailtoLink } from "@/lib/contact";
 import { SEOHead } from "@/components/SEOHead";
+import { redirectToShop } from "@/utils/shopRedirect";
 
 export default function SpecialOffers() {
   const navigate = useNavigate();
@@ -265,8 +266,8 @@ export default function SpecialOffers() {
           navigate('/', { state: { openRefillForm: true } });
           break;
         case 'shop':
-          console.log('Navigating to shop...');
-          navigate('/shop');
+          console.log('Opening WooCommerce store...');
+          redirectToShop();
           break;
         case 'appointment':
           console.log('Navigating to appointment form...');

@@ -201,7 +201,7 @@ const BlogPost = () => {
  } 
 
   return (
-    <div className="min-h-screen bg-[#D5C6BC]">
+    <div className="min-h-screen bg-gradient-to-br from-[#D5C6BC] via-[#F1EEE9] to-[#E8F4F3]">
       <Header 
         onRefillClick={() => navigate('/patient-portal')}
         onAppointmentClick={() => navigate('/contact')}
@@ -209,75 +209,85 @@ const BlogPost = () => {
       />
       
       <div className="pt-20">
-        <div className="container mx-auto px-4 py-8">
-          <div className="max-w-4xl mx-auto">
-            {/* Back Button */}
+        <div className="container mx-auto px-4 py-12">
+          <div className="max-w-5xl mx-auto">
+            {/* Enhanced Back Button */}
             <Button 
               variant="ghost" 
               onClick={() => navigate('/blog')}
-              className="mb-8 text-[#57BBB6] hover:text-[#376F6B] hover:bg-[#57BBB6]/10"
+              className="mb-12 text-[#57BBB6] hover:text-[#376F6B] hover:bg-[#57BBB6]/10 rounded-xl px-6 py-3 text-lg font-semibold transition-all duration-300 transform hover:scale-105"
             >
-              <ArrowLeft className="h-4 w-4 mr-2" />
+              <ArrowLeft className="h-5 w-5 mr-3" />
               Back to Blog
             </Button>
 
-            {/* Post Header */}
-            <div className="mb-8">
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-                {stripHtml(post.title?.rendered || 'Untitled Post')}
-              </h1>
-              
-              {/* Meta Information */}
-              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-6">
-                {author && (
-                  <div className="flex items-center gap-1">
-                    <User className="h-4 w-4" />
-                    <span>{author.name}</span>
+            {/* Enhanced Post Header */}
+            <div className="mb-12 text-center">
+              <div className="bg-white/95 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-white/20">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-800 mb-8 leading-tight bg-gradient-to-r from-[#376F6B] to-[#57BBB6] bg-clip-text text-transparent">
+                  {stripHtml(post.title?.rendered || 'Untitled Post')}
+                </h1>
+                
+                {/* Enhanced Meta Information */}
+                <div className="flex flex-wrap items-center justify-center gap-6 text-base text-gray-600 mb-8">
+                  {author && (
+                    <div className="flex items-center gap-3 bg-[#57BBB6]/10 rounded-full px-4 py-2">
+                      <div className="w-8 h-8 bg-[#57BBB6] rounded-full flex items-center justify-center">
+                        <User className="h-4 w-4 text-white" />
+                      </div>
+                      <span className="font-semibold">{author.name}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-3 bg-[#376F6B]/10 rounded-full px-4 py-2">
+                    <div className="w-8 h-8 bg-[#376F6B] rounded-full flex items-center justify-center">
+                      <Calendar className="h-4 w-4 text-white" />
+                    </div>
+                    <span className="font-semibold">{formatDate(post.date)}</span>
                   </div>
-                )}
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-4 w-4" />
-                  <span>{formatDate(post.date)}</span>
+                  <div className="flex items-center gap-3 bg-[#87E5E0]/20 rounded-full px-4 py-2">
+                    <div className="w-8 h-8 bg-[#87E5E0] rounded-full flex items-center justify-center">
+                      <Clock className="h-4 w-4 text-[#376F6B]" />
+                    </div>
+                    <span className="font-semibold">{getReadTime(post.content?.rendered)}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Clock className="h-4 w-4" />
-                  <span>{getReadTime(post.content?.rendered)}</span>
-                </div>
-              </div>
 
-              {/* Categories and Tags */}
-              <div className="flex flex-wrap gap-2 mb-6">
-                {categories.map((category) => (
-                  <Badge key={category.id} variant="secondary" className="bg-[#57BBB6]/10 text-[#376F6B]">
-                    {category.name}
-                  </Badge>
-                ))}
-                {tags.map((tag) => (
-                  <Badge key={tag.id} variant="outline" className="border-[#57BBB6] text-[#57BBB6]">
-                    <Tag className="h-3 w-3 mr-1" />
-                    {tag.name}
-                  </Badge>
-                ))}
+                {/* Enhanced Categories and Tags */}
+                <div className="flex flex-wrap justify-center gap-3 mb-8">
+                  {categories.map((category) => (
+                    <Badge key={category.id} className="bg-[#57BBB6] text-white border-0 px-4 py-2 text-sm font-semibold shadow-lg">
+                      {category.name}
+                    </Badge>
+                  ))}
+                  {tags.map((tag) => (
+                    <Badge key={tag.id} variant="outline" className="border-2 border-[#57BBB6] text-[#57BBB6] px-4 py-2 text-sm font-semibold">
+                      <Tag className="h-4 w-4 mr-2" />
+                      {tag.name}
+                    </Badge>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* Post Content */}
-            <Card className="mb-8">
-              <CardContent className="p-8">
-                <SafeContentRenderer 
-                  content={post.content?.rendered || 'No content available.'}
-                  className="blog-content prose prose-lg max-w-none text-gray-700"
-                />
+            {/* Enhanced Post Content */}
+            <Card className="mb-12 shadow-2xl border-0 overflow-hidden">
+              <CardContent className="p-12 bg-white/95 backdrop-blur-sm">
+                <div className="prose prose-xl max-w-none text-gray-700 leading-relaxed">
+                  <SafeContentRenderer 
+                    content={post.content?.rendered || 'No content available.'}
+                    className="blog-content"
+                  />
+                </div>
               </CardContent>
             </Card>
 
-            {/* Back to Blog Button */}
+            {/* Enhanced Back to Blog Button */}
             <div className="text-center">
               <Button 
                 onClick={() => navigate('/blog')}
-                className="bg-[#57BBB6] hover:bg-[#376F6B] text-white"
+                className="bg-gradient-to-r from-[#57BBB6] to-[#376F6B] hover:from-[#376F6B] hover:to-[#57BBB6] text-white px-8 py-4 rounded-2xl text-lg font-bold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
               >
-                <ArrowLeft className="h-4 w-4 mr-2" />
+                <ArrowLeft className="h-5 w-5 mr-3" />
                 Back to All Posts
               </Button>
             </div>

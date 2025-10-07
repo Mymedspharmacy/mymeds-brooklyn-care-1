@@ -2013,6 +2013,7 @@ router.post('/orders', async (req: Request, res: Response) => {
       const dbOrder = await prisma.order.create({
         data: {
           wooCommerceId: order.id,
+          orderNumber: order.number || order.id?.toString() || `WC-${Date.now()}`,
           status: order.status || 'pending',
           total: parseFloat(order.total || '0'),
           currency: order.currency || 'USD',

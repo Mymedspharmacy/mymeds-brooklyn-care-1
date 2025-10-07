@@ -150,35 +150,38 @@ const ShopSection: React.FC = () => {
         </p>
       </div>
 
-      {/* Category Filter */}
-      <div className="flex flex-wrap justify-center gap-4 mb-8">
-        <button
-          onClick={() => setSelectedCategory('all')}
-          className={`px-4 py-2 rounded-full transition-colors duration-200 ${
-            selectedCategory === 'all'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-          }`}
-        >
-          All Products
-        </button>
-        {categories.map((category) => (
+      {/* Category Filter - Mobile Optimized */}
+      <div className="mb-8">
+        {/* Mobile: Horizontal scrollable filter */}
+        <div className="flex overflow-x-auto gap-2 pb-2 sm:pb-0 sm:flex-wrap sm:justify-center">
           <button
-            key={category.id}
-            onClick={() => setSelectedCategory(category.slug)}
-            className={`px-4 py-2 rounded-full transition-colors duration-200 ${
-              selectedCategory === category.slug
+            onClick={() => setSelectedCategory('all')}
+            className={`flex-shrink-0 px-4 py-2 rounded-full transition-colors duration-200 text-sm sm:text-base min-h-[44px] ${
+              selectedCategory === 'all'
                 ? 'bg-blue-600 text-white'
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
-            {category.name}
+            All Products
           </button>
-        ))}
+          {categories.map((category) => (
+            <button
+              key={category.id}
+              onClick={() => setSelectedCategory(category.slug)}
+              className={`flex-shrink-0 px-4 py-2 rounded-full transition-colors duration-200 text-sm sm:text-base min-h-[44px] ${
+                selectedCategory === category.slug
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              {category.name}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Products Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {/* Products Grid - Mobile First Responsive */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
         {products.map((product) => (
           <div key={product.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
             <div className="relative">
@@ -205,23 +208,23 @@ const ShopSection: React.FC = () => {
               )}
             </div>
             
-            <div className="p-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+            <div className="p-4 flex flex-col h-full">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 line-clamp-2 flex-shrink-0">
                 {product.name}
               </h3>
               
-              <div className="mb-3">
+              <div className="mb-3 flex-shrink-0">
                 {product.on_sale ? (
                   <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-red-600">
+                    <span className="text-base sm:text-lg font-bold text-red-600">
                       {formatPrice(product.sale_price)}
                     </span>
-                    <span className="text-sm text-gray-500 line-through">
+                    <span className="text-xs sm:text-sm text-gray-500 line-through">
                       {formatPrice(product.regular_price)}
                     </span>
                   </div>
                 ) : (
-                  <span className="text-lg font-bold text-gray-900">
+                  <span className="text-base sm:text-lg font-bold text-gray-900">
                     {formatPrice(product.price)}
                   </span>
                 )}
@@ -259,13 +262,15 @@ const ShopSection: React.FC = () => {
               <button
                 onClick={() => handleAddToCart(product)}
                 disabled={product.stock_status !== 'instock'}
-                className={`w-full py-2 px-4 rounded-md font-medium transition-colors duration-200 ${
+                className={`w-full py-3 px-4 rounded-md font-medium transition-colors duration-200 min-h-[44px] flex items-center justify-center mt-auto ${
                   product.stock_status !== 'instock'
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                    : 'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800'
                 }`}
               >
-                {product.stock_status !== 'instock' ? 'Out of Stock' : 'Add to Cart'}
+                <span className="text-sm sm:text-base">
+                  {product.stock_status !== 'instock' ? 'Out of Stock' : 'Add to Cart'}
+                </span>
               </button>
             </div>
           </div>
@@ -280,7 +285,9 @@ const ShopSection: React.FC = () => {
 
       <div className="text-center mt-12">
         <a
-          href="/shop"
+          href="https://mymedspharmacyinc.com/shop"
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200"
         >
           View All Products

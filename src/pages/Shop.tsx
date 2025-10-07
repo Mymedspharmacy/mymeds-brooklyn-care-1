@@ -1,983 +1,131 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Search, Filter, ShoppingCart, Heart, Star, Eye, Package, Truck, Shield, Clock, CheckCircle, ArrowRight, Minus, Plus, Home, Baby, Loader2 } from "lucide-react";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import { NewsTicker } from "@/components/NewsTicker";
+import { useEffect, useState } from "react";
+import { redirectToShopSameTab, getShopUrl } from "@/utils/shopRedirect";
 import { SEOHead } from "@/components/SEOHead";
-import { wooCommerceAPI } from "@/lib/woocommerce";
-import { WooCommerceCheckoutModal } from '@/components/WooCommerceCheckoutModal';
-import WooCommerceCartService, { WooCommerceCart, WooCommerceCartItem } from "@/lib/woocommerceCart";
-
-interface WooCommerceProduct {
-  id: number;
-  name: string;
-  description: string;
-  price: string;
-  regular_price: string;
-  sale_price: string;
-  categories: Array<{ id: number; name: string }>;
-  images: Array<{ src: string; alt: string }>;
-  stock_quantity: number;
-  stock_status: string;
-  manage_stock: boolean;
-  average_rating: string;
-  rating_count: number;
-  tags: Array<{ id: number; name: string }>;
-  attributes: Array<{ name: string; options: string[] }>;
-}
-
-interface CartItem {
-  product: WooCommerceProduct;
-  quantity: number;
-}
-
-// WooCommerce checkout success handler
+import { ShoppingCart, ArrowRight, Loader2, ExternalLink } from "lucide-react";
 
 export default function Shop() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [woocommerceCart, setWooCommerceCart] = useState<WooCommerceCart | null>(null);
-  const [products, setProducts] = useState<WooCommerceProduct[]>([]);
-  const [categories, setCategories] = useState<Array<{ id: number; name: string; count: number }>>([]);
-  const [loading, setLoading] = useState(true);
-  const [showCart, setShowCart] = useState(false);
-  const [showCheckout, setShowCheckout] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
-  const [wishlist, setWishlist] = useState<number[]>([]);
-  const [quickViewProduct, setQuickViewProduct] = useState<WooCommerceProduct | null>(null);
-  const [cartLoading, setCartLoading] = useState(false);
+  const [shopUrl, setShopUrl] = useState<string>('');
+  const [isRedirecting, setIsRedirecting] = useState(true);
 
-  const cartService = WooCommerceCartService.getInstance();
-
-  // Refresh cart data
-  const refreshCart = async () => {
-    try {
-      const cart = await cartService.getCart();
-      setWooCommerceCart(cart);
-    } catch (error) {
-      console.error('Error refreshing cart:', error);
-    }
-  };
-
-  // Handle checkout - open checkout modal
-  const handleCheckout = () => {
-    try {
-      // Check if cart has items
-      if (!woocommerceCart || !woocommerceCart.items || woocommerceCart.items.length === 0) {
-        alert('Your cart is empty. Please add some products before checkout.');
-        return;
-      }
-
-      // Open checkout modal
-      console.log('Opening checkout modal...');
-      setShowCheckout(true);
-      
-    } catch (error) {
-      console.error('Checkout error:', error);
-      alert('Unable to proceed to checkout. Please try again or contact support.');
-    }
-  };
-
-  // Handle checkout success
-  const handleCheckoutSuccess = (orderId: string) => {
-    console.log('Order created successfully:', orderId);
-    setShowCheckout(false);
-    setShowCart(false);
-    
-    // Clear cart after successful order
-    cartService.clearCart().then(() => {
-      refreshCart();
-    });
-  };
-
-  // Load WooCommerce cart on component mount
   useEffect(() => {
-    const loadCart = async () => {
+    // Get the shop URL for display
+    setShopUrl(getShopUrl());
+    
+    // Add a small delay to prevent fast reloading and show the redirect message
+    const timer = setTimeout(() => {
       try {
-        const cart = await cartService.getCart();
-        setWooCommerceCart(cart);
+        redirectToShopSameTab();
       } catch (error) {
-        console.error('Error loading cart:', error);
+        console.error('Redirect failed:', error);
+        // Fallback: try to open in new tab instead
+        window.open(getShopUrl(), '_blank');
       }
-    };
+    }, 2000); // 2 second delay
 
-    loadCart();
+    return () => clearTimeout(timer);
   }, []);
-
-  // Fetch products from WooCommerce
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setLoading(true);
-        const [productsData, categoriesData] = await Promise.all([
-          wooCommerceAPI.getProducts({ per_page: 100 }),
-          wooCommerceAPI.getCategories()
-        ]);
-        
-        setProducts(productsData);
-        setCategories(categoriesData.map(cat => ({
-          id: cat.id,
-          name: cat.name,
-          count: cat.count
-        })));
-      } catch (error) {
-        console.error('Error fetching products:', error);
-        setProducts([]);
-        setCategories([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, []);
-
-  const addToCart = async (product: WooCommerceProduct) => {
-    setCartLoading(true);
-    try {
-      const result = await cartService.addToCart({
-        productId: product.id,
-        quantity: 1,
-      });
-
-      if (result?.success) {
-        setWooCommerceCart(result.cart);
-        // Show success message
-        console.log('Product added to cart successfully');
-      } else {
-        console.error('Failed to add product to cart:', result?.error);
-      }
-    } catch (error) {
-      console.error('Error adding to cart:', error);
-    } finally {
-      setCartLoading(false);
-      await refreshCart(); // Refresh cart after modification
-    }
-  };
-
-  const removeFromCart = async (itemKey: string) => {
-    setCartLoading(true);
-    try {
-      const result = await cartService.removeFromCart(itemKey);
-      
-      if (result?.success) {
-        setWooCommerceCart(result.cart);
-      } else {
-        console.error('Failed to remove from cart:', result?.error);
-      }
-    } catch (error) {
-      console.error('Error removing from cart:', error);
-    } finally {
-      setCartLoading(false);
-      await refreshCart(); // Refresh cart after modification
-    }
-  };
-
-  const updateCartQuantity = async (itemKey: string, quantity: number) => {
-    if (quantity <= 0) {
-      await removeFromCart(itemKey);
-      return;
-    }
-
-    setCartLoading(true);
-    try {
-      const result = await cartService.updateCartItem({
-        itemKey,
-        quantity,
-      });
-
-      if (result?.success) {
-        setWooCommerceCart(result.cart);
-      } else {
-        console.error('Failed to update cart quantity:', result?.error);
-      }
-    } catch (error) {
-      console.error('Error updating cart quantity:', error);
-    } finally {
-      setCartLoading(false);
-      await refreshCart(); // Refresh cart after modification
-    }
-  };
-
-  const toggleWishlist = (productId: number) => {
-    setWishlist(prev => 
-      prev.includes(productId) 
-        ? prev.filter(id => id !== productId)
-        : [...prev, productId]
-    );
-  };
-
-  const openQuickView = (product: WooCommerceProduct) => {
-    setQuickViewProduct(product);
-  };
-
-  const closeQuickView = () => {
-    setQuickViewProduct(null);
-  };
-
-  const cartItemCount = woocommerceCart?.itemCount || 0;
-  const cartTotal = woocommerceCart ? parseFloat(woocommerceCart.totals.total) : 0;
-
-  const filteredProducts = products.filter(product => {
-    if (!searchQuery.trim()) {
-      // If no search query, only filter by category
-      const matchesCategory = selectedCategory === "all" || 
-                             product.categories.some(cat => cat.name.toLowerCase() === selectedCategory.toLowerCase());
-      return matchesCategory;
-    }
-    
-    // Enhanced search logic
-    const searchTerms = searchQuery.toLowerCase().trim().split(/\s+/);
-    const productName = product.name.toLowerCase();
-    const productDescription = product.description.toLowerCase();
-    const productTags = product.tags.map(tag => tag.name.toLowerCase());
-    const productCategories = product.categories.map(cat => cat.name.toLowerCase());
-    
-    // Check if all search terms match any field
-    const matchesSearch = searchTerms.every(term => 
-      productName.includes(term) ||
-      productDescription.includes(term) ||
-      productTags.some(tag => tag.includes(term)) ||
-      productCategories.some(cat => cat.includes(term))
-    );
-    
-    const matchesCategory = selectedCategory === "all" || 
-                           product.categories.some(cat => cat.name.toLowerCase() === selectedCategory.toLowerCase());
-    
-    return matchesSearch && matchesCategory;
-  });
-
-
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#D5C6BC]">
-        <Header 
-          onRefillClick={() => window.location.href = '/'}
-          onAppointmentClick={() => window.location.href = '/'}
-          onTransferClick={() => window.location.href = '/'}
-        />
-        <div className="pt-20 flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <Loader2 className="h-12 w-12 animate-spin text-[#57BBB6] mx-auto mb-4" />
-            <p className="text-lg text-[#376F6B]">Loading products...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <>
       <SEOHead 
-        title="Shop Health Products - My Meds Pharmacy | Health & Wellness Store"
-        description="Shop our comprehensive selection of health products, vitamins, supplements, and over-the-counter medications. Free delivery on orders over $25."
-        keywords="health products, vitamins, supplements, over the counter medications, pharmacy shop, health store, wellness products, pharmaceutical supplies"
+        title="Shop - My Meds Pharmacy | Online Store"
+        description="Redirecting to My Meds Pharmacy's online store for a wide range of health products and medications."
+        keywords="online pharmacy, shop medications, health products, buy medicine online"
       />
-      <div className="min-h-screen bg-[#D5C6BC]">
-        <Header 
-          onRefillClick={() => window.location.href = '/'}
-          onAppointmentClick={() => window.location.href = '/'}
-          onTransferClick={() => window.location.href = '/'}
-        />
-      <NewsTicker />
-      
-      <div className="pt-20">
-        {/* Hero Section */}
-                  <section className="py-16 sm:py-20 md:py-24 text-white relative overflow-hidden">
-          {/* Background Image Placeholder - Replace with actual pharmacy products/shopping image */}
-                       <div
-               className="absolute inset-0 opacity-60 pointer-events-none"
-               style={{
-                 backgroundImage: `url('/images/new/shop1.jpg')`,
-                 backgroundSize: 'cover',
-                 backgroundPosition: 'center',
-                 backgroundRepeat: 'no-repeat'
-               }}
-             ></div>
-             
-             {/* Enhanced Overlay for Better Text Readability */}
-        <div className="absolute inset-0 bg-black/60 z-10"></div>
-          
-          {/* Animated Background Elements */}
-          <div className="absolute inset-0 pointer-events-none">
-            {/* Floating Medical Icons */}
-            <div className="absolute top-20 left-10 text-white/15 animate-bounce" style={{ animationDelay: '0s' }}>
-              <Package className="w-8 h-8" />
-            </div>
-            <div className="absolute top-32 right-20 text-white/12 animate-bounce" style={{ animationDelay: '1s' }}>
-              <ShoppingCart className="w-6 h-6" />
-            </div>
-            <div className="absolute bottom-32 left-1/4 text-white/18 animate-bounce" style={{ animationDelay: '2s' }}>
-              <Shield className="w-7 h-7" />
-            </div>
-            <div className="absolute bottom-20 right-1/3 text-white/14 animate-bounce" style={{ animationDelay: '3s' }}>
-              <Heart className="w-8 h-8" />
-            </div>
-            
-            {/* Animated Particles */}
-            <div className="absolute top-1/4 left-1/3 w-2 h-2 bg-white/25 rounded-full animate-ping"></div>
-            <div className="absolute top-1/2 right-1/4 w-1.5 h-1.5 bg-white/20 rounded-full animate-ping" style={{ animationDelay: '1.5s' }}></div>
-            <div className="absolute bottom-1/3 left-1/2 w-1 h-1 bg-white/30 rounded-full animate-ping" style={{ animationDelay: '3s' }}></div>
-            
-            {/* Pulse Waves */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <div className="w-48 h-48 border border-white/15 rounded-full animate-ping"></div>
-              <div className="w-48 h-48 border border-white/15 rounded-full animate-ping absolute top-0 left-0" style={{ animationDelay: '1s' }}></div>
-              <div className="w-48 h-48 border border-white/15 rounded-full animate-ping absolute top-0 left-0" style={{ animationDelay: '2s' }}></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#D5C6BC] via-[#F1EEE9] to-[#E8F4F3]">
+        <div className="text-center p-8 max-w-2xl mx-auto">
+          {/* Logo/Icon */}
+          <div className="mb-8">
+            <div className="w-20 h-20 bg-[#57BBB6] rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+              <ShoppingCart className="h-10 w-10 text-white animate-pulse" />
             </div>
           </div>
           
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 bg-white text-[#57BBB6] px-6 py-3 rounded-full text-sm font-semibold mb-8 shadow-lg hover:scale-105 transition-transform duration-300">
-                <Package className="h-5 w-5 animate-pulse" />
-                Health & Wellness
-              </div>
-              
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-8">
-                Shop Our 
-                <span className="block text-white bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent animate-pulse">
-                  Premium Products
-                </span>
+          {/* Main Message */}
+          <h1 className="text-4xl sm:text-5xl font-bold text-[#376F6B] mb-6">
+            Redirecting to Our Store
               </h1>
               
-              <p className="text-xl sm:text-2xl text-white/90 max-w-4xl mx-auto font-medium leading-relaxed">
-                Discover our carefully curated selection of health products, supplements, and wellness essentials 
-                to support your journey to better health.
-              </p>
-              
-              {/* Decorative Underline */}
-              <div className="w-32 h-1 bg-gradient-to-r from-transparent via-white/40 to-transparent mx-auto mt-8 rounded-full animate-pulse"></div>
-            </div>
-
-            {/* Search and Filter */}
-            <div className="max-w-4xl mx-auto">
-              <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                  <Input
-                    type="text"
-                    placeholder="Search products..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        // Search is handled automatically by the filter
-                        console.log('Searching for:', searchQuery);
-                      }
-                    }}
-                    className="pl-10 pr-4 py-3 text-lg border-0 focus:ring-2 focus:ring-white/50 focus:outline-none text-gray-800 placeholder:text-gray-500 bg-white/90"
-                  />
-                </div>
-                <Button 
-                  className="bg-white text-[#57BBB6] hover:bg-gray-100 px-6 py-3" 
-                  onClick={() => {
-                    console.log('Searching for:', searchQuery);
-                    // Search is handled automatically by the filter
-                  }}
-                >
-                  <Search className="h-5 w-5 mr-2" />
-                  Search
-                </Button>
-                <Button className="bg-white text-[#57BBB6] hover:bg-gray-100 px-6 py-3" onClick={() => setShowFilters(!showFilters)}>
-                  <Filter className="h-5 w-5 mr-2" />
-                  Filter
-                </Button>
-                <Button 
-                  className="bg-white text-[#57BBB6] hover:bg-gray-100 px-6 py-3 relative" 
-                  onClick={() => setShowCart(true)}
-                >
-                  <ShoppingCart className="h-5 w-5 mr-2" />
-                  Cart
-                  {cartItemCount > 0 && (
-                    <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs min-w-[20px] h-5 flex items-center justify-center">
-                      {cartItemCount}
-                    </Badge>
-                  )}
-                </Button>
+          <p className="text-xl text-gray-700 mb-8 leading-relaxed">
+            You're being redirected to our full WooCommerce store where you can browse and purchase our complete selection of health products, medications, and wellness items.
+          </p>
+          
+          {/* Warning Message for Development */}
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8 rounded-lg">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
               </div>
-
-              {/* Category Tabs */}
-              <div className="flex flex-wrap justify-center gap-2">
-                <Button
-                  variant={selectedCategory === "all" ? "default" : "outline"}
-                  onClick={() => setSelectedCategory("all")}
-                  className={`${
-                    selectedCategory === "all"
-                      ? "bg-white text-[#57BBB6] hover:bg-gray-100"
-                      : "border-white text-white hover:bg-white hover:text-[#57BBB6]"
-                  } px-4 py-2 rounded-full transition-all duration-300`}
-                >
-                  <Package className="h-4 w-4 mr-2" />
-                  All Products
-                  <Badge variant="secondary" className="ml-2 bg-[#57BBB6] text-white">
-                    {products.length}
-                  </Badge>
-                </Button>
-                {categories.map((category) => (
-                  <Button
-                    key={category.id}
-                    variant={selectedCategory === category.name.toLowerCase() ? "default" : "outline"}
-                    onClick={() => setSelectedCategory(category.name.toLowerCase())}
-                    className={`${
-                      selectedCategory === category.name.toLowerCase()
-                        ? "bg-white text-[#57BBB6] hover:bg-gray-100"
-                        : "border-white text-white hover:bg-white hover:text-[#57BBB6]"
-                    } px-4 py-2 rounded-full transition-all duration-300`}
-                  >
-                    <Package className="h-4 w-4 mr-2" />
-                    {category.name}
-                    <Badge variant="secondary" className="ml-2 bg-[#57BBB6] text-white">
-                      {category.count}
-                    </Badge>
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Empty State */}
-        {!loading && products.length === 0 && (
-          <section className="py-16 sm:py-20 bg-white">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="text-center">
-                <div className="max-w-md mx-auto">
-                  <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No Products Yet</h3>
-                  <p className="text-gray-600 mb-4">
-                    Products will appear here once they are added in your WooCommerce admin panel.
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    Make sure your WooCommerce store is configured and you have published products.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Products Grid */}
-        <section className="py-16 sm:py-20 bg-white">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-              {filteredProducts.map((product) => (
-                <Card key={product.id} className="group border-0 shadow-lg hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2">
-                  <CardContent className="p-6">
-                    {/* Product Image */}
-                    <div className="w-full h-48 bg-[#D5C6BC] rounded-xl mb-4 flex items-center justify-center overflow-hidden">
-                      {product.images && product.images.length > 0 ? (
-                        <img 
-                          src={product.images[0].src} 
-                          alt={product.images[0].alt || product.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <Package className="h-16 w-16 text-[#57BBB6]" />
-                      )}
-                    </div>
-
-                    {/* Product Info */}
-                    <div className="mb-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <Badge variant="outline" className="text-xs">
-                          {product.categories[0]?.name || 'General'}
-                        </Badge>
-                        <div className="flex items-center">
-                          <Star className="h-4 w-4 text-yellow-400 fill-current mr-1" />
-                          <span className="text-sm font-medium">{product.average_rating}</span>
-                          <span className="text-sm text-gray-500 ml-1">({product.rating_count})</span>
-                        </div>
-                      </div>
-                      
-                      <h3 className="text-lg font-semibold text-[#376F6B] mb-2 group-hover:text-[#57BBB6] transition-colors duration-300">
-                        {product.name}
-                      </h3>
-                      
-                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                        {product.description.replace(/<[^>]*>/g, '')}
-                      </p>
-
-                      {/* Price */}
-                      <div className="flex items-center gap-2 mb-4">
-                        <span className="text-2xl font-bold text-[#57BBB6]">
-                          ${product.price}
-                        </span>
-                        {product.sale_price && parseFloat(product.sale_price) < parseFloat(product.regular_price) && (
-                          <span className="text-lg text-gray-400 line-through">
-                            ${product.regular_price}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Stock Status */}
-                      <div className="mb-4">
-                        <Badge 
-                          variant={product.stock_status === 'instock' ? "default" : "destructive"}
-                          className={product.stock_status === 'instock' ? "bg-green-500" : "bg-red-500"}
-                        >
-                          {product.stock_status === 'instock' 
-                            ? (product.manage_stock ? `In Stock (${product.stock_quantity})` : 'In Stock')
-                            : 'Out of Stock'
-                          }
-                        </Badge>
-                      </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <Button 
-                        onClick={() => addToCart(product)}
-                        disabled={product.stock_status !== 'instock'}
-                        className="flex-1 bg-[#57BBB6] hover:bg-[#376F6B] text-white disabled:opacity-50 order-1"
-                      >
-                        <ShoppingCart className="h-4 w-4 mr-2" />
-                        Add to Cart
-                      </Button>
-                      <div className="flex gap-2 order-2">
-                        <Button 
-                          variant="outline" 
-                          size="icon" 
-                          onClick={() => toggleWishlist(product.id)}
-                          className={`border-[#57BBB6] hover:bg-[#57BBB6] hover:text-white flex-1 sm:flex-none ${
-                            wishlist.includes(product.id) 
-                              ? 'bg-[#57BBB6] text-white' 
-                              : 'text-[#57BBB6]'
-                          }`}
-                        >
-                          <Heart className={`h-4 w-4 ${wishlist.includes(product.id) ? 'fill-current' : ''}`} />
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="icon" 
-                          onClick={() => openQuickView(product)}
-                          className="border-[#57BBB6] text-[#57BBB6] hover:bg-[#57BBB6] hover:text-white flex-1 sm:flex-none"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {/* No Results */}
-            {filteredProducts.length === 0 && (
-              <div className="text-center py-16">
-                <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-600 mb-2">No products found</h3>
-                {searchQuery ? (
-                  <p className="text-gray-500 mb-6">
-                    No products found for "<span className="font-semibold">{searchQuery}</span>"
-                    {selectedCategory !== "all" && ` in ${selectedCategory}`}
-                  </p>
-                ) : (
-                  <p className="text-gray-500 mb-6">Try adjusting your search or filter criteria</p>
-                )}
-                <div className="flex gap-4 justify-center">
-                  <Button 
-                    onClick={() => {
-                      setSearchQuery("");
-                      setSelectedCategory("all");
-                    }}
-                    className="bg-[#57BBB6] hover:bg-[#376F6B] text-white"
-                  >
-                    Clear All Filters
-                  </Button>
-                  {searchQuery && (
-                    <Button 
-                      onClick={() => setSearchQuery("")}
-                      variant="outline"
-                      className="border-[#57BBB6] text-[#57BBB6] hover:bg-[#57BBB6] hover:text-white"
-                    >
-                      Clear Search
-                    </Button>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* Shopping Cart */}
-        {cartItemCount > 0 && (
-          <div className="fixed bottom-6 left-6 right-6 z-50">
-            <Card className="bg-[#57BBB6] text-white border-0 shadow-2xl">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <ShoppingCart className="h-6 w-6" />
-                    <div>
-                      <p className="text-white font-semibold">
-                        {cartItemCount} item{cartItemCount !== 1 ? 's' : ''}
-                      </p>
-                      <p className="text-white/80 text-sm">
-                        Total: ${cartTotal.toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
-                  <Button 
-                    onClick={handleCheckout}
-                    className="bg-white text-[#57BBB6] hover:bg-gray-100 px-4 py-2 rounded-xl"
-                  >
-                    Checkout
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* Cart Modal */}
-        <Dialog open={showCart} onOpenChange={setShowCart}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-0">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <ShoppingCart className="h-5 w-5 text-[#57BBB6]" />
-                Shopping Cart
-              </DialogTitle>
-              <DialogDescription>
-                Review and edit your cart items before checkout.
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="space-y-4">
-              {woocommerceCart && woocommerceCart.items.length > 0 ? (
-                <>
-                  {/* Cart Items */}
-                  <div className="space-y-3">
-                    {woocommerceCart.items.map((item) => (
-                      <Card key={item.id} className="p-4">
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                          {/* Product Image Placeholder */}
-                          <div className="w-16 h-16 bg-[#D5C6BC] rounded-lg flex items-center justify-center flex-shrink-0">
-                            <Package className="h-8 w-8 text-[#57BBB6]" />
-                          </div>
-                          
-                          {/* Product Details */}
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-semibold text-[#376F6B] truncate">{item.name}</h4>
-                            <p className="text-sm text-gray-600">Product ID: {item.product_id}</p>
-                            <p className="text-lg font-bold text-[#57BBB6]">
-                              {cartService.formatPrice(item.price, woocommerceCart.currency)}
-                            </p>
-                          </div>
-                          
-                          {/* Mobile Layout: Quantity and Remove in one row */}
-                          <div className="flex items-center gap-2 w-full sm:w-auto">
-                            {/* Quantity Controls */}
-                            <div className="flex items-center gap-2">
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={() => updateCartQuantity(item.id.toString(), item.quantity - 1)}
-                                disabled={cartLoading}
-                                className="h-8 w-8"
-                              >
-                                <Minus className="h-4 w-4" />
-                              </Button>
-                              <span className="w-8 text-center font-medium">{item.quantity}</span>
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={() => updateCartQuantity(item.id.toString(), item.quantity + 1)}
-                                disabled={cartLoading}
-                                className="h-8 w-8"
-                              >
-                                <Plus className="h-4 w-4" />
-                              </Button>
-                            </div>
-                            
-                            {/* Item Total */}
-                            <div className="text-right flex-1 sm:flex-none">
-                              <p className="font-bold text-[#57BBB6]">
-                                {cartService.formatPrice(item.total, woocommerceCart.currency)}
-                              </p>
-                            </div>
-                            
-                            {/* Remove Button */}
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              onClick={() => removeFromCart(item.id.toString())}
-                              disabled={cartLoading}
-                              className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
-                            >
-                              ×
-                            </Button>
-                          </div>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                  
-                  {/* Cart Summary */}
-                  <Card className="p-4 bg-[#D5C6BC]">
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span>Subtotal:</span>
-                        <span>{cartService.formatPrice(woocommerceCart.totals.subtotal, woocommerceCart.currency)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Tax:</span>
-                        <span>{cartService.formatPrice(woocommerceCart.totals.total_tax, woocommerceCart.currency)}</span>
-                      </div>
-                      <div className="flex justify-between font-bold text-lg border-t pt-2">
-                        <span>Total:</span>
-                        <span className="text-[#57BBB6]">
-                          {cartService.formatPrice(woocommerceCart.totals.total, woocommerceCart.currency)}
-                        </span>
-                      </div>
-                    </div>
-                  </Card>
-                  
-                  {/* Action Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <Button
-                      variant="outline"
-                      onClick={() => setShowCart(false)}
-                      className="flex-1 order-2 sm:order-1"
-                    >
-                      Continue Shopping
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        setShowCart(false);
-                        handleCheckout();
-                      }}
-                      className="flex-1 bg-[#57BBB6] hover:bg-[#376F6B] text-white order-1 sm:order-2"
-                    >
-                      Proceed to Checkout
-                    </Button>
-                  </div>
-                </>
-              ) : (
-                <div className="text-center py-8">
-                  <ShoppingCart className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-600 mb-2">Your cart is empty</h3>
-                  <p className="text-gray-500 mb-4">Add some products to get started!</p>
-                  <Button
-                    onClick={() => setShowCart(false)}
-                    className="bg-[#57BBB6] hover:bg-[#376F6B] text-white"
-                  >
-                    Continue Shopping
-                  </Button>
-                </div>
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
-
-
-        {/* Quick View Modal */}
-        <Dialog open={!!quickViewProduct} onOpenChange={closeQuickView}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-0">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Eye className="h-5 w-5 text-[#57BBB6]" />
-                Quick View
-              </DialogTitle>
-              <DialogDescription>
-                View product details and add to cart without leaving the page.
-              </DialogDescription>
-            </DialogHeader>
-            
-            {quickViewProduct && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Product Image */}
-                <div className="space-y-4">
-                  <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
-                    {quickViewProduct.images && quickViewProduct.images.length > 0 ? (
-                      <img
-                        src={quickViewProduct.images[0].src}
-                        alt={quickViewProduct.images[0].alt || quickViewProduct.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        <Package className="h-16 w-16" />
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Product Details */}
-                <div className="space-y-4">
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-900">{quickViewProduct.name}</h2>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="text-3xl font-bold text-[#57BBB6]">${quickViewProduct.price}</span>
-                      {quickViewProduct.sale_price && quickViewProduct.sale_price !== quickViewProduct.price && (
-                        <span className="text-lg text-gray-500 line-through">${quickViewProduct.regular_price}</span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Stock Status */}
-                  <div>
-                    <Badge 
-                      variant={quickViewProduct.stock_status === 'instock' ? "default" : "destructive"}
-                      className={quickViewProduct.stock_status === 'instock' ? "bg-green-500" : "bg-red-500"}
-                    >
-                      {quickViewProduct.stock_status === 'instock' 
-                        ? (quickViewProduct.manage_stock ? `In Stock (${quickViewProduct.stock_quantity})` : 'In Stock')
-                        : 'Out of Stock'
-                      }
-                    </Badge>
-                  </div>
-
-                  {/* Description */}
-                  {quickViewProduct.description && (
-                    <div className="prose max-w-none">
-                      <div dangerouslySetInnerHTML={{ __html: quickViewProduct.description }} />
-                    </div>
-                  )}
-
-                  {/* Categories */}
-                  {quickViewProduct.categories && quickViewProduct.categories.length > 0 && (
-                    <div>
-                      <h4 className="font-semibold text-gray-900 mb-2">Categories:</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {quickViewProduct.categories.map((category) => (
-                          <Badge key={category.id} variant="secondary">
-                            {category.name}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Action Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                    <Button 
-                      onClick={() => {
-                        addToCart(quickViewProduct);
-                        closeQuickView();
-                      }}
-                      disabled={quickViewProduct.stock_status !== 'instock'}
-                      className="flex-1 bg-[#57BBB6] hover:bg-[#376F6B] text-white disabled:opacity-50 order-1"
-                    >
-                      <ShoppingCart className="h-4 w-4 mr-2" />
-                      Add to Cart
-                    </Button>
-                    
-                    <Button 
-                      variant="outline" 
-                      onClick={() => toggleWishlist(quickViewProduct.id)}
-                      className={`border-[#57BBB6] hover:bg-[#57BBB6] hover:text-white order-2 ${
-                        wishlist.includes(quickViewProduct.id) 
-                          ? 'bg-[#57BBB6] text-white' 
-                          : 'text-[#57BBB6]'
-                      }`}
-                    >
-                      <Heart className={`h-4 w-4 ${wishlist.includes(quickViewProduct.id) ? 'fill-current' : ''}`} />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
-
-        {/* Features Section */}
-        <section className="py-16 sm:py-20 bg-[#D5C6BC]">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-              <Card className="bg-[#57BBB6] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                <CardContent className="p-6 sm:p-8 text-center">
-                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <Truck className="h-8 w-8 text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-2">
-                    Fast Delivery
-                  </h3>
-                  <p className="text-white/90">
-                    Free shipping on orders over $50. Same-day delivery available locally.
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-[#57BBB6] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                <CardContent className="p-6 sm:p-8 text-center">
-                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <Shield className="h-8 w-8 text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-2">
-                    Quality Guaranteed
-                  </h3>
-                  <p className="text-white/90">
-                    All products are authentic and backed by our 100% satisfaction guarantee.
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-[#57BBB6] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                <CardContent className="p-6 sm:p-8 text-center">
-                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <Clock className="h-8 w-8 text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-2">
-                    Dawn to Dusk Support
-                  </h3>
-                  <p className="text-white/90">
-                    Our pharmacy team is always available to answer your questions and provide guidance.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="py-16 sm:py-20 bg-white">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="bg-[#57BBB6] rounded-3xl p-8 sm:p-12 text-center text-white relative overflow-hidden">
-              <div className="relative z-10">
-                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 text-white">
-                  Need Help Choosing?
-                </h3>
-                <p className="text-lg sm:text-xl mb-8 text-white/90 max-w-2xl mx-auto">
-                  Our pharmacists are here to help you find the right products for your health needs
+              <div className="ml-3">
+                <p className="text-sm text-yellow-700">
+                  <strong>Development Note:</strong> The WordPress server needs to be set up. If the redirect doesn't work, please install WordPress and WooCommerce on your server first.
                 </p>
-                
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button 
-                    className="bg-white text-[#57BBB6] hover:bg-gray-100 font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
-                  >
-                    <Package className="w-5 h-5 mr-2" />
-                    Get Personalized Recommendations
-                  </Button>
-                  
-                  <Button 
-                    variant="outline"
-                    className="border-white text-white hover:bg-white hover:text-[#57BBB6] font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 transform hover:scale-105"
-                  >
-                    <ArrowRight className="w-5 h-5 mr-2" />
-                    Contact Our Team
-                  </Button>
-                </div>
               </div>
             </div>
           </div>
-        </section>
-      </div>
 
-      <Footer />
+          {/* Loading Animation */}
+          <div className="flex items-center justify-center space-x-3 mb-8">
+            <Loader2 className="h-8 w-8 animate-spin text-[#57BBB6]" />
+            <span className="text-[#376F6B] font-semibold text-lg">Opening store...</span>
+          </div>
 
-      {/* Checkout Modal */}
-      <WooCommerceCheckoutModal
-        cart={woocommerceCart}
-        isOpen={showCheckout}
-        onClose={() => setShowCheckout(false)}
-        onSuccess={handleCheckoutSuccess}
-      />
+          {/* URL Display */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20 mb-8">
+            <p className="text-sm text-gray-600 mb-3">Redirecting to:</p>
+            <p className="text-sm font-mono text-[#376F6B] break-all flex items-center justify-center gap-2">
+              <ExternalLink className="h-4 w-4 flex-shrink-0" />
+              {shopUrl || 'Loading...'}
+                  </p>
+                </div>
+
+          {/* Manual Redirect Button */}
+          <button
+            onClick={() => {
+              try {
+                redirectToShopSameTab();
+              } catch (error) {
+                console.error('Manual redirect failed:', error);
+                // Fallback: open in new tab
+                window.open(shopUrl, '_blank');
+              }
+            }}
+            className="inline-flex items-center bg-[#57BBB6] hover:bg-[#376F6B] text-white font-bold px-8 py-4 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl"
+          >
+            <ShoppingCart className="h-5 w-5 mr-3" />
+            Visit Our Store Now
+            <ArrowRight className="h-5 w-5 ml-3" />
+          </button>
+
+          {/* Features */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-12">
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 shadow-lg">
+              <div className="w-10 h-10 bg-[#57BBB6]/20 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <ShoppingCart className="h-5 w-5 text-[#57BBB6]" />
+                          </div>
+              <h3 className="font-semibold text-[#376F6B] mb-2 text-sm">Full Catalog</h3>
+              <p className="text-xs text-gray-600">Complete product selection</p>
+            </div>
+            
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 shadow-lg">
+              <div className="w-10 h-10 bg-[#57BBB6]/20 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <ArrowRight className="h-5 w-5 text-[#57BBB6]" />
+              </div>
+              <h3 className="font-semibold text-[#376F6B] mb-2 text-sm">Easy Checkout</h3>
+              <p className="text-xs text-gray-600">Secure payment processing</p>
+            </div>
+            
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 shadow-lg">
+              <div className="w-10 h-10 bg-[#57BBB6]/20 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <ShoppingCart className="h-5 w-5 text-[#57BBB6]" />
+              </div>
+              <h3 className="font-semibold text-[#376F6B] mb-2 text-sm">Fast Delivery</h3>
+              <p className="text-xs text-gray-600">Quick order processing</p>
+            </div>
+          </div>
+        </div>
         </div>
       </>
     );

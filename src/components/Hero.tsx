@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Phone, Truck, Clock, ArrowRight, Shield, Heart, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { redirectToShop } from "@/utils/shopRedirect";
 import { getPhoneNumber, getTelLink } from "@/lib/contact";
 
 interface HeroProps {
@@ -65,7 +66,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
               <Button 
                 variant="outline" 
                 size="lg" 
-                onClick={() => navigate('/shop')}
+                onClick={() => redirectToShop()}
                 className="text-lg px-8 py-6 rounded-xl border-2 border-[#376F6B] text-[#376F6B] hover:bg-[#376F6B] hover:text-white"
               >
                 <ShoppingCart className="mr-3 h-6 w-6" />

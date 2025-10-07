@@ -4,6 +4,7 @@ import { Star, ShoppingCart, Eye, Heart, Truck, Shield, Clock } from 'lucide-rea
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { redirectToShop } from '@/utils/shopRedirect';
 import { wooCommerceAPI } from '@/lib/woocommerce';
 
 interface WooCommerceProduct {
@@ -74,7 +75,7 @@ export const FeaturedProducts = () => {
   };
 
   const handleShopClick = () => {
-    navigate('/shop');
+    redirectToShop();
   };
 
   const formatPrice = (price: string) => {
@@ -179,8 +180,8 @@ export const FeaturedProducts = () => {
           </p>
         </div>
 
-        {/* Products Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-12">
+        {/* Products Grid - Mobile First Responsive */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 mb-12">
           {products.map((product) => (
             <Card 
               key={product.id} 

@@ -2,7 +2,7 @@ module.exports = {
   apps: [{
     name: 'mymeds-backend',
     script: 'dist/index.js',
-    cwd: '/var/www/mymeds/current/backend',
+    cwd: '/var/www/mymeds-pharmacy/backend',
     instances: 'max',
     exec_mode: 'cluster',
     env: {
@@ -13,9 +13,9 @@ module.exports = {
       NODE_ENV: 'production',
       PORT: 4000
     },
-    error_file: '/var/www/mymeds/logs/error.log',
-    out_file: '/var/www/mymeds/logs/out.log',
-    log_file: '/var/www/mymeds/logs/combined.log',
+    error_file: '/var/www/mymeds-pharmacy/logs/error.log',
+    out_file: '/var/www/mymeds-pharmacy/logs/out.log',
+    log_file: '/var/www/mymeds-pharmacy/logs/combined.log',
     time: true,
     max_memory_restart: '1G',
     node_args: '--max-old-space-size=1024',

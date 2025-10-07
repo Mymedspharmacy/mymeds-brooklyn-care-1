@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
 import logo from "@/assets/logo.png";
 import { getPhoneNumber, getEmail, getTelLink, getMailtoLink } from "@/lib/contact";
+import { getShopUrl } from "@/utils/shopRedirect";
 
 export const Footer = () => {
   const navigate = useNavigate();
@@ -69,7 +70,7 @@ export const Footer = () => {
   const quickLinks = [
     { to: '/', label: 'Home', icon: ArrowRight },
     { to: '/services', label: 'Services', icon: ArrowRight },
-    { to: '/shop', label: 'Shop', icon: ArrowRight },
+    { to: getShopUrl(), label: 'Shop', icon: ArrowRight, external: true },
     { to: '/special-offers', label: 'Special Offers', icon: Star },
     { to: '/blog', label: 'Health Blog', icon: ArrowRight },
     { to: '/patient-resources', label: 'Patient Resources', icon: ArrowRight },
@@ -154,14 +155,27 @@ export const Footer = () => {
               <ul className="space-y-2">
                 {quickLinks.map((item, idx) => (
                   <li key={idx}>
-                    <Link 
-                      to={item.to}
-                      className="text-gray-600 flex items-center"
-                      aria-label={`Navigate to ${item.label.toLowerCase()}`}
-                    >
-                      <item.icon className="h-4 w-4 mr-2" />
-                      {item.label}
-                    </Link>
+                    {item.external ? (
+                      <a 
+                        href={item.to}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-600 flex items-center hover:text-[#57BBB6] transition-colors"
+                        aria-label={`Navigate to ${item.label.toLowerCase()} (opens in new tab)`}
+                      >
+                        <item.icon className="h-4 w-4 mr-2" />
+                        {item.label}
+                      </a>
+                    ) : (
+                      <Link 
+                        to={item.to}
+                        className="text-gray-600 flex items-center hover:text-[#57BBB6] transition-colors"
+                        aria-label={`Navigate to ${item.label.toLowerCase()}`}
+                      >
+                        <item.icon className="h-4 w-4 mr-2" />
+                        {item.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
                 <li>

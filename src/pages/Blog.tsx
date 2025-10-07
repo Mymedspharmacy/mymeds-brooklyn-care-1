@@ -379,132 +379,171 @@ export default function Blog() {
 
 
         {/* Hero Section */}
-                  <section className="py-16 sm:py-20 md:py-24 text-white relative overflow-hidden">
-          {/* Background Image Placeholder - Replace with actual pharmacy health/wellness image */}
-                       <div
-               className="absolute inset-0 opacity-100 pointer-events-none"
-               style={{
-                 backgroundImage: `url('/images/new/blogpage.jpg')`,
-                 backgroundSize: 'cover',
-                 backgroundPosition: 'center',
-                 backgroundRepeat: 'no-repeat'
-               }}
-             ></div>
-             
-             {/* Light Overlay for Text Readability */}
-             <div className="absolute inset-0 bg-black/30 z-10"></div>
+        <section className="py-20 sm:py-24 md:py-32 text-white relative overflow-hidden">
+          {/* Enhanced Background with Gradient Overlay */}
+          <div
+            className="absolute inset-0 opacity-100 pointer-events-none"
+            style={{
+              backgroundImage: `linear-gradient(135deg, rgba(55, 111, 107, 0.9) 0%, rgba(87, 187, 182, 0.8) 100%), url('/images/new/blogpage.jpg')`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat'
+            }}
+          ></div>
           
-          {/* Animated Background Elements */}
+          {/* Enhanced Animated Background Elements */}
           <div className="absolute inset-0 pointer-events-none">
-            {/* Floating Medical Icons */}
-            <div className="absolute top-20 left-10 text-white/15 animate-bounce" style={{ animationDelay: '0s' }}>
-              <BookOpen className="w-8 h-8" />
+            {/* Floating Health Icons with Better Animation */}
+            <div className="absolute top-20 left-10 text-white/20 animate-float" style={{ animationDelay: '0s' }}>
+              <BookOpen className="w-10 h-10" />
             </div>
-            <div className="absolute top-32 right-20 text-white/12 animate-bounce" style={{ animationDelay: '1s' }}>
-              <Brain className="w-6 h-6" />
+            <div className="absolute top-32 right-20 text-white/15 animate-float" style={{ animationDelay: '1.5s' }}>
+              <Brain className="w-8 h-8" />
             </div>
-            <div className="absolute bottom-32 left-1/4 text-white/18 animate-bounce" style={{ animationDelay: '2s' }}>
-              <Leaf className="w-7 h-7" />
+            <div className="absolute bottom-32 left-1/4 text-white/18 animate-float" style={{ animationDelay: '3s' }}>
+              <Leaf className="w-9 h-9" />
             </div>
-            <div className="absolute bottom-20 right-1/3 text-white/14 animate-bounce" style={{ animationDelay: '3s' }}>
-              <TrendingUp className="w-8 h-8" />
+            <div className="absolute bottom-20 right-1/3 text-white/16 animate-float" style={{ animationDelay: '4.5s' }}>
+              <TrendingUp className="w-10 h-10" />
+            </div>
+            <div className="absolute top-1/2 left-20 text-white/12 animate-float" style={{ animationDelay: '2s' }}>
+              <HeartIcon className="w-7 h-7" />
+            </div>
+            <div className="absolute top-1/3 right-1/4 text-white/14 animate-float" style={{ animationDelay: '5s' }}>
+              <Shield className="w-8 h-8" />
             </div>
             
-            {/* Animated Particles */}
-            <div className="absolute top-1/4 left-1/3 w-2 h-2 bg-white/25 rounded-full animate-ping"></div>
-            <div className="absolute top-1/2 right-1/4 w-1.5 h-1.5 bg-white/20 rounded-full animate-ping" style={{ animationDelay: '1.5s' }}></div>
-            <div className="absolute bottom-1/3 left-1/2 w-1 h-1 bg-white/30 rounded-full animate-ping" style={{ animationDelay: '3s' }}></div>
+            {/* Enhanced Particle System */}
+            <div className="absolute top-1/4 left-1/3 w-3 h-3 bg-white/30 rounded-full animate-pulse"></div>
+            <div className="absolute top-1/2 right-1/4 w-2 h-2 bg-white/25 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
+            <div className="absolute bottom-1/3 left-1/2 w-2.5 h-2.5 bg-white/35 rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
+            <div className="absolute top-1/3 right-1/3 w-1.5 h-1.5 bg-white/20 rounded-full animate-pulse" style={{ animationDelay: '3s' }}></div>
             
-            {/* Pulse Waves */}
+            {/* Enhanced Pulse Waves */}
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <div className="w-48 h-48 border border-white/15 rounded-full animate-ping"></div>
-              <div className="w-48 h-48 border border-white/15 rounded-full animate-ping absolute top-0 left-0" style={{ animationDelay: '1s' }}></div>
-              <div className="w-48 h-48 border border-white/15 rounded-full animate-ping absolute top-0 left-0" style={{ animationDelay: '2s' }}></div>
+              <div className="w-64 h-64 border border-white/20 rounded-full animate-ping"></div>
+              <div className="w-64 h-64 border border-white/15 rounded-full animate-ping absolute top-0 left-0" style={{ animationDelay: '1.5s' }}></div>
+              <div className="w-64 h-64 border border-white/10 rounded-full animate-ping absolute top-0 left-0" style={{ animationDelay: '3s' }}></div>
             </div>
+            
+            {/* Decorative Geometric Shapes */}
+            <div className="absolute top-1/4 right-1/4 w-16 h-16 border-2 border-white/10 rotate-45 animate-spin" style={{ animationDuration: '20s' }}></div>
+            <div className="absolute bottom-1/4 left-1/4 w-12 h-12 border-2 border-white/15 rounded-full animate-pulse"></div>
           </div>
           
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 bg-white text-[#57BBB6] px-6 py-3 rounded-full text-sm font-semibold mb-8 shadow-lg hover:scale-105 transition-transform duration-300">
-                <BookOpen className="h-5 w-5 animate-pulse" />
+            <div className="text-center mb-20">
+              {/* Enhanced Badge */}
+              <div className="inline-flex items-center gap-3 bg-white/95 backdrop-blur-sm text-[#57BBB6] px-8 py-4 rounded-full text-base font-bold mb-12 shadow-xl hover:scale-105 transition-all duration-500 border border-white/20">
+                <BookOpen className="h-6 w-6 animate-pulse" />
                 Health & Wellness Blog
+                <div className="w-2 h-2 bg-[#57BBB6] rounded-full animate-ping"></div>
               </div>
               
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-8">
-                Stay Informed with 
-                <span className="block text-white bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent animate-pulse">
+              {/* Enhanced Title with Better Typography */}
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black leading-tight mb-10">
+                <span className="block bg-gradient-to-r from-white via-white/95 to-white/90 bg-clip-text text-transparent">
+                  Stay Informed with
+                </span>
+                <span className="block bg-gradient-to-r from-[#87E5E0] via-white to-[#87E5E0] bg-clip-text text-transparent animate-gradient">
                   Expert Health Insights
                 </span>
               </h1>
               
-              <p className="text-xl sm:text-2xl text-white/90 max-w-4xl mx-auto font-medium leading-relaxed">
+              {/* Enhanced Description */}
+              <p className="text-xl sm:text-2xl lg:text-3xl text-white/95 max-w-5xl mx-auto font-medium leading-relaxed mb-12">
                 Discover evidence-based health tips, medication guidance, and wellness advice from our experienced 
                 pharmacy team to help you make informed decisions about your health.
               </p>
               
-              {/* Decorative Underline */}
-              <div className="w-32 h-1 bg-gradient-to-r from-transparent via-white/40 to-transparent mx-auto mt-8 rounded-full animate-pulse"></div>
+              {/* Enhanced Decorative Elements */}
+              <div className="flex items-center justify-center gap-4 mb-8">
+                <div className="w-16 h-1 bg-gradient-to-r from-transparent via-white/60 to-transparent rounded-full"></div>
+                <div className="w-3 h-3 bg-white/80 rounded-full animate-pulse"></div>
+                <div className="w-16 h-1 bg-gradient-to-r from-transparent via-white/60 to-transparent rounded-full"></div>
+              </div>
+              
+              {/* Stats */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-2xl mx-auto">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-white mb-2">{posts.length}</div>
+                  <div className="text-white/80 text-sm">Health Articles</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-white mb-2">{categories.length}</div>
+                  <div className="text-white/80 text-sm">Categories</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-white mb-2">24/7</div>
+                  <div className="text-white/80 text-sm">Expert Support</div>
+                </div>
+              </div>
             </div>
 
-            {/* Search and Filter */}
-            <div className="max-w-4xl mx-auto">
-              <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                  <Input
-                    type="text"
-                    placeholder="Search articles..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        handleSearch();
-                      }
-                    }}
-                    className="pl-10 pr-4 py-3 text-lg border-0 focus:ring-2 focus:ring-white/50 focus:outline-none text-gray-800 placeholder:text-gray-500 bg-white/90"
-                  />
-                </div>
-                <Button className="bg-white text-[#57BBB6] hover:bg-gray-100 px-6 py-3" onClick={() => handleSearch()}>
-                  <Search className="h-5 w-5 mr-2" />
-                  Search
-                </Button>
-              </div>
-
-              {/* Category Tabs */}
-              <div className="flex flex-wrap justify-center gap-2">
-                <Button
-                  variant={selectedCategory === "all" ? "default" : "outline"}
-                  onClick={() => setSelectedCategory("all")}
-                  className={`${
-                    selectedCategory === "all"
-                      ? "bg-white text-[#57BBB6] hover:bg-gray-100"
-                      : "border-white text-white hover:bg-white hover:text-[#57BBB6]"
-                  } px-4 py-2 rounded-full transition-all duration-300`}
-                >
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  All Posts
-                  <Badge variant="secondary" className="ml-2 bg-[#57BBB6] text-white">
-                    {posts.length}
-                  </Badge>
-                </Button>
-                {categories.map((category) => (
-                  <Button
-                    key={category.id}
-                    variant={selectedCategory === category.id.toString() ? "default" : "outline"}
-                    onClick={() => setSelectedCategory(category.id.toString())}
-                    className={`${
-                      selectedCategory === category.id.toString()
-                        ? "bg-white text-[#57BBB6] hover:bg-gray-100"
-                        : "border-white text-white hover:bg-white hover:text-[#57BBB6]"
-                    } px-4 py-2 rounded-full transition-all duration-300`}
+            {/* Enhanced Search and Filter */}
+            <div className="max-w-5xl mx-auto">
+              <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-white/20">
+                <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 h-6 w-6" />
+                    <Input
+                      type="text"
+                      placeholder="Search health articles, medications, tips..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          handleSearch();
+                        }
+                      }}
+                      className="pl-12 pr-4 py-4 text-lg border-2 border-gray-200 focus:ring-2 focus:ring-[#57BBB6] focus:border-[#57BBB6] focus:outline-none text-gray-800 placeholder:text-gray-500 bg-white/90 rounded-xl shadow-sm"
+                    />
+                  </div>
+                  <Button 
+                    className="bg-[#57BBB6] hover:bg-[#376F6B] text-white px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105" 
+                    onClick={() => handleSearch()}
                   >
-                    <BookOpen className="h-4 w-4 mr-2" />
-                    {category.name}
-                    <Badge variant="secondary" className="ml-2 bg-[#57BBB6] text-white">
-                      {category.count}
+                    <Search className="h-6 w-6 mr-3" />
+                    Search
+                  </Button>
+                </div>
+
+                {/* Enhanced Category Tabs */}
+                <div className="flex flex-wrap justify-center gap-3">
+                  <Button
+                    variant={selectedCategory === "all" ? "default" : "outline"}
+                    onClick={() => setSelectedCategory("all")}
+                    className={`${
+                      selectedCategory === "all"
+                        ? "bg-[#57BBB6] text-white hover:bg-[#376F6B] shadow-lg"
+                        : "border-2 border-[#57BBB6] text-[#57BBB6] hover:bg-[#57BBB6] hover:text-white bg-white/90"
+                    } px-6 py-3 rounded-full transition-all duration-300 font-semibold`}
+                  >
+                    <BookOpen className="h-5 w-5 mr-3" />
+                    All Posts
+                    <Badge variant="secondary" className="ml-3 bg-white text-[#57BBB6] font-bold">
+                      {posts.length}
                     </Badge>
                   </Button>
-                ))}
+                  {categories.map((category) => (
+                    <Button
+                      key={category.id}
+                      variant={selectedCategory === category.id.toString() ? "default" : "outline"}
+                      onClick={() => setSelectedCategory(category.id.toString())}
+                      className={`${
+                        selectedCategory === category.id.toString()
+                          ? "bg-[#57BBB6] text-white hover:bg-[#376F6B] shadow-lg"
+                          : "border-2 border-[#57BBB6] text-[#57BBB6] hover:bg-[#57BBB6] hover:text-white bg-white/90"
+                      } px-6 py-3 rounded-full transition-all duration-300 font-semibold`}
+                    >
+                      <BookOpen className="h-5 w-5 mr-3" />
+                      {category.name}
+                      <Badge variant="secondary" className="ml-3 bg-white text-[#57BBB6] font-bold">
+                        {category.count}
+                      </Badge>
+                    </Button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -522,72 +561,83 @@ export default function Blog() {
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-16">
-              {filteredPosts.slice(0, 3).map((post) => (
-                <Card key={post.id} className="group border-0 shadow-lg hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 mb-20">
+              {filteredPosts.slice(0, 3).map((post, index) => (
+                <Card 
+                  key={post.id} 
+                  className="group border-0 shadow-xl hover:shadow-2xl transition-all duration-700 transform hover:-translate-y-4 hover:scale-105 bg-white/95 backdrop-blur-sm overflow-hidden"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
                   <CardContent className="p-0">
-                    {/* Post Image */}
-                    <div className="w-full h-48 bg-[#D5C6BC] rounded-t-xl overflow-hidden">
+                    {/* Enhanced Post Image with Overlay */}
+                    <div className="relative w-full h-56 bg-gradient-to-br from-[#D5C6BC] to-[#87E5E0] overflow-hidden">
                       {post._embedded?.['wp:featuredmedia']?.[0]?.source_url ? (
                         <SafeImageRenderer 
                           src={post._embedded['wp:featuredmedia'][0].source_url} 
                           alt={post._embedded['wp:featuredmedia'][0].alt_text || (typeof post.title === 'string' ? post.title : post.title?.rendered || '')}
-                          className="w-full h-full object-cover"
-                          fallbackIcon={<BookOpen className="h-16 w-16 text-[#57BBB6]" />}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                          fallbackIcon={<BookOpen className="h-20 w-20 text-[#57BBB6]" />}
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <BookOpen className="h-16 w-16 text-[#57BBB6]" />
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#57BBB6]/20 to-[#376F6B]/20">
+                          <BookOpen className="h-20 w-20 text-[#57BBB6] group-hover:scale-110 transition-transform duration-500" />
                         </div>
                       )}
-                    </div>
-
-                    <div className="p-6">
-                      {/* Category Badge */}
-                      <div className="mb-4">
-                        <Badge className="bg-[#57BBB6] text-white border-0">
+                      
+                      {/* Gradient Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      
+                      {/* Category Badge - Floating */}
+                      <div className="absolute top-4 left-4">
+                        <Badge className="bg-[#57BBB6] text-white border-0 shadow-lg backdrop-blur-sm bg-opacity-90">
                           {getCategoryName(post.categories[0])}
                         </Badge>
                       </div>
-
-                      {/* Post Meta */}
-                      <div className="flex items-center gap-3 text-gray-500 text-xs mb-3">
-                        <div className="flex items-center gap-1">
-                          <User className="h-3 w-3" />
-                          {post._embedded?.author?.[0]?.name || 'Unknown Author'}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          {formatDate(post.date)}
-                        </div>
-                      </div>
-
-                      {/* Post Title */}
-                      <CardTitle className="text-lg sm:text-xl font-bold text-[#376F6B] mb-3 group-hover:text-[#57BBB6] transition-colors duration-300 line-clamp-2">
-                        {(typeof post.title === 'string' ? post.title : post.title?.rendered || '')}
-                      </CardTitle>
-
-                      {/* Post Excerpt */}
-                      <CardDescription className="text-gray-600 mb-4 leading-relaxed line-clamp-2 text-sm">
-                        {(typeof post.excerpt === 'string' ? post.excerpt : post.excerpt?.rendered || '').replace(/<[^>]*>/g, '')}
-                      </CardDescription>
-
-                      {/* Read Time */}
-                      <div className="flex items-center gap-3 text-gray-500 text-xs mb-4">
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
+                      
+                      {/* Read Time - Floating */}
+                      <div className="absolute top-4 right-4">
+                        <div className="bg-white/90 backdrop-blur-sm text-gray-700 px-3 py-1 rounded-full text-xs font-medium shadow-lg">
+                          <Clock className="h-3 w-3 inline mr-1" />
                           {getReadTime(typeof post.content === 'string' ? post.content : post.content?.rendered || '')}
                         </div>
                       </div>
+                    </div>
 
-                      {/* Read More Button */}
+                    <div className="p-8">
+                      {/* Post Meta with Icons */}
+                      <div className="flex items-center gap-4 text-gray-500 text-sm mb-4">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 bg-[#57BBB6]/10 rounded-full flex items-center justify-center">
+                            <User className="h-4 w-4 text-[#57BBB6]" />
+                          </div>
+                          <span className="font-medium">{post._embedded?.author?.[0]?.name || 'Unknown Author'}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 bg-[#376F6B]/10 rounded-full flex items-center justify-center">
+                            <Calendar className="h-4 w-4 text-[#376F6B]" />
+                          </div>
+                          <span className="font-medium">{formatDate(post.date)}</span>
+                        </div>
+                      </div>
+
+                      {/* Enhanced Post Title */}
+                      <CardTitle className="text-xl sm:text-2xl font-bold text-[#376F6B] mb-4 group-hover:text-[#57BBB6] transition-colors duration-500 line-clamp-2 leading-tight">
+                        {(typeof post.title === 'string' ? post.title : post.title?.rendered || '')}
+                      </CardTitle>
+
+                      {/* Enhanced Post Excerpt */}
+                      <CardDescription className="text-gray-600 mb-6 leading-relaxed line-clamp-3 text-base">
+                        {(typeof post.excerpt === 'string' ? post.excerpt : post.excerpt?.rendered || '').replace(/<[^>]*>/g, '')}
+                      </CardDescription>
+
+                      {/* Enhanced Read More Button */}
                       <Button 
                         variant="outline" 
                         onClick={() => handleReadMore(post.id)}
-                        className="border-[#57BBB6] text-[#57BBB6] hover:bg-[#57BBB6] hover:text-white rounded-full px-3 py-1 text-xs transition-all duration-300"
+                        className="w-full border-2 border-[#57BBB6] text-[#57BBB6] hover:bg-[#57BBB6] hover:text-white rounded-xl px-6 py-3 text-sm font-semibold transition-all duration-300 group-hover:shadow-lg hover:shadow-xl transform hover:scale-105"
                       >
-                        <ArrowRight className="h-3 w-3" />
-                        Read More
+                        <span className="mr-2">Read Full Article</span>
+                        <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
                       </Button>
                     </div>
                   </CardContent>
@@ -609,35 +659,47 @@ export default function Blog() {
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-              {filteredPosts.slice(3).map((post) => (
-                <Card key={post.id} className="group border-0 shadow-lg hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 bg-white">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
+              {filteredPosts.slice(3).map((post, index) => (
+                <Card 
+                  key={post.id} 
+                  className="group border-0 shadow-lg hover:shadow-2xl transition-all duration-600 transform hover:-translate-y-3 hover:scale-105 bg-white/95 backdrop-blur-sm overflow-hidden"
+                  style={{ animationDelay: `${(index + 3) * 0.1}s` }}
+                >
                   <CardContent className="p-0">
-                    {/* Post Image */}
-                    <div className="w-full h-48 bg-[#D5C6BC] rounded-t-xl overflow-hidden">
+                    {/* Enhanced Post Image */}
+                    <div className="relative w-full h-52 bg-gradient-to-br from-[#E8F4F3] to-[#D5C6BC] overflow-hidden">
                       {post._embedded?.['wp:featuredmedia']?.[0]?.source_url ? (
                         <SafeImageRenderer 
                           src={post._embedded['wp:featuredmedia'][0].source_url} 
                           alt={post._embedded['wp:featuredmedia'][0].alt_text || (typeof post.title === 'string' ? post.title : post.title?.rendered || '')}
-                          className="w-full h-full object-cover"
-                          fallbackIcon={<BookOpen className="h-16 w-16 text-[#57BBB6]" />}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-600"
+                          fallbackIcon={<BookOpen className="h-16 w-16 text-[#376F6B]" />}
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <BookOpen className="h-16 w-16 text-[#57BBB6]" />
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#376F6B]/20 to-[#57BBB6]/20">
+                          <BookOpen className="h-16 w-16 text-[#376F6B] group-hover:scale-110 transition-transform duration-500" />
                         </div>
                       )}
-                    </div>
-
-                    <div className="p-6">
-                      {/* Category Badge */}
-                      <div className="mb-4">
-                        <Badge className="bg-[#376F6B] text-white border-0">
+                      
+                      {/* Category Badge - Floating */}
+                      <div className="absolute top-3 left-3">
+                        <Badge className="bg-[#376F6B] text-white border-0 shadow-md backdrop-blur-sm bg-opacity-90">
                           {getCategoryName(post.categories[0])}
                         </Badge>
                       </div>
+                      
+                      {/* Read Time - Floating */}
+                      <div className="absolute top-3 right-3">
+                        <div className="bg-white/90 backdrop-blur-sm text-gray-700 px-2 py-1 rounded-full text-xs font-medium shadow-md">
+                          <Clock className="h-3 w-3 inline mr-1" />
+                          {getReadTime(typeof post.content === 'string' ? post.content : post.content?.rendered || '')}
+                        </div>
+                      </div>
+                    </div>
 
-                      {/* Post Meta */}
+                    <div className="p-6">
+                      {/* Post Meta with Enhanced Icons */}
                       <div className="flex items-center gap-3 text-gray-500 text-xs mb-3">
                         <div className="flex items-center gap-1">
                           <User className="h-3 w-3" />
@@ -649,32 +711,24 @@ export default function Blog() {
                         </div>
                       </div>
 
-                      {/* Post Title */}
-                      <CardTitle className="text-lg sm:text-xl font-bold text-[#376F6B] mb-3 group-hover:text-[#57BBB6] transition-colors duration-300 line-clamp-2">
+                      {/* Enhanced Post Title */}
+                      <CardTitle className="text-lg sm:text-xl font-bold text-[#376F6B] mb-3 group-hover:text-[#57BBB6] transition-colors duration-500 line-clamp-2 leading-tight">
                         {(typeof post.title === 'string' ? post.title : post.title?.rendered || '')}
                       </CardTitle>
 
-                      {/* Post Excerpt */}
-                      <CardDescription className="text-gray-600 mb-4 leading-relaxed line-clamp-2 text-sm">
+                      {/* Enhanced Post Excerpt */}
+                      <CardDescription className="text-gray-600 mb-4 leading-relaxed line-clamp-3 text-sm">
                         {(typeof post.excerpt === 'string' ? post.excerpt : post.excerpt?.rendered || '').replace(/<[^>]*>/g, '')}
                       </CardDescription>
 
-                      {/* Read Time */}
-                      <div className="flex items-center gap-3 text-gray-500 text-xs mb-4">
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {getReadTime(typeof post.content === 'string' ? post.content : post.content?.rendered || '')}
-                        </div>
-                      </div>
-
-                      {/* Read More Button */}
+                      {/* Enhanced Read More Button */}
                       <Button 
                         variant="outline" 
                         onClick={() => handleReadMore(post.id)}
-                        className="border-[#376F6B] text-[#376F6B] hover:bg-[#376F6B] hover:text-white rounded-full px-3 py-1 text-xs transition-all duration-300"
+                        className="w-full border-2 border-[#376F6B] text-[#376F6B] hover:bg-[#376F6B] hover:text-white rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-300 group-hover:shadow-md hover:shadow-lg transform hover:scale-105"
                       >
-                        <ArrowRight className="h-3 w-3" />
-                        Read More
+                        <span className="mr-2">Read Article</span>
+                        <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform duration-300" />
                       </Button>
                     </div>
                   </CardContent>
