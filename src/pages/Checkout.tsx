@@ -41,7 +41,8 @@ interface CheckoutFormData {
   state: string;
   postcode: string;
   country: string;
-  paymentMethod: 'card' | 'paypal';
+  paymentMethod: 'card' | 'paypal' | 'stripe';
+  notes?: string;
 }
 
 export default function Checkout() {

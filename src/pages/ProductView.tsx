@@ -27,8 +27,9 @@ interface WooCommerceProduct {
   manage_stock: boolean;
   average_rating: string;
   rating_count: number;
+  total_sales: number;
   tags: Array<{ id: number; name: string; slug: string }>;
-  attributes: unknown[];
+  attributes: Array<{ id: number; name: string; options: string[] }>;
   variations: unknown[];
   weight: string;
   dimensions: { length: string; width: string; height: string };

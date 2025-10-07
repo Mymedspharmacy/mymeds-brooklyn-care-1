@@ -12,12 +12,12 @@ const medicationGuideSchema = z.object({
   icon: z.string(),
   content: z.string(),
   lastUpdated: z.string(),
-  tags: z.array(z.string()).optional(),
-  relatedMedications: z.array(z.string()).optional(),
-  warnings: z.array(z.string()).optional(),
-  dosage: z.string().optional(),
-  sideEffects: z.array(z.string()).optional(),
-  interactions: z.array(z.string()).optional()
+  tags: z.array(z.string()).default([]),
+  relatedMedications: z.array(z.string()).default([]),
+  warnings: z.array(z.string()).default([]),
+  dosage: z.string().default(''),
+  sideEffects: z.array(z.string()).default([]),
+  interactions: z.array(z.string()).default([])
 });
 
 // Sample medication guides data
@@ -432,7 +432,22 @@ router.post('/', async (req: Request, res: Response) => {
       });
     }
     
-    medicationGuides.push(guideData);
+    const newGuide = {
+      id: guideData.id,
+      title: guideData.title,
+      description: guideData.description,
+      category: guideData.category,
+      icon: guideData.icon,
+      content: guideData.content,
+      lastUpdated: guideData.lastUpdated,
+      tags: guideData.tags || [],
+      relatedMedications: guideData.relatedMedications || [],
+      warnings: guideData.warnings || [],
+      dosage: guideData.dosage || '',
+      sideEffects: guideData.sideEffects || [],
+      interactions: guideData.interactions || []
+    };
+    medicationGuides.push(newGuide);
     
     res.status(201).json({
       success: true,
@@ -462,7 +477,22 @@ router.put('/:id', async (req: Request, res: Response) => {
       });
     }
     
-    medicationGuides[guideIndex] = { ...guideData, id };
+    const updatedGuide = {
+      id: id,
+      title: guideData.title,
+      description: guideData.description,
+      category: guideData.category,
+      icon: guideData.icon,
+      content: guideData.content,
+      lastUpdated: guideData.lastUpdated,
+      tags: guideData.tags || [],
+      relatedMedications: guideData.relatedMedications || [],
+      warnings: guideData.warnings || [],
+      dosage: guideData.dosage || '',
+      sideEffects: guideData.sideEffects || [],
+      interactions: guideData.interactions || []
+    };
+    medicationGuides[guideIndex] = updatedGuide;
     
     res.json({
       success: true,
