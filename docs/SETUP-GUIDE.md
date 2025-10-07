@@ -21,19 +21,26 @@ chmod +x deployment/deploy-vps.sh
 
 ## Admin Access
 - **URL**: `/admin`
-- **Email**: `admin@mymedspharmacyinc.com` (or `mymedspharmacy@outlook.com` for development)
-- **Password**: `Pharm-23-medS` (or `AdminPassword123!` for development)
+- **Email**: `mymedspharmacy@outlook.com`
+- **Password**: `AdminPassword123!`
 
 ## Environment Setup
 
 Create `.env` in backend directory:
 ```bash
-DATABASE_URL="mysql://user:password@localhost:3306/mymeds_production"
-JWT_SECRET="your_jwt_secret_minimum_32_characters"
-BCRYPT_ROUNDS=12
-WOOCOMMERCE_STORE_URL="https://yourdomain.com/shop"
-WOOCOMMERCE_CONSUMER_KEY="your_key"
-WOOCOMMERCE_CONSUMER_SECRET="your_secret"
+DATABASE_URL="file:./prisma/dev.db"
+JWT_SECRET="mymeds-pharmacy-jwt-secret-key-minimum-32-characters-long-for-security"
+JWT_EXPIRES_IN="24h"
+NODE_ENV="development"
+WOOCOMMERCE_STORE_URL="https://mymedspharmacyinc.com"
+WOOCOMMERCE_CONSUMER_KEY="ck_53fdd27f30ed79ec853ec3b10c4a33166e598292"
+WOOCOMMERCE_CONSUMER_SECRET="cs_32a8da67d460a141b453b732aaa685c29c584ad9"
+PORT=3001
+CORS_ORIGIN="http://localhost:3005"
+ADMIN_EMAIL="mymedspharmacy@outlook.com"
+ADMIN_PASSWORD="AdminPassword123!"
+ADMIN_NAME="Admin User"
+CSRF_SECRET="mymeds-pharmacy-csrf-secret-key-minimum-32-characters-long-for-security"
 ```
 
 ## Features
@@ -107,8 +114,8 @@ WOOCOMMERCE_CONSUMER_SECRET="your_secret"
 
 ```bash
 # Admin Credentials
-ADMIN_EMAIL=admin@yourdomain.com
-ADMIN_PASSWORD_HASH=$2b$10$your_bcrypt_hash_here
+ADMIN_EMAIL=mymedspharmacy@outlook.com
+ADMIN_PASSWORD=AdminPassword123!
 ADMIN_NAME=Admin User
 
 # Security Configuration
@@ -124,8 +131,8 @@ POST /api/admin/login
 Content-Type: application/json
 
 {
-  "email": "admin@yourdomain.com",
-  "password": "YourPassword123!"
+  "email": "mymedspharmacy@outlook.com",
+  "password": "AdminPassword123!"
 }
 ```
 
@@ -141,14 +148,14 @@ X-CSRF-Token: csrf_token_here
 ## Adding Admin Users
 
 ### Admin User Details
-**Email:** `mymedspharmacyinc@gmail.com`  
-**Password:** `Pharm-23-medS`  
-**Name:** `MyMeds Admin`  
+**Email:** `mymedspharmacy@outlook.com`  
+**Password:** `AdminPassword123!`  
+**Name:** `Admin User`  
 **Role:** `ADMIN`
 
 ### Environment Variables
 ```bash
-# Second Admin User
+# Second Admin User (Optional)
 ADMIN2_EMAIL=mymedspharmacyinc@gmail.com
 ADMIN2_PASSWORD_HASH=$2b$12$auPmZQBuFSoEiqpK1mTQWu7ItdaRkAQjKgK0xL/X8TDA3iuGEnNFa
 ADMIN2_FIRST_NAME=MyMeds
@@ -163,7 +170,7 @@ cd /var/www/mymeds-pharmacy/backend
 npx ts-node src/ensureAdminUser2.ts
 
 # Using JavaScript
-node add-admin-user.js mymedspharmacyinc@gmail.com "Pharm-23-medS" "MyMeds" "Admin"
+node add-admin-user.js mymedspharmacyinc@gmail.com "AdminPassword123!" "MyMeds" "Admin"
 ```
 
 ---
@@ -293,7 +300,7 @@ chown -R www-data:www-data wp-content/plugins/woocommerce/
 # Test admin login
 curl -X POST http://localhost:4000/api/admin/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@yourdomain.com","password":"YourPassword123!"}'
+  -d '{"email":"mymedspharmacy@outlook.com","password":"AdminPassword123!"}'
 
 # Test WordPress API
 curl -I "https://yourdomain.com/wp-json/"

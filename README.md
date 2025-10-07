@@ -14,8 +14,8 @@ cd backend && npm run dev
 
 ## Admin Access
 - **URL**: `/admin`
-- **Email**: `admin@mymedspharmacyinc.com`
-- **Password**: `Pharm-23-medS`
+- **Email**: `mymedspharmacy@outlook.com`
+- **Password**: `AdminPassword123!`
 
 ## Features
 - Patient management portal
