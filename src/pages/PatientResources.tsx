@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Pill, Calculator, FileText, Heart, Shield, Clock, AlertTriangle, Download, ExternalLink, Search, BookOpen, Users, Phone, Mail, MapPin, Loader2 } from 'lucide-react';
+import { ArrowLeft, Pill, Calculator, FileText, Heart, Shield, Clock, AlertTriangle, ExternalLink, Search, BookOpen, Users, Phone, Mail, MapPin, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -48,6 +47,10 @@ const PatientResources = () => {
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [medicationGuides, setMedicationGuides] = useState<any[]>([]);
+  const [guidesLoading, setGuidesLoading] = useState(true);
+  const [guidesError, setGuidesError] = useState<string | null>(null);
+  const [selectedCalculator, setSelectedCalculator] = useState<string | null>(null);
   useScrollToTop();
 
   const healthCalculators = [
@@ -81,40 +84,29 @@ const PatientResources = () => {
     }
   ];
 
-  const medicationGuides = [
-    {
-      id: 'diabetes',
-      title: 'Diabetes Management',
-      description: 'Complete guide to diabetes medications and management',
-      icon: Heart,
-      category: 'Chronic Conditions',
-      pdfUrl: '/resources/diabetes-guide.pdf'
-    },
-    {
-      id: 'hypertension',
-      title: 'Hypertension Treatment',
-      description: 'Understanding blood pressure medications',
-      icon: Heart,
-      category: 'Chronic Conditions',
-      pdfUrl: '/resources/hypertension-guide.pdf'
-    },
-    {
-      id: 'antibiotics',
-      title: 'Antibiotic Safety',
-      description: 'Proper use and safety of antibiotics',
-      icon: Pill,
-      category: 'Medication Safety',
-      pdfUrl: '/resources/antibiotic-safety.pdf'
-    },
-    {
-      id: 'pain-management',
-      title: 'Pain Management',
-      description: 'Safe use of pain medications',
-      icon: Pill,
-      category: 'Medication Safety',
-      pdfUrl: '/resources/pain-management.pdf'
-    }
-  ];
+  // Fetch medication guides from API
+  useEffect(() => {
+    const fetchMedicationGuides = async () => {
+      try {
+        setGuidesLoading(true);
+        setGuidesError(null);
+        
+        const response = await api.get('/medication-guides');
+        if (response.data.success && response.data.guides) {
+          setMedicationGuides(response.data.guides);
+        } else {
+          setGuidesError('Failed to load medication guides');
+        }
+      } catch (err) {
+        console.error('Error fetching medication guides:', err);
+        setGuidesError('Failed to load medication guides. Please try again later.');
+      } finally {
+        setGuidesLoading(false);
+      }
+    };
+
+    fetchMedicationGuides();
+  }, []);
 
   // Fetch blog posts from WordPress
   useEffect(() => {
@@ -172,8 +164,6 @@ const PatientResources = () => {
     }
   ];
 
-  const [selectedCalculator, setSelectedCalculator] = useState<string | null>(null);
-
   const handleCalculatorClick = (calculatorId: string) => {
     setSelectedCalculator(calculatorId);
   };
@@ -193,9 +183,9 @@ const PatientResources = () => {
     }
   };
 
-  const handleDownloadGuide = (pdfUrl: string) => {
-    // Trigger download
-    window.open(pdfUrl, '_blank');
+  const handleViewGuide = (guideId: string) => {
+    // Navigate to guide detail page or open modal
+    navigate(`/patient-resources/guide/${guideId}`);
   };
 
   const handleReadArticle = (article: any) => {
@@ -261,28 +251,8 @@ const PatientResources = () => {
 
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-4 py-12">
-          <Tabs defaultValue="calculators" className="space-y-8">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="calculators" className="flex items-center gap-2">
-                <Calculator className="h-4 w-4" />
-                Calculators
-              </TabsTrigger>
-              <TabsTrigger value="guides" className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                Medication Guides
-              </TabsTrigger>
-              <TabsTrigger value="articles" className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4" />
-                Health Articles
-              </TabsTrigger>
-              <TabsTrigger value="emergency" className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4" />
-                Emergency Info
-              </TabsTrigger>
-            </TabsList>
-
-            {/* Health Calculators */}
-            <TabsContent value="calculators" className="space-y-6">
+          {/* Health Calculators */}
+          <div className="space-y-6">
               <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">Health Calculators</h2>
@@ -341,46 +311,83 @@ const PatientResources = () => {
                   </Dialog>
                 ))}
               </div>
-            </TabsContent>
+          </div>
 
-            {/* Medication Guides */}
-            <TabsContent value="guides" className="space-y-6">
+          {/* Medication Guides */}
+          <div className="space-y-6 mt-12">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">Medication Guides</h2>
                 <p className="text-gray-600">Comprehensive guides for understanding your medications</p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {filteredGuides.map((guide) => (
-                  <Card key={guide.id} className="hover:shadow-lg transition-all duration-300">
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <div className="w-12 h-12 bg-gradient-to-r from-brand-light to-brand rounded-xl flex items-center justify-center">
-                          <guide.icon className="h-6 w-6 text-white" />
-                        </div>
-                        <Badge variant="secondary" className="text-xs">
-                          {guide.category}
-                        </Badge>
-                      </div>
-                      <CardTitle className="text-lg">{guide.title}</CardTitle>
-                      <CardDescription>{guide.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <Button 
-                        className="w-full" 
-                        onClick={() => handleDownloadGuide(guide.pdfUrl)}
-                      >
-                        <Download className="h-4 w-4 mr-2" />
-                        Download Guide
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
+              {/* Loading State */}
+              {guidesLoading && (
+                <div className="flex justify-center items-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                  <span className="ml-2 text-gray-600">Loading medication guides...</span>
+                </div>
+              )}
 
-            {/* Health Articles */}
-            <TabsContent value="articles" className="space-y-6">
+              {/* Error State */}
+              {guidesError && (
+                <Alert className="border-yellow-200 bg-yellow-50">
+                  <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                  <AlertDescription className="text-yellow-800">
+                    {guidesError}
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {/* Guides Grid */}
+              {!guidesLoading && !guidesError && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {filteredGuides.map((guide) => {
+                    // Map icon string to actual icon component
+                    const IconComponent = guide.icon === 'Heart' ? Heart : Pill;
+                    
+                    return (
+                      <Card key={guide.id} className="hover:shadow-lg transition-all duration-300">
+                        <CardHeader>
+                          <div className="flex items-center justify-between">
+                            <div className="w-12 h-12 bg-gradient-to-r from-brand-light to-brand rounded-xl flex items-center justify-center">
+                              <IconComponent className="h-6 w-6 text-white" />
+                            </div>
+                            <Badge variant="secondary" className="text-xs">
+                              {guide.category}
+                            </Badge>
+                          </div>
+                          <CardTitle className="text-lg">{guide.title}</CardTitle>
+                          <CardDescription>{guide.description}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <Button 
+                            className="w-full" 
+                            onClick={() => handleViewGuide(guide.id)}
+                          >
+                            <BookOpen className="h-4 w-4 mr-2" />
+                            View Guide
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* No Guides State */}
+              {!guidesLoading && !guidesError && filteredGuides.length === 0 && (
+                <div className="text-center py-12">
+                  <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No guides found</h3>
+                  <p className="text-gray-600">
+                    No medication guides match "{searchTerm}". Try a different search term.
+                  </p>
+                </div>
+              )}
+          </div>
+
+          {/* Health Articles */}
+          <div className="space-y-6 mt-12">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">Health Articles</h2>
       <p className="text-gray-600">
@@ -466,10 +473,10 @@ const PatientResources = () => {
                   </p>
                 </div>
               )}
-            </TabsContent>
+          </div>
 
-            {/* Emergency Information */}
-            <TabsContent value="emergency" className="space-y-6">
+          {/* Emergency Information */}
+          <div className="space-y-6 mt-12">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">Emergency Information</h2>
                 <p className="text-gray-600">Important contact information for emergencies</p>
@@ -513,8 +520,7 @@ const PatientResources = () => {
                   </Button>
                 </CardContent>
               </Card>
-            </TabsContent>
-          </Tabs>
+          </div>
 
           {/* Contact Information */}
           <Card className="mt-12 border-white">

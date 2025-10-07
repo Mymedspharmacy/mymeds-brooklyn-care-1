@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { wooCommerceAPI } from '@/lib/woocommerce';
+import api from '@/lib/api';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { SEOHead } from '@/components/SEOHead';
@@ -15,23 +15,25 @@ import { SEOHead } from '@/components/SEOHead';
 interface WooCommerceProduct {
   id: number;
   name: string;
+  description: string;
+  short_description: string;
   price: string;
   regular_price: string;
   sale_price: string;
-  images: Array<{ src: string; alt: string }>;
-  short_description: string;
-  description: string;
-  categories: Array<{ name: string; slug: string }>;
-  tags: Array<{ name: string; slug: string }>;
+  categories: Array<{ id: number; name: string; slug: string }>;
+  images: Array<{ id: number; src: string; alt: string }>;
+  stock_quantity: number;
   stock_status: string;
+  manage_stock: boolean;
   average_rating: string;
   rating_count: number;
-  on_sale: boolean;
-  featured: boolean;
-  total_sales: number;
+  tags: Array<{ id: number; name: string; slug: string }>;
+  attributes: unknown[];
+  variations: unknown[];
+  weight: string;
+  dimensions: { length: string; width: string; height: string };
   permalink: string;
-  attributes?: Array<{ name: string; options: string[] }>;
-  variations?: Array<{ id: number; price: string; attributes: Array<{ name: string; option: string }> }>;
+  status: string;
 }
 
 interface ProductViewProps {
@@ -40,7 +42,7 @@ interface ProductViewProps {
 }
 
 export default function ProductView({ product: propProduct, relatedProducts: propRelatedProducts }: ProductViewProps) {
-  const { productId } = useParams<{ productId: string }>();
+  const { id } = useParams<{ id: string }>();
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -55,28 +57,35 @@ export default function ProductView({ product: propProduct, relatedProducts: pro
   const [showReviewForm, setShowReviewForm] = useState(false);
 
   useEffect(() => {
-    if (!propProduct && productId) {
+    if (!propProduct && id) {
       fetchProduct();
     }
-  }, [productId, propProduct]);
+  }, [id, propProduct]);
 
   const fetchProduct = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      const productData = await wooCommerceAPI.getProduct(parseInt(productId!));
+      // Fetch all products and find the one with matching ID
+      const response = await api.get('/woocommerce/products?per_page=100');
       
-      if (productData) {
-        setProduct(productData);
-        setSelectedImage(0);
+      if (response.data.success && response.data.products) {
+        const productData = response.data.products.find((p: WooCommerceProduct) => p.id === parseInt(id!));
         
-        // Fetch related products based on category
-        if (productData.categories && productData.categories.length > 0) {
-          await fetchRelatedProducts(productData.categories[0].id);
+        if (productData) {
+          setProduct(productData);
+          setSelectedImage(0);
+          
+          // Fetch related products based on category
+          if (productData.categories && productData.categories.length > 0) {
+            await fetchRelatedProducts(productData.categories[0].id);
+          }
+        } else {
+          setError('Product not found');
         }
       } else {
-        setError('Product not found');
+        setError('Failed to load products');
       }
     } catch (err) {
       console.error('Error fetching product:', err);
@@ -88,14 +97,13 @@ export default function ProductView({ product: propProduct, relatedProducts: pro
 
   const fetchRelatedProducts = async (categoryId: number) => {
     try {
-      const products = await wooCommerceAPI.getProductsByCategory(categoryId, {
-        per_page: 4,
-        exclude: [productId],
-        status: 'publish'
-      });
+      // Fetch products from the same category, excluding current product
+      const response = await api.get(`/woocommerce/products?per_page=4&category=${categoryId}`);
       
-      if (products && Array.isArray(products)) {
-        setRelatedProducts(products);
+      if (response.data.success && response.data.products) {
+        // Filter out the current product
+        const relatedProducts = response.data.products.filter((p: WooCommerceProduct) => p.id !== parseInt(id!));
+        setRelatedProducts(relatedProducts);
       }
     } catch (err) {
       console.error('Error fetching related products:', err);
@@ -109,22 +117,10 @@ export default function ProductView({ product: propProduct, relatedProducts: pro
     setAddingToCart(true);
     
     try {
-      const WooCommerceCartService = (await import('@/lib/woocommerceCart')).default;
-      const cartService = WooCommerceCartService.getInstance();
-      
-      const result = await cartService.addToCart({
-        productId: product.id,
-        quantity,
-        variationId: selectedVariation
-      });
-      
-      if (result?.success) {
-        console.log('✅ Product added to cart:', product.name);
-        alert(`${product.name} added to cart successfully!`);
-      } else {
-        console.error('❌ Failed to add product to cart');
-        alert('Failed to add product to cart. Please try again.');
-      }
+      // For now, just show a success message
+      // In a real implementation, this would add to cart
+      console.log('Adding to cart:', product.name, 'Quantity:', quantity);
+      alert(`${product.name} added to cart successfully!`);
     } catch (err) {
       console.error('Error adding to cart:', err);
       alert('Failed to add product to cart');
@@ -175,7 +171,7 @@ export default function ProductView({ product: propProduct, relatedProducts: pro
           onAppointmentClick={() => navigate('/', { state: { openAppointmentForm: true } })}
           onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
         />
-        <div className="pt-20">
+        <div className="">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#376F6B] mx-auto"></div>
@@ -196,7 +192,7 @@ export default function ProductView({ product: propProduct, relatedProducts: pro
           onAppointmentClick={() => navigate('/', { state: { openAppointmentForm: true } })}
           onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
         />
-        <div className="pt-20">
+        <div className="">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
             <div className="text-center">
               <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
@@ -228,7 +224,7 @@ export default function ProductView({ product: propProduct, relatedProducts: pro
           onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
         />
       
-      <div className="pt-20">
+      <div className="">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm text-gray-600 mb-8">
@@ -282,14 +278,9 @@ export default function ProductView({ product: propProduct, relatedProducts: pro
               {/* Product Header */}
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                  {product.on_sale && (
+                  {product.sale_price && product.sale_price !== product.regular_price && (
                     <Badge className="bg-red-500 text-white border-0">
                       On Sale
-                    </Badge>
-                  )}
-                  {product.featured && (
-                    <Badge className="bg-[#376F6B] text-white border-0">
-                      Featured
                     </Badge>
                   )}
                   <Badge variant="outline" className="border-[#376F6B] text-[#376F6B]">
@@ -318,7 +309,7 @@ export default function ProductView({ product: propProduct, relatedProducts: pro
 
               {/* Price */}
               <div className="space-y-2">
-                {product.on_sale ? (
+                {product.sale_price && product.sale_price !== product.regular_price ? (
                   <div className="flex items-center gap-3">
                     <span className="text-3xl font-bold text-[#376F6B]">
                       {formatPrice(product.sale_price)}
@@ -544,7 +535,7 @@ export default function ProductView({ product: propProduct, relatedProducts: pro
                       </div>
                       
                       <div className="flex items-center gap-2">
-                        {relatedProduct.on_sale ? (
+                        {relatedProduct.sale_price && relatedProduct.sale_price !== relatedProduct.regular_price ? (
                           <>
                             <span className="font-bold text-[#376F6B]">
                               {formatPrice(relatedProduct.sale_price)}

@@ -6,7 +6,6 @@ import {
   Pill, Heart, Shield, Brain, Leaf, Eye, Phone, ArrowRight, Star
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { redirectToShop } from '@/utils/shopRedirect';
 
 export const OTCSection = () => {
   const navigate = useNavigate();
@@ -148,7 +147,7 @@ export const OTCSection = () => {
                 {/* Enhanced Button */}
                 <Button 
                   className="w-full bg-white text-[#57BBB6] hover:bg-gray-100 font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
-                  onClick={() => redirectToShop()}
+                  onClick={() => navigate('/shop')}
                 >
                   <ArrowRight className="w-4 h-4 mr-2" />
                   Shop Now

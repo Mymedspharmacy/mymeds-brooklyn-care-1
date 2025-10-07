@@ -49,7 +49,7 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
   const steps = [
     { id: 1, title: 'Patient Info', icon: User },
     { id: 2, title: 'Prescription', icon: Pill },
-    { id: 3, title: 'Upload & Submit', icon: Upload }
+    { id: 3, title: 'Upload & Submit (Optional)', icon: Upload }
   ];
 
   // Validation functions
@@ -104,9 +104,8 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
   const validateStep3 = (): boolean => {
     const newErrors: FormErrors = {};
     
-    if (!prescriptionFile) {
-      newErrors.prescriptionFile = 'Prescription file is required';
-    } else {
+    // File upload is now optional, but if provided, validate it
+    if (prescriptionFile) {
       // Check file size (10MB limit)
       if (prescriptionFile.size > 10 * 1024 * 1024) {
         newErrors.prescriptionFile = 'File size must be less than 10MB';
@@ -637,13 +636,13 @@ export const RefillForm = ({ isOpen, onClose }: RefillFormProps) => {
                       ) : (
                         <div className="space-y-2">
                           <p className="text-gray-600">
-                            Drag and drop your prescription here, or{' '}
+                            Drag and drop your prescription here (optional), or{' '}
                             <label htmlFor="prescriptionFile" className="text-[#376F6B] hover:text-[#2A5A56] cursor-pointer font-medium">
                               browse files
                             </label>
                           </p>
                           <p className="text-xs text-gray-500">
-                            Supports: JPG, PNG, PDF (Max 10MB)
+                            Supports: JPG, PNG, PDF (Max 10MB) - Optional
                           </p>
                         </div>
                       )}

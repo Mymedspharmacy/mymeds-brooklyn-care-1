@@ -28,9 +28,11 @@ const HIPAANotice = lazy(() => import("./pages/HIPAANotice"));
 const PatientResources = lazy(() => import("./pages/PatientResources"));
 const PatientPortal = lazy(() => import("./pages/PatientPortal"));
 const PatientAccountCreation = lazy(() => import("./pages/PatientAccountCreation"));
+const Checkout = lazy(() => import("./pages/Checkout"));
 const ProductView = lazy(() => import("./pages/ProductView"));
 const MedicationInteractionChecker = lazy(() => import("./components/MedicationInteractionChecker"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
+const MedicationGuide = lazy(() => import("./pages/MedicationGuide"));
 
 // Loading component
 const PageLoader = () => (
@@ -78,7 +80,8 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/shop" element={<Shop />} />
-                <Route path="/product/:productId" element={<ProductView />} />
+                <Route path="/product/:id" element={<ProductView />} />
+                <Route path="/checkout" element={<Checkout />} />
                 <Route path="/services" element={<Services />} />
                 <Route path="/special-offers" element={<SpecialOffers />} />
                 <Route path="/blog" element={<Blog />} />
@@ -92,6 +95,7 @@ const App = () => (
                 <Route path="/terms-of-service" element={<TermsOfService />} />
                 <Route path="/hipaa-notice" element={<HIPAANotice />} />
                 <Route path="/patient-resources" element={<PatientResources />} />
+                <Route path="/patient-resources/guide/:id" element={<MedicationGuide />} />
                 <Route path="/patient-portal" element={<PatientPortal />} />
                 <Route path="/patient-account-creation" element={<PatientAccountCreation />} />
                 <Route path="/medication-interaction-checker" element={<MedicationInteractionChecker />} />

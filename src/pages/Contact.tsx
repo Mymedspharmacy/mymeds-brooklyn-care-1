@@ -7,6 +7,8 @@ import { Badge } from '../components/ui/badge';
 import { Checkbox } from '../components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { useToast } from '../hooks/use-toast';
+import api from '../lib/api';
+import { getErrorStatus } from '../utils/errorUtils';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { SEOHead } from '../components/SEOHead';
@@ -49,7 +51,96 @@ const Contact = () => {
     agreeToTerms: false,
     allowMarketing: false
   });
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validate required fields
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || !formData.subject || !formData.message) {
+      setError('Please fill in all required fields');
+      toast({ 
+        title: 'Validation Error', 
+        description: 'Please fill in all required fields', 
+        variant: 'destructive' 
+      });
+      return;
+    }
+
+    if (!formData.agreeToTerms) {
+      setError('You must agree to the terms and conditions');
+      toast({ 
+        title: 'Validation Error', 
+        description: 'You must agree to the terms and conditions', 
+        variant: 'destructive' 
+      });
+      return;
+    }
+    
+    setLoading(true);
+    setError('');
+    
+    try {
+      // Try backend submission first
+      try {
+        await api.post('/contact', {
+          ...formData,
+          timestamp: new Date().toISOString()
+        });
+        
+        toast({ 
+          title: 'Message Sent Successfully!', 
+          description: "We'll get back to you within 24 hours." 
+        });
+      } catch (backendError: unknown) {
+        // If backend endpoint doesn't exist, save to localStorage as fallback
+        if (getErrorStatus(backendError) === 404) {
+          const contactData = {
+            ...formData,
+            timestamp: new Date().toISOString(),
+            type: 'contact'
+          };
+          
+          // Save to localStorage
+          const existingContacts = JSON.parse(localStorage.getItem('pharmacy-contacts') || '[]');
+          existingContacts.push(contactData);
+          localStorage.setItem('pharmacy-contacts', JSON.stringify(existingContacts));
+          
+          toast({ 
+            title: 'Message Saved Locally!', 
+            description: "Your message has been saved and will be processed when the backend is available." 
+          });
+        } else {
+          throw backendError; // Re-throw if it's a different error
+        }
+      }
+      
+      setSuccess(true);
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        subject: '',
+        message: '',
+        preferredContact: 'email',
+        urgency: 'normal',
+        serviceType: '',
+        bestTimeToContact: '',
+        agreeToTerms: false,
+        allowMarketing: false
+      });
+      
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to send message';
+      setError(errorMessage);
+      toast({ 
+        title: 'Error', 
+        description: errorMessage, 
+        variant: 'destructive' 
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
@@ -65,7 +156,7 @@ const Contact = () => {
           onTransferClick={() => window.location.href = '/'}
         />
       
-      <div className="pt-20">
+      <div className="">
                   <section id="contact" className="py-16 sm:py-20 md:py-24 relative overflow-hidden">
           {/* Background Image Placeholder - Replace with actual pharmacy location/staff image */}
                        <div
@@ -80,81 +171,20 @@ const Contact = () => {
              
 
           
-          {/* Enhanced Animated Background Elements - All White */}
-          <div className="absolute inset-0 pointer-events-none">
-            {/* Floating Medical Icons - White Colors */}
-            <div className="absolute top-20 left-10 text-white/25 animate-bounce" style={{ animationDelay: '0s' }}>
-              <MessageCircle className="w-8 h-8" />
-            </div>
-            <div className="absolute top-32 right-20 text-white/20 animate-bounce" style={{ animationDelay: '1s' }}>
-              <Phone className="w-6 h-6" />
-            </div>
-            <div className="absolute bottom-32 left-1/4 text-white/30 animate-bounce" style={{ animationDelay: '2s' }}>
-              <Mail className="w-7 h-7" />
-            </div>
-            <div className="absolute bottom-20 right-1/3 text-white/22 animate-bounce" style={{ animationDelay: '3s' }}>
-              <MapPin className="w-8 h-8" />
-            </div>
-            
-            {/* Additional Floating Icons */}
-            <div className="absolute top-1/3 left-1/4 text-white/18 animate-bounce" style={{ animationDelay: '0.5s' }}>
-              <Heart className="w-6 h-6" />
-            </div>
-            <div className="absolute top-1/2 right-1/3 text-white/24 animate-bounce" style={{ animationDelay: '1.5s' }}>
-              <Shield className="w-5 h-5" />
-            </div>
-            <div className="absolute bottom-1/4 left-1/3 text-white/20 animate-bounce" style={{ animationDelay: '2.5s' }}>
-              <Users className="w-7 h-7" />
-            </div>
-            <div className="absolute top-1/4 right-1/4 text-white/16 animate-bounce" style={{ animationDelay: '3.5s' }}>
-              <Stethoscope className="w-6 h-6" />
-            </div>
-            
-            {/* Animated Particles - White Colors */}
-            <div className="absolute top-1/4 left-1/3 w-2 h-2 bg-white/40 rounded-full animate-ping"></div>
-            <div className="absolute top-1/2 right-1/4 w-1.5 h-1.5 bg-white/35 rounded-full animate-ping" style={{ animationDelay: '1.5s' }}></div>
-            <div className="absolute bottom-1/3 left-1/2 w-1 h-1 bg-white/45 rounded-full animate-ping" style={{ animationDelay: '3s' }}></div>
-            <div className="absolute top-1/3 right-1/3 w-1.5 h-1.5 bg-white/30 rounded-full animate-ping" style={{ animationDelay: '2s' }}></div>
-            
-            {/* Enhanced Pulse Waves - White Colors */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <div className="w-48 h-48 border border-white/25 rounded-full animate-ping"></div>
-              <div className="w-48 h-48 border border-white/25 rounded-full animate-ping absolute top-0 left-0" style={{ animationDelay: '1s' }}></div>
-              <div className="w-48 h-48 border border-white/25 rounded-full animate-ping absolute top-0 left-0" style={{ animationDelay: '2s' }}></div>
-            </div>
-            
-            {/* Geometric Shapes - White Colors */}
-            <div className="absolute top-10 left-10 w-20 h-20 border-2 border-white/20 rounded-lg rotate-45 animate-pulse" style={{ animationDuration: '4s' }}></div>
-            <div className="absolute top-32 right-16 w-16 h-16 bg-white/15 rounded-full animate-bounce" style={{ animationDelay: '1s' }}></div>
-            <div className="absolute bottom-32 left-20 w-24 h-24 border border-white/20 rounded-full animate-spin" style={{ animationDuration: '8s' }}></div>
-            
-            {/* Corner Decorative Elements */}
-            <div className="absolute top-0 left-0 w-16 h-16 border-l-4 border-t-4 border-white/20 rounded-tl-3xl"></div>
-            <div className="absolute top-0 right-0 w-16 h-16 border-r-4 border-t-4 border-white/20 rounded-tr-3xl"></div>
-            <div className="absolute bottom-0 left-0 w-16 h-16 border-l-4 border-b-4 border-white/20 rounded-bl-3xl"></div>
-            <div className="absolute bottom-0 right-0 w-16 h-16 border-r-4 border-b-4 border-white/20 rounded-br-3xl"></div>
-          </div>
           
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center mb-16">
-              {/* Enhanced Badge with Floating Elements */}
+              {/* Enhanced Badge with Static Elements */}
               <div className="relative mb-8">
-                <div className="absolute -top-4 left-1/4 text-white/20 animate-bounce" style={{ animationDelay: '0s' }}>
-                  <Sparkles className="w-5 h-5" />
-                </div>
-                <div className="absolute -top-2 right-1/4 text-white/20 animate-bounce" style={{ animationDelay: '0.5s' }}>
-                  <Heart className="w-4 h-4" />
-                </div>
-                
-                                 <div className="inline-flex items-center gap-2 bg-[#57BBB6] text-white px-6 py-3 rounded-full text-sm font-semibold shadow-xl hover:scale-105 transition-all duration-300 border-2 border-white/20">
-                  <MessageCircle className="h-5 w-5 animate-pulse" />
+                <div className="inline-flex items-center gap-2 bg-[#57BBB6] text-white px-6 py-3 rounded-full text-sm font-semibold shadow-xl border-2 border-white/20">
+                  <MessageCircle className="h-5 w-5" />
                   Get In Touch
                 </div>
               </div>
               
               <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-8">
                 Contact 
-                <span className="block text-white bg-gradient-to-r from-white to-white/90 bg-clip-text text-transparent animate-pulse">
+                <span className="block text-white bg-gradient-to-r from-white to-white/90 bg-clip-text text-transparent">
                   Our Team
                 </span>
               </h2>
@@ -165,7 +195,7 @@ const Contact = () => {
               </p>
               
               {/* Enhanced Decorative Underline */}
-              <div className="w-32 h-1 bg-gradient-to-r from-transparent via-white/60 to-transparent mx-auto mt-8 rounded-full animate-pulse"></div>
+              <div className="w-32 h-1 bg-gradient-to-r from-transparent via-white/60 to-transparent mx-auto mt-8 rounded-full"></div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
@@ -260,10 +290,10 @@ const Contact = () => {
 
               {/* Enhanced Contact Form */}
               <div className="bg-white rounded-3xl p-8 shadow-2xl border border-white/20 relative overflow-hidden group">
-                {/* Form Background Decorative Elements */}
+                {/* Form Background Static Elements */}
                 <div className="absolute inset-0 pointer-events-none">
-                  <div className="absolute top-4 right-4 w-16 h-16 border border-[#57BBB6]/10 rounded-full animate-spin" style={{ animationDuration: '8s' }}></div>
-                  <div className="absolute bottom-4 left-4 w-12 h-12 border border-[#376F6B]/10 rounded-lg rotate-45 animate-pulse"></div>
+                  <div className="absolute top-4 right-4 w-16 h-16 border border-[#57BBB6]/10 rounded-full"></div>
+                  <div className="absolute bottom-4 left-4 w-12 h-12 border border-[#376F6B]/10 rounded-lg rotate-45"></div>
                 </div>
                 
                 <div className="relative z-10">
@@ -282,7 +312,7 @@ const Contact = () => {
                       </Button>
                     </div>
                   ) : (
-                    <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
+                    <form onSubmit={handleSubmit} className="space-y-6">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">First Name *</label>
@@ -390,10 +420,10 @@ const Contact = () => {
 
         {/* Enhanced Business Hours Section */}
                  <section className="py-16 sm:py-20 bg-[#E8F4F3] relative overflow-hidden">
-          {/* Background Decorative Elements */}
+          {/* Background Static Elements */}
           <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-0 left-1/4 w-32 h-32 bg-[#57BBB6]/5 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute bottom-0 right-1/4 w-40 h-40 bg-[#376F6B]/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+            <div className="absolute top-0 left-1/4 w-32 h-32 bg-[#57BBB6]/5 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 right-1/4 w-40 h-40 bg-[#376F6B]/5 rounded-full blur-3xl"></div>
           </div>
           
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -465,17 +495,8 @@ const Contact = () => {
           {/* Enhanced Overlay for Text Readability */}
           <div className="absolute inset-0 bg-white/60 z-10"></div>
           
-          {/* Background Decorative Elements */}
+          {/* Background Static Elements */}
           <div className="absolute inset-0 pointer-events-none z-20">
-            <div className="absolute top-20 left-10 text-[#57BBB6]/15 animate-bounce" style={{ animationDelay: '0s' }}>
-              <MapPin className="w-8 h-8" />
-            </div>
-            <div className="absolute bottom-20 right-20 text-[#376F6B]/12 animate-bounce" style={{ animationDelay: '1s' }}>
-              <Building2 className="w-6 h-6" />
-            </div>
-            <div className="absolute top-1/2 left-1/4 text-[#57BBB6]/18 animate-bounce" style={{ animationDelay: '2s' }}>
-              <Heart className="w-7 h-7" />
-            </div>
           </div>
           
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-30">

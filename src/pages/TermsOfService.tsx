@@ -24,7 +24,7 @@ const TermsOfService = () => {
           onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
         />
       
-      <div className="pt-20">
+      <div className="">
         {/* Header */}
         <div className="bg-white shadow-sm border-b">
           <div className="container mx-auto px-4 py-6">

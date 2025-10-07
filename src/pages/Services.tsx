@@ -429,7 +429,7 @@ export default function Services() {
         onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
       />
       
-      <div className="pt-20">
+      <div className="">
         {!selectedService ? (
           <>
             {/* Hero Section */}

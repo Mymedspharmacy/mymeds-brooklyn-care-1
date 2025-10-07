@@ -84,21 +84,44 @@ export const WooCommerceCheckout: React.FC<WooCommerceCheckoutProps> = ({
     setLoading(true);
 
     try {
-      const response = await fetch(`${env.BACKEND_URL}/api/woocommerce-payments/create-order`, {
+      const response = await fetch(`${env.BACKEND_URL}/api/woocommerce/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify({
-          items: items.map(item => ({
-            productId: item.productId,
+          billing: {
+            first_name: customerInfo.firstName,
+            last_name: customerInfo.lastName,
+            email: customerInfo.email,
+            phone: customerInfo.phone || '',
+            address_1: customerInfo.address?.address1 || '',
+            address_2: customerInfo.address?.address2 || '',
+            city: customerInfo.address?.city || '',
+            state: customerInfo.address?.state || '',
+            postcode: customerInfo.address?.postcode || '',
+            country: customerInfo.address?.country || 'US'
+          },
+          shipping: {
+            first_name: customerInfo.firstName,
+            last_name: customerInfo.lastName,
+            address_1: customerInfo.address?.address1 || '',
+            address_2: customerInfo.address?.address2 || '',
+            city: customerInfo.address?.city || '',
+            state: customerInfo.address?.state || '',
+            postcode: customerInfo.address?.postcode || '',
+            country: customerInfo.address?.country || 'US'
+          },
+          line_items: items.map(item => ({
+            product_id: item.productId,
             quantity: item.quantity,
             price: item.price
           })),
-          customerInfo,
-          totalAmount,
-          paymentMethod: 'woocommerce'
+          payment_method: 'bacs',
+          payment_method_title: 'Direct Bank Transfer',
+          set_paid: false,
+          customer_note: ''
         })
       });
 

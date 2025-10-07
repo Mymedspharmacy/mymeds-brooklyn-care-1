@@ -10,7 +10,7 @@ import {
   Package, Volume2, VolumeX, Shield, Plus, Clock,
   Truck, Navigation, AlertTriangle, AlertCircle,
   Save, Zap, Check, ExternalLink, FileText, DollarSign,
-  Loader2, Copy
+  Loader2, Copy, X, User, Mail, Phone
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -38,7 +38,6 @@ import { useToast } from "@/hooks/use-toast";
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', icon: TrendingUp },
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-  { id: 'orders', label: 'Pharmacy Orders', icon: ShoppingCart },
   { id: 'woocommerce-orders', label: 'WooCommerce Orders', icon: Package },
   { id: 'delivery-map', label: 'Delivery Map', icon: MapPin },
   { id: 'locations', label: 'Locations', icon: MapPin },
@@ -46,11 +45,9 @@ const TABS = [
   { id: 'transfers', label: 'Transfer Requests', icon: RefreshCw },
   { id: 'contacts', label: 'Contact Requests', icon: MessageSquare },
   { id: 'form-submissions', label: 'All Form Submissions', icon: FileText },
-  { id: 'notifications', label: 'Notifications', icon: Bell },
   { id: 'inventory', label: 'Inventory', icon: ShoppingCart },
   { id: 'crm', label: 'CRM', icon: Users },
   { id: 'scheduling', label: 'Scheduling', icon: Calendar },
-  { id: 'integration', label: 'Integration', icon: Link },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
@@ -67,8 +64,6 @@ export default function Admin() {
   const [showSessionWarning, setShowSessionWarning] = useState(false);
   
   // Data states for real functionality
-  const [orders, setOrders] = useState([]);
-  const [orderStats, setOrderStats] = useState(null);
   const [woocommerceOrders, setWooCommerceOrders] = useState([]);
   const [woocommerceOrderStats, setWooCommerceOrderStats] = useState(null);
   const [refillRequests, setRefillRequests] = useState([]);
@@ -81,20 +76,18 @@ export default function Admin() {
   const [formSubmissionsLoading, setFormSubmissionsLoading] = useState(false);
   const [selectedFormSubmission, setSelectedFormSubmission] = useState(null);
   const [showFormSubmissionDialog, setShowFormSubmissionDialog] = useState(false);
-  const [adminNotifications, setAdminNotifications] = useState([]);
-  const [notificationStats, setNotificationStats] = useState(null);
+  const [selectedRefill, setSelectedRefill] = useState(null);
+  const [showRefillDialog, setShowRefillDialog] = useState(false);
+  const [selectedTransfer, setSelectedTransfer] = useState(null);
+  const [showTransferDialog, setShowTransferDialog] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [orderStatusFilter, setOrderStatusFilter] = useState('all');
   const [woocommerceOrderStatusFilter, setWooCommerceOrderStatusFilter] = useState('all');
   const [refillStatusFilter, setRefillStatusFilter] = useState('all');
   const [transferStatusFilter, setTransferStatusFilter] = useState('all');
-  const [notificationTypeFilter, setNotificationTypeFilter] = useState('all');
-  const [ordersLoading, setOrdersLoading] = useState(false);
   const [woocommerceOrdersLoading, setWooCommerceOrdersLoading] = useState(false);
   const [refillsLoading, setRefillsLoading] = useState(false);
   const [transfersLoading, setTransfersLoading] = useState(false);
   const [contactsLoading, setContactsLoading] = useState(false);
-  const [notificationsLoading, setNotificationsLoading] = useState(false);
   
   // Inventory state
   const [inventoryItems, setInventoryItems] = useState([]);
@@ -170,6 +163,10 @@ export default function Admin() {
   const [showAppointmentTypeDialog, setShowAppointmentTypeDialog] = useState(false);
   const [showNewAppointmentDialog, setShowNewAppointmentDialog] = useState(false);
   const [showBlockTimeDialog, setShowBlockTimeDialog] = useState(false);
+  const [showAppointmentDetailsDialog, setShowAppointmentDetailsDialog] = useState(false);
+  const [editingAppointment, setEditingAppointment] = useState(false);
+  const [showWooCommerceOrderDetailsDialog, setShowWooCommerceOrderDetailsDialog] = useState(false);
+  const [selectedWooCommerceOrder, setSelectedWooCommerceOrder] = useState(null);
 
   // WordPress management state
   const [wordPressStatus, setWordPressStatus] = useState({
@@ -311,34 +308,6 @@ export default function Admin() {
     loadDashboardData();
   }, [user]);
 
-  // Load orders data when orders tab is active
-  const loadOrdersData = useCallback(async () => {
-    setOrdersLoading(true);
-    try {
-      const [ordersResponse, statsResponse] = await Promise.all([
-        api.get(`/orders/admin/all?status=${orderStatusFilter}&search=${searchTerm}&limit=50`),
-        api.get('/orders/admin/stats')
-      ]);
-      
-      if (ordersResponse.data.success) {
-        // Ensure data is always an array
-        const ordersData = Array.isArray(ordersResponse.data.data.orders) 
-          ? ordersResponse.data.data.orders 
-          : [];
-        setOrders(ordersData);
-      }
-      if (statsResponse.data.success) {
-        setOrderStats(statsResponse.data.data);
-      }
-    } catch (error) {
-      console.error('Failed to load orders data:', error);
-      // Set empty array on error
-      setOrders([]);
-    } finally {
-      setOrdersLoading(false);
-    }
-  }, [orderStatusFilter, searchTerm]);
-
   // Load WooCommerce orders data
   const loadWooCommerceOrdersData = useCallback(async () => {
     setWooCommerceOrdersLoading(true);
@@ -391,7 +360,22 @@ export default function Admin() {
       const allSubmissions = [];
       
       // Add contact forms
-      if (contactsResponse.data && Array.isArray(contactsResponse.data)) {
+      if (contactsResponse.data && contactsResponse.data.success && Array.isArray(contactsResponse.data.data)) {
+        contactsResponse.data.data.forEach(contact => {
+          allSubmissions.push({
+            id: contact.id,
+            type: 'Contact Form',
+            name: contact.fullName || `${contact.firstName} ${contact.lastName}`,
+            email: contact.email,
+            subject: contact.subject,
+            message: contact.message,
+            timestamp: contact.createdAt || new Date().toISOString(),
+            status: 'New',
+            priority: 'Normal'
+          });
+        });
+      } else if (contactsResponse.data && Array.isArray(contactsResponse.data)) {
+        // Fallback for old format
         contactsResponse.data.forEach(contact => {
           allSubmissions.push({
             id: contact.id,
@@ -465,9 +449,9 @@ export default function Admin() {
         api.get('/refill-requests/stats/overview')
       ]);
       
-      if (refillsResponse.data) {
+      if (refillsResponse.data && refillsResponse.data.success) {
         // Ensure data is always an array
-        const refillsData = Array.isArray(refillsResponse.data) ? refillsResponse.data : [];
+        const refillsData = Array.isArray(refillsResponse.data.data) ? refillsResponse.data.data : [];
         setRefillRequests(refillsData);
       }
       if (statsResponse.data) {
@@ -481,13 +465,6 @@ export default function Admin() {
       setRefillsLoading(false);
     }
   }, [refillStatusFilter]);
-
-  // Load orders when orders tab becomes active
-  useEffect(() => {
-    if (activeTab === 'orders' && user) {
-      loadOrdersData();
-    }
-  }, [activeTab, user, loadOrdersData]);
 
   // Load WooCommerce orders when woocommerce-orders tab becomes active
   useEffect(() => {
@@ -531,9 +508,9 @@ export default function Admin() {
         api.get('/transfer-requests/stats/overview')
       ]);
       
-      if (transfersResponse.data) {
+      if (transfersResponse.data && transfersResponse.data.success) {
         // Ensure data is always an array
-        const transfersData = Array.isArray(transfersResponse.data) ? transfersResponse.data : [];
+        const transfersData = Array.isArray(transfersResponse.data.data) ? transfersResponse.data.data : [];
         setTransferRequests(transfersData);
       }
       if (statsResponse.data) {
@@ -564,7 +541,12 @@ export default function Admin() {
         api.get('/contact/stats/overview').catch(() => ({ data: { total: 0, unread: 0, today: 0, thisWeek: 0, thisMonth: 0 } }))
       ]);
       
-      if (contactsResponse.data && Array.isArray(contactsResponse.data) && contactsResponse.data.length > 0) {
+      if (contactsResponse.data && contactsResponse.data.success) {
+        // Ensure data is always an array
+        const contactsData = Array.isArray(contactsResponse.data.data) ? contactsResponse.data.data : [];
+        setContacts(contactsData);
+      } else if (contactsResponse.data && Array.isArray(contactsResponse.data) && contactsResponse.data.length > 0) {
+        // Fallback for old format
         setContacts(contactsResponse.data);
       } else {
         // Production: Only use real contact data from database
@@ -594,45 +576,12 @@ export default function Admin() {
     }
   }, [activeTab, user, loadTransfersData]);
 
-  // Load notifications data
-  const loadNotificationsData = useCallback(async () => {
-    setNotificationsLoading(true);
-    try {
-      const [notificationsResponse, statsResponse] = await Promise.all([
-        api.get(`/notifications?type=${notificationTypeFilter}&limit=50`),
-        api.get('/notifications/stats/overview')
-      ]);
-      
-      if (notificationsResponse.data) {
-        // Ensure data is always an array
-        const notificationsData = Array.isArray(notificationsResponse.data) ? notificationsResponse.data : [];
-        setAdminNotifications(notificationsData);
-      }
-      if (statsResponse.data) {
-        setNotificationStats(statsResponse.data);
-      }
-    } catch (error) {
-      console.error('Failed to load notifications data:', error);
-      // Set empty array on error
-      setAdminNotifications([]);
-    } finally {
-      setNotificationsLoading(false);
-    }
-  }, [notificationTypeFilter]);
-
   // Load contacts when contacts tab becomes active
   useEffect(() => {
     if (activeTab === 'contacts' && user) {
       loadContactsData();
     }
   }, [activeTab, user, loadContactsData]);
-
-  // Load notifications when notifications tab becomes active
-  useEffect(() => {
-    if (activeTab === 'notifications' && user) {
-      loadNotificationsData();
-    }
-  }, [activeTab, user, loadNotificationsData]);
 
   // Load inventory data
   const loadInventoryData = useCallback(async () => {
@@ -1256,15 +1205,15 @@ export default function Admin() {
       if (response.data.success) {
         alert('New order created successfully!');
         // Refresh orders data
-        if (activeTab === 'orders') {
-          loadOrdersData();
+        if (activeTab === 'woocommerce-orders') {
+          loadWooCommerceOrdersData();
         }
       }
     } catch (error) {
       console.error('Failed to create new order:', error);
       alert('Failed to create new order. Please try again.');
     }
-  }, [activeTab, loadOrdersData]);
+  }, [activeTab, loadWooCommerceOrdersData]);
 
   // Create new refill function
   const handleCreateNewRefill = useCallback(async () => {
@@ -1647,84 +1596,70 @@ export default function Admin() {
     }
   }, [navigate]);
 
-  // Order management functions
-  const handleUpdateOrderStatus = useCallback(async (orderId: string, status: string) => {
+  // Refill request action handlers
+  const handleUpdateRefillStatus = useCallback(async (refillId: string, status: string) => {
     try {
-      await api.put(`/orders/admin/${orderId}/status`, { status });
-      await loadOrdersData(); // Refresh data
-    } catch (error) {
-      console.error('Failed to update order status:', error);
-      alert('Failed to update order status');
-    }
-  }, [loadOrdersData]);
-
-  const handleCancelOrder = useCallback(async (orderId: string, reason?: string) => {
-    try {
-      await api.put(`/orders/admin/${orderId}/cancel`, { reason });
-      await loadOrdersData(); // Refresh data
-    } catch (error) {
-      console.error('Failed to cancel order:', error);
-      alert('Failed to cancel order');
-    }
-  }, [loadOrdersData]);
-
-  const handleExportOrders = useCallback(async (format = 'csv') => {
-    try {
-      const response = await api.get(`/orders/admin/export?format=${format}`, {
-        responseType: 'blob'
-      });
-      
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `orders.${format}`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    } catch (error) {
-      console.error('Failed to export orders:', error);
-      alert('Failed to export orders');
-    }
-  }, []);
-
-  // Production-Ready Bulk Operations
-  const handleBulkStatusUpdate = useCallback(async (orderIds: string[], status: string) => {
-    try {
-      const requests = orderIds.map(orderId => 
-        api.put(`/orders/admin/${orderId}/status`, { status })
-      );
-      
-      await Promise.all(requests);
-      await loadOrdersData(); // Refresh data
-      
+      await api.put(`/refill-requests/${refillId}`, { status });
+      await loadRefillsData(); // Refresh data
       toast({
-        title: "Bulk Update Complete",
-        description: `${orderIds.length} orders updated to ${status}`,
+        title: "Status Updated",
+        description: `Refill request ${status} successfully`,
       });
     } catch (error) {
-      console.error('Failed to bulk update orders:', error);
+      console.error('Failed to update refill status:', error);
       toast({
-        title: "Bulk Update Failed",
-        description: "Some orders may not have been updated",
+        title: "Update Failed",
+        description: "Failed to update refill request status",
         variant: "destructive"
       });
     }
-  }, [loadOrdersData, toast]);
+  }, [loadRefillsData, toast]);
+
+  const handleDeleteRefill = useCallback(async (refillId: string) => {
+    if (!confirm('Are you sure you want to delete this refill request?')) {
+      return;
+    }
+    
+    try {
+      await api.delete(`/refill-requests/${refillId}`);
+      await loadRefillsData(); // Refresh data
+      toast({
+        title: "Refill Deleted",
+        description: "Refill request deleted successfully",
+      });
+    } catch (error) {
+      console.error('Failed to delete refill request:', error);
+      toast({
+        title: "Delete Failed",
+        description: "Failed to delete refill request",
+        variant: "destructive"
+      });
+    }
+  }, [loadRefillsData, toast]);
+
+  // View handlers for refill and transfer details
+  const handleViewRefill = useCallback((refill: any) => {
+    setSelectedRefill(refill);
+    setShowRefillDialog(true);
+  }, []);
+
+  const handleViewTransfer = useCallback((transfer: any) => {
+    setSelectedTransfer(transfer);
+    setShowTransferDialog(true);
+  }, []);
 
   // Auto-refresh functionality for production readiness
   useEffect(() => {
-    if (activeTab === 'orders' || activeTab === 'woocommerce-orders') {
+    if (activeTab === 'woocommerce-orders') {
       const interval = setInterval(() => {
-        if (activeTab === 'orders') {
-          loadOrdersData();
-        } else if (activeTab === 'woocommerce-orders') {
+        if (activeTab === 'woocommerce-orders') {
           loadWooCommerceOrdersData();
         }
       }, 30000); // Auto-refresh every 30 seconds
 
       return () => clearInterval(interval);
     }
-  }, [activeTab, loadOrdersData, loadWooCommerceOrdersData]);
+  }, [activeTab, loadWooCommerceOrdersData]);
 
   // Advanced order status transitions (Production Logic)
   const getNextStatusOptions = useCallback((currentStatus: string) => {
@@ -1738,30 +1673,6 @@ export default function Admin() {
     return transitions[currentStatus] || [];
   }, []);
 
-  // Refill management functions
-  const handleUpdateRefillStatus = useCallback(async (refillId: string, status: string) => {
-    try {
-      await api.put(`/refill-requests/${refillId}`, { status });
-      await loadRefillsData(); // Refresh data
-    } catch (error) {
-      console.error('Failed to update refill status:', error);
-      alert('Failed to update refill status');
-    }
-  }, [loadRefillsData]);
-
-  const handleDeleteRefill = useCallback(async (refillId: string) => {
-    if (!confirm('Are you sure you want to delete this refill request?')) {
-      return;
-    }
-    
-    try {
-      await api.delete(`/refill-requests/${refillId}`);
-      await loadRefillsData(); // Refresh data
-    } catch (error) {
-      console.error('Failed to delete refill request:', error);
-      alert('Failed to delete refill request');
-    }
-  }, [loadRefillsData]);
 
   // Transfer management functions
   const handleUpdateTransferStatus = useCallback(async (transferId: string, status: string) => {
@@ -1843,41 +1754,6 @@ export default function Admin() {
       alert('Failed to delete contact request');
     }
   }, [loadContactsData]);
-
-  // Notification management functions
-  const handleMarkNotificationAsRead = useCallback(async (notificationId: string) => {
-    try {
-      await api.put(`/notifications/${notificationId}/read`);
-      await loadNotificationsData(); // Refresh data
-    } catch (error) {
-      console.error('Failed to mark notification as read:', error);
-      alert('Failed to mark notification as read');
-    }
-  }, [loadNotificationsData]);
-
-  const handleMarkAllNotificationsAsRead = useCallback(async () => {
-    try {
-      await api.put('/notifications/mark-all-read');
-      await loadNotificationsData(); // Refresh data
-    } catch (error) {
-      console.error('Failed to mark all notifications as read:', error);
-      alert('Failed to mark all notifications as read');
-    }
-  }, [loadNotificationsData]);
-
-  const handleDeleteNotification = useCallback(async (notificationId: string) => {
-    if (!confirm('Are you sure you want to delete this notification?')) {
-      return;
-    }
-    
-    try {
-      await api.delete(`/notifications/${notificationId}`);
-      await loadNotificationsData(); // Refresh data
-    } catch (error) {
-      console.error('Failed to delete notification:', error);
-      alert('Failed to delete notification');
-    }
-  }, [loadNotificationsData]);
 
   // Loading state
   if (loading) {
@@ -2088,14 +1964,13 @@ export default function Admin() {
             {/* Other tabs - simplified placeholders */}
             {activeTab === 'analytics' && (
               <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-gray-900">Analytics Dashboard</h2>
                 <AnalyticsDashboard 
                   data={{
-                    orders: orders || [],
-                    revenue: orderStats?.revenueData || [],
+                    orders: [],
+                    revenue: [],
                     customers: crmCustomers || [],
                     products: inventoryItems || [],
-                    monthlyStats: orderStats?.monthlyStats || [],
+                    monthlyStats: [],
                     topProducts: inventoryStats?.topProducts || [],
                     customerSegments: crmStats?.customerSegments || []
                   }}
@@ -2192,7 +2067,9 @@ export default function Admin() {
                       <MapPin className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">3</div>
+                      <div className="text-2xl font-bold">
+                        {dashboardData ? dashboardData.statistics?.totalLocations || 0 : '...'}
+                      </div>
                       <p className="text-xs text-muted-foreground">Active branches</p>
                     </CardContent>
                   </Card>
@@ -2203,7 +2080,9 @@ export default function Admin() {
                       <DollarSign className="h-4 w-4 text-green-600" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">$45,230</div>
+                      <div className="text-2xl font-bold">
+                        {dashboardData ? `$${dashboardData.statistics?.monthlyRevenue?.toLocaleString() || '0'}` : '...'}
+                      </div>
                       <p className="text-xs text-muted-foreground">Across all locations</p>
                     </CardContent>
                   </Card>
@@ -2214,7 +2093,9 @@ export default function Admin() {
                       <Users className="h-4 w-4 text-blue-500" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">12</div>
+                      <div className="text-2xl font-bold">
+                        {dashboardData ? dashboardData.statistics?.totalStaff || 0 : '...'}
+                      </div>
                       <p className="text-xs text-muted-foreground">Active employees</p>
                     </CardContent>
                   </Card>
@@ -2225,8 +2106,12 @@ export default function Admin() {
                       <Clock className="h-4 w-4 text-yellow-500" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">7:00</div>
-                      <p className="text-xs text-muted-foreground">AM - 9:00 PM</p>
+                      <div className="text-2xl font-bold">
+                        {dashboardData ? dashboardData.statistics?.businessHours?.split(' - ')[0] || '7:00' : '...'}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {dashboardData ? dashboardData.statistics?.businessHours?.split(' - ')[1] || 'AM - 9:00 PM' : 'AM - 9:00 PM'}
+                      </p>
                     </CardContent>
                   </Card>
                 </div>
@@ -2258,7 +2143,8 @@ export default function Admin() {
               </div>
             )}
 
-            {activeTab === 'orders' && (
+            {/* REMOVED: Orders Tab */}
+            {false && activeTab === 'orders' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -2284,8 +2170,8 @@ export default function Admin() {
                       <ShoppingCart className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">{orderStats?.totalOrders || 0}</div>
-                      <p className="text-xs text-muted-foreground">+{orderStats?.periodStats?.today || 0} today</p>
+                      <div className="text-2xl font-bold">{woocommerceOrderStats?.totalOrders || 0}</div>
+                      <p className="text-xs text-muted-foreground">+{woocommerceOrderStats?.periodStats?.today || 0} today</p>
                     </CardContent>
                   </Card>
 
@@ -2295,7 +2181,7 @@ export default function Admin() {
                       <Clock className="h-4 w-4 text-yellow-500" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">{orderStats?.statusBreakdown?.pending || 0}</div>
+                      <div className="text-2xl font-bold">{woocommerceOrderStats?.statusBreakdown?.pending || 0}</div>
                       <p className="text-xs text-muted-foreground">Awaiting processing</p>
                     </CardContent>
                   </Card>
@@ -2306,7 +2192,7 @@ export default function Admin() {
                       <Package className="h-4 w-4 text-blue-500" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">{orderStats?.statusBreakdown?.processing || 0}</div>
+                      <div className="text-2xl font-bold">{woocommerceOrderStats?.statusBreakdown?.processing || 0}</div>
                       <p className="text-xs text-muted-foreground">Being prepared</p>
                     </CardContent>
                   </Card>
@@ -2317,7 +2203,7 @@ export default function Admin() {
                       <CheckCircle className="h-4 w-4 text-green-500" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">{orderStats?.statusBreakdown?.delivered || 0}</div>
+                      <div className="text-2xl font-bold">{woocommerceOrderStats?.statusBreakdown?.delivered || 0}</div>
                       <p className="text-xs text-muted-foreground">Successfully delivered</p>
                     </CardContent>
                   </Card>
@@ -2334,7 +2220,7 @@ export default function Admin() {
                           onChange={(e) => setSearchTerm(e.target.value)}
                           className="max-w-sm"
                         />
-                        <Select value={orderStatusFilter} onValueChange={setOrderStatusFilter}>
+                        <Select value={woocommerceOrderStatusFilter} onValueChange={setWooCommerceOrderStatusFilter}>
                           <SelectTrigger className="w-32">
                             <SelectValue placeholder="Status" />
                           </SelectTrigger>
@@ -2352,13 +2238,13 @@ export default function Admin() {
                         <Select 
                           value="menu" 
                           onValueChange={(action) => {
-                            const selectedOrders = orders.filter(o => false); // Get selected orders
+                            const selectedOrders = woocommerceOrders.filter(o => false); // Get selected orders
                             if (action === 'mark-processing' && selectedOrders.length > 0) {
-                              handleBulkStatusUpdate(selectedOrders.map(o => o.id), 'PROCESSING');
+                              // handleBulkStatusUpdate(selectedOrders.map(o => o.id), 'PROCESSING');
                             } else if (action === 'mark-shipped' && selectedOrders.length > 0) {
-                              handleBulkStatusUpdate(selectedOrders.map(o => o.id), 'SHIPPED');
+                              // handleBulkStatusUpdate(selectedOrders.map(o => o.id), 'SHIPPED');
                             } else if (action === 'mark-delivered' && selectedOrders.length > 0) {
-                              handleBulkStatusUpdate(selectedOrders.map(o => o.id), 'DELIVERED');
+                              // handleBulkStatusUpdate(selectedOrders.map(o => o.id), 'DELIVERED');
                             }
                           }}
                         >
@@ -2374,7 +2260,7 @@ export default function Admin() {
                         </Select>
 
                         <Button 
-                          onClick={() => handleExportOrders('csv')}
+                          onClick={() => {/* handleExportOrders('csv') */}}
                           variant="outline"
                           size="sm"
                         >
@@ -2384,12 +2270,12 @@ export default function Admin() {
                         
                         {/* Real-time Refresh */}
                         <Button 
-                          onClick={loadOrdersData}
+                          onClick={loadWooCommerceOrdersData}
                           variant="outline"
                           size="sm"
-                          disabled={ordersLoading}
+                          disabled={woocommerceOrdersLoading}
                         >
-                          <RefreshCw className={`h-4 w-4 mr-2 ${ordersLoading ? 'animate-spin' : ''}`} />
+                          <RefreshCw className={`h-4 w-4 mr-2 ${woocommerceOrdersLoading ? 'animate-spin' : ''}`} />
                           Refresh
                         </Button>
                       </div>
@@ -2397,35 +2283,36 @@ export default function Admin() {
                     
                     {/* Production-level Info Bar */}
                    <CardDescription>
-                      Showing {orders.length} orders • Last updated: {new Date().toLocaleTimeString()} • 
+                      Showing {woocommerceOrders.length} orders • Last updated: {new Date().toLocaleTimeString()} • 
                       Auto-refresh: Every 30 seconds
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-12">
-                            <Checkbox 
-                              onCheckedChange={(checked) => {
-                                // Handle select all functionality
-                                if (typeof checked === 'boolean') {
-                                  console.log('Select All:', checked);
-                                }
-                              }}
-                            />
-                          </TableHead>
-                          <TableHead>Order ID</TableHead>
-                          <TableHead>Customer</TableHead>
-                          <TableHead>Items</TableHead>
-                          <TableHead>Total</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Date</TableHead>
-                          <TableHead>Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="w-12">
+                              <Checkbox 
+                                onCheckedChange={(checked) => {
+                                  // Handle select all functionality
+                                  if (typeof checked === 'boolean') {
+                                    console.log('Select All:', checked);
+                                  }
+                                }}
+                              />
+                            </TableHead>
+                            <TableHead>Order ID</TableHead>
+                            <TableHead>Customer</TableHead>
+                            <TableHead>Items</TableHead>
+                            <TableHead>Total</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Date</TableHead>
+                            <TableHead>Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
                       <TableBody>
-                        {ordersLoading ? (
+                        {woocommerceOrdersLoading ? (
                           <TableRow>
                             <TableCell colSpan={8} className="text-center py-8">
                               <div className="flex items-center justify-center">
@@ -2434,14 +2321,14 @@ export default function Admin() {
                               </div>
                             </TableCell>
                           </TableRow>
-                        ) : orders.length === 0 ? (
+                        ) : woocommerceOrders.length === 0 ? (
                           <TableRow>
                             <TableCell colSpan={8} className="text-center py-8 text-gray-500">
                               No orders found
                             </TableCell>
                           </TableRow>
                         ) : (
-                          (orders || []).map((order: any) => (
+                          (woocommerceOrders || []).map((order: any) => (
                             <TableRow key={order.id}>
                               <TableCell>
                                 <Checkbox 
@@ -2505,7 +2392,7 @@ export default function Admin() {
                                     value="" 
                                     onValueChange={(newStatus) => {
                                       if (newStatus && newStatus !== order.status) {
-                                        handleUpdateOrderStatus(order.id, newStatus);
+                                        // handleUpdateOrderStatus(order.id, newStatus);
                                       }
                                     }}
                                   >
@@ -2549,7 +2436,7 @@ export default function Admin() {
                                     <Button 
                                       variant="outline" 
                                       size="sm"
-                                      onClick={() => handleUpdateOrderStatus(order.id, 'PROCESSING')}
+                                      onClick={() => {/* handleUpdateOrderStatus(order.id, 'PROCESSING') */}}
                                       className="text-green-600 hover:text-green-700"
                                       title="Quick Process"
                                     >
@@ -2563,6 +2450,7 @@ export default function Admin() {
                         )}
                       </TableBody>
                     </Table>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -2653,19 +2541,20 @@ export default function Admin() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Patient</TableHead>
-                          <TableHead>Medication</TableHead>
-                          <TableHead>Dosage</TableHead>
-                          <TableHead>Quantity</TableHead>
-                          <TableHead>Urgency</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Date Requested</TableHead>
-                          <TableHead>Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Patient</TableHead>
+                            <TableHead>Medication</TableHead>
+                            <TableHead>Dosage</TableHead>
+                            <TableHead>Quantity</TableHead>
+                            <TableHead>Urgency</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Date Requested</TableHead>
+                            <TableHead>Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
                       <TableBody>
                         {refillsLoading ? (
                           <TableRow>
@@ -2717,7 +2606,7 @@ export default function Admin() {
                                   <Button 
                                     variant="outline" 
                                     size="sm"
-                                    onClick={() => window.open(`/admin/refills/${refill.id}`, '_blank')}
+                                    onClick={() => handleViewRefill(refill)}
                                   >
                                     <Eye className="h-4 w-4" />
                                   </Button>
@@ -2756,6 +2645,7 @@ export default function Admin() {
                         )}
                       </TableBody>
                     </Table>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -2846,17 +2736,18 @@ export default function Admin() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Patient</TableHead>
-                          <TableHead>From Pharmacy</TableHead>
-                          <TableHead>Medications</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Date Requested</TableHead>
-                          <TableHead>Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Patient</TableHead>
+                            <TableHead>From Pharmacy</TableHead>
+                            <TableHead>Medications</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Date Requested</TableHead>
+                            <TableHead>Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
                       <TableBody>
                         {transfersLoading ? (
                           <TableRow>
@@ -2914,7 +2805,7 @@ export default function Admin() {
                                   <Button 
                                     variant="outline" 
                                     size="sm"
-                                    onClick={() => window.open(`/admin/transfers/${transfer.id}`, '_blank')}
+                                    onClick={() => handleViewTransfer(transfer)}
                                   >
                                     <Eye className="h-4 w-4" />
                                   </Button>
@@ -2953,6 +2844,7 @@ export default function Admin() {
                         )}
                       </TableBody>
                     </Table>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -3023,18 +2915,19 @@ export default function Admin() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Name</TableHead>
-                          <TableHead>Email</TableHead>
-                          <TableHead>Subject</TableHead>
-                          <TableHead>Message Preview</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Date</TableHead>
-                          <TableHead>Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Email</TableHead>
+                            <TableHead>Subject</TableHead>
+                            <TableHead>Message Preview</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Date</TableHead>
+                            <TableHead>Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
                       <TableBody>
                         {contactsLoading ? (
                           <TableRow>
@@ -3109,6 +3002,328 @@ export default function Admin() {
                         )}
                       </TableBody>
                     </Table>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* Scheduling Tab */}
+            {activeTab === 'scheduling' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-gray-900">Appointment Scheduling</h2>
+                  <div className="flex gap-2">
+                    <Button 
+                      onClick={() => setShowNewAppointmentDialog(true)}
+                      className="bg-[#57BBB6] hover:bg-[#376F6B]"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      New Appointment
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => setShowBlockTimeDialog(true)}
+                    >
+                      <XCircle className="h-4 w-4 mr-2" />
+                      Block Time
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Appointment Stats Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Total Appointments</CardTitle>
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{appointmentStats?.total || 0}</div>
+                      <p className="text-xs text-muted-foreground">All time</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Today</CardTitle>
+                      <Clock className="h-4 w-4 text-blue-500" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{appointmentStats?.today || 0}</div>
+                      <p className="text-xs text-muted-foreground">Scheduled today</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Pending</CardTitle>
+                      <AlertCircle className="h-4 w-4 text-yellow-500" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{appointmentStats?.pending || 0}</div>
+                      <p className="text-xs text-muted-foreground">Awaiting confirmation</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">This Week</CardTitle>
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{appointmentStats?.availableSlots || 0}</div>
+                      <p className="text-xs text-muted-foreground">This week</p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Appointments Table */}
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Appointments</CardTitle>
+                      <div className="flex items-center space-x-4">
+                        <Input
+                          placeholder="Search appointments..."
+                          className="max-w-sm"
+                        />
+                        <Select>
+                          <SelectTrigger className="w-40">
+                            <SelectValue placeholder="Filter by status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Status</SelectItem>
+                            <SelectItem value="scheduled">Scheduled</SelectItem>
+                            <SelectItem value="confirmed">Confirmed</SelectItem>
+                            <SelectItem value="completed">Completed</SelectItem>
+                            <SelectItem value="cancelled">Cancelled</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Patient</TableHead>
+                            <TableHead>Date & Time</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Provider</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {appointments.length === 0 ? (
+                            <TableRow>
+                              <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                                No appointments found
+                              </TableCell>
+                            </TableRow>
+                          ) : (
+                            appointments.map((appointment: any) => (
+                              <TableRow key={appointment.id}>
+                                <TableCell className="font-medium">
+                                  <div>
+                                    <div>{appointment.patientName || 'Unknown'}</div>
+                                    <div className="text-sm text-gray-500">{appointment.email || 'N/A'}</div>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <div>
+                                    <div className="font-medium">
+                                      {new Date(appointment.date).toLocaleDateString()}
+                                    </div>
+                                    <div className="text-sm text-gray-500">{appointment.time}</div>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge variant="outline">{appointment.type || 'General'}</Badge>
+                                </TableCell>
+                                <TableCell>{appointment.provider || 'Dr. Smith'}</TableCell>
+                                <TableCell>
+                                  <Badge 
+                                    variant={
+                                      appointment.status === 'confirmed' ? 'default' :
+                                      appointment.status === 'scheduled' ? 'secondary' :
+                                      appointment.status === 'completed' ? 'outline' :
+                                      appointment.status === 'cancelled' ? 'destructive' : 'secondary'
+                                    }
+                                  >
+                                    {appointment.status || 'Scheduled'}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex gap-1">
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => {
+                                        // View appointment details in a modal or detailed view
+                                        setSelectedAppointment(appointment);
+                                        setShowAppointmentDetailsDialog(true);
+                                      }}
+                                      title="View appointment details"
+                                    >
+                                      <Eye className="h-3 w-3" />
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => {
+                                        // Edit appointment
+                                        setSelectedAppointment(appointment);
+                                        setEditingAppointment(true);
+                                        setShowNewAppointmentDialog(true);
+                                      }}
+                                      title="Edit appointment"
+                                    >
+                                      <Edit className="h-3 w-3" />
+                                    </Button>
+                                    {appointment.status === 'scheduled' && (
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={async () => {
+                                          if (confirm('Are you sure you want to approve this appointment?')) {
+                                            try {
+                                              // Call API to approve appointment
+                                              await api.put(`/appointments/${appointment.id}`, { status: 'confirmed' });
+                                              toast({
+                                                title: "Appointment Approved",
+                                                description: "The appointment has been successfully approved.",
+                                              });
+                                              // Refresh appointments data
+                                              loadAppointmentData();
+                                            } catch (error) {
+                                              console.error('Error approving appointment:', error);
+                                              toast({
+                                                title: "Error",
+                                                description: "Failed to approve appointment. Please try again.",
+                                                variant: "destructive"
+                                              });
+                                            }
+                                          }
+                                        }}
+                                        title="Approve appointment"
+                                        className="border-green-500 text-green-600 hover:bg-green-50"
+                                      >
+                                        <CheckCircle className="h-3 w-3" />
+                                      </Button>
+                                    )}
+                                    {appointment.status === 'confirmed' && (
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={async () => {
+                                          if (confirm('Are you sure you want to mark this appointment as completed?')) {
+                                            try {
+                                              // Call API to complete appointment
+                                              await api.put(`/appointments/${appointment.id}`, { status: 'completed' });
+                                              toast({
+                                                title: "Appointment Completed",
+                                                description: "The appointment has been successfully marked as completed.",
+                                              });
+                                              // Refresh appointments data
+                                              loadAppointmentData();
+                                            } catch (error) {
+                                              console.error('Error completing appointment:', error);
+                                              toast({
+                                                title: "Error",
+                                                description: "Failed to complete appointment. Please try again.",
+                                                variant: "destructive"
+                                              });
+                                            }
+                                          }
+                                        }}
+                                        title="Mark appointment as completed"
+                                        className="border-blue-500 text-blue-600 hover:bg-blue-50"
+                                      >
+                                        <CheckCircle className="h-3 w-3" />
+                                      </Button>
+                                    )}
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={async () => {
+                                        if (confirm('Are you sure you want to cancel this appointment?')) {
+                                          try {
+                                            // Call API to cancel appointment
+                                            await api.put(`/appointments/${appointment.id}`, { status: 'cancelled' });
+                                            toast({
+                                              title: "Appointment Cancelled",
+                                              description: "The appointment has been successfully cancelled.",
+                                            });
+                                            // Refresh appointments data
+                                            loadAppointmentData();
+                                          } catch (error) {
+                                            console.error('Error cancelling appointment:', error);
+                                            toast({
+                                              title: "Error",
+                                              description: "Failed to cancel appointment. Please try again.",
+                                              variant: "destructive"
+                                            });
+                                          }
+                                        }
+                                      }}
+                                      title="Cancel appointment"
+                                      className="border-red-500 text-red-600 hover:bg-red-50"
+                                    >
+                                      <X className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            ))
+                          )}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Appointment Types Management */}
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Appointment Types</CardTitle>
+                      <Button 
+                        variant="outline"
+                        onClick={() => setShowAppointmentTypeDialog(true)}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Type
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {appointmentTypes.map((type: any, index: number) => (
+                        <div key={index} className="p-4 border border-gray-200 rounded-lg">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-medium">{type.name}</h4>
+                            <div className="flex gap-1">
+                              <Button size="sm" variant="ghost" onClick={() => editAppointmentType(type)}>
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                              <Button size="sm" variant="ghost" onClick={() => deleteAppointmentType(type.id)}>
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            <div>Duration: {type.duration} minutes</div>
+                            <div>Price: ${type.price}</div>
+                            {type.description && (
+                              <div className="mt-1 text-xs text-gray-500">{type.description}</div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -3348,22 +3563,41 @@ export default function Admin() {
                                       size="sm"
                                       onClick={() => {
                                         // View order details
-                                        alert(`Order #${order.order_number} details:\n\nCustomer: ${order.customer?.first_name} ${order.customer?.last_name}\nEmail: ${order.customer?.email}\nTotal: $${order.total}\nStatus: ${order.status}\nPayment: ${order.payment_method_title}\nDate: ${new Date(order.date_created).toLocaleString()}`);
+                                        setSelectedWooCommerceOrder(order);
+                                        setShowWooCommerceOrderDetailsDialog(true);
                                       }}
+                                      title="View order details"
                                     >
                                       <Eye className="h-3 w-3" />
                                     </Button>
                                     <Button
                                       variant="outline"
                                       size="sm"
-                                      onClick={() => {
-                                        // Update order status
-                                        const newStatus = prompt('Enter new status (pending, processing, completed, cancelled):', order.status);
-                                        if (newStatus && newStatus !== order.status) {
-                                          // Here you would call the API to update the order status
-                                          alert(`Order status would be updated to: ${newStatus}`);
+                                      onClick={async () => {
+                                        // Update order status with better UX
+                                        const statusOptions = ['pending', 'processing', 'completed', 'cancelled'];
+                                        const currentIndex = statusOptions.indexOf(order.status);
+                                        const nextStatus = statusOptions[(currentIndex + 1) % statusOptions.length];
+                                        
+                                        if (confirm(`Update order status from "${order.status}" to "${nextStatus}"?`)) {
+                                          try {
+                                            await api.put(`/woocommerce/orders/${order.id}`, { status: nextStatus });
+                                            toast({
+                                              title: "Order Updated",
+                                              description: `Order #${order.order_number} status updated to ${nextStatus}.`,
+                                            });
+                                            // Refresh orders data
+                                            loadWooCommerceOrdersData();
+                                          } catch (error) {
+                                            toast({
+                                              title: "Update Failed",
+                                              description: "Failed to update order status. Please try again.",
+                                              variant: "destructive"
+                                            });
+                                          }
                                         }
                                       }}
+                                      title="Update order status"
                                     >
                                       <Edit className="h-3 w-3" />
                                     </Button>
@@ -3881,1189 +4115,11 @@ export default function Admin() {
               </div>
             )}
 
-            {/* Notifications Tab */}
-            {activeTab === 'notifications' && (
-              <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-gray-900">Notification Center</h2>
-
-                {/* Notification Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Total Notifications</CardTitle>
-                      <Bell className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold">{notificationStats?.total || 0}</div>
-                      <p className="text-xs text-muted-foreground">All time</p>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Unread</CardTitle>
-                      <AlertCircle className="h-4 w-4 text-red-500" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold">{notificationStats?.unread || 0}</div>
-                      <p className="text-xs text-muted-foreground">Require attention</p>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Today</CardTitle>
-                      <Clock className="h-4 w-4 text-blue-500" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold">{notificationStats?.today || 0}</div>
-                      <p className="text-xs text-muted-foreground">New today</p>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">This Week</CardTitle>
-                      <Zap className="h-4 w-4 text-yellow-500" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold">{notificationStats?.thisWeek || 0}</div>
-                      <p className="text-xs text-muted-foreground">This week</p>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Recent Notifications */}
-                  <div className="lg:col-span-2">
-                    <Card>
-                      <CardHeader>
-                        <div className="flex items-center justify-between">
-                          <CardTitle>Recent Notifications</CardTitle>
-                          <div className="flex items-center space-x-4">
-                            <Input
-                              placeholder="Search notifications..."
-                              className="max-w-sm"
-                            />
-                            <Select value={notificationTypeFilter} onValueChange={setNotificationTypeFilter}>
-                              <SelectTrigger className="w-32">
-                                <SelectValue placeholder="Type" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="all">All Types</SelectItem>
-                                <SelectItem value="ORDER">Orders</SelectItem>
-                                <SelectItem value="APPOINTMENT">Appointments</SelectItem>
-                                <SelectItem value="PRESCRIPTION">Prescriptions</SelectItem>
-                                <SelectItem value="CONTACT">Contact</SelectItem>
-                                <SelectItem value="INVENTORY">Inventory</SelectItem>
-                                <SelectItem value="PAYMENT">Payment</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        {notificationsLoading ? (
-                          <div className="flex items-center justify-center py-8">
-                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#57BBB6]"></div>
-                            <span className="ml-2">Loading notifications...</span>
-                          </div>
-                        ) : adminNotifications.length === 0 ? (
-                          <div className="text-center py-8 text-gray-500">
-                            No notifications found
-                          </div>
-                        ) : (
-                          <div className="space-y-4">
-                            {(adminNotifications || []).map((notification: any) => (
-                              <div 
-                                key={notification.id} 
-                                className={`flex items-start space-x-4 p-4 border rounded-lg ${
-                                  !notification.read ? 'bg-blue-50 border-blue-200' : ''
-                                }`}
-                              >
-                                <div className="flex-shrink-0">
-                                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                                    notification.type === 'ORDER' ? 'bg-blue-100' :
-                                    notification.type === 'APPOINTMENT' ? 'bg-green-100' :
-                                    notification.type === 'PRESCRIPTION' ? 'bg-purple-100' :
-                                    notification.type === 'CONTACT' ? 'bg-orange-100' :
-                                    notification.type === 'INVENTORY' ? 'bg-yellow-100' :
-                                    notification.type === 'PAYMENT' ? 'bg-green-100' :
-                                    'bg-gray-100'
-                                  }`}>
-                                    {notification.type === 'ORDER' ? <Package className="h-4 w-4 text-blue-600" /> :
-                                     notification.type === 'APPOINTMENT' ? <Calendar className="h-4 w-4 text-green-600" /> :
-                                     notification.type === 'PRESCRIPTION' ? <Pill className="h-4 w-4 text-purple-600" /> :
-                                     notification.type === 'CONTACT' ? <MessageSquare className="h-4 w-4 text-orange-600" /> :
-                                     notification.type === 'INVENTORY' ? <AlertTriangle className="h-4 w-4 text-yellow-600" /> :
-                                     notification.type === 'PAYMENT' ? <CheckCircle className="h-4 w-4 text-green-600" /> :
-                                     <Bell className="h-4 w-4 text-gray-600" />
-                                    }
-                                  </div>
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-medium text-gray-900">{notification.title}</p>
-                                  <p className="text-sm text-gray-500">{notification.message}</p>
-                                  <p className="text-xs text-gray-400">
-                                    {new Date(notification.createdAt).toLocaleString()}
-                                  </p>
-                                </div>
-                                <div className="flex-shrink-0 flex space-x-2">
-                                  {!notification.read && (
-                                    <Button 
-                                      variant="ghost" 
-                                      size="sm"
-                                      onClick={() => handleMarkNotificationAsRead(notification.id)}
-                                      className="text-green-600 hover:text-green-700"
-                                    >
-                                      <Check className="h-4 w-4" />
-                                    </Button>
-                                  )}
-                                  <Button 
-                                    variant="ghost" 
-                                    size="sm"
-                                    onClick={() => handleDeleteNotification(notification.id)}
-                                    className="text-red-600 hover:text-red-700"
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  {/* Notification Types & Actions */}
-                  <div className="space-y-6">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Notification Types</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-4">
-                          {(notificationStats?.typeCounts || []).map((typeCount: any) => (
-                            <div key={typeCount.type} className="flex items-center justify-between">
-                              <div className="flex items-center space-x-2">
-                                <div className={`w-3 h-3 rounded-full ${
-                                  typeCount.type === 'ORDER' ? 'bg-blue-500' :
-                                  typeCount.type === 'APPOINTMENT' ? 'bg-green-500' :
-                                  typeCount.type === 'PRESCRIPTION' ? 'bg-purple-500' :
-                                  typeCount.type === 'CONTACT' ? 'bg-orange-500' :
-                                  typeCount.type === 'INVENTORY' ? 'bg-yellow-500' :
-                                  typeCount.type === 'PAYMENT' ? 'bg-green-500' :
-                                  'bg-gray-500'
-                                }`}></div>
-                                <span className="text-sm">{typeCount.type}</span>
-                              </div>
-                              <span className="text-sm font-medium">{typeCount._count.type}</span>
-                            </div>
-                          )) || (
-                            <div className="text-center text-gray-500 py-4">
-                              No notification types found
-                            </div>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Quick Actions</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-2">
-                          <Button 
-                            className="w-full" 
-                            variant="outline"
-                            onClick={handleMarkAllNotificationsAsRead}
-                          >
-                            <Check className="h-4 w-4 mr-2" />
-                            Mark All as Read
-                          </Button>
-                          <Button 
-                            className="w-full" 
-                            variant="outline"
-                            onClick={handleTestNotification}
-                          >
-                            <Bell className="h-4 w-4 mr-2" />
-                            Test Notification
-                          </Button>
-                          <Button 
-                            className="w-full" 
-                            variant="outline"
-                            onClick={() => alert('Notification settings will be implemented in a future update. For now, notifications are managed through the main settings.')}
-                          >
-                            <Settings className="h-4 w-4 mr-2" />
-                            Notification Settings
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Inventory Tab */}
-            {activeTab === 'inventory' && (
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Inventory Management</h2>
-                    <div className="flex items-center gap-4 mt-2">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${wooCommerceStatus.connected ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                        <span className="text-sm text-gray-600">
-                          WooCommerce: {wooCommerceStatus.connected ? 'Connected' : 'Disconnected'}
-                        </span>
-                      </div>
-                      {wooCommerceStatus.lastSync && (
-                        <span className="text-sm text-gray-500">
-                          Last sync: {new Date(wooCommerceStatus.lastSync).toLocaleString()}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex space-x-4">
-                    <Button 
-                      onClick={syncWithWooCommerce}
-                      disabled={wooCommerceStatus.syncInProgress}
-                      className="bg-[#57bbb6] hover:bg-[#2e8f88]"
-                    >
-                      {wooCommerceStatus.syncInProgress ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Syncing...
-                        </>
-                      ) : (
-                        <>
-                          <Zap className="h-4 w-4 mr-2" />
-                          Sync WooCommerce
-                        </>
-                      )}
-                    </Button>
-                    <Button 
-                      onClick={bulkSyncSelectedProducts}
-                      disabled={selectedProducts.length === 0 || wooCommerceStatus.syncInProgress}
-                      variant="outline"
-                    >
-                      <RefreshCw className="h-4 w-4 mr-2" />
-                      Bulk Sync ({selectedProducts.length})
-                    </Button>
-                    <Button onClick={() => window.location.reload()}>
-                      <RefreshCw className="h-4 w-4 mr-2" />
-                      Refresh
-                    </Button>
-                    <Button variant="outline">
-                      <Download className="h-4 w-4 mr-2" />
-                      Export
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Inventory Stats */}
-                {inventoryStats && (
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <Card>
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium text-gray-600">Total Products</p>
-                            <p className="text-2xl font-bold text-gray-900">{inventoryStats.totalProducts}</p>
-                          </div>
-                          <Package className="h-8 w-8 text-blue-600" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium text-gray-600">Low Stock</p>
-                            <p className="text-2xl font-bold text-orange-600">{inventoryStats.lowStockProducts}</p>
-                          </div>
-                          <AlertTriangle className="h-8 w-8 text-orange-600" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium text-gray-600">Out of Stock</p>
-                            <p className="text-2xl font-bold text-red-600">{inventoryStats.outOfStockProducts}</p>
-                          </div>
-                          <XCircle className="h-8 w-8 text-red-600" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium text-gray-600">Total Value</p>
-                            <p className="text-2xl font-bold text-green-600">${inventoryStats.totalValue?.toFixed(2) || '0.00'}</p>
-                          </div>
-                          <TrendingUp className="h-8 w-8 text-green-600" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                )}
-
-                {/* WooCommerce Sync Status */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Link className="h-5 w-5" />
-                      WooCommerce Integration Status
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-3 h-3 rounded-full ${wooCommerceStatus.connected ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                        <div>
-                          <p className="font-medium">Connection Status</p>
-                          <p className="text-sm text-gray-600">
-                            {wooCommerceStatus.connected ? 'Connected' : 'Disconnected'}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <Clock className="h-4 w-4 text-gray-400" />
-                        <div>
-                          <p className="font-medium">Last Sync</p>
-                          <p className="text-sm text-gray-600">
-                            {wooCommerceStatus.lastSync 
-                              ? new Date(wooCommerceStatus.lastSync).toLocaleString()
-                              : 'Never'
-                            }
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className={`w-3 h-3 rounded-full ${wooCommerceStatus.syncInProgress ? 'bg-yellow-500 animate-pulse' : 'bg-gray-300'}`}></div>
-                        <div>
-                          <p className="font-medium">Sync Status</p>
-                          <p className="text-sm text-gray-600">
-                            {wooCommerceStatus.syncInProgress ? 'Syncing...' : 'Idle'}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    {wooCommerceStatus.error && (
-                      <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                        <p className="text-sm text-red-600">
-                          <strong>Error:</strong> {wooCommerceStatus.error}
-                        </p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-
-                {/* Filters */}
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex flex-col sm:flex-row gap-4">
-                      <div className="flex-1">
-                        <Input
-                          placeholder="Search products..."
-                          value={inventorySearch}
-                          onChange={(e) => setInventorySearch(e.target.value)}
-                          className="w-full"
-                        />
-                      </div>
-                      <Select value={inventoryCategoryFilter} onValueChange={setInventoryCategoryFilter}>
-                        <SelectTrigger className="w-full sm:w-48">
-                          <SelectValue placeholder="All Categories" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All Categories</SelectItem>
-                          {inventoryStats?.categories?.map((category: any) => (
-                            <SelectItem key={category.id} value={category.id.toString()}>
-                              {category.name} ({category._count.products})
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="low-stock"
-                          checked={lowStockOnly}
-                          onCheckedChange={(checked) => setLowStockOnly(checked === true)}
-                        />
-                        <label htmlFor="low-stock" className="text-sm font-medium">
-                          Low Stock Only
-                        </label>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Inventory Table */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Product Inventory</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {inventoryLoading ? (
-                      <div className="flex justify-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                      </div>
-                    ) : (
-                      <div className="overflow-x-auto">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead className="w-12">
-                                <Checkbox
-                                  checked={selectedProducts.length === inventoryItems.length && inventoryItems.length > 0}
-                                  onCheckedChange={(checked) => {
-                                    if (checked) {
-                                      setSelectedProducts(inventoryItems.map(item => item.id));
-                                    } else {
-                                      setSelectedProducts([]);
-                                    }
-                                  }}
-                                />
-                              </TableHead>
-                              <TableHead>Product</TableHead>
-                              <TableHead>Category</TableHead>
-                              <TableHead>Price</TableHead>
-                              <TableHead>Stock</TableHead>
-                              <TableHead>Status</TableHead>
-                              <TableHead>Last Updated</TableHead>
-                              <TableHead>Actions</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {(inventoryItems || []).length === 0 ? (
-                              <TableRow>
-                                <TableCell colSpan={8} className="text-center py-8 text-gray-500">
-                                  No products found
-                                </TableCell>
-                              </TableRow>
-                            ) : (
-                              (inventoryItems || []).map((product: any) => (
-                                <TableRow key={product.id}>
-                                  <TableCell>
-                                    <Checkbox
-                                      checked={selectedProducts.includes(product.id)}
-                                      onCheckedChange={(checked) => {
-                                        if (checked) {
-                                          setSelectedProducts(prev => [...prev, product.id]);
-                                        } else {
-                                          setSelectedProducts(prev => prev.filter(id => id !== product.id));
-                                        }
-                                      }}
-                                    />
-                                  </TableCell>
-                                  <TableCell>
-                                    <div>
-                                      <p className="font-medium">{product.name}</p>
-                                      <p className="text-sm text-gray-500">{product.description}</p>
-                                    </div>
-                                  </TableCell>
-                                  <TableCell>{product.category?.name}</TableCell>
-                                  <TableCell className="font-medium">${product.price?.toFixed(2)}</TableCell>
-                                  <TableCell>
-                                    <div className="flex items-center space-x-2">
-                                      <Input
-                                        type="number"
-                                        value={product.stock}
-                                        onChange={(e) => {
-                                          const newStock = parseInt(e.target.value) || 0;
-                                          // Update local state immediately for better UX
-                                          setInventoryItems(prev => prev.map(item => 
-                                            item.id === product.id ? { ...item, stock: newStock } : item
-                                          ));
-                                        }}
-                                        onBlur={(e) => {
-                                          const newStock = parseInt(e.target.value) || 0;
-                                          if (newStock !== product.stock) {
-                                            updateProductStock(product.id, newStock);
-                                          }
-                                        }}
-                                        className="w-20 h-8 text-center"
-                                        min="0"
-                                      />
-                                      <span className={`
-                                        px-2 py-1 rounded-full text-xs font-medium
-                                        ${product.stock === 0 ? 'bg-red-100 text-red-800' :
-                                          product.stock <= 10 ? 'bg-orange-100 text-orange-800' :
-                                          'bg-green-100 text-green-800'}
-                                      `}>
-                                        {product.stock}
-                                      </span>
-                                    </div>
-                                  </TableCell>
-                                  <TableCell>
-                                    <Badge variant={
-                                      product.stock === 0 ? 'destructive' :
-                                      product.stock <= 10 ? 'secondary' :
-                                      'default'
-                                    }>
-                                      {product.stock === 0 ? 'Out of Stock' :
-                                       product.stock <= 10 ? 'Low Stock' :
-                                       'In Stock'}
-                                    </Badge>
-                                  </TableCell>
-                                  <TableCell>
-                                    {product.updatedAt ? 
-                                      (typeof product.updatedAt === 'string' || typeof product.updatedAt === 'number' ?
-                                        new Date(product.updatedAt).toLocaleDateString() :
-                                        new Date(product.updatedAt?.toString() || Date.now()).toLocaleDateString()
-                                      ) : 
-                                      'N/A'
-                                    }
-                                  </TableCell>
-                                  <TableCell>
-                                    <div className="flex space-x-2">
-                                      <Button 
-                                        size="sm" 
-                                        variant="outline"
-                                        onClick={() => updateProductStock(product.id, product.stock)}
-                                        title="Sync with WooCommerce"
-                                      >
-                                        <Zap className="h-4 w-4" />
-                                      </Button>
-                                      <Button 
-                                        size="sm" 
-                                        variant="outline"
-                                        onClick={() => viewProduct(product)}
-                                        title="View Product Details"
-                                      >
-                                        <Eye className="h-4 w-4" />
-                                      </Button>
-                                      <Button 
-                                        size="sm" 
-                                        variant="outline"
-                                        onClick={() => editProduct(product)}
-                                        title="Edit Product"
-                                      >
-                                        <Edit className="h-4 w-4" />
-                                      </Button>
-                                    </div>
-                                  </TableCell>
-                                </TableRow>
-                              ))
-                            )}
-                          </TableBody>
-                        </Table>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-
-            {/* CRM Tab */}
-            {activeTab === 'crm' && (
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-bold text-gray-900">Customer Relationship Management</h2>
-                  <div className="flex space-x-4">
-                    <Button onClick={() => window.location.reload()}>
-                      <RefreshCw className="h-4 w-4 mr-2" />
-                      Refresh
-                    </Button>
-                    <Button variant="outline">
-                      <Download className="h-4 w-4 mr-2" />
-                      Export
-                    </Button>
-                  </div>
-                </div>
-
-                {/* CRM Stats */}
-                {crmStats && (
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <Card>
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium text-gray-600">Total Customers</p>
-                            <p className="text-2xl font-bold text-gray-900">{crmStats.totalCustomers}</p>
-                          </div>
-                          <Users className="h-8 w-8 text-blue-600" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium text-gray-600">Active Customers</p>
-                            <p className="text-2xl font-bold text-green-600">{crmStats.activeCustomers}</p>
-                          </div>
-                          <CheckCircle className="h-8 w-8 text-green-600" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium text-gray-600">New This Month</p>
-                            <p className="text-2xl font-bold text-purple-600">{crmStats.newCustomersThisMonth}</p>
-                          </div>
-                          <Plus className="h-8 w-8 text-purple-600" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-                            <p className="text-2xl font-bold text-green-600">${crmStats.totalRevenue?.toFixed(2) || '0.00'}</p>
-                          </div>
-                          <TrendingUp className="h-8 w-8 text-green-600" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                )}
-
-                {/* Customer Search and Filters */}
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex flex-col sm:flex-row gap-4">
-                      <div className="flex-1">
-                        <Input
-                          placeholder="Search customers..."
-                          value={crmSearch}
-                          onChange={(e) => setCrmSearch(e.target.value)}
-                          className="w-full"
-                        />
-                      </div>
-                      <Select value={crmSegmentFilter} onValueChange={setCrmSegmentFilter}>
-                        <SelectTrigger className="w-full sm:w-48">
-                          <SelectValue placeholder="All Segments" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All Segments</SelectItem>
-                          <SelectItem value="new">New Customers</SelectItem>
-                          <SelectItem value="regular">Regular Customers</SelectItem>
-                          <SelectItem value="frequent">Frequent Customers</SelectItem>
-                          <SelectItem value="vip">VIP Customers</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Customer Table */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Customer Database</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {crmLoading ? (
-                      <div className="flex justify-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                      </div>
-                    ) : (
-                      <div className="overflow-x-auto">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Customer</TableHead>
-                              <TableHead>Contact</TableHead>
-                              <TableHead>Orders</TableHead>
-                              <TableHead>Total Spent</TableHead>
-                              <TableHead>Last Order</TableHead>
-                              <TableHead>Status</TableHead>
-                              <TableHead>Actions</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {(crmCustomers || []).length === 0 ? (
-                              <TableRow>
-                                <TableCell colSpan={7} className="text-center py-8 text-gray-500">
-                                  No customers found
-                                </TableCell>
-                              </TableRow>
-                            ) : (
-                              (crmCustomers || []).map((customer: any) => (
-                                <TableRow key={customer.id}>
-                                  <TableCell>
-                                    <div>
-                                      <p className="font-medium">{customer.name || 'Unknown'}</p>
-                                      <p className="text-sm text-gray-500">ID: {customer.id}</p>
-                                    </div>
-                                  </TableCell>
-                                  <TableCell>
-                                    <div>
-                                      <p className="text-sm">{customer.email}</p>
-                                      <p className="text-sm text-gray-500">{customer.phone || 'No phone'}</p>
-                                    </div>
-                                  </TableCell>
-                                  <TableCell>
-                                    <div className="text-center">
-                                      <p className="font-medium">{customer._count?.orders || 0}</p>
-                                      <p className="text-xs text-gray-500">
-                                        {customer._count?.prescriptions || 0} prescriptions
-                                      </p>
-                                    </div>
-                                  </TableCell>
-                                  <TableCell className="font-medium">${customer.totalSpent?.toFixed(2) || '0.00'}</TableCell>
-                                  <TableCell>
-                                    {customer.lastOrder ? (
-                                      <div>
-                                        <p className="text-sm">{new Date(customer.lastOrder.createdAt).toLocaleDateString()}</p>
-                                        <p className="text-xs text-gray-500">{customer.lastOrder.status}</p>
-                                      </div>
-                                    ) : (
-                                      <span className="text-gray-400">No orders</span>
-                                    )}
-                                  </TableCell>
-                                  <TableCell>
-                                    <Badge variant={customer.isActive ? 'default' : 'secondary'}>
-                                      {customer.isActive ? 'Active' : 'Inactive'}
-                                    </Badge>
-                                  </TableCell>
-                                  <TableCell>
-                                    <div className="flex space-x-2">
-                                      <Button 
-                                        size="sm" 
-                                        variant="outline"
-                                        onClick={() => {
-                                          console.log('Viewing customer:', customer.id);
-                                          // TODO: Implement customer detail modal/view
-                                          toast({
-                                            title: "Customer Details",
-                                            description: `Viewing details for ${customer.name || 'Customer'} (ID: ${customer.id})`,
-                                          });
-                                        }}
-                                        title={`View ${customer.name || 'Customer'} Details`}
-                                      >
-                                        <Eye className="h-4 w-4" />
-                                      </Button>
-                                      <Button 
-                                        size="sm" 
-                                        variant="outline"
-                                        onClick={() => {
-                                          const message = prompt(`Send message to ${customer.name || 'Customer'} (${customer.email}):`);
-                                          if (message && message.trim()) {
-                                            console.log('Sending message to customer:', customer.id, message);
-                                            // TODO: Implement messaging system
-                                            toast({
-                                              title: "Message Sent",
-                                              description: `Message sent to ${customer.name || 'Customer'}`,
-                                            });
-                                          }
-                                        }}
-                                        title={`Send message to ${customer.name || 'Customer'}`}
-                                      >
-                                        <MessageSquare className="h-4 w-4" />
-                                      </Button>
-                                      <Button 
-                                        size="sm" 
-                                        variant="outline"
-                                        onClick={() => {
-                                          console.log('Editing customer:', customer.id);
-                                          // TODO: Implement customer edit modal/form
-                                          toast({
-                                            title: "Edit Customer",
-                                            description: `Edit details for ${customer.name || 'Customer'}`,
-                                          });
-                                        }}
-                                        title={`Edit ${customer.name || 'Customer'}`}
-                                      >
-                                        <Edit className="h-4 w-4" />
-                                      </Button>
-                                    </div>
-                                  </TableCell>
-                                </TableRow>
-                              ))
-                            )}
-                          </TableBody>
-                        </Table>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-
-                {/* Top Customers */}
-                {crmStats?.topCustomers && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Top Customers</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        {(crmStats.topCustomers || []).map((customer: any, index: number) => (
-                          <div key={customer.id} className="flex items-center justify-between p-4 border rounded-lg">
-                            <div className="flex items-center space-x-4">
-                              <div className="flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-600 rounded-full font-bold">
-                                {index + 1}
-                              </div>
-                              <div>
-                                <p className="font-medium">{customer.name || 'Unknown'}</p>
-                                <p className="text-sm text-gray-500">{customer.email}</p>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <p className="font-medium">{customer._count?.orders || 0} orders</p>
-                              <p className="text-sm text-gray-500">${customer.totalSpent?.toFixed(2) || '0.00'} spent</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            )}
-
-            {/* Scheduling Tab */}
-            {activeTab === 'scheduling' && (
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-bold text-gray-900">Appointment Scheduling</h2>
-                  <div className="flex space-x-4">
-                    <Button onClick={() => window.location.reload()}>
-                      <RefreshCw className="h-4 w-4 mr-2" />
-                      Refresh
-                    </Button>
-                    <Button variant="outline">
-                      <Download className="h-4 w-4 mr-2" />
-                      Export
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Scheduling Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium text-gray-600">Total Appointments</p>
-                          <p className="text-2xl font-bold text-gray-900">{appointmentStats.total}</p>
-                        </div>
-                        <Calendar className="h-8 w-8 text-blue-600" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium text-gray-600">Today's Appointments</p>
-                          <p className="text-2xl font-bold text-green-600">{appointmentStats.today}</p>
-                        </div>
-                        <CheckCircle className="h-8 w-8 text-green-600" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium text-gray-600">Pending Requests</p>
-                          <p className="text-2xl font-bold text-orange-600">{appointmentStats.pending}</p>
-                        </div>
-                        <Clock className="h-8 w-8 text-orange-600" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium text-gray-600">Available Slots</p>
-                          <p className="text-2xl font-bold text-purple-600">{appointmentStats.availableSlots}</p>
-                        </div>
-                        <Plus className="h-8 w-8 text-purple-600" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Appointment Management */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Appointment Management</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {appointmentLoading ? (
-                      <div className="text-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#57BBB6] mx-auto"></div>
-                        <p className="mt-2 text-gray-500">Loading appointments...</p>
-                      </div>
-                    ) : appointments.length === 0 ? (
-                      <div className="text-center py-8 text-gray-500">
-                        <Calendar className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                        <p>No appointments scheduled yet</p>
-                        <p className="text-sm">Appointments will appear here once patients book them</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        {(appointments || []).map((appointment: any) => (
-                          <div key={appointment.id} className="flex items-center justify-between p-4 border rounded-lg">
-                            <div className="flex items-center space-x-3">
-                              <Calendar className="h-5 w-5 text-blue-600" />
-                              <div>
-                                <p className="font-medium">{appointment.patientName}</p>
-                                <p className="text-sm text-gray-500">{appointment.email}</p>
-                                <p className="text-sm text-gray-500">{new Date(appointment.date).toLocaleDateString()}</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Badge variant={appointment.status === 'CONFIRMED' ? 'default' : 'secondary'}>
-                                {appointment.status}
-                              </Badge>
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                onClick={() => {
-                                  console.log('Viewing appointment details:', appointment.id);
-                                  setSelectedAppointment(appointment);
-                                  setShowAppointmentViewDialog(true);
-                                  toast({
-                                    title: "Appointment Details",
-                                    description: `Opening details for ${appointment.patientName}`,
-                                  });
-                                }}
-                                title={`View appointment details for ${appointment.patientName}`}
-                              >
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-
-                {/* Schedule Management */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                      <span>Schedule Management</span>
-                      <div className="flex gap-2">
-                        <Button size="sm" onClick={() => setShowTimeSlotDialog(true)} className="bg-[#57bbb6] hover:bg-[#2e8f88]">
-                          <Plus className="h-4 w-4 mr-1" />
-                          Add Time Slot
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => setShowAppointmentTypeDialog(true)}>
-                          <Settings className="h-4 w-4 mr-1" />
-                          Manage Types
-                        </Button>
-                      </div>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-6">
-                      {/* Time Slot Configuration */}
-                      <div>
-                        <h3 className="text-lg font-semibold mb-3">Available Time Slots</h3>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                          {timeSlots.map((slot, index) => (
-                            <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                              <span className="font-medium">{slot}</span>
-                              <div className="flex gap-1">
-                                <Button size="sm" variant="ghost" onClick={() => editTimeSlot(slot)}>
-                                  <Edit className="h-3 w-3" />
-                                </Button>
-                                <Button size="sm" variant="ghost" onClick={() => deleteTimeSlot(slot)}>
-                                  <Trash2 className="h-3 w-3" />
-                                </Button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Appointment Types */}
-                      <div>
-                        <h3 className="text-lg font-semibold mb-3">Appointment Types</h3>
-                        <div className="space-y-2">
-                          {appointmentTypes.map((type, index) => (
-                            <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                              <div>
-                                <div className="font-medium">{type.name}</div>
-                                <div className="text-sm text-gray-600">
-                                  Duration: {type.duration} min • Price: ${type.price}
-                                </div>
-                              </div>
-                              <div className="flex gap-1">
-                                <Button size="sm" variant="ghost" onClick={() => editAppointmentType(type)}>
-                                  <Edit className="h-3 w-3" />
-                                </Button>
-                                <Button size="sm" variant="ghost" onClick={() => deleteAppointmentType(type.id)}>
-                                  <Trash2 className="h-3 w-3" />
-                                </Button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Schedule Rules */}
-                      <div>
-                        <h3 className="text-lg font-semibold mb-3">Schedule Rules</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-3">
-                            <div className="flex items-center justify-between p-3 border rounded-lg">
-                              <div>
-                                <div className="font-medium">Advance Booking Limit</div>
-                                <div className="text-sm text-gray-600">How far in advance patients can book</div>
-                              </div>
-                              <Select 
-                                value={scheduleRules.advanceBookingLimit}
-                                onValueChange={(value) => updateScheduleRule('advanceBookingLimit', value)}
-                              >
-                                <SelectTrigger className="w-24">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="7">7 days</SelectItem>
-                                  <SelectItem value="14">14 days</SelectItem>
-                                  <SelectItem value="30">30 days</SelectItem>
-                                  <SelectItem value="60">60 days</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div className="flex items-center justify-between p-3 border rounded-lg">
-                              <div>
-                                <div className="font-medium">Minimum Notice</div>
-                                <div className="text-sm text-gray-600">Minimum time before appointment</div>
-                              </div>
-                              <Select 
-                                value={scheduleRules.minimumNotice}
-                                onValueChange={(value) => updateScheduleRule('minimumNotice', value)}
-                              >
-                                <SelectTrigger className="w-24">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="1">1 hour</SelectItem>
-                                  <SelectItem value="2">2 hours</SelectItem>
-                                  <SelectItem value="4">4 hours</SelectItem>
-                                  <SelectItem value="24">24 hours</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </div>
-                          <div className="space-y-3">
-                            <div className="flex items-center justify-between p-3 border rounded-lg">
-                              <div>
-                                <div className="font-medium">Max Appointments per Day</div>
-                                <div className="text-sm text-gray-600">Daily appointment limit</div>
-                              </div>
-                              <Input 
-                                type="number" 
-                                value={scheduleRules.maxAppointmentsPerDay}
-                                onChange={(e) => updateScheduleRule('maxAppointmentsPerDay', e.target.value)}
-                                className="w-20" 
-                              />
-                            </div>
-                            <div className="flex items-center justify-between p-3 border rounded-lg">
-                              <div>
-                                <div className="font-medium">Buffer Time</div>
-                                <div className="text-sm text-gray-600">Time between appointments</div>
-                              </div>
-                              <Select 
-                                value={scheduleRules.bufferTime}
-                                onValueChange={(value) => updateScheduleRule('bufferTime', value)}
-                              >
-                                <SelectTrigger className="w-24">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="0">0 min</SelectItem>
-                                  <SelectItem value="5">5 min</SelectItem>
-                                  <SelectItem value="15">15 min</SelectItem>
-                                  <SelectItem value="30">30 min</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Working Hours */}
-                      <div>
-                        <h3 className="text-lg font-semibold mb-3">Working Hours</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {workingHours.map((day, index) => (
-                            <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                              <div className="font-medium w-20">{day.name}</div>
-                              <div className="flex items-center gap-2">
-                                <Checkbox 
-                                  checked={day.enabled} 
-                                  onChange={(checked) => toggleWorkingDay(day.name, checked)}
-                                />
-                                {day.enabled ? (
-                                  <div className="flex items-center gap-2">
-                                    <Input 
-                                      type="time" 
-                                      value={day.startTime} 
-                                      onChange={(e) => updateWorkingHours(day.name, 'startTime', e.target.value)}
-                                      className="w-24" 
-                                    />
-                                    <span>to</span>
-                                    <Input 
-                                      type="time" 
-                                      value={day.endTime} 
-                                      onChange={(e) => updateWorkingHours(day.name, 'endTime', e.target.value)}
-                                      className="w-24" 
-                                    />
-                                  </div>
-                                ) : (
-                                  <span className="text-gray-500 text-sm">Closed</span>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Save Changes Button */}
-                      <div className="pt-6 border-t">
-                        <div className="flex justify-end gap-4">
-                          <Button variant="outline" onClick={() => window.location.reload()}>
-                            Reset Changes
-                          </Button>
-                          <Button 
-                            onClick={async () => {
-                              try {
-                                // TODO: Save all schedule changes to backend
-                                const scheduleData = {
-                                  timeSlots,
-                                  appointmentTypes,
-                                  workingHours,
-                                  scheduleRules
-                                };
-                                console.log('Saving schedule data:', scheduleData);
-                                alert('Schedule changes saved successfully!');
-                              } catch (error) {
-                                console.error('Failed to save schedule:', error);
-                                alert('Failed to save schedule changes');
-                              }
-                            }}
-                            className="bg-[#57bbb6] hover:bg-[#2e8f88]"
-                          >
-                            <Settings className="h-4 w-4 mr-2" />
-                            Save All Changes
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
+            {/* Notifications Tab - REMOVED */}
 
             {/* Integration Tab */}
-            {activeTab === 'integration' && (
+            {/* REMOVED: Integration Tab */}
+            {false && activeTab === 'integration' && (
               <div className="space-y-6">
                 <h2 className="text-2xl font-bold text-gray-900">System Integrations</h2>
                 <Card>
@@ -6149,6 +5205,334 @@ export default function Admin() {
           </DialogContent>
         </Dialog>
 
+        {/* Appointment Details Dialog */}
+        <Dialog open={showAppointmentDetailsDialog} onOpenChange={setShowAppointmentDetailsDialog}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Appointment Details</DialogTitle>
+              <DialogDescription>
+                View detailed information about this appointment.
+              </DialogDescription>
+            </DialogHeader>
+            {selectedAppointment && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-semibold text-gray-700">Patient Information</label>
+                      <div className="mt-2 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <User className="h-4 w-4 text-gray-500" />
+                          <span className="text-sm">{selectedAppointment.patientName || 'Unknown'}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Mail className="h-4 w-4 text-gray-500" />
+                          <span className="text-sm">{selectedAppointment.email || 'N/A'}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Phone className="h-4 w-4 text-gray-500" />
+                          <span className="text-sm">{selectedAppointment.phone || 'N/A'}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-semibold text-gray-700">Appointment Details</label>
+                      <div className="mt-2 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-gray-500" />
+                          <span className="text-sm">{new Date(selectedAppointment.date).toLocaleDateString()}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4 text-gray-500" />
+                          <span className="text-sm">{selectedAppointment.time}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <User className="h-4 w-4 text-gray-500" />
+                          <span className="text-sm">{selectedAppointment.provider || 'Dr. Smith'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-semibold text-gray-700">Status & Type</label>
+                      <div className="mt-2 space-y-2">
+                        <Badge 
+                          variant={
+                            selectedAppointment.status === 'confirmed' ? 'default' :
+                            selectedAppointment.status === 'scheduled' ? 'secondary' :
+                            selectedAppointment.status === 'completed' ? 'outline' :
+                            selectedAppointment.status === 'cancelled' ? 'destructive' : 'secondary'
+                          }
+                        >
+                          {selectedAppointment.status || 'Scheduled'}
+                        </Badge>
+                        <div>
+                          <Badge variant="outline">{selectedAppointment.type || 'General'}</Badge>
+                        </div>
+                      </div>
+                    </div>
+
+                    {selectedAppointment.notes && (
+                      <div>
+                        <label className="text-sm font-semibold text-gray-700">Notes</label>
+                        <div className="mt-2 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                          <p className="text-sm text-gray-900 whitespace-pre-line">{selectedAppointment.notes}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-3 pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowAppointmentDetailsDialog(false)}
+                  >
+                    Close
+                  </Button>
+                  {selectedAppointment.status === 'scheduled' && (
+                    <Button
+                      onClick={async () => {
+                        if (confirm('Are you sure you want to approve this appointment?')) {
+                          try {
+                            await api.put(`/appointments/${selectedAppointment.id}`, { status: 'confirmed' });
+                            toast({
+                              title: "Appointment Approved",
+                              description: "The appointment has been successfully approved.",
+                            });
+                            loadAppointmentData();
+                            setShowAppointmentDetailsDialog(false);
+                          } catch (error) {
+                            console.error('Error approving appointment:', error);
+                            toast({
+                              title: "Error",
+                              description: "Failed to approve appointment. Please try again.",
+                              variant: "destructive"
+                            });
+                          }
+                        }
+                      }}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Approve Appointment
+                    </Button>
+                  )}
+                  {selectedAppointment.status === 'confirmed' && (
+                    <Button
+                      onClick={async () => {
+                        if (confirm('Are you sure you want to mark this appointment as completed?')) {
+                          try {
+                            await api.put(`/appointments/${selectedAppointment.id}`, { status: 'completed' });
+                            toast({
+                              title: "Appointment Completed",
+                              description: "The appointment has been successfully marked as completed.",
+                            });
+                            loadAppointmentData();
+                            setShowAppointmentDetailsDialog(false);
+                          } catch (error) {
+                            console.error('Error completing appointment:', error);
+                            toast({
+                              title: "Error",
+                              description: "Failed to complete appointment. Please try again.",
+                              variant: "destructive"
+                            });
+                          }
+                        }
+                      }}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Complete Appointment
+                    </Button>
+                  )}
+                  <Button
+                    onClick={async () => {
+                      if (confirm('Are you sure you want to cancel this appointment?')) {
+                        try {
+                          await api.put(`/appointments/${selectedAppointment.id}`, { status: 'cancelled' });
+                          toast({
+                            title: "Appointment Cancelled",
+                            description: "The appointment has been successfully cancelled.",
+                          });
+                          loadAppointmentData();
+                          setShowAppointmentDetailsDialog(false);
+                        } catch (error) {
+                          console.error('Error cancelling appointment:', error);
+                          toast({
+                            title: "Error",
+                            description: "Failed to cancel appointment. Please try again.",
+                            variant: "destructive"
+                          });
+                        }
+                      }
+                    }}
+                    className="bg-red-600 hover:bg-red-700"
+                  >
+                    <X className="h-4 w-4 mr-2" />
+                    Cancel Appointment
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setShowAppointmentDetailsDialog(false);
+                      setEditingAppointment(true);
+                      setShowNewAppointmentDialog(true);
+                    }}
+                    className="bg-[#57BBB6] hover:bg-[#376F6B]"
+                  >
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit Appointment
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* WooCommerce Order Details Dialog */}
+        <Dialog open={showWooCommerceOrderDetailsDialog} onOpenChange={setShowWooCommerceOrderDetailsDialog}>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader>
+              <DialogTitle>Order Details - #{selectedWooCommerceOrder?.order_number}</DialogTitle>
+              <DialogDescription>
+                View detailed information about this WooCommerce order.
+              </DialogDescription>
+            </DialogHeader>
+            {selectedWooCommerceOrder && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-semibold text-gray-700">Customer Information</label>
+                      <div className="mt-2 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <User className="h-4 w-4 text-gray-500" />
+                          <span className="text-sm">{selectedWooCommerceOrder.customer?.first_name} {selectedWooCommerceOrder.customer?.last_name}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Mail className="h-4 w-4 text-gray-500" />
+                          <span className="text-sm">{selectedWooCommerceOrder.customer?.email}</span>
+                        </div>
+                        {selectedWooCommerceOrder.customer?.phone && (
+                          <div className="flex items-center gap-2">
+                            <Phone className="h-4 w-4 text-gray-500" />
+                            <span className="text-sm">{selectedWooCommerceOrder.customer.phone}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-semibold text-gray-700">Order Information</label>
+                      <div className="mt-2 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600">Order Number:</span>
+                          <span className="text-sm font-medium">{selectedWooCommerceOrder.order_number}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600">Total:</span>
+                          <span className="text-sm font-medium">${selectedWooCommerceOrder.total} {selectedWooCommerceOrder.currency}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600">Payment Method:</span>
+                          <span className="text-sm font-medium">{selectedWooCommerceOrder.payment_method_title}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600">Date Created:</span>
+                          <span className="text-sm font-medium">{new Date(selectedWooCommerceOrder.date_created).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-semibold text-gray-700">Order Status</label>
+                      <div className="mt-2">
+                        <Badge 
+                          variant={
+                            selectedWooCommerceOrder.status === 'completed' ? 'default' :
+                            selectedWooCommerceOrder.status === 'pending' ? 'secondary' :
+                            selectedWooCommerceOrder.status === 'processing' ? 'outline' :
+                            selectedWooCommerceOrder.status === 'cancelled' ? 'destructive' : 'secondary'
+                          }
+                          className="text-sm px-3 py-1"
+                        >
+                          {selectedWooCommerceOrder.status}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    {selectedWooCommerceOrder.customer_note && (
+                      <div>
+                        <label className="text-sm font-semibold text-gray-700">Customer Note</label>
+                        <div className="mt-2 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                          <p className="text-sm text-gray-900">{selectedWooCommerceOrder.customer_note}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedWooCommerceOrder.line_items && selectedWooCommerceOrder.line_items.length > 0 && (
+                      <div>
+                        <label className="text-sm font-semibold text-gray-700">Order Items</label>
+                        <div className="mt-2 space-y-2">
+                          {selectedWooCommerceOrder.line_items.map((item: any, index: number) => (
+                            <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                              <span className="text-sm">{item.name}</span>
+                              <span className="text-sm font-medium">Qty: {item.quantity}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-3 pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowWooCommerceOrderDetailsDialog(false)}
+                  >
+                    Close
+                  </Button>
+                  <Button
+                    onClick={async () => {
+                      const statusOptions = ['pending', 'processing', 'completed', 'cancelled'];
+                      const currentIndex = statusOptions.indexOf(selectedWooCommerceOrder.status);
+                      const nextStatus = statusOptions[(currentIndex + 1) % statusOptions.length];
+                      
+                      if (confirm(`Update order status from "${selectedWooCommerceOrder.status}" to "${nextStatus}"?`)) {
+                        try {
+                          await api.put(`/woocommerce/orders/${selectedWooCommerceOrder.id}`, { status: nextStatus });
+                          toast({
+                            title: "Order Updated",
+                            description: `Order status updated to ${nextStatus}.`,
+                          });
+                          loadWooCommerceOrdersData();
+                          setShowWooCommerceOrderDetailsDialog(false);
+                        } catch (error) {
+                          toast({
+                            title: "Update Failed",
+                            description: "Failed to update order status. Please try again.",
+                            variant: "destructive"
+                          });
+                        }
+                      }
+                    }}
+                    className="bg-[#57BBB6] hover:bg-[#376F6B]"
+                  >
+                    <Edit className="h-4 w-4 mr-2" />
+                    Update Status
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
         {/* WordPress Management Dialogs */}
         
         {/* WordPress Settings Dialog */}
@@ -6840,6 +6224,416 @@ Date: ${new Date(selectedFormSubmission.timestamp).toLocaleString()}`;
                       Copy Details
                     </Button>
                   </div>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Refill Details Dialog */}
+        <Dialog open={showRefillDialog} onOpenChange={setShowRefillDialog}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader className="border-b pb-4">
+              <DialogTitle className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <RefreshCw className="h-6 w-6 text-blue-600" />
+                Refill Request Details
+              </DialogTitle>
+            </DialogHeader>
+            {selectedRefill && (
+              <div className="space-y-6 p-1">
+                {/* Status Banner */}
+                <div className={`p-4 rounded-lg border-l-4 ${
+                  selectedRefill.status === 'pending' ? 'bg-red-50 border-red-500' :
+                  selectedRefill.status === 'approved' ? 'bg-blue-50 border-blue-500' :
+                  selectedRefill.status === 'completed' ? 'bg-green-50 border-green-500' : 'bg-gray-50 border-gray-500'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Badge variant={
+                        selectedRefill.status === 'pending' ? 'destructive' :
+                        selectedRefill.status === 'approved' ? 'default' :
+                        selectedRefill.status === 'completed' ? 'outline' : 'secondary'
+                      } className="text-sm font-medium">
+                        {selectedRefill.status.toUpperCase()}
+                      </Badge>
+                      <Badge variant={
+                        selectedRefill.urgency === 'urgent' ? 'destructive' :
+                        selectedRefill.urgency === 'normal' ? 'outline' : 'secondary'
+                      } className="text-sm font-medium">
+                        {selectedRefill.urgency.toUpperCase()} PRIORITY
+                      </Badge>
+                      <span className="text-sm text-gray-600">
+                        Requested on {new Date(selectedRefill.requestedDate).toLocaleDateString('en-US', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Patient Information */}
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Users className="h-5 w-5 text-blue-600" />
+                      Patient Information
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-sm font-semibold text-gray-700">Patient Name</label>
+                        <p className="text-sm text-gray-900 bg-gray-50 p-2 rounded">{selectedRefill.user?.name || 'Unknown'}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-sm font-semibold text-gray-700">Email Address</label>
+                        <p className="text-sm text-gray-900 bg-gray-50 p-2 rounded">{selectedRefill.user?.email || 'Not provided'}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Medication Details */}
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Pill className="h-5 w-5 text-purple-600" />
+                      Medication Details
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-sm font-semibold text-gray-700">Medication</label>
+                        <p className="text-sm text-gray-900 bg-gray-50 p-2 rounded">{selectedRefill.medication}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-sm font-semibold text-gray-700">Dosage</label>
+                        <p className="text-sm text-gray-900 bg-gray-50 p-2 rounded">{selectedRefill.dosage}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-sm font-semibold text-gray-700">Quantity</label>
+                        <p className="text-sm text-gray-900 bg-gray-50 p-2 rounded">{selectedRefill.quantity} tablets</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Additional Information */}
+                {selectedRefill.notes && (
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-orange-600" />
+                        Additional Information
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {/* Parse notes to extract file information */}
+                        {(() => {
+                          const notes = selectedRefill.notes;
+                          const fileMatch = notes.match(/Prescription File: (.+)/);
+                          const otherNotes = notes.replace(/Prescription File: .+/, '').trim();
+                          
+                          return (
+                            <>
+                              {fileMatch && (
+                                <div className="space-y-2">
+                                  <label className="text-sm font-semibold text-gray-700">Prescription File</label>
+                                  <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <FileText className="h-6 w-6 text-blue-600" />
+                                    <div className="flex-1">
+                                      <p className="text-sm font-semibold text-gray-900">{fileMatch[1]}</p>
+                                      <p className="text-xs text-gray-600">Click to view/download</p>
+                                    </div>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => {
+                                        // Create download link for the file
+                                        const fileUrl = `http://localhost:3001/uploads/${fileMatch[1]}`;
+                                        const link = document.createElement('a');
+                                        link.href = fileUrl;
+                                        link.download = fileMatch[1];
+                                        link.target = '_blank';
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        document.body.removeChild(link);
+                                      }}
+                                      className="flex items-center gap-2 text-blue-600 hover:text-blue-700"
+                                    >
+                                      <Download className="h-4 w-4" />
+                                      Download
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {otherNotes && (
+                                <div className="space-y-2">
+                                  <label className="text-sm font-semibold text-gray-700">Notes</label>
+                                  <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                                    <p className="text-sm text-gray-900 whitespace-pre-line">{otherNotes}</p>
+                                  </div>
+                                </div>
+                              )}
+                            </>
+                          );
+                        })()}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex justify-end gap-3 pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowRefillDialog(false)}
+                  >
+                    Close
+                  </Button>
+                  {selectedRefill.status === 'pending' && (
+                    <Button
+                      onClick={() => {
+                        handleUpdateRefillStatus(selectedRefill.id, 'approved');
+                        setShowRefillDialog(false);
+                      }}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Approve Refill
+                    </Button>
+                  )}
+                  {selectedRefill.status === 'approved' && (
+                    <Button
+                      onClick={() => {
+                        handleUpdateRefillStatus(selectedRefill.id, 'completed');
+                        setShowRefillDialog(false);
+                      }}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      <Package className="h-4 w-4 mr-2" />
+                      Mark Complete
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Transfer Details Dialog */}
+        <Dialog open={showTransferDialog} onOpenChange={setShowTransferDialog}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader className="border-b pb-4">
+              <DialogTitle className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <RefreshCw className="h-6 w-6 text-blue-600" />
+                Transfer Request Details
+              </DialogTitle>
+            </DialogHeader>
+            {selectedTransfer && (
+              <div className="space-y-6 p-1">
+                {/* Status Banner */}
+                <div className={`p-4 rounded-lg border-l-4 ${
+                  selectedTransfer.status === 'pending' ? 'bg-red-50 border-red-500' :
+                  selectedTransfer.status === 'approved' ? 'bg-blue-50 border-blue-500' :
+                  selectedTransfer.status === 'completed' ? 'bg-green-50 border-green-500' : 'bg-gray-50 border-gray-500'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Badge variant={
+                        selectedTransfer.status === 'pending' ? 'destructive' :
+                        selectedTransfer.status === 'approved' ? 'default' :
+                        selectedTransfer.status === 'completed' ? 'outline' : 'secondary'
+                      } className="text-sm font-medium">
+                        {selectedTransfer.status.toUpperCase()}
+                      </Badge>
+                      <span className="text-sm text-gray-600">
+                        Requested on {new Date(selectedTransfer.requestedDate).toLocaleDateString('en-US', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Patient Information */}
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Users className="h-5 w-5 text-blue-600" />
+                      Patient Information
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-sm font-semibold text-gray-700">Patient Name</label>
+                        <p className="text-sm text-gray-900 bg-gray-50 p-2 rounded">{selectedTransfer.user?.name || 'Unknown'}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-sm font-semibold text-gray-700">Email Address</label>
+                        <p className="text-sm text-gray-900 bg-gray-50 p-2 rounded">{selectedTransfer.user?.email || 'Not provided'}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Pharmacy Information */}
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <MapPin className="h-5 w-5 text-green-600" />
+                      Pharmacy Information
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-sm font-semibold text-gray-700">From Pharmacy</label>
+                        <p className="text-sm text-gray-900 bg-gray-50 p-2 rounded">{selectedTransfer.fromPharmacy}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-sm font-semibold text-gray-700">To Pharmacy</label>
+                        <p className="text-sm text-gray-900 bg-gray-50 p-2 rounded">{selectedTransfer.toPharmacy}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Medication Details */}
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Pill className="h-5 w-5 text-purple-600" />
+                      Medication Details
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-sm font-semibold text-gray-700">Medication</label>
+                        <p className="text-sm text-gray-900 bg-gray-50 p-2 rounded">{selectedTransfer.medication}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-sm font-semibold text-gray-700">Dosage</label>
+                        <p className="text-sm text-gray-900 bg-gray-50 p-2 rounded">{selectedTransfer.dosage}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-sm font-semibold text-gray-700">Quantity</label>
+                        <p className="text-sm text-gray-900 bg-gray-50 p-2 rounded">{selectedTransfer.quantity} tablets</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Notes and Files */}
+                {selectedTransfer.notes && (
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-orange-600" />
+                        Additional Information
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {/* Parse notes to extract file information */}
+                        {(() => {
+                          const notes = selectedTransfer.notes;
+                          const fileMatch = notes.match(/Prescription File: (.+)/);
+                          const otherNotes = notes.replace(/Prescription File: .+/, '').trim();
+                          
+                          return (
+                            <>
+                              {fileMatch && (
+                                <div className="space-y-2">
+                                  <label className="text-sm font-semibold text-gray-700">Prescription File</label>
+                                  <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <FileText className="h-6 w-6 text-blue-600" />
+                                    <div className="flex-1">
+                                      <p className="text-sm font-semibold text-gray-900">{fileMatch[1]}</p>
+                                      <p className="text-xs text-gray-600">Click to view/download</p>
+                                    </div>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => {
+                                        // Create download link for the file
+                                        const fileUrl = `http://localhost:3001/uploads/${fileMatch[1]}`;
+                                        const link = document.createElement('a');
+                                        link.href = fileUrl;
+                                        link.download = fileMatch[1];
+                                        link.target = '_blank';
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        document.body.removeChild(link);
+                                      }}
+                                      className="flex items-center gap-2 text-blue-600 hover:text-blue-700"
+                                    >
+                                      <Download className="h-4 w-4" />
+                                      Download
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {otherNotes && (
+                                <div className="space-y-2">
+                                  <label className="text-sm font-semibold text-gray-700">Notes</label>
+                                  <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                                    <p className="text-sm text-gray-900 whitespace-pre-line">{otherNotes}</p>
+                                  </div>
+                                </div>
+                              )}
+                            </>
+                          );
+                        })()}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex justify-end gap-3 pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowTransferDialog(false)}
+                  >
+                    Close
+                  </Button>
+                  {selectedTransfer.status === 'pending' && (
+                    <Button
+                      onClick={() => {
+                        handleUpdateTransferStatus(selectedTransfer.id, 'approved');
+                        setShowTransferDialog(false);
+                      }}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Approve Transfer
+                    </Button>
+                  )}
+                  {selectedTransfer.status === 'approved' && (
+                    <Button
+                      onClick={() => {
+                        handleUpdateTransferStatus(selectedTransfer.id, 'completed');
+                        setShowTransferDialog(false);
+                      }}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      <Package className="h-4 w-4 mr-2" />
+                      Mark Complete
+                    </Button>
+                  )}
                 </div>
               </div>
             )}

@@ -1,11 +1,10 @@
 import { ArrowRight, Star, Heart, Truck, Shield, Users, Stethoscope, MessageCircle, Pill, Clock, Award, CheckCircle, Zap, Thermometer, Bandage, ShoppingCart, Gift, Tag } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 import { Badge } from "@/components/ui/badge";
 import { HowItWorks } from "@/components/HowItWorks";
 import { SEOHead } from "@/components/SEOHead";
-import { redirectToShop } from "@/utils/shopRedirect";
 
 interface ServicesProps {
   onRefillClick: () => void;
@@ -428,7 +427,7 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
                   </Button>
                   
                   <Button 
-                    onClick={() => redirectToShop()}
+                    onClick={() => navigate('/shop')}
                     variant="outline"
                     className="border-white text-white hover:bg-white hover:text-[#57BBB6] font-bold px-8 py-4 rounded-xl text-lg"
                   >
@@ -445,7 +444,7 @@ export const Services = ({ onRefillClick, onTransferClick, onAppointmentClick }:
                     className="border-white text-white hover:bg-white hover:text-[#57BBB6] font-bold px-8 py-4 rounded-xl text-lg"
                   >
                     <ArrowRight className="w-5 h-5 mr-2" />
-                    View All Services & Details
+                    All Services
                   </Button>
                 </div>
               </div>

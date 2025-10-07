@@ -98,7 +98,7 @@ export default function AdminSignIn() {
           onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
         />
       
-      <div className="pt-20 flex items-center justify-center p-4">
+      <div className="flex items-center justify-center p-4">
         <div className={`transition-all duration-700 ease-out transform ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
         <form
           className="bg-white/95 backdrop-blur-sm p-6 sm:p-8 rounded-2xl shadow-2xl w-full max-w-sm flex flex-col items-center border border-[#e0f2f1]"

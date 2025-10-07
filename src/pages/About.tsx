@@ -188,7 +188,7 @@ export default function About() {
           onTransferClick={onTransferClick}
         />
       
-      <div className="pt-20">
+      <div className="">
         {/* Hero Section */}
                   <div className="text-white py-16 sm:py-20 md:py-24 relative overflow-hidden">
           {/* Background Image Placeholder - Replace with actual pharmacy team/building image */}
@@ -205,34 +205,6 @@ export default function About() {
              {/* Minimal Overlay for Text Readability */}
              <div className="absolute inset-0 bg-black/20 pointer-events-none z-10"></div>
           
-          {/* Animated Background Elements */}
-          <div className="absolute inset-0 pointer-events-none">
-            {/* Floating Medical Icons */}
-            <div className="absolute top-20 left-10 text-white/15 animate-bounce" style={{ animationDelay: '0s' }}>
-              <Heart className="w-8 h-8" />
-            </div>
-            <div className="absolute top-32 right-20 text-white/12 animate-bounce" style={{ animationDelay: '1s' }}>
-              <Shield className="w-6 h-6" />
-            </div>
-            <div className="absolute bottom-32 left-1/4 text-white/18 animate-bounce" style={{ animationDelay: '2s' }}>
-              <Star className="w-7 h-7" />
-            </div>
-            <div className="absolute bottom-20 right-1/3 text-white/14 animate-bounce" style={{ animationDelay: '3s' }}>
-              <Building2 className="w-8 h-8" />
-            </div>
-            
-            {/* Animated Particles */}
-            <div className="absolute top-1/4 left-1/3 w-2 h-2 bg-white/25 rounded-full animate-ping"></div>
-            <div className="absolute top-1/2 right-1/4 w-1.5 h-1.5 bg-white/20 rounded-full animate-ping" style={{ animationDelay: '1.5s' }}></div>
-            <div className="absolute bottom-1/3 left-1/2 w-1 h-1 bg-white/30 rounded-full animate-ping" style={{ animationDelay: '3s' }}></div>
-            
-            {/* Pulse Waves */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <div className="w-48 h-48 border border-white/15 rounded-full animate-ping"></div>
-              <div className="w-48 h-48 border border-white/15 rounded-full animate-ping absolute top-0 left-0" style={{ animationDelay: '1s' }}></div>
-              <div className="w-48 h-48 border border-white/15 rounded-full animate-ping absolute top-0 left-0" style={{ animationDelay: '2s' }}></div>
-            </div>
-          </div>
           
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
             <div className="max-w-4xl mx-auto">

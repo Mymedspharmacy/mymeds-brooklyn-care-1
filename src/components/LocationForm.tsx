@@ -67,7 +67,24 @@ export const LocationForm: React.FC<LocationFormProps> = ({
 
   useEffect(() => {
     if (location && isEditing) {
-      setFormData(location);
+      // Ensure all fields have proper default values to avoid controlled/uncontrolled warnings
+      setFormData({
+        name: location.name || '',
+        address: location.address || '',
+        city: location.city || '',
+        state: location.state || '',
+        zipCode: location.zipCode || '',
+        country: location.country || 'USA',
+        phone: location.phone || '',
+        email: location.email || '',
+        businessHours: location.businessHours || '',
+        services: location.services || '',
+        coordinates: location.coordinates || '',
+        description: location.description || '',
+        imageUrl: location.imageUrl || '',
+        isActive: location.isActive ?? true,
+        isPrimary: location.isPrimary ?? false
+      });
     } else {
       // Reset form for new location
       setFormData({
@@ -147,9 +164,9 @@ export const LocationForm: React.FC<LocationFormProps> = ({
     try {
       const submitData = {
         ...formData,
-        // Parse JSON strings if they exist
-        services: formData.services ? JSON.parse(formData.services) : null,
-        coordinates: formData.coordinates ? JSON.parse(formData.coordinates) : null
+        // Ensure services and coordinates are empty strings instead of null for backend validation
+        services: formData.services || '',
+        coordinates: formData.coordinates || ''
       };
 
       console.log('Submitting location data:', submitData);

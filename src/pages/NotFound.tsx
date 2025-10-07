@@ -29,7 +29,7 @@ const NotFound = () => {
           onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
         />
       
-      <div className="pt-20 flex items-center justify-center min-h-[60vh]">
+      <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <h1 className="text-6xl sm:text-8xl font-bold mb-4 text-[#376F6B]">404</h1>
           <p className="text-xl sm:text-2xl text-[#376F6B] mb-6">Oops! Page not found</p>

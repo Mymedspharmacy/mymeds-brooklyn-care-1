@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Phone, Truck, Clock, ArrowRight, Shield, Heart, ShoppingCart } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { redirectToShop } from "@/utils/shopRedirect";
+import { useNavigate } from 'react-router-dom';
 import { getPhoneNumber, getTelLink } from "@/lib/contact";
 
 interface HeroProps {
@@ -30,9 +29,9 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center min-h-[75vh]">
           
           {/* Left Column - Text Content */}
-          <div className="text-left space-y-6">
+          <div className="text-left md:text-left text-center space-y-6">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 bg-[#376F6B] text-white px-4 py-2 rounded-full text-sm font-medium">
+            <div className="inline-flex items-center gap-2 bg-[#376F6B] text-white px-4 py-2 rounded-full text-sm font-medium md:inline-flex mx-auto md:mx-0 flex justify-center md:justify-start">
               <Shield className="h-4 w-4" />
               <span>Trusted by Our Community</span>
             </div>
@@ -52,7 +51,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
             </div>
 
             {/* Call-to-Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
               <Button 
                 onClick={onRefillClick}
                 size="lg" 
@@ -66,7 +65,7 @@ export const Hero = ({ onRefillClick }: HeroProps) => {
               <Button 
                 variant="outline" 
                 size="lg" 
-                onClick={() => redirectToShop()}
+                onClick={() => navigate('/shop')}
                 className="text-lg px-8 py-6 rounded-xl border-2 border-[#376F6B] text-[#376F6B] hover:bg-[#376F6B] hover:text-white"
               >
                 <ShoppingCart className="mr-3 h-6 w-6" />

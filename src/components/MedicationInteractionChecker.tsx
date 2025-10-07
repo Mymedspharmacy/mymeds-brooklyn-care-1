@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { HIPAAFormBanner } from '@/components/HIPAACompliance';
+import api from '@/lib/api';
 
 interface Medication {
   id: string;
@@ -42,47 +43,28 @@ const MedicationInteractionChecker = () => {
   const [isChecking, setIsChecking] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
 
-  // Sample medication database (in real app, this would come from an API)
-  const medicationDatabase: Medication[] = [
-    { id: '1', name: 'Lisinopril', genericName: 'Lisinopril', category: 'ACE Inhibitor', strength: '10mg' },
-    { id: '2', name: 'Metformin', genericName: 'Metformin', category: 'Antidiabetic', strength: '500mg' },
-    { id: '3', name: 'Atorvastatin', genericName: 'Atorvastatin', category: 'Statin', strength: '20mg' },
-    { id: '4', name: 'Aspirin', genericName: 'Acetylsalicylic Acid', category: 'NSAID', strength: '81mg' },
-    { id: '5', name: 'Warfarin', genericName: 'Warfarin', category: 'Anticoagulant', strength: '5mg' },
-    { id: '6', name: 'Omeprazole', genericName: 'Omeprazole', category: 'Proton Pump Inhibitor', strength: '20mg' },
-    { id: '7', name: 'Amlodipine', genericName: 'Amlodipine', category: 'Calcium Channel Blocker', strength: '5mg' },
-    { id: '8', name: 'Losartan', genericName: 'Losartan', category: 'ARB', strength: '50mg' },
-    { id: '9', name: 'Ibuprofen', genericName: 'Ibuprofen', category: 'NSAID', strength: '400mg' },
-    { id: '10', name: 'Acetaminophen', genericName: 'Acetaminophen', category: 'Analgesic', strength: '500mg' },
-  ];
+  // Medication database - fetch from API
+  const [medicationDatabase, setMedicationDatabase] = useState<Medication[]>([]);
+  const [interactionDatabase, setInteractionDatabase] = useState<Record<string, Interaction[]>>({});
 
-  // Sample interaction database
-  const interactionDatabase: Record<string, Interaction[]> = {
-    'Lisinopril-Warfarin': [
-      {
-        severity: 'moderate',
-        description: 'Lisinopril may increase the anticoagulant effect of warfarin',
-        recommendation: 'Monitor INR more frequently and adjust warfarin dose as needed',
-        evidence: 'Clinical studies show increased bleeding risk'
+  useEffect(() => {
+    const fetchMedicationData = async () => {
+      try {
+        const response = await api.get('/medications/interactions');
+        if (response.data.success) {
+          setMedicationDatabase(response.data.medications || []);
+          setInteractionDatabase(response.data.interactions || {});
+        }
+      } catch (error) {
+        console.error('Error fetching medication data:', error);
+        // Set empty arrays on error
+        setMedicationDatabase([]);
+        setInteractionDatabase({});
       }
-    ],
-    'Aspirin-Warfarin': [
-      {
-        severity: 'high',
-        description: 'Combined use increases risk of bleeding',
-        recommendation: 'Avoid combination unless specifically prescribed by doctor',
-        evidence: 'Multiple clinical trials show increased bleeding risk'
-      }
-    ],
-    'Metformin-Aspirin': [
-      {
-        severity: 'low',
-        description: 'Aspirin may slightly increase metformin levels',
-        recommendation: 'Monitor blood glucose more closely',
-        evidence: 'Limited clinical data available'
-      }
-    ]
-  };
+    };
+
+    fetchMedicationData();
+  }, []);
 
   useEffect(() => {
     if (searchTerm.length > 2) {
@@ -94,7 +76,7 @@ const MedicationInteractionChecker = () => {
     } else {
       setSearchResults([]);
     }
-  }, [searchTerm]);
+  }, [searchTerm, medicationDatabase]);
 
   const addMedication = (medication: Medication) => {
     if (!selectedMedications.find(med => med.id === medication.id)) {

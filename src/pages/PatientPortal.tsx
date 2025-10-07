@@ -253,31 +253,13 @@ const PatientPortal = () => {
 
   const loadPatientData = async () => {
     try {
-      // Load prescriptions - using mock data for now since prescription endpoint needs refinement
-      setPrescriptions([
-        {
-          id: '1',
-          medication: 'Lisinopril 10mg',
-          dosage: '10mg',
-          frequency: 'Once daily',
-          refills: 2,
-          status: 'active',
-          lastFilled: '2024-01-01',
-          nextRefill: '2024-02-01',
-          prescriber: 'Dr. Smith'
-        },
-        {
-          id: '2',
-          medication: 'Metformin 500mg',
-          dosage: '500mg',
-          frequency: 'Twice daily',
-          refills: 0,
-          status: 'refill-needed',
-          lastFilled: '2024-01-15',
-          nextRefill: '2024:01-15',
-          prescriber: 'Dr. Johnson'
-        }
-      ]);
+      // Load prescriptions from API
+      const prescriptionsResponse = await api.get('/patient/prescriptions');
+      if (prescriptionsResponse.data && prescriptionsResponse.data.prescriptions) {
+        setPrescriptions(prescriptionsResponse.data.prescriptions);
+      } else {
+        setPrescriptions([]);
+      }
 
       // Load real appointments from API
       const appointmentsResponse = await api.get('/patient/appointments');
@@ -287,25 +269,13 @@ const PatientPortal = () => {
         setAppointments([]);
       }
 
-      // Health records - using mock data for now since health records endpoint needs implementation
-      setHealthRecords([
-        {
-          id: '1',
-          type: 'Blood Pressure',
-          date: '2024-01-10',
-          provider: 'Dr. Smith',
-          result: '120/80 mmHg',
-          status: 'normal'
-        },
-        {
-          id: '2',
-          type: 'Blood Glucose',
-          date: '2024-01-10',
-          provider: 'Dr. Johnson',
-          result: '95 mg/dL',
-          status: 'normal'
-        }
-      ]);
+      // Load health records from API
+      const healthRecordsResponse = await api.get('/patient/health-records');
+      if (healthRecordsResponse.data && healthRecordsResponse.data.records) {
+        setHealthRecords(healthRecordsResponse.data.records);
+      } else {
+        setHealthRecords([]);
+      }
     } catch (error) {
       console.error('Failed to load patient data:', error);
       // Set empty arrays on error
@@ -345,25 +315,25 @@ const PatientPortal = () => {
           {/* Enhanced Overlay for Better Text Readability */}
           <div className="absolute inset-0 bg-black/60 z-10"></div>
         
-          {/* Animated Background Elements */}
+          {/* Static Background Elements */}
           <div className="absolute inset-0 pointer-events-none">
-            {/* Floating Medical Icons */}
-            <div className="absolute top-10 left-10 text-[#57BBB6]/15 animate-bounce" style={{ animationDelay: '0s' }}>
+            {/* Static Medical Icons */}
+            <div className="absolute top-10 left-10 text-[#57BBB6]/15">
               <Shield className="w-6 h-6" />
             </div>
-            <div className="absolute top-20 right-20 text-[#376F6B]/12 animate-bounce" style={{ animationDelay: '1s' }}>
+            <div className="absolute top-20 right-20 text-[#376F6B]/12">
               <Heart className="w-5 w-5" />
             </div>
-            <div className="absolute bottom-20 left-20 text-[#D5C6BC]/18 animate-bounce" style={{ animationDelay: '2s' }}>
+            <div className="absolute bottom-20 left-20 text-[#D5C6BC]/18">
               <Pill className="w-7 h-7" />
             </div>
-            <div className="absolute bottom-10 right-10 text-[#57BBB6]/14 animate-bounce" style={{ animationDelay: '3s' }}>
+            <div className="absolute bottom-10 right-10 text-[#57BBB6]/14">
               <User className="w-6 h-6" />
             </div>
             
-            {/* Animated Particles */}
-            <div className="absolute top-1/3 left-1/4 w-1.5 h-1.5 bg-[#57BBB6]/20 rounded-full animate-ping"></div>
-            <div className="absolute bottom-1/3 right-1/4 w-1 h-1 bg-[#376F6B]/15 rounded-full animate-ping" style={{ animationDelay: '2s' }}></div>
+            {/* Static Particles */}
+            <div className="absolute top-1/3 left-1/4 w-1.5 h-1.5 bg-[#57BBB6]/20 rounded-full"></div>
+            <div className="absolute bottom-1/3 right-1/4 w-1 h-1 bg-[#376F6B]/15 rounded-full"></div>
           </div>
           
           {/* Login Content - Centered */}
@@ -457,7 +427,7 @@ const PatientPortal = () => {
         onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
       />
       
-      <div className="pt-20">
+      <div className="">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">

@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Search, Calendar, User, Clock, ArrowRight, Tag, Eye, Heart, Share2, BookOpen, TrendingUp, Shield, Leaf, Brain, Heart as HeartIcon, Loader2, AlertCircle } from "lucide-react";
+import { Search, Calendar, User, Clock, ArrowRight, Tag, Eye, Heart, Share2, BookOpen, Loader2, AlertCircle } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { wordPressAPI } from "@/lib/wordpress";
@@ -158,82 +158,14 @@ export default function Blog() {
           return title.trim() !== '' && content.trim() !== '';
         });
         
-        // If no valid posts, add sample content for demonstration
-        if (validPosts.length === 0) {
-          const samplePosts: WordPressPost[] = [
-            {
-              id: 1,
-              title: { rendered: "Understanding Medication Safety: A Complete Guide" },
-              content: { rendered: "<p>Medication safety is crucial for maintaining good health. This comprehensive guide covers everything you need to know about taking medications safely, including proper storage, timing, and interactions.</p><p>Key points include always reading labels carefully, storing medications in appropriate conditions, and consulting with healthcare providers about potential side effects.</p>" },
-              excerpt: { rendered: "Learn essential medication safety practices to protect your health and ensure effective treatment." },
-              author: 1,
-              date: new Date().toISOString(),
-              modified: new Date().toISOString(),
-              categories: [1],
-              tags: [1, 2],
-              _embedded: {
-                author: [{ name: "Dr. Sarah Johnson" }]
-              }
-            },
-            {
-              id: 2,
-              title: { rendered: "Managing Chronic Conditions: Tips for Better Health" },
-              content: { rendered: "<p>Living with chronic conditions requires careful management and lifestyle adjustments. This article provides practical tips for managing conditions like diabetes, hypertension, and heart disease.</p><p>We'll cover medication adherence, diet modifications, exercise routines, and regular monitoring to help you maintain optimal health.</p>" },
-              excerpt: { rendered: "Discover effective strategies for managing chronic health conditions and improving your quality of life." },
-              author: 1,
-              date: new Date(Date.now() - 86400000).toISOString(),
-              modified: new Date(Date.now() - 86400000).toISOString(),
-              categories: [1],
-              tags: [2, 3],
-              _embedded: {
-                author: [{ name: "Dr. Michael Chen" }]
-              }
-            },
-            {
-              id: 3,
-              title: { rendered: "The Importance of Regular Health Checkups" },
-              content: { rendered: "<p>Regular health checkups are essential for early detection and prevention of health issues. This guide explains why routine medical examinations are crucial for maintaining good health.</p><p>We'll discuss what to expect during checkups, how often you should schedule them, and what tests are typically included based on your age and health status.</p>" },
-              excerpt: { rendered: "Learn why regular health checkups are vital for prevention and early detection of health problems." },
-              author: 1,
-              date: new Date(Date.now() - 172800000).toISOString(),
-              modified: new Date(Date.now() - 172800000).toISOString(),
-              categories: [1],
-              tags: [1, 4],
-              _embedded: {
-                author: [{ name: "Dr. Emily Rodriguez" }]
-              }
-            }
-          ];
-          
-          setPosts(samplePosts);
-          setFeaturedPosts(samplePosts.slice(0, 3));
-          setRecentPosts(samplePosts.slice(0, 6));
-          setError(null);
-          
-          // Add sample categories
-          const sampleCategories: WordPressCategory[] = [
-            { id: 1, name: "Health & Wellness", count: 3, description: "Articles about general health and wellness" },
-            { id: 2, name: "Medication Safety", count: 2, description: "Tips and guidelines for safe medication use" },
-            { id: 3, name: "Chronic Conditions", count: 1, description: "Managing long-term health conditions" }
-          ];
-          setCategories(sampleCategories);
-        } else {
-          setPosts(validPosts);
-          setFeaturedPosts(typedFeaturedData.filter(post => {
-            const title = typeof post.title === 'string' ? post.title : post.title?.rendered || '';
-            const content = typeof post.content === 'string' ? post.content : post.content?.rendered || '';
-            return title.trim() !== '' && content.trim() !== '';
-          }));
-          setRecentPosts(validPosts.slice(0, 6));
-          
-          // Use existing categories or add sample ones if none exist
-          const sampleCategories: WordPressCategory[] = [
-            { id: 1, name: "Health & Wellness", count: validPosts.length, description: "Articles about general health and wellness" },
-            { id: 2, name: "Medication Safety", count: Math.floor(validPosts.length / 2), description: "Tips and guidelines for safe medication use" },
-            { id: 3, name: "Chronic Conditions", count: Math.floor(validPosts.length / 3), description: "Managing long-term health conditions" }
-          ];
-          setCategories(typedCategoriesData.length > 0 ? typedCategoriesData : sampleCategories);
-        }
+        setPosts(validPosts);
+        setFeaturedPosts(typedFeaturedData.filter(post => {
+          const title = typeof post.title === 'string' ? post.title : post.title?.rendered || '';
+          const content = typeof post.content === 'string' ? post.content : post.content?.rendered || '';
+          return title.trim() !== '' && content.trim() !== '';
+        }));
+        setRecentPosts(validPosts.slice(0, 6));
+        setCategories(typedCategoriesData);
       } catch (error) {
         console.error('Error fetching posts:', error);
         setError('Unable to load blog posts at this time. Please try again later.');
@@ -320,7 +252,7 @@ export default function Blog() {
           onAppointmentClick={onAppointmentClick}
           onTransferClick={onTransferClick}
         />
-        <div className="pt-20 flex items-center justify-center min-h-screen">
+        <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <Loader2 className="h-12 w-12 animate-spin text-[#57BBB6] mx-auto mb-4" />
             <p className="text-lg text-[#376F6B]">Loading blog posts...</p>
@@ -344,7 +276,7 @@ export default function Blog() {
           onTransferClick={onTransferClick}
         />
       
-      <div className="pt-20">
+      <div className="">
         {/* Error Banner */}
         {error && (
           <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4 mx-4 sm:mx-6 lg:mx-8">
@@ -363,7 +295,7 @@ export default function Blog() {
 
         {/* Empty State */}
         {!loading && !error && posts.length === 0 && (
-          <div className="py-16 text-center">
+          <div className="py-8 text-center">
             <div className="max-w-md mx-auto">
               <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-900 mb-2">No Blog Posts Yet</h3>
@@ -379,111 +311,75 @@ export default function Blog() {
 
 
         {/* Hero Section */}
-        <section className="py-20 sm:py-24 md:py-32 text-white relative overflow-hidden">
-          {/* Enhanced Background with Gradient Overlay */}
+        <section className="py-8 sm:py-12 md:py-16 text-white relative overflow-hidden">
+          {/* Background Image - More Visible */}
           <div
             className="absolute inset-0 opacity-100 pointer-events-none"
             style={{
-              backgroundImage: `linear-gradient(135deg, rgba(55, 111, 107, 0.9) 0%, rgba(87, 187, 182, 0.8) 100%), url('/images/new/blogpage.jpg')`,
+              backgroundImage: `url('/images/new/blogpage.jpg')`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat'
             }}
           ></div>
           
-          {/* Enhanced Animated Background Elements */}
-          <div className="absolute inset-0 pointer-events-none">
-            {/* Floating Health Icons with Better Animation */}
-            <div className="absolute top-20 left-10 text-white/20 animate-float" style={{ animationDelay: '0s' }}>
-              <BookOpen className="w-10 h-10" />
-            </div>
-            <div className="absolute top-32 right-20 text-white/15 animate-float" style={{ animationDelay: '1.5s' }}>
-              <Brain className="w-8 h-8" />
-            </div>
-            <div className="absolute bottom-32 left-1/4 text-white/18 animate-float" style={{ animationDelay: '3s' }}>
-              <Leaf className="w-9 h-9" />
-            </div>
-            <div className="absolute bottom-20 right-1/3 text-white/16 animate-float" style={{ animationDelay: '4.5s' }}>
-              <TrendingUp className="w-10 h-10" />
-            </div>
-            <div className="absolute top-1/2 left-20 text-white/12 animate-float" style={{ animationDelay: '2s' }}>
-              <HeartIcon className="w-7 h-7" />
-            </div>
-            <div className="absolute top-1/3 right-1/4 text-white/14 animate-float" style={{ animationDelay: '5s' }}>
-              <Shield className="w-8 h-8" />
-            </div>
-            
-            {/* Enhanced Particle System */}
-            <div className="absolute top-1/4 left-1/3 w-3 h-3 bg-white/30 rounded-full animate-pulse"></div>
-            <div className="absolute top-1/2 right-1/4 w-2 h-2 bg-white/25 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
-            <div className="absolute bottom-1/3 left-1/2 w-2.5 h-2.5 bg-white/35 rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
-            <div className="absolute top-1/3 right-1/3 w-1.5 h-1.5 bg-white/20 rounded-full animate-pulse" style={{ animationDelay: '3s' }}></div>
-            
-            {/* Enhanced Pulse Waves */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <div className="w-64 h-64 border border-white/20 rounded-full animate-ping"></div>
-              <div className="w-64 h-64 border border-white/15 rounded-full animate-ping absolute top-0 left-0" style={{ animationDelay: '1.5s' }}></div>
-              <div className="w-64 h-64 border border-white/10 rounded-full animate-ping absolute top-0 left-0" style={{ animationDelay: '3s' }}></div>
-            </div>
-            
-            {/* Decorative Geometric Shapes */}
-            <div className="absolute top-1/4 right-1/4 w-16 h-16 border-2 border-white/10 rotate-45 animate-spin" style={{ animationDuration: '20s' }}></div>
-            <div className="absolute bottom-1/4 left-1/4 w-12 h-12 border-2 border-white/15 rounded-full animate-pulse"></div>
-          </div>
+          {/* Light overlay for text readability without gradient */}
+          <div className="absolute inset-0 bg-black/30 pointer-events-none z-10"></div>
+          
           
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="text-center mb-20">
+            <div className="text-center mb-8">
               {/* Enhanced Badge */}
-              <div className="inline-flex items-center gap-3 bg-white/95 backdrop-blur-sm text-[#57BBB6] px-8 py-4 rounded-full text-base font-bold mb-12 shadow-xl hover:scale-105 transition-all duration-500 border border-white/20">
-                <BookOpen className="h-6 w-6 animate-pulse" />
+              <div className="inline-flex items-center gap-3 bg-white/95 backdrop-blur-sm text-[#57BBB6] px-6 py-3 rounded-full text-sm font-bold mb-6 shadow-xl border border-white/20">
+                <BookOpen className="h-5 w-5" />
                 Health & Wellness Blog
-                <div className="w-2 h-2 bg-[#57BBB6] rounded-full animate-ping"></div>
+                <div className="w-2 h-2 bg-[#57BBB6] rounded-full"></div>
               </div>
               
               {/* Enhanced Title with Better Typography */}
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black leading-tight mb-10">
-                <span className="block bg-gradient-to-r from-white via-white/95 to-white/90 bg-clip-text text-transparent">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-6">
+                <span className="block text-white">
                   Stay Informed with
                 </span>
-                <span className="block bg-gradient-to-r from-[#87E5E0] via-white to-[#87E5E0] bg-clip-text text-transparent animate-gradient">
+                <span className="block text-white">
                   Expert Health Insights
                 </span>
               </h1>
               
               {/* Enhanced Description */}
-              <p className="text-xl sm:text-2xl lg:text-3xl text-white/95 max-w-5xl mx-auto font-medium leading-relaxed mb-12">
+              <p className="text-lg sm:text-xl md:text-2xl text-white/95 max-w-4xl mx-auto font-medium leading-relaxed mb-6">
                 Discover evidence-based health tips, medication guidance, and wellness advice from our experienced 
                 pharmacy team to help you make informed decisions about your health.
               </p>
               
               {/* Enhanced Decorative Elements */}
-              <div className="flex items-center justify-center gap-4 mb-8">
-                <div className="w-16 h-1 bg-gradient-to-r from-transparent via-white/60 to-transparent rounded-full"></div>
-                <div className="w-3 h-3 bg-white/80 rounded-full animate-pulse"></div>
-                <div className="w-16 h-1 bg-gradient-to-r from-transparent via-white/60 to-transparent rounded-full"></div>
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <div className="w-12 h-1 bg-white/60 rounded-full"></div>
+                <div className="w-2 h-2 bg-white/80 rounded-full"></div>
+                <div className="w-12 h-1 bg-white/60 rounded-full"></div>
               </div>
               
               {/* Stats */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-2xl mx-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-xl mx-auto">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-white mb-2">{posts.length}</div>
-                  <div className="text-white/80 text-sm">Health Articles</div>
+                  <div className="text-2xl font-bold text-white mb-1">{posts.length}</div>
+                  <div className="text-white/80 text-xs">Health Articles</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-white mb-2">{categories.length}</div>
-                  <div className="text-white/80 text-sm">Categories</div>
+                  <div className="text-2xl font-bold text-white mb-1">{categories.length}</div>
+                  <div className="text-white/80 text-xs">Categories</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-white mb-2">24/7</div>
-                  <div className="text-white/80 text-sm">Expert Support</div>
+                  <div className="text-2xl font-bold text-white mb-1">24/7</div>
+                  <div className="text-white/80 text-xs">Expert Support</div>
                 </div>
               </div>
             </div>
 
             {/* Enhanced Search and Filter */}
-            <div className="max-w-5xl mx-auto">
-              <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-white/20">
-                <div className="flex flex-col sm:flex-row gap-4 mb-6">
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 shadow-2xl border border-white/20">
+                <div className="flex flex-col sm:flex-row gap-3 mb-4">
                   <div className="relative flex-1">
                     <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 h-6 w-6" />
                     <Input
@@ -496,20 +392,20 @@ export default function Blog() {
                           handleSearch();
                         }
                       }}
-                      className="pl-12 pr-4 py-4 text-lg border-2 border-gray-200 focus:ring-2 focus:ring-[#57BBB6] focus:border-[#57BBB6] focus:outline-none text-gray-800 placeholder:text-gray-500 bg-white/90 rounded-xl shadow-sm"
+                      className="pl-12 pr-4 py-3 text-base border-2 border-gray-200 focus:ring-2 focus:ring-[#57BBB6] focus:border-[#57BBB6] focus:outline-none text-gray-800 placeholder:text-gray-500 bg-white/90 rounded-xl shadow-sm"
                     />
                   </div>
                   <Button 
-                    className="bg-[#57BBB6] hover:bg-[#376F6B] text-white px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105" 
+                    className="bg-[#57BBB6] hover:bg-[#376F6B] text-white px-6 py-3 rounded-xl shadow-lg" 
                     onClick={() => handleSearch()}
                   >
-                    <Search className="h-6 w-6 mr-3" />
+                    <Search className="h-5 w-5 mr-2" />
                     Search
                   </Button>
                 </div>
 
                 {/* Enhanced Category Tabs */}
-                <div className="flex flex-wrap justify-center gap-3">
+                <div className="flex flex-wrap justify-center gap-2">
                   <Button
                     variant={selectedCategory === "all" ? "default" : "outline"}
                     onClick={() => setSelectedCategory("all")}
@@ -517,11 +413,11 @@ export default function Blog() {
                       selectedCategory === "all"
                         ? "bg-[#57BBB6] text-white hover:bg-[#376F6B] shadow-lg"
                         : "border-2 border-[#57BBB6] text-[#57BBB6] hover:bg-[#57BBB6] hover:text-white bg-white/90"
-                    } px-6 py-3 rounded-full transition-all duration-300 font-semibold`}
+                    } px-4 py-2 rounded-full font-semibold text-sm`}
                   >
-                    <BookOpen className="h-5 w-5 mr-3" />
+                    <BookOpen className="h-4 w-4 mr-2" />
                     All Posts
-                    <Badge variant="secondary" className="ml-3 bg-white text-[#57BBB6] font-bold">
+                    <Badge variant="secondary" className="ml-2 bg-white text-[#57BBB6] font-bold text-xs">
                       {posts.length}
                     </Badge>
                   </Button>
@@ -534,11 +430,11 @@ export default function Blog() {
                         selectedCategory === category.id.toString()
                           ? "bg-[#57BBB6] text-white hover:bg-[#376F6B] shadow-lg"
                           : "border-2 border-[#57BBB6] text-[#57BBB6] hover:bg-[#57BBB6] hover:text-white bg-white/90"
-                      } px-6 py-3 rounded-full transition-all duration-300 font-semibold`}
+                      } px-4 py-2 rounded-full font-semibold text-sm`}
                     >
-                      <BookOpen className="h-5 w-5 mr-3" />
+                      <BookOpen className="h-4 w-4 mr-2" />
                       {category.name}
-                      <Badge variant="secondary" className="ml-3 bg-white text-[#57BBB6] font-bold">
+                      <Badge variant="secondary" className="ml-2 bg-white text-[#57BBB6] font-bold text-xs">
                         {category.count}
                       </Badge>
                     </Button>
@@ -550,9 +446,9 @@ export default function Blog() {
         </section>
 
         {/* Featured Posts */}
-        <section className="py-16 sm:py-20 bg-[#F1EEE9]">
+        <section className="py-8 sm:py-12 bg-[#F1EEE9]">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
+            <div className="text-center mb-8">
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#57BBB6] mb-6">
                 Featured Articles
               </h2>
@@ -565,27 +461,26 @@ export default function Blog() {
               {filteredPosts.slice(0, 3).map((post, index) => (
                 <Card 
                   key={post.id} 
-                  className="group border-0 shadow-xl hover:shadow-2xl transition-all duration-700 transform hover:-translate-y-4 hover:scale-105 bg-white/95 backdrop-blur-sm overflow-hidden"
-                  style={{ animationDelay: `${index * 0.1}s` }}
+                  className="group border-0 shadow-xl hover:shadow-2xl bg-white/95 backdrop-blur-sm overflow-hidden"
                 >
                   <CardContent className="p-0">
                     {/* Enhanced Post Image with Overlay */}
-                    <div className="relative w-full h-56 bg-gradient-to-br from-[#D5C6BC] to-[#87E5E0] overflow-hidden">
+                    <div className="relative w-full h-56 bg-gray-200 overflow-hidden">
                       {post._embedded?.['wp:featuredmedia']?.[0]?.source_url ? (
                         <SafeImageRenderer 
                           src={post._embedded['wp:featuredmedia'][0].source_url} 
                           alt={post._embedded['wp:featuredmedia'][0].alt_text || (typeof post.title === 'string' ? post.title : post.title?.rendered || '')}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                          className="w-full h-full object-cover"
                           fallbackIcon={<BookOpen className="h-20 w-20 text-[#57BBB6]" />}
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#57BBB6]/20 to-[#376F6B]/20">
-                          <BookOpen className="h-20 w-20 text-[#57BBB6] group-hover:scale-110 transition-transform duration-500" />
+                        <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                          <BookOpen className="h-20 w-20 text-[#57BBB6]" />
                         </div>
                       )}
                       
-                      {/* Gradient Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      {/* Simple Overlay */}
+                      <div className="absolute inset-0 bg-black/10"></div>
                       
                       {/* Category Badge - Floating */}
                       <div className="absolute top-4 left-4">
@@ -621,7 +516,7 @@ export default function Blog() {
                       </div>
 
                       {/* Enhanced Post Title */}
-                      <CardTitle className="text-xl sm:text-2xl font-bold text-[#376F6B] mb-4 group-hover:text-[#57BBB6] transition-colors duration-500 line-clamp-2 leading-tight">
+                      <CardTitle className="text-xl sm:text-2xl font-bold text-[#376F6B] mb-4 group-hover:text-[#57BBB6] line-clamp-2 leading-tight">
                         {(typeof post.title === 'string' ? post.title : post.title?.rendered || '')}
                       </CardTitle>
 
@@ -634,10 +529,10 @@ export default function Blog() {
                       <Button 
                         variant="outline" 
                         onClick={() => handleReadMore(post.id)}
-                        className="w-full border-2 border-[#57BBB6] text-[#57BBB6] hover:bg-[#57BBB6] hover:text-white rounded-xl px-6 py-3 text-sm font-semibold transition-all duration-300 group-hover:shadow-lg hover:shadow-xl transform hover:scale-105"
+                        className="w-full border-2 border-[#57BBB6] text-[#57BBB6] hover:bg-[#57BBB6] hover:text-white rounded-xl px-6 py-3 text-sm font-semibold group-hover:shadow-lg hover:shadow-xl"
                       >
                         <span className="mr-2">Read Full Article</span>
-                        <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
+                        <ArrowRight className="h-4 w-4" />
                       </Button>
                     </div>
                   </CardContent>
@@ -648,7 +543,7 @@ export default function Blog() {
         </section>
 
         {/* Recent Posts */}
-        <section className="py-16 sm:py-20 bg-[#E8F4F3]">
+        <section className="py-8 sm:py-12 bg-[#E8F4F3]">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#57BBB6] mb-6">
@@ -663,22 +558,21 @@ export default function Blog() {
               {filteredPosts.slice(3).map((post, index) => (
                 <Card 
                   key={post.id} 
-                  className="group border-0 shadow-lg hover:shadow-2xl transition-all duration-600 transform hover:-translate-y-3 hover:scale-105 bg-white/95 backdrop-blur-sm overflow-hidden"
-                  style={{ animationDelay: `${(index + 3) * 0.1}s` }}
+                  className="group border-0 shadow-lg hover:shadow-2xl bg-white/95 backdrop-blur-sm overflow-hidden"
                 >
                   <CardContent className="p-0">
                     {/* Enhanced Post Image */}
-                    <div className="relative w-full h-52 bg-gradient-to-br from-[#E8F4F3] to-[#D5C6BC] overflow-hidden">
+                    <div className="relative w-full h-52 bg-gray-200 overflow-hidden">
                       {post._embedded?.['wp:featuredmedia']?.[0]?.source_url ? (
                         <SafeImageRenderer 
                           src={post._embedded['wp:featuredmedia'][0].source_url} 
                           alt={post._embedded['wp:featuredmedia'][0].alt_text || (typeof post.title === 'string' ? post.title : post.title?.rendered || '')}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-600"
+                          className="w-full h-full object-cover"
                           fallbackIcon={<BookOpen className="h-16 w-16 text-[#376F6B]" />}
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#376F6B]/20 to-[#57BBB6]/20">
-                          <BookOpen className="h-16 w-16 text-[#376F6B] group-hover:scale-110 transition-transform duration-500" />
+                        <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                          <BookOpen className="h-16 w-16 text-[#376F6B]" />
                         </div>
                       )}
                       
@@ -712,7 +606,7 @@ export default function Blog() {
                       </div>
 
                       {/* Enhanced Post Title */}
-                      <CardTitle className="text-lg sm:text-xl font-bold text-[#376F6B] mb-3 group-hover:text-[#57BBB6] transition-colors duration-500 line-clamp-2 leading-tight">
+                      <CardTitle className="text-lg sm:text-xl font-bold text-[#376F6B] mb-3 group-hover:text-[#57BBB6] line-clamp-2 leading-tight">
                         {(typeof post.title === 'string' ? post.title : post.title?.rendered || '')}
                       </CardTitle>
 
@@ -725,10 +619,10 @@ export default function Blog() {
                       <Button 
                         variant="outline" 
                         onClick={() => handleReadMore(post.id)}
-                        className="w-full border-2 border-[#376F6B] text-[#376F6B] hover:bg-[#376F6B] hover:text-white rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-300 group-hover:shadow-md hover:shadow-lg transform hover:scale-105"
+                        className="w-full border-2 border-[#376F6B] text-[#376F6B] hover:bg-[#376F6B] hover:text-white rounded-lg px-4 py-2 text-sm font-semibold group-hover:shadow-md hover:shadow-lg"
                       >
                         <span className="mr-2">Read Article</span>
-                        <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform duration-300" />
+                        <ArrowRight className="h-3 w-3" />
                       </Button>
                     </div>
                   </CardContent>
@@ -738,7 +632,7 @@ export default function Blog() {
             
             {/* No Results */}
             {filteredPosts.length === 0 && (
-              <div className="text-center py-16">
+              <div className="text-center py-8">
                 <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-gray-600 mb-2">No articles found</h3>
                 {searchQuery ? (
@@ -775,7 +669,7 @@ export default function Blog() {
         </section>
 
         {/* Newsletter Signup */}
-        <section className="py-16 sm:py-20 bg-[#E8F4F3]">
+        <section className="py-8 sm:py-12 bg-[#E8F4F3]">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="bg-[#57BBB6] rounded-3xl p-8 sm:p-12 text-center text-white relative overflow-hidden">
               <div className="relative z-10">
@@ -797,7 +691,7 @@ export default function Blog() {
                   />
                   <Button 
                     type="submit"
-                    className="bg-white text-[#57BBB6] hover:bg-gray-100 font-bold px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
+                    className="bg-white text-[#57BBB6] hover:bg-gray-100 font-bold px-6 py-3 rounded-xl shadow-lg"
                   >
                     Subscribe
                   </Button>

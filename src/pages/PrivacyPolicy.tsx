@@ -23,7 +23,7 @@ const PrivacyPolicy = () => {
         onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
       />
         
-        <div className="pt-20">
+        <div className="">
           {/* Header */}
           <div className="bg-white shadow-sm border-b border-[#57bbb6]/20">
             <div className="max-w-4xl mx-auto px-4 py-8">

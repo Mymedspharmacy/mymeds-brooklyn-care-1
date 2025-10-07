@@ -56,7 +56,7 @@ export default function AdminReset() {
           onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
         />
       
-      <div className="pt-20 flex items-center justify-center p-4">
+      <div className="flex items-center justify-center p-4">
         <div className="w-full max-w-md">
         <form
           className="relative bg-white/95 backdrop-blur-sm p-8 rounded-3xl shadow-2xl flex flex-col items-center border border-[#e0f2f1] animate-fade-in"

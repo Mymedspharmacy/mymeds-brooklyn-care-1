@@ -68,62 +68,62 @@ export const Testimonials = () => {
       {/* Light Teal Background Overlay */}
       <div className="absolute inset-0 bg-[#E8F4F3] z-10"></div>
 
-      {/* Enhanced Background Elements */}
+      {/* Static Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Floating Medical Icons */}
-        <div className="absolute top-20 left-10 text-[#57BBB6]/15 animate-bounce" style={{ animationDelay: '0s' }}>
+        {/* Static Medical Icons */}
+        <div className="absolute top-20 left-10 text-[#57BBB6]/15">
           <Pill className="w-8 h-8" />
         </div>
-        <div className="absolute top-32 right-20 text-[#376F6B]/12 animate-bounce" style={{ animationDelay: '1s' }}>
+        <div className="absolute top-32 right-20 text-[#376F6B]/12">
           <Shield className="w-6 h-6" />
         </div>
-        <div className="absolute bottom-32 left-1/4 text-[#57BBB6]/18 animate-bounce" style={{ animationDelay: '2s' }}>
+        <div className="absolute bottom-32 left-1/4 text-[#57BBB6]/18">
           <Stethoscope className="w-7 h-7" />
         </div>
-        <div className="absolute bottom-20 right-1/3 text-[#376F6B]/14 animate-bounce" style={{ animationDelay: '3s' }}>
+        <div className="absolute bottom-20 right-1/3 text-[#376F6B]/14">
           <MessageCircle className="w-8 h-8" />
         </div>
         
-        {/* Animated Particles */}
-        <div className="absolute top-1/4 left-1/3 w-2 h-2 bg-[#57BBB6]/25 rounded-full animate-ping"></div>
-        <div className="absolute top-1/2 right-1/4 w-1.5 h-1.5 bg-[#376F6B]/20 rounded-full animate-ping" style={{ animationDelay: '1.5s' }}></div>
-        <div className="absolute bottom-1/3 left-1/2 w-1 h-1 bg-[#57BBB6]/30 rounded-full animate-ping" style={{ animationDelay: '3s' }}></div>
+        {/* Static Particles */}
+        <div className="absolute top-1/4 left-1/3 w-2 h-2 bg-[#57BBB6]/25 rounded-full"></div>
+        <div className="absolute top-1/2 right-1/4 w-1.5 h-1.5 bg-[#376F6B]/20 rounded-full"></div>
+        <div className="absolute bottom-1/3 left-1/2 w-1 h-1 bg-[#57BBB6]/30 rounded-full"></div>
         
-        {/* Pulse Waves */}
+        {/* Static Waves */}
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-          <div className="w-64 h-64 border border-[#57BBB6]/10 rounded-full animate-ping"></div>
-          <div className="w-64 h-64 border border-[#57BBB6]/10 rounded-full animate-ping absolute top-0 left-0" style={{ animationDelay: '1s' }}></div>
-          <div className="w-64 h-64 border border-[#57BBB6]/10 rounded-full animate-ping absolute top-0 left-0" style={{ animationDelay: '2s' }}></div>
+          <div className="w-64 h-64 border border-[#57BBB6]/10 rounded-full"></div>
+          <div className="w-64 h-64 border border-[#57BBB6]/10 rounded-full absolute top-0 left-0"></div>
+          <div className="w-64 h-64 border border-[#57BBB6]/10 rounded-full absolute top-0 left-0"></div>
         </div>
         
-        {/* Geometric Shapes */}
-        <div className="absolute top-10 left-10 w-20 h-20 border-2 border-[#57BBB6]/20 rounded-lg rotate-45 animate-pulse" style={{ animationDuration: '4s' }}></div>
-        <div className="absolute top-32 right-16 w-16 h-16 bg-[#376F6B]/10 rounded-full animate-bounce" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute bottom-32 left-20 w-24 h-24 border border-[#57BBB6]/20 rounded-full animate-spin" style={{ animationDuration: '8s' }}></div>
+        {/* Static Geometric Shapes */}
+        <div className="absolute top-10 left-10 w-20 h-20 border-2 border-[#57BBB6]/20 rounded-lg rotate-45"></div>
+        <div className="absolute top-32 right-16 w-16 h-16 bg-[#376F6B]/10 rounded-full"></div>
+        <div className="absolute bottom-32 left-20 w-24 h-24 border border-[#57BBB6]/20 rounded-full"></div>
         
-        {/* Original Blur Elements */}
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#57BBB6]/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#376F6B]/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
+        {/* Static Blur Elements */}
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#57BBB6]/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#376F6B]/20 rounded-full blur-3xl"></div>
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Enhanced Header */}
         <div className="text-center mb-12 sm:mb-16">
-          {/* Floating Elements Around Header */}
+          {/* Static Elements Around Header */}
           <div className="relative">
-            <div className="absolute -top-8 left-1/4 text-[#57BBB6]/20 animate-bounce" style={{ animationDelay: '0s' }}>
+            <div className="absolute -top-8 left-1/4 text-[#57BBB6]/20">
               <Sparkles className="w-6 h-6" />
             </div>
-            <div className="absolute -top-4 right-1/4 text-[#376F6B]/20 animate-bounce" style={{ animationDelay: '0.5s' }}>
+            <div className="absolute -top-4 right-1/4 text-[#376F6B]/20">
               <Heart className="w-5 h-5" />
             </div>
-            <div className="absolute top-0 left-1/3 text-[#57BBB6]/20 animate-bounce" style={{ animationDelay: '1s' }}>
+            <div className="absolute top-0 left-1/3 text-[#57BBB6]/20">
               <Star className="w-6 h-6" />
             </div>
           </div>
           
-          <div className="inline-flex items-center gap-2 bg-[#57BBB6] text-white px-6 py-3 rounded-full text-sm font-semibold mb-6 shadow-lg hover:scale-105 transition-transform duration-300">
-            <Sparkles className="h-4 w-4 animate-pulse" />
+          <div className="inline-flex items-center gap-2 bg-[#57BBB6] text-white px-6 py-3 rounded-full text-sm font-semibold mb-6 shadow-lg">
+            <Sparkles className="h-4 w-4" />
             New & Exciting
           </div>
           
@@ -138,7 +138,7 @@ export const Testimonials = () => {
           {/* Review Status */}
           <div className="flex items-center justify-center gap-4 mb-8 p-4 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg">
             <div className="flex items-center">
-              <Sparkles className="h-8 w-8 text-[#57BBB6] animate-pulse" />
+              <Sparkles className="h-8 w-8 text-[#57BBB6]" />
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-[#57BBB6] drop-shadow-sm">Building Our Reputation</div>
@@ -225,16 +225,16 @@ export const Testimonials = () => {
                   index === 0 ? 'ring-4 ring-[#57BBB6]/50 scale-105' : ''
                 } bg-gradient-to-br from-white to-white/95 hover:from-[#57BBB6] hover:to-[#57BBB6]/95`}
               >
-                {/* Animated Background Elements */}
+                {/* Static Background Elements */}
                 <div className="absolute inset-0 opacity-5 group-hover:opacity-15 transition-opacity duration-500">
-                  <div className="absolute top-4 right-4 w-12 h-12 border border-[#57BBB6]/20 rounded-full animate-spin" style={{ animationDuration: '6s' }}></div>
-                  <div className="absolute bottom-4 left-4 w-8 h-8 border border-[#57BBB6]/20 rounded-lg rotate-45 animate-pulse"></div>
+                  <div className="absolute top-4 right-4 w-12 h-12 border border-[#57BBB6]/20 rounded-full"></div>
+                  <div className="absolute bottom-4 left-4 w-8 h-8 border border-[#57BBB6]/20 rounded-lg rotate-45"></div>
                 </div>
                 
                 {/* Floating Sparkles */}
                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-500 delay-300">
-                  <div className="w-2 h-2 bg-[#57BBB6] rounded-full animate-ping"></div>
-                  <div className="w-1 h-1 bg-[#57BBB6]/80 rounded-full animate-ping absolute top-1 left-1" style={{ animationDelay: '0.5s' }}></div>
+                  <div className="w-2 h-2 bg-[#57BBB6] rounded-full"></div>
+                  <div className="w-1 h-1 bg-[#57BBB6]/80 rounded-full absolute top-1 left-1"></div>
                 </div>
                 
                 <CardContent className="p-6 sm:p-8 relative z-10">

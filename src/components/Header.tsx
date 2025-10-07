@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from "react";
 import { Menu, X, Phone, Pill, ArrowRight, ShoppingCart, User, Truck, Shield, Users, Stethoscope, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { redirectToShop } from "@/utils/shopRedirect";
 import logo from "@/assets/logo.png";
 
 interface HeaderProps {
@@ -97,11 +96,11 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
     <>
       {/* Top Bar - Simple CTA */}
       <div className="bg-[#376F6B] text-white py-2 px-4 relative overflow-hidden">
-        {/* Animated Background Elements */}
+        {/* Static Background Elements */}
         <div className="absolute inset-0">
-          <div className="absolute top-0 left-1/4 w-2 h-2 bg-white/20 rounded-full animate-ping"></div>
-          <div className="absolute top-1/2 right-1/3 w-1.5 h-1.5 bg-white/15 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute bottom-0 left-1/2 w-1 h-1 bg-white/25 rounded-full animate-ping" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute top-0 left-1/4 w-2 h-2 bg-white/20 rounded-full"></div>
+          <div className="absolute top-1/2 right-1/3 w-1.5 h-1.5 bg-white/15 rounded-full"></div>
+          <div className="absolute bottom-0 left-1/2 w-1 h-1 bg-white/25 rounded-full"></div>
         </div>
         
         <div className="max-w-7xl mx-auto flex items-center justify-center gap-4 relative z-10">
@@ -121,11 +120,11 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
       <header className={`bg-white sticky top-0 z-40 transition-all duration-300 ${
         isScrolled ? 'shadow-md' : 'shadow-sm'
       }`}>
-        {/* Animated Background Elements */}
+        {/* Static Background Elements */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 left-1/4 w-1 h-1 bg-[#57BBB6]/20 rounded-full animate-ping"></div>
-          <div className="absolute top-1/2 right-1/4 w-0.5 h-0.5 bg-[#376F6B]/15 rounded-full animate-ping" style={{ animationDelay: '1.5s' }}></div>
-          <div className="absolute bottom-0 left-1/3 w-1.5 h-1.5 bg-[#D5C6BC]/25 rounded-full animate-ping" style={{ animationDelay: '3s' }}></div>
+          <div className="absolute top-0 left-1/4 w-1 h-1 bg-[#57BBB6]/20 rounded-full"></div>
+          <div className="absolute top-1/2 right-1/4 w-0.5 h-0.5 bg-[#376F6B]/15 rounded-full"></div>
+          <div className="absolute bottom-0 left-1/3 w-1.5 h-1.5 bg-[#D5C6BC]/25 rounded-full"></div>
         </div>
         
         <div className="container mx-auto px-4 py-4 sm:py-5 md:py-6 flex items-center justify-between gap-4 relative z-10">
@@ -220,7 +219,7 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
             </Button>
             
             <Button 
-              onClick={() => redirectToShop()}
+              onClick={() => navigate('/shop')}
               className="bg-[#376F6B] text-white font-semibold px-4 py-2 rounded hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-colors"
             >
               Shop
@@ -249,7 +248,7 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
               onClick={() => setIsMenuOpen(v => !v)}
               aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
             >
-              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
@@ -272,7 +271,7 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
                   onClick={() => setIsMenuOpen(false)}
                   className="p-2 text-gray-500 hover:text-[#376F6B] hover:bg-gray-100 rounded-full transition-colors"
                 >
-                  <X className="h-5 w-5" />
+                  <X className="h-4 w-4" />
                 </button>
               </div>
 
@@ -288,8 +287,8 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
                   <button onClick={() => { navigate('/blog'); setIsMenuOpen(false); }} className="block text-base font-medium text-[#376F6B] hover:text-[#D5C6BC] py-3 px-3 rounded-lg hover:bg-[#57BBB6]/10 transition-all duration-200 text-left w-full">
                     Blog
                   </button>
-                  <button onClick={() => { navigate('/special-offers'); setIsMenuOpen(false); }} className="block text-base font-medium text-[#376F6B] hover:text-[#D5C6BC] py-3 px-3 rounded-lg hover:bg-[#57BBB6]/10 transition-all duration-200 text-left w-full">
-                    Special Offers
+                  <button onClick={() => { navigate('/shop'); setIsMenuOpen(false); }} className="block text-base font-medium text-[#376F6B] hover:text-[#D5C6BC] py-3 px-3 rounded-lg hover:bg-[#57BBB6]/10 transition-all duration-200 text-left w-full">
+                    Shop
                   </button>
                   <button onClick={() => { navigate('/about'); setIsMenuOpen(false); }} className="block text-base font-medium text-[#376F6B] hover:text-[#D5C6BC] py-3 px-3 rounded-lg hover:bg-[#57BBB6]/10 transition-all duration-200 text-left w-full">
                     About
@@ -304,8 +303,8 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
                     <button onClick={() => { navigate('/patient-resources'); setIsMenuOpen(false); }} className="block text-sm text-[#376F6B] hover:text-[#D5C6BC] py-2 px-3 rounded-lg hover:bg-[#57BBB6]/10 transition-all duration-200 text-left w-full">
                       Patient Resources
                     </button>
-                    <button onClick={() => { redirectToShop(); setIsMenuOpen(false); }} className="block text-sm text-[#376F6B] hover:text-[#D5C6BC] py-2 px-3 rounded-lg hover:bg-[#57BBB6]/10 transition-all duration-200 text-left w-full">
-                      Shop Products
+                    <button onClick={() => { navigate('/special-offers'); setIsMenuOpen(false); }} className="block text-sm text-[#376F6B] hover:text-[#D5C6BC] py-2 px-3 rounded-lg hover:bg-[#57BBB6]/10 transition-all duration-200 text-left w-full">
+                      Special Offers
                     </button>
                     <button onClick={() => { navigate('/admin-signin'); setIsMenuOpen(false); }} className="block text-sm text-[#376F6B] hover:text-[#D5C6BC] py-2 px-3 rounded-lg hover:bg-[#57BBB6]/10 transition-all duration-200 text-left w-full">
                       Admin Panel
@@ -321,7 +320,7 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
                     onRefillClick();
                     setIsMenuOpen(false);
                   }}
-                  className="w-full bg-[#376F6B] text-white font-semibold py-3 rounded-lg hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-all duration-300"
+                  className="w-full bg-[#376F6B] text-white font-semibold py-3 px-4 rounded-lg hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-all duration-300 flex items-center justify-center"
                 >
                   Refill Rx
                 </Button>
@@ -331,7 +330,7 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
                     onTransferClick();
                     setIsMenuOpen(false);
                   }}
-                  className="w-full bg-[#376F6B] text-white font-semibold py-3 rounded-lg hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-all duration-300"
+                  className="w-full bg-[#376F6B] text-white font-semibold py-3 px-4 rounded-lg hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-all duration-300 flex items-center justify-center"
                 >
                   Transfer Rx
                 </Button>
@@ -341,7 +340,7 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
                     navigate('/patient-portal');
                     setIsMenuOpen(false);
                   }}
-                  className="w-full bg-[#376F6B] text-white font-semibold py-3 rounded-lg hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-all duration-300"
+                  className="w-full bg-[#376F6B] text-white font-semibold py-3 px-4 rounded-lg hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-all duration-300 flex items-center justify-center"
                 >
                   Patient Portal
                 </Button>
@@ -351,7 +350,7 @@ export const Header = ({ onRefillClick, onAppointmentClick, onTransferClick }: H
                     handleCallClick();
                     setIsMenuOpen(false);
                   }}
-                  className="w-full bg-[#376F6B] text-white font-semibold py-3 rounded-lg hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-all duration-300 flex items-center justify-center"
+                  className="w-full bg-[#376F6B] text-white font-semibold py-3 px-4 rounded-lg hover:bg-[#D5C6BC] hover:text-[#376F6B] transition-all duration-300 flex items-center justify-center"
                 >
                   <Phone className="w-4 h-4 mr-2" />
                   Call Now

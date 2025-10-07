@@ -9,7 +9,6 @@ import { Footer } from "@/components/Footer";
 import { HowItWorks } from "@/components/HowItWorks";
 import { getPhoneNumber, getEmail, getTelLink, getMailtoLink } from "@/lib/contact";
 import { SEOHead } from "@/components/SEOHead";
-import { redirectToShop } from "@/utils/shopRedirect";
 
 export default function SpecialOffers() {
   const navigate = useNavigate();
@@ -267,7 +266,7 @@ export default function SpecialOffers() {
           break;
         case 'shop':
           console.log('Opening WooCommerce store...');
-          redirectToShop();
+          navigate('/shop');
           break;
         case 'appointment':
           console.log('Navigating to appointment form...');
@@ -306,7 +305,7 @@ export default function SpecialOffers() {
           onTransferClick={() => navigate('/', { state: { openTransferForm: true } })}
         />
       
-      <div className="pt-20">
+      <div className="">
         {/* Hero Section */}
                   <section className="py-16 sm:py-20 md:py-24 text-white relative overflow-hidden">
           {/* Background Image Placeholder - Replace with actual pharmacy offers/promotions image */}
@@ -323,34 +322,6 @@ export default function SpecialOffers() {
              {/* Light Overlay for Text Readability */}
              <div className="absolute inset-0 bg-black/30 z-10"></div>
           
-          {/* Static Background Elements */}
-          <div className="absolute inset-0 pointer-events-none">
-            {/* Static Medical Icons */}
-            <div className="absolute top-20 left-10 text-white/15">
-              <Gift className="w-8 h-8" />
-            </div>
-            <div className="absolute top-32 right-20 text-white/12">
-              <Star className="w-6 h-6" />
-            </div>
-            <div className="absolute bottom-32 left-1/4 text-white/18">
-              <Tag className="w-7 h-7" />
-            </div>
-            <div className="absolute bottom-20 right-1/3 text-white/14">
-              <Zap className="w-8 h-8" />
-            </div>
-            
-            {/* Static Particles */}
-            <div className="absolute top-1/4 left-1/3 w-2 h-2 bg-white/25 rounded-full"></div>
-            <div className="absolute top-1/2 right-1/4 w-1.5 h-1.5 bg-white/20 rounded-full"></div>
-            <div className="absolute bottom-1/3 left-1/2 w-1 h-1 bg-white/30 rounded-full"></div>
-            
-            {/* Static Circles */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <div className="w-48 h-48 border border-white/15 rounded-full"></div>
-              <div className="w-48 h-48 border border-white/15 rounded-full absolute top-0 left-0"></div>
-              <div className="w-48 h-48 border border-white/15 rounded-full absolute top-0 left-0"></div>
-            </div>
-          </div>
           
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center mb-16">
@@ -473,10 +444,11 @@ export default function SpecialOffers() {
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button 
                     onClick={() => handlePersonalizedRecommendations()}
-                    className="bg-white text-[#57BBB6] hover:bg-gray-100 font-bold px-8 py-4 rounded-xl text-lg shadow-lg border border-[#57BBB6]"
+                    className="bg-white text-[#57BBB6] hover:bg-gray-100 font-bold px-4 py-2 rounded-xl text-sm sm:text-base shadow-lg border border-[#57BBB6]"
                   >
-                    <Package className="w-5 h-5 mr-2" />
-                    Get Personalized Recommendations
+                    <Package className="w-4 h-4 mr-2" />
+                    <span className="hidden sm:inline">Get Recommendations</span>
+                    <span className="sm:hidden">Recommendations</span>
                   </Button>
                   
                   <Button 

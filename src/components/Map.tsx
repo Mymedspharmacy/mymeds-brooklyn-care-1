@@ -257,26 +257,26 @@ export const Map = ({ showDetails = true, className = "" }: MapProps) => {
           </div>
         </div>
 
-        {/* Floating Interactive Elements */}
+        {/* Static Interactive Elements */}
         <div className="absolute inset-0 pointer-events-none">
-          {/* Floating Medical Icons */}
-          <div className="absolute top-20 right-20 text-[#57BBB6]/20 animate-bounce" style={{ animationDelay: '0s' }}>
+          {/* Static Medical Icons */}
+          <div className="absolute top-20 right-20 text-[#57BBB6]/20">
             <Heart className="w-6 h-6" />
           </div>
-          <div className="absolute bottom-20 left-20 text-[#376F6B]/20 animate-bounce" style={{ animationDelay: '1s' }}>
+          <div className="absolute bottom-20 left-20 text-[#376F6B]/20">
             <Shield className="w-5 h-5" />
           </div>
-          <div className="absolute top-1/2 right-10 text-[#57BBB6]/15 animate-bounce" style={{ animationDelay: '2s' }}>
+          <div className="absolute top-1/2 right-10 text-[#57BBB6]/15">
             <Users className="w-7 h-7" />
           </div>
-          <div className="absolute bottom-1/3 right-1/3 text-[#376F6B]/18 animate-bounce" style={{ animationDelay: '3s' }}>
+          <div className="absolute bottom-1/3 right-1/3 text-[#376F6B]/18">
             <Stethoscope className="w-6 h-6" />
           </div>
           
-          {/* Animated Particles */}
-          <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-[#57BBB6]/30 rounded-full animate-ping"></div>
-          <div className="absolute top-1/2 right-1/4 w-1.5 h-1.5 bg-[#376F6B]/25 rounded-full animate-ping" style={{ animationDelay: '1.5s' }}></div>
-          <div className="absolute bottom-1/3 left-1/2 w-1 h-1 bg-[#57BBB6]/35 rounded-full animate-ping" style={{ animationDelay: '3s' }}></div>
+          {/* Static Particles */}
+          <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-[#57BBB6]/30 rounded-full"></div>
+          <div className="absolute top-1/2 right-1/4 w-1.5 h-1.5 bg-[#376F6B]/25 rounded-full"></div>
+          <div className="absolute bottom-1/3 left-1/2 w-1 h-1 bg-[#57BBB6]/35 rounded-full"></div>
         </div>
 
         {/* Corner Decorative Elements */}
@@ -390,11 +390,11 @@ export const Map = ({ showDetails = true, className = "" }: MapProps) => {
               </Button>
             </div>
             
-            {/* Decorative Dots */}
+            {/* Static Decorative Dots */}
             <div className="flex justify-center space-x-2 mt-6">
-              <div className="w-2 h-2 bg-[#57BBB6] rounded-full animate-pulse"></div>
-              <div className="w-2 h-2 bg-white/60 rounded-full animate-pulse" style={{ animationDelay: '0.3s' }}></div>
-              <div className="w-2 h-2 bg-[#57BBB6] rounded-full animate-pulse" style={{ animationDelay: '0.6s' }}></div>
+              <div className="w-2 h-2 bg-[#57BBB6] rounded-full"></div>
+              <div className="w-2 h-2 bg-white/60 rounded-full"></div>
+              <div className="w-2 h-2 bg-[#57BBB6] rounded-full"></div>
             </div>
           </div>
         </div>
