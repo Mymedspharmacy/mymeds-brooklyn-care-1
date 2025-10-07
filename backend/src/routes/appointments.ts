@@ -24,11 +24,14 @@ router.post('/request', async (req: Request, res: Response) => {
     let defaultUser = await prisma.user.findFirst({ where: { role: 'ADMIN' } });
     if (!defaultUser) {
       // Create admin user with proper hashed password
-      const adminPassword = process.env.ADMIN_PASSWORD || 'AdminPassword123!';
+      const adminPassword = process.env.ADMIN_PASSWORD;
+      if (!adminPassword) {
+        throw new Error('ADMIN_PASSWORD environment variable is required');
+      }
       const hashedPassword = await bcrypt.hash(adminPassword, 10);
       defaultUser = await prisma.user.create({
         data: {
-          email: process.env.ADMIN_EMAIL || 'mymedspharmacy@outlook.com',
+          email: process.env.ADMIN_EMAIL,
           password: hashedPassword,
           name: process.env.ADMIN_NAME || 'Admin User',
           role: 'ADMIN'

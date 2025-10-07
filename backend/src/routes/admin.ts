@@ -406,7 +406,7 @@ router.post('/init', async (req: Request, res: Response) => {
       
       // If still no password, use a default
       if (!passwordHash) {
-        passwordHash = await bcrypt.hash('AdminPassword123!', 12);
+        passwordHash = await bcrypt.hash(process.env.ADMIN_PASSWORD || 'AdminPassword123!', 12);
         console.warn('⚠️ Using default admin password. Please set ADMIN_PASSWORD or ADMIN_PASSWORD_HASH environment variable.');
       }
 

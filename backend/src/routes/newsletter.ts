@@ -107,7 +107,7 @@ My Meds Pharmacy System
 
         await transporter.sendMail({
           from: process.env.EMAIL_USER,
-          to: 'mymedspharmacy@outlook.com',
+          to: process.env.ADMIN_EMAIL || 'admin@mymedspharmacyinc.com',
           subject: 'New Newsletter Subscription - My Meds Pharmacy',
           text: notificationContent,
           html: notificationContent.replace(/\n/g, '<br>')

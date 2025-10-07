@@ -5,7 +5,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 (async () => {
-  const email = 'admin@outlook.com';
+  const email = process.env.ADMIN_EMAIL;
   const newHash = '$2b$10$pkhLvqMloM2eV9upbq1RGulTLjZDnuXlLozYrCBEbDx0XKGqEwrdO'; // hash for 'Admin@mymeds'
 
   const user = await prisma.user.updateMany({

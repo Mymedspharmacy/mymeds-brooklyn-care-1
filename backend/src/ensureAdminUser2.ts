@@ -14,7 +14,7 @@ const prisma = new PrismaClient();
   if (!email || !hash) {
     console.error('❌ Missing required environment variables: ADMIN2_EMAIL and ADMIN2_PASSWORD_HASH');
     console.error('Please add these to your .env file:');
-    console.error('ADMIN2_EMAIL=mymedspharmacyinc@gmail.com');
+    console.error('ADMIN2_EMAIL=your-admin-email@domain.com');
     console.error('ADMIN2_PASSWORD_HASH=$2b$12$auPmZQBuFSoEiqpK1mTQWu7ItdaRkAQjKgK0xL/X8TDA3iuGEnNFa');
     console.error('ADMIN2_FIRST_NAME=MyMeds');
     console.error('ADMIN2_LAST_NAME=Admin');
@@ -44,7 +44,7 @@ const prisma = new PrismaClient();
       console.log(`✅ Second admin user created: ${email}`);
       console.log(`👤 Name: ${firstName} ${lastName}`);
       console.log(`🔑 Email: ${email}`);
-      console.log(`🔒 Password: Pharm-23-medS`);
+      console.log(`🔒 Password: [Set via ADMIN2_PASSWORD_HASH environment variable]`);
     } else {
       // Update existing admin user with new password hash
       await prisma.user.update({
@@ -71,7 +71,7 @@ const prisma = new PrismaClient();
   console.log('🎉 Second admin user setup complete!');
   console.log('📝 Login credentials:');
   console.log(`   Email: ${email}`);
-  console.log(`   Password: Pharm-23-medS`);
+  console.log(`   Password: [Set via ADMIN2_PASSWORD_HASH environment variable]`);
   console.log('');
   console.log('⚠️  Please change the password after first login for security.');
   

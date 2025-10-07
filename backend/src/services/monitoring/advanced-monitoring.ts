@@ -629,7 +629,7 @@ export class AdvancedMonitoringService extends EventEmitter {
         id: 'email_admin',
         type: 'email',
         name: 'Admin Email',
-        config: { email: 'admin@yourdomain.com' },
+        config: { email: process.env.ADMIN_EMAIL || 'admin@mymedspharmacyinc.com' },
         enabled: true,
         severity: 'medium'
       },
