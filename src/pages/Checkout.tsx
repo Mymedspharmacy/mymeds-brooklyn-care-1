@@ -204,9 +204,13 @@ export default function Checkout() {
       
       if (response.data.success) {
         setSuccess(true);
-        // Clear cart and redirect after success
+        // Clear cart from localStorage
+        localStorage.removeItem('cart');
+        // Clear cart state
+        setCart([]);
+        // Redirect after success
         setTimeout(() => {
-          navigate('/shop', { state: { orderSuccess: true } });
+          navigate('/shop', { state: { orderSuccess: true, clearCart: true } });
         }, 3000);
       } else {
         throw new Error(response.data.error || 'Failed to process order');

@@ -1,0 +1,28 @@
+================================================================================
+    ⚠️  FRONTEND RESTART NEEDED
+================================================================================
+
+The API configuration has been updated to connect to the backend on port 4000.
+
+TO APPLY THE CHANGES:
+
+1. Go to the PowerShell window running the frontend (showing Vite output)
+
+2. Press CTRL+C to stop the server
+
+3. Restart with: npm run dev
+
+================================================================================
+
+CHANGES MADE:
+✓ vite.config.ts - Proxy updated to port 4000
+✓ src/lib/api.ts - API base URL updated to port 4000  
+✓ src/lib/env.ts - Backend URL updated to port 4000
+
+================================================================================
+
+After restarting, your frontend will connect to:
+→ Backend API: http://localhost:4000
+
+================================================================================
+

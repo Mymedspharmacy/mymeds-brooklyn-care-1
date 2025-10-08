@@ -1,7 +1,7 @@
 // Environment configuration for Vite frontend
 export const env = {
   // Backend URL
-  BACKEND_URL: import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001',
+  BACKEND_URL: import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000',
   
   // Environment mode
   MODE: import.meta.env.MODE || 'development',

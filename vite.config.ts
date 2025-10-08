@@ -47,12 +47,12 @@ export default defineConfig(({ mode }) => ({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost:3001',
+        target: 'http://localhost:4000',
         changeOrigin: true,
         secure: false
       },
       '/socket.io': {
-        target: 'http://localhost:3001',
+        target: 'http://localhost:4000',
         changeOrigin: true,
         secure: false,
         ws: true
@@ -63,12 +63,12 @@ export default defineConfig(({ mode }) => ({
     'import.meta.env.VITE_API_URL': JSON.stringify(
       mode === 'production' 
         ? 'https://mymedspharmacyinc.com/api'
-        : 'http://localhost:3001'
+        : 'http://localhost:4000'
     ),
     'import.meta.env.VITE_BACKEND_URL': JSON.stringify(
       mode === 'production'
         ? 'https://mymedspharmacyinc.com/api'
-        : 'http://localhost:3001'
+        : 'http://localhost:4000'
     ),
     'import.meta.env.VITE_WORDPRESS_URL': JSON.stringify(
       mode === 'production'

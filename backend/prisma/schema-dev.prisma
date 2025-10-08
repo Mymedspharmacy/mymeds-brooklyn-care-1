@@ -97,12 +97,19 @@ model Product {
 model Order {
   id              Int      @id @default(autoincrement())
   userId          Int?
+  wooCommerceId   Int?     @unique
   orderNumber     String   @unique
   status          String   @default("PENDING")
   total           Float
+  currency        String   @default("USD")
   shippingAddress String?
+  billingAddress  String?
   paymentMethod   String?
   paymentIntentId String?
+  transactionId   String?
+  customerNote    String?
+  adminNote       String?
+  processedBy     String?
   guestEmail      String?
   guestName       String?
   guestPhone      String?

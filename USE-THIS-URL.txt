@@ -1,0 +1,38 @@
+================================================================================
+                    ⚠️  IMPORTANT - USE THE RIGHT URL!
+================================================================================
+
+You are currently on:  http://localhost:3001  ❌ WRONG!
+
+Please use this instead: http://localhost:3000  ✅ CORRECT!
+
+================================================================================
+
+WHY?
+
+Port 3000 = Vite proxy configured → No security warnings
+Port 3001 = Direct access → Chrome security warnings
+
+================================================================================
+
+WHAT TO DO RIGHT NOW:
+
+1. Close your current browser tab (on port 3001)
+
+2. Open a NEW tab and go to:
+   
+   http://localhost:3000
+
+3. Login to your admin dashboard
+
+4. All API calls will work perfectly with no warnings!
+
+================================================================================
+
+CURRENTLY RUNNING:
+
+✓ Frontend with Proxy:  http://localhost:3000  ← USE THIS!
+✓ Backend API:          http://localhost:4000
+
+================================================================================
+

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { SEOHead } from '@/components/SEOHead';
@@ -90,8 +90,14 @@ interface Category {
   count: number;
 }
 
+interface LocationState {
+  clearCart?: boolean;
+  orderSuccess?: boolean;
+}
+
 export default function Shop() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   
   const [products, setProducts] = useState<Product[]>([]);
@@ -108,16 +114,33 @@ export default function Shop() {
 
   // Load cart from localStorage on component mount
   useEffect(() => {
-    const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      try {
-        const parsedCart = JSON.parse(savedCart);
-        setCart(parsedCart);
-      } catch (error) {
-        console.error('Error parsing cart from localStorage:', error);
+    // Check if we need to clear cart after successful order
+    const state = location.state as LocationState;
+    if (state?.clearCart) {
+      setCart([]);
+      localStorage.removeItem('cart');
+      // Show success message
+      if (state?.orderSuccess) {
+        toast({
+          title: 'Order Placed Successfully!',
+          description: 'Your cart has been cleared. Thank you for your order!',
+        });
+      }
+      // Clear the navigation state
+      navigate(location.pathname, { replace: true, state: {} });
+    } else {
+      // Load cart from localStorage
+      const savedCart = localStorage.getItem('cart');
+      if (savedCart) {
+        try {
+          const parsedCart = JSON.parse(savedCart);
+          setCart(parsedCart);
+        } catch (error) {
+          console.error('Error parsing cart from localStorage:', error);
+        }
       }
     }
-  }, []);
+  }, [location.state, navigate, toast]);
 
   // Save cart to localStorage whenever cart changes
   useEffect(() => {
