@@ -767,3 +767,33 @@ model AuditLog {
 
   @@map("audit_logs")
 }
+
+// =============================================================================
+// BLOG/CONTENT MANAGEMENT
+// =============================================================================
+
+model Blog {
+  id          Int      @id @default(autoincrement())
+  title       String
+  slug        String   @unique
+  content     String   @db.Text
+  excerpt     String?  @db.Text
+  author      String
+  authorId    Int?
+  imageUrl    String?
+  category    String?
+  tags        String?  // JSON string for tags array
+  status      String   @default("DRAFT") // DRAFT, PUBLISHED, ARCHIVED
+  isPublished Boolean  @default(false)
+  publishedAt DateTime?
+  viewCount   Int      @default(0)
+  metaTitle   String?
+  metaDescription String? @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("blogs")
+  @@index([slug])
+  @@index([status])
+  @@index([isPublished])
+}

@@ -1864,22 +1864,17 @@ router.post('/orders', async (req: Request, res: Response) => {
         return sum + (parseFloat(item.price || '0') * item.quantity);
       }, 0);
 
-      // Create order in our database
+      // Create order in our database (matching actual Order schema)
       const order = await prisma.order.create({
         data: {
           orderNumber: `ORD-${Date.now()}`,
           status: 'PENDING',
           total: total,
-          currency: 'USD',
-          billingAddress: JSON.stringify(billing),
           shippingAddress: JSON.stringify(shipping),
           paymentMethod: payment_method || 'bacs',
-          customerNote: customer_note || '',
           guestEmail: billing.email,
           guestName: `${billing.first_name} ${billing.last_name}`,
           guestPhone: billing.phone,
-          createdAt: new Date(),
-          updatedAt: new Date(),
           items: {
             create: line_items.map((item: any) => ({
               productId: item.product_id,
@@ -1966,17 +1961,11 @@ router.post('/orders', async (req: Request, res: Response) => {
           orderNumber: `ORD-${Date.now()}`,
           status: 'PENDING',
           total: total,
-          currency: 'USD',
-          billingAddress: JSON.stringify(billing),
           shippingAddress: JSON.stringify(shipping),
           paymentMethod: payment_method || 'bacs',
-          customerNote: customer_note || '',
           guestEmail: billing.email,
           guestName: `${billing.first_name} ${billing.last_name}`,
           guestPhone: billing.phone,
-          adminNote: `WooCommerce API failed: ${errorData}`,
-          createdAt: new Date(),
-          updatedAt: new Date(),
           items: {
             create: line_items.map((item: any) => ({
               productId: item.product_id,

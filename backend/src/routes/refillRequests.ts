@@ -10,7 +10,7 @@ const prisma = new PrismaClient();
 // Public: submit refill request
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { userId, medication, dosage, urgency, notes } = req.body;
+    const { userId, medication, dosage, urgency, notes, phone } = req.body;
     
     if (!medication || !dosage) {
       return res.status(400).json({ error: 'Medication and dosage are required' });
@@ -18,7 +18,9 @@ router.post('/', async (req: Request, res: Response) => {
 
     const refillRequest = await prisma.refillRequest.create({
       data: {
-        userId: Number(userId) || 1, // Default to customer user if not provided
+        patientName: 'Guest Patient',
+        email: 'guest@pharmacy.com',
+        phone: phone || '',
         medication,
         dosage,
         quantity: 30, // Default quantity
@@ -26,7 +28,7 @@ router.post('/', async (req: Request, res: Response) => {
         notes,
         status: 'pending',
         notified: false
-      },
+      } as any,
       include: {
         user: {
           select: {
@@ -253,14 +255,16 @@ router.post('/admin/create', authenticateAdmin, async (req: Request, res: Respon
     // Create refill request
     const refillRequest = await prisma.refillRequest.create({
       data: {
-        userId: parseInt(userId),
+        patientName: user.name || 'Patient',
+        email: user.email,
+        phone: user.phone || '',
         medication: medicationName,
         quantity: parseInt(quantity),
         dosage: dosage || '',
         notes: instructions || `Created by admin on ${new Date().toISOString()}`,
         status: 'PENDING',
         urgency: priority.toLowerCase()
-      },
+      } as any,
       include: {
         user: { select: { name: true, email: true, phone: true } }
       }

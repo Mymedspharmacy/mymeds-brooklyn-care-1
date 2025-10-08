@@ -11,7 +11,7 @@ const contactSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
   email: z.string().email('Valid email is required'),
-  phone: z.string().min(1, 'Phone number is required'),
+  phone: z.string().optional(),
   subject: z.string().min(1, 'Subject is required'),
   message: z.string().min(1, 'Message is required'),
   preferredContact: z.string().optional(),
@@ -38,23 +38,16 @@ router.post('/', async (req: Request, res: Response) => {
     
     const formData = parsed.data;
     
-    // Create contact form entry with all the detailed data
+    // Create contact form entry matching the actual database schema
     const contact = await prisma.contactForm.create({ 
       data: { 
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        fullName: `${formData.firstName} ${formData.lastName}`,
+        name: `${formData.firstName} ${formData.lastName}`,
         email: formData.email,
-        phone: formData.phone,
+        phone: formData.phone || null,
         subject: formData.subject,
         message: formData.message,
-        preferredContact: formData.preferredContact,
-        urgency: formData.urgency,
-        serviceType: formData.serviceType,
-        bestTimeToContact: formData.bestTimeToContact,
-        agreeToTerms: formData.agreeToTerms,
-        allowMarketing: formData.allowMarketing,
-        timestamp: formData.timestamp
+        status: 'NEW',
+        notified: false
       } 
     });
     

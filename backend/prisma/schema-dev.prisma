@@ -347,7 +347,10 @@ model Notification {
 
 model RefillRequest {
   id            Int       @id @default(autoincrement())
-  userId        Int
+  userId        Int?
+  patientName   String
+  email         String
+  phone         String?
   medication    String
   dosage        String
   quantity      Int
@@ -360,14 +363,17 @@ model RefillRequest {
   updatedAt     DateTime  @updatedAt
 
   // Relations
-  user User @relation(fields: [userId], references: [id])
+  user User? @relation(fields: [userId], references: [id])
 
   @@map("refill_requests")
 }
 
 model TransferRequest {
   id              Int       @id @default(autoincrement())
-  userId          Int
+  userId          Int?
+  patientName     String
+  email           String
+  phone           String?
   fromPharmacy    String
   toPharmacy      String
   currentPharmacy String?
@@ -383,7 +389,7 @@ model TransferRequest {
   updatedAt       DateTime  @updatedAt
 
   // Relations
-  user User @relation(fields: [userId], references: [id])
+  user User? @relation(fields: [userId], references: [id])
 
   @@map("transfer_requests")
 }

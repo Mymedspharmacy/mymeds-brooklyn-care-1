@@ -62,15 +62,13 @@ router.post('/refill', upload.single('file'), async (req: Request, res: Response
   try {
     const { firstName, lastName, phone, email, prescriptionNumber, medication, pharmacy, notes } = req.body;
     
-    // Validate required fields
-    if (!firstName || !lastName || !phone || !prescriptionNumber || !medication) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    // Validate required fields (only firstName, lastName, and phone are required)
+    if (!firstName || !lastName || !phone) {
+      return res.status(400).json({ error: 'Missing required fields: First name, last name, and phone are required' });
     }
 
-    // Validate file upload
-    if (!req.file) {
-      return res.status(400).json({ error: 'Prescription file is required' });
-    }
+    // File upload is now optional
+    // Prescription number and medication are now optional
 
     // Get or create default user for public requests
     let defaultUser = await prisma.user.findFirst({ where: { role: 'ADMIN' } });
@@ -91,13 +89,13 @@ router.post('/refill', upload.single('file'), async (req: Request, res: Response
       });
     }
 
-    // Create prescription request with file information
+    // Create prescription request with optional file and medication information
     const prescription = await prisma.prescription.create({
       data: {
         userId: defaultUser.id,
         patientName: `${firstName} ${lastName}`,
-        medication: `REFILL REQUEST: ${medication}`,
-        dosage: `Patient: ${firstName} ${lastName}\nPhone: ${phone}\nEmail: ${email || 'Not provided'}\nPrescription #: ${prescriptionNumber}\nCurrent Pharmacy: ${pharmacy || 'Not specified'}\nNotes: ${notes || 'None'}\nFile: ${req.file.filename}`,
+        medication: `REFILL REQUEST: ${medication || 'Not specified'}`,
+        dosage: `Patient: ${firstName} ${lastName}\nPhone: ${phone}\nEmail: ${email || 'Not provided'}\nPrescription #: ${prescriptionNumber || 'Not provided'}\nCurrent Pharmacy: ${pharmacy || 'Not specified'}\nNotes: ${notes || 'None'}\nFile: ${req.file ? req.file.filename : 'Not uploaded'}`,
         instructions: 'PENDING_REFILL'
       }
     });
@@ -105,16 +103,18 @@ router.post('/refill', upload.single('file'), async (req: Request, res: Response
     // Also create a proper RefillRequest record for admin panel
     const refillRequest = await prisma.refillRequest.create({
       data: {
-        userId: defaultUser.id,
-        medication: medication,
-        dosage: `Prescription #: ${prescriptionNumber}\nCurrent Pharmacy: ${pharmacy || 'Not specified'}`,
+        patientName: `${firstName} ${lastName}`,
+        email: email || 'noemail@pharmacy.com',
+        phone: phone,
+        medication: medication || 'Not specified',
+        dosage: `Prescription #: ${prescriptionNumber || 'Not provided'}\nCurrent Pharmacy: ${pharmacy || 'Not specified'}`,
         quantity: 30, // Default quantity
         urgency: 'normal',
-        notes: `Patient: ${firstName} ${lastName}\nPhone: ${phone}\nEmail: ${email || 'Not provided'}\nPrescription File: ${req.file.filename}\nAdditional Notes: ${notes || 'None'}`,
+        notes: `Patient: ${firstName} ${lastName}\nPhone: ${phone}\nEmail: ${email || 'Not provided'}\nPrescription File: ${req.file ? req.file.filename : 'Not uploaded'}\nAdditional Notes: ${notes || 'None'}`,
         status: 'pending',
         requestedDate: new Date(),
         notified: false
-      }
+      } as any
     });
     
     // Send notification email
@@ -124,7 +124,7 @@ router.post('/refill', upload.single('file'), async (req: Request, res: Response
           from: process.env.EMAIL_USER,
           to: emailRecipient,
           subject: `New Prescription Refill Request from ${firstName} ${lastName}`,
-          text: `Patient: ${firstName} ${lastName}\nPhone: ${phone}\nEmail: ${email}\nPrescription #: ${prescriptionNumber}\nMedication: ${medication}\nCurrent Pharmacy: ${pharmacy}\nNotes: ${notes}`
+          text: `Patient: ${firstName} ${lastName}\nPhone: ${phone}\nEmail: ${email || 'Not provided'}\nPrescription #: ${prescriptionNumber || 'Not provided'}\nMedication: ${medication || 'Not specified'}\nCurrent Pharmacy: ${pharmacy || 'Not specified'}\nNotes: ${notes || 'None'}\nFile: ${req.file ? req.file.filename : 'Not uploaded'}`
         });
       }
     } catch (emailError) {
@@ -136,7 +136,7 @@ router.post('/refill', upload.single('file'), async (req: Request, res: Response
       message: 'Refill request submitted successfully',
       prescriptionId: prescription.id,
       refillRequestId: refillRequest.id,
-      fileName: req.file.filename
+      fileName: req.file ? req.file.filename : null
     });
   } catch (err) {
     console.error('Error creating refill request:', err);
@@ -149,12 +149,13 @@ router.post('/transfer', upload.single('file'), async (req: Request, res: Respon
   try {
     const { firstName, lastName, phone, email, prescriptionNumber, medication, currentPharmacy, notes } = req.body;
     
-    // Validate required fields (only essential patient and medication info)
-    if (!firstName || !lastName || !phone || !medication) {
-      return res.status(400).json({ error: 'Missing required fields: First name, last name, phone, and medication are required' });
+    // Validate required fields (only firstName, lastName, and phone are required)
+    if (!firstName || !lastName || !phone) {
+      return res.status(400).json({ error: 'Missing required fields: First name, last name, and phone are required' });
     }
 
     // File upload is now optional
+    // Prescription number and medication are now optional
 
     // Get or create default user for public requests
     let defaultUser = await prisma.user.findFirst({ where: { role: 'ADMIN' } });
@@ -175,12 +176,12 @@ router.post('/transfer', upload.single('file'), async (req: Request, res: Respon
       });
     }
 
-    // Create prescription request with optional file and pharmacy information
+    // Create prescription request with optional file and medication information
     const prescription = await prisma.prescription.create({
       data: {
         userId: defaultUser.id,
         patientName: `${firstName} ${lastName}`,
-        medication: `TRANSFER REQUEST: ${medication}`,
+        medication: `TRANSFER REQUEST: ${medication || 'Not specified'}`,
         dosage: `Patient: ${firstName} ${lastName}\nPhone: ${phone}\nEmail: ${email || 'Not provided'}\nPrescription #: ${prescriptionNumber || 'Not provided'}\nCurrent Pharmacy: ${currentPharmacy || 'Not provided'}\nNotes: ${notes || 'None'}\nFile: ${req.file ? req.file.filename : 'Not uploaded'}`,
         instructions: 'PENDING_TRANSFER'
       }
@@ -189,19 +190,21 @@ router.post('/transfer', upload.single('file'), async (req: Request, res: Respon
     // Also create a proper TransferRequest record for admin panel
     const transferRequest = await prisma.transferRequest.create({
       data: {
-        userId: defaultUser.id,
+        patientName: `${firstName} ${lastName}`,
+        email: email || 'noemail@pharmacy.com',
+        phone: phone,
         fromPharmacy: currentPharmacy || 'Not specified',
         toPharmacy: 'MyMeds Pharmacy',
         currentPharmacy: currentPharmacy || 'Not specified',
-        medication: medication,
-        medications: medication, // Store as string for now
+        medication: medication || 'Not specified',
+        medications: medication || 'Not specified', // Store as string for now
         dosage: `Prescription #: ${prescriptionNumber || 'Not provided'}`,
         quantity: 30, // Default quantity
         notes: `Patient: ${firstName} ${lastName}\nPhone: ${phone}\nEmail: ${email || 'Not provided'}\nPrescription File: ${req.file ? req.file.filename : 'Not uploaded'}\nAdditional Notes: ${notes || 'None'}`,
         status: 'pending',
         requestedDate: new Date(),
         notified: false
-      }
+      } as any
     });
     
     // Send notification email
@@ -211,7 +214,7 @@ router.post('/transfer', upload.single('file'), async (req: Request, res: Respon
           from: process.env.EMAIL_USER,
           to: emailRecipient,
           subject: `New Prescription Transfer Request from ${firstName} ${lastName}`,
-          text: `Patient: ${firstName} ${lastName}\nPhone: ${phone}\nEmail: ${email || 'Not provided'}\nPrescription #: ${prescriptionNumber || 'Not provided'}\nMedication: ${medication}\nCurrent Pharmacy: ${currentPharmacy || 'Not provided'}\nNotes: ${notes || 'None'}\nFile: ${req.file ? req.file.filename : 'Not uploaded'}`
+          text: `Patient: ${firstName} ${lastName}\nPhone: ${phone}\nEmail: ${email || 'Not provided'}\nPrescription #: ${prescriptionNumber || 'Not provided'}\nMedication: ${medication || 'Not specified'}\nCurrent Pharmacy: ${currentPharmacy || 'Not provided'}\nNotes: ${notes || 'None'}\nFile: ${req.file ? req.file.filename : 'Not uploaded'}`
         });
       }
     } catch (emailError) {
