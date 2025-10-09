@@ -151,18 +151,28 @@ export default function Blog() {
         const typedCategoriesData = categoriesResponse as WordPressCategory[];
         const typedFeaturedData = featuredResponse as WordPressPost[];
         
-        // Filter out posts with empty titles or content
+        // Filter out posts with empty titles or content - add comprehensive null checks
         const validPosts = typedPostsData.filter(post => {
-          const title = typeof post.title === 'string' ? post.title : post.title?.rendered || '';
-          const content = typeof post.content === 'string' ? post.content : post.content?.rendered || '';
-          return title.trim() !== '' && content.trim() !== '';
+          // Check if post exists and has required properties
+          if (!post || typeof post !== 'object') return false;
+          
+          const title = typeof post.title === 'string' ? post.title : (post.title && typeof post.title === 'object' ? post.title.rendered || '' : '');
+          const content = typeof post.content === 'string' ? post.content : (post.content && typeof post.content === 'object' ? post.content.rendered || '' : '');
+          
+          return title && typeof title === 'string' && title.trim() !== '' && 
+                 content && typeof content === 'string' && content.trim() !== '';
         });
         
         setPosts(validPosts);
         setFeaturedPosts(typedFeaturedData.filter(post => {
-          const title = typeof post.title === 'string' ? post.title : post.title?.rendered || '';
-          const content = typeof post.content === 'string' ? post.content : post.content?.rendered || '';
-          return title.trim() !== '' && content.trim() !== '';
+          // Check if post exists and has required properties
+          if (!post || typeof post !== 'object') return false;
+          
+          const title = typeof post.title === 'string' ? post.title : (post.title && typeof post.title === 'object' ? post.title.rendered || '' : '');
+          const content = typeof post.content === 'string' ? post.content : (post.content && typeof post.content === 'object' ? post.content.rendered || '' : '');
+          
+          return title && typeof title === 'string' && title.trim() !== '' && 
+                 content && typeof content === 'string' && content.trim() !== '';
         }));
         setRecentPosts(validPosts.slice(0, 6));
         setCategories(typedCategoriesData);
@@ -183,10 +193,13 @@ export default function Blog() {
   }, []);
 
   const filteredPosts = posts.filter(post => {
+    // Add comprehensive null checks for post data
+    if (!post || typeof post !== 'object') return false;
+    
     // Handle both WordPress format (title.rendered) and our sample format (title directly)
-    const postTitle = typeof post.title === 'string' ? post.title : post.title?.rendered || '';
-    const postExcerpt = typeof post.excerpt === 'string' ? post.excerpt : post.excerpt?.rendered || '';
-    const postContent = typeof post.content === 'string' ? post.content : post.content?.rendered || '';
+    const postTitle = typeof post.title === 'string' ? post.title : (post.title && typeof post.title === 'object' ? post.title.rendered || '' : '');
+    const postExcerpt = typeof post.excerpt === 'string' ? post.excerpt : (post.excerpt && typeof post.excerpt === 'object' ? post.excerpt.rendered || '' : '');
+    const postContent = typeof post.content === 'string' ? post.content : (post.content && typeof post.content === 'object' ? post.content.rendered || '' : '');
     
     if (!searchQuery.trim()) {
       // If no search query, only filter by category
