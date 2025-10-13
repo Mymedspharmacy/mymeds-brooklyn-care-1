@@ -252,7 +252,7 @@ router.post('/test-connection', unifiedAdminAuth, async (req: AuthRequest, res: 
       throw new Error('No response received from WooCommerce API');
     }
 
-    const products = await response.json();
+    const products = await response.json() as any[];
     
     res.json({
       success: true,
@@ -310,14 +310,14 @@ router.post('/sync-products', unifiedAdminAuth, async (req: AuthRequest, res: Re
       throw new Error('No response received from WooCommerce API');
     }
 
-    const products = await response.json();
+    const products = await response.json() as any[];
     
     // Sync products to local database
     let syncedCount = 0;
     let errorCount = 0;
     let lowStockCount = 0;
     const errors: string[] = [];
-    const lowStockAlerts: unknown[] = [];
+    const lowStockAlerts: any[] = [];
 
     for (const product of products) {
       try {
@@ -349,14 +349,14 @@ router.post('/sync-products', unifiedAdminAuth, async (req: AuthRequest, res: Re
           );
           
           if (variationsResponse) {
-            const variations = await variationsResponse.json();
-            totalStock = variations.reduce((sum: number, variation: unknown) => {
+            const variations = await variationsResponse.json() as any[];
+            totalStock = variations.reduce((sum: number, variation: any) => {
               const stockQuantity = getVariationProperty(variation, 'stock_quantity', 0);
               return sum + (typeof stockQuantity === 'number' ? stockQuantity : 0);
             }, 0);
             
             // Check for low stock variations
-            variations.forEach((variation: unknown) => {
+            variations.forEach((variation: any) => {
               const stockQuantity = getVariationProperty(variation, 'stock_quantity', 0);
               if (typeof stockQuantity === 'number' && stockQuantity > 0 && stockQuantity <= 5) {
                 hasLowStock = true;
@@ -590,7 +590,7 @@ router.post('/media/upload', unifiedAdminAuth, async (req: AuthRequest, res: Res
       throw new Error(`WordPress API error: ${response.status} - ${errorText}`);
     }
 
-    const uploadedMedia = await response.json();
+    const uploadedMedia = await response.json() as any;
     
     res.json({
       success: true,
@@ -677,7 +677,7 @@ router.post('/products/upload', unifiedAdminAuth, async (req: AuthRequest, res: 
       throw new Error(`WooCommerce API error: ${response.status} - ${errorText}`);
     }
 
-    const createdProduct = await response.json();
+    const createdProduct = await response.json() as any;
     
     res.json({
       success: true,
@@ -730,12 +730,12 @@ router.get('/media', unifiedAdminAuth, async (req: AuthRequest, res: Response) =
       throw new Error(`WooCommerce API error: ${response.status}`);
     }
 
-    const media = await response.json();
+    const media = await response.json() as any[];
     const totalMedia = response.headers.get('X-WP-Total');
     const totalPages = response.headers.get('X-WP-TotalPages');
 
     res.json({
-      media: media.map((item: unknown) => ({
+      media: media.map((item: any) => ({
         id: getProductProperty(item, 'id', 0),
         title: getProductProperty(item, 'title', ''),
         src: getProductProperty(item, 'src', ''),
@@ -1013,7 +1013,7 @@ router.post('/auto-sync', async (req: Request, res: Response) => {
       throw new Error('No response received from WooCommerce API');
     }
 
-    const products = await response.json();
+    const products = await response.json() as any[];
     
     // Sync products to local database
     let syncedCount = 0;
@@ -1049,8 +1049,8 @@ router.post('/auto-sync', async (req: Request, res: Response) => {
           );
           
           if (variationsResponse) {
-            const variations = await variationsResponse.json();
-            totalStock = variations.reduce((sum: number, variation: unknown) => sum + (variation && typeof variation === 'object' && 'stock_quantity' in variation && typeof variation.stock_quantity === 'number' ? variation.stock_quantity : 0), 0);
+            const variations = await variationsResponse.json() as any[];
+            totalStock = variations.reduce((sum: number, variation: any) => sum + (variation && typeof variation === 'object' && 'stock_quantity' in variation && typeof variation.stock_quantity === 'number' ? variation.stock_quantity : 0), 0);
           }
         }
 
@@ -1142,10 +1142,10 @@ router.post('/auto-sync', async (req: Request, res: Response) => {
 // Public endpoint to get products (for frontend)
 router.get('/products', async (req: Request, res: Response) => {
   try {
-    const { page = '1', per_page = '20', category, search } = req.query;
+    const { page = '1', per_page = '20', category, search, sort } = req.query;
     
     // Check cache first
-    const cacheKey = `products_${page}_${per_page}_${category}_${search}`;
+    const cacheKey = `products_${page}_${per_page}_${category}_${search}_${sort}`;
     const cached = getCachedProducts(cacheKey);
     
     if (cached) {
@@ -1183,6 +1183,31 @@ router.get('/products', async (req: Request, res: Response) => {
 
     if (category) params.category = category;
     if (search) params.search = search;
+    
+    // Handle sorting
+    if (sort) {
+      switch (sort) {
+        case 'title-asc':
+          params.orderby = 'title';
+          params.order = 'asc';
+          break;
+        case 'title-desc':
+          params.orderby = 'title';
+          params.order = 'desc';
+          break;
+        case 'price-asc':
+          params.orderby = 'price';
+          params.order = 'asc';
+          break;
+        case 'price-desc':
+          params.orderby = 'price';
+          params.order = 'desc';
+          break;
+        default:
+          params.orderby = 'title';
+          params.order = 'asc';
+      }
+    }
 
     // Build the WooCommerce API URL with database settings
     const queryParams = new URLSearchParams({
@@ -1306,7 +1331,7 @@ router.get('/payment-gateways', async (req: Request, res: Response) => {
       throw new Error(`WooCommerce API error: ${response.statusText}`);
     }
 
-    const gateways = await response.json();
+    const gateways = await response.json() as any[];
     
     // Filter only enabled gateways
     const enabledGateways = gateways.filter((gateway: any) => gateway.enabled);
@@ -1491,7 +1516,7 @@ router.post('/orders', async (req: Request, res: Response) => {
       });
     }
 
-    const order = await response.json();
+    const order = await response.json() as any;
 
     // Log successful order creation
     console.log(`✅ WooCommerce order created: ${order.id}`);
@@ -1559,19 +1584,19 @@ router.get('/orders', async (req: Request, res: Response) => {
     );
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = await response.json() as any;
       throw new Error(errorData.message || `WooCommerce API error`);
     }
 
-    const orders = await response.json();
+    const orders = await response.json() as any[];
 
     // Get total count for pagination
     const totalCount = response.headers.get('X-WP-Total') || '1';
 
     res.json({
       success: true,
-      orders: orders.map((order: unknown) => {
-        const orderData = order as any;
+      orders: orders.map((order: any) => {
+        const orderData = order;
         return {
           id: orderData.id || 0,
           order_number: orderData.number || orderData.id || '',
@@ -1662,10 +1687,10 @@ router.get('/orders/stats', async (req: Request, res: Response) => {
 
     // Get recent orders for revenue calculation
     const recentOrdersResponse = await fetch(`${settings.storeUrl}/wp-json/wc/v3/orders?status=completed&per_page=100&consumer_key=${settings.consumerKey}&consumer_secret=${settings.consumerSecret}`);
-    const recentOrders = await recentOrdersResponse.json();
+    const recentOrders = await recentOrdersResponse.json() as any[];
 
     // Calculate total revenue from completed orders
-    const totalRevenue = recentOrders.reduce((sum: number, order: unknown) => {
+    const totalRevenue = recentOrders.reduce((sum: number, order: any) => {
       return sum + parseFloat(order && typeof order === 'object' && 'total' in order && typeof order.total === 'string' ? order.total : '0');
     }, 0);
 
@@ -1715,11 +1740,11 @@ router.get('/orders/:id', async (req: Request, res: Response) => {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = await response.json() as any;
       throw new Error(errorData.message || `WooCommerce API error`);
     }
 
-    const order = await response.json();
+    const order = await response.json() as any;
 
     res.json({
       success: true,
@@ -1762,11 +1787,11 @@ router.put('/orders/:id/status', async (req: Request, res: Response) => {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = await response.json() as any;
       throw new Error(errorData.message || `WooCommerce API error`);
     }
 
-    const order = await response.json();
+    const order = await response.json() as any;
 
     console.log(`✅ WooCommerce order ${id} status updated to: ${status}`);
 
@@ -2144,7 +2169,7 @@ router.post('/orders', async (req: Request, res: Response) => {
       throw new Error(`WooCommerce API error: ${response.status} - ${errorText}`);
     }
 
-    const order = await response.json();
+    const order = await response.json() as any;
     console.log('WooCommerce order created successfully:', order.id);
 
     // Store order in our database for tracking

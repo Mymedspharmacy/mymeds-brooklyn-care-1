@@ -17,9 +17,15 @@ import {
   Mail,
   CheckCircle,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  Lock
 } from 'lucide-react';
 import api from '@/lib/api';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+
+// Initialize Stripe
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
 
 interface CartItem {
   id: number;
@@ -45,28 +51,13 @@ interface CheckoutFormData {
   notes?: string;
 }
 
-export default function Checkout() {
+// Inner component that uses Stripe hooks
+function CheckoutForm({ cart: initialCart }: { cart: CartItem[] }) {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [cart, setCart] = useState<CartItem[]>(location.state?.cart || []);
-
-  // Load cart from localStorage if not provided via state
-  useEffect(() => {
-    if (!cart || cart.length === 0) {
-      const savedCart = localStorage.getItem('cart');
-      if (savedCart) {
-        try {
-          const parsedCart = JSON.parse(savedCart);
-          console.log('Loaded cart from localStorage:', parsedCart);
-          setCart(parsedCart);
-        } catch (error) {
-          console.error('Error parsing cart from localStorage:', error);
-        }
-      }
-    } else {
-      console.log('Cart from state:', cart);
-    }
-  }, [cart]);
+  const stripe = useStripe();
+  const elements = useElements();
+  
+  const [cart, setCart] = useState<CartItem[]>(initialCart);
   const [formData, setFormData] = useState<CheckoutFormData>({
     firstName: '',
     lastName: '',
@@ -138,10 +129,6 @@ export default function Checkout() {
     setError('');
 
     try {
-      // Debug: Log the data being sent
-      console.log('Cart items:', cart);
-      console.log('Form data:', formData);
-      
       // Validate cart has items
       if (!cart || cart.length === 0) {
         setError('Your cart is empty. Please add items to your cart before proceeding to checkout.');
@@ -157,63 +144,155 @@ export default function Checkout() {
         throw new Error(`Please fill in all required fields: ${missingFields.join(', ')}`);
       }
 
-      // Create order data in WooCommerce format
-      const orderData = {
-        billing: {
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          email: formData.email,
-          phone: formData.phone,
-          address_1: formData.address1,
-          address_2: formData.address2 || '',
-          city: formData.city,
-          state: formData.state,
-          postcode: formData.postcode,
-          country: formData.country
-        },
-        shipping: {
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          address_1: formData.address1,
-          address_2: formData.address2 || '',
-          city: formData.city,
-          state: formData.state,
-          postcode: formData.postcode,
-          country: formData.country
-        },
-        line_items: cart.filter(item => item).map(item => ({
-          product_id: item.id,
-          quantity: item.quantity,
-          price: parseFloat(item.sale_price || item.price || '0')
-        })),
-        payment_method: formData.paymentMethod || 'bacs',
-        payment_method_title: formData.paymentMethod === 'stripe' ? 'Credit Card' : 'Direct Bank Transfer',
-        set_paid: false,
-        customer_note: formData.notes || ''
-      };
+      // If card payment is selected, process Stripe payment first
+      if (formData.paymentMethod === 'card') {
+        if (!stripe || !elements) {
+          setError('Stripe is not loaded. Please refresh the page and try again.');
+          setLoading(false);
+          return;
+        }
 
-      // Final validation before sending
-      console.log('Order data being sent:', orderData);
-      
-      if (!orderData.billing || !orderData.shipping || !orderData.line_items || orderData.line_items.length === 0) {
-        throw new Error('Invalid order data. Please try again.');
-      }
+        const cardElement = elements.getElement(CardElement);
+        if (!cardElement) {
+          setError('Card details are required.');
+          setLoading(false);
+          return;
+        }
 
-      // Submit order to WooCommerce
-      const response = await api.post('/woocommerce/orders', orderData);
-      
-      if (response.data.success) {
-        setSuccess(true);
-        // Clear cart from localStorage
-        localStorage.removeItem('cart');
-        // Clear cart state
-        setCart([]);
-        // Redirect after success
-        setTimeout(() => {
-          navigate('/shop', { state: { orderSuccess: true, clearCart: true } });
-        }, 3000);
+        // Create payment intent
+        const paymentIntentResponse = await api.post('/stripe/create-payment-intent', {
+          amount: Math.round(getCartTotal() * 100), // Convert to cents
+          currency: 'usd'
+        });
+
+        const { clientSecret } = paymentIntentResponse.data;
+
+        // Confirm card payment
+        const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+          payment_method: {
+            card: cardElement,
+            billing_details: {
+              name: `${formData.firstName} ${formData.lastName}`,
+              email: formData.email,
+              phone: formData.phone,
+              address: {
+                line1: formData.address1,
+                line2: formData.address2 || '',
+                city: formData.city,
+                state: formData.state,
+                postal_code: formData.postcode,
+                country: formData.country
+              }
+            }
+          }
+        });
+
+        if (stripeError) {
+          throw new Error(stripeError.message || 'Payment failed');
+        }
+
+        if (paymentIntent?.status !== 'succeeded') {
+          throw new Error('Payment was not completed successfully');
+        }
+
+        // Payment successful, create order with Stripe transaction ID
+        const orderData = {
+          billing: {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            email: formData.email,
+            phone: formData.phone,
+            address_1: formData.address1,
+            address_2: formData.address2 || '',
+            city: formData.city,
+            state: formData.state,
+            postcode: formData.postcode,
+            country: formData.country
+          },
+          shipping: {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            address_1: formData.address1,
+            address_2: formData.address2 || '',
+            city: formData.city,
+            state: formData.state,
+            postcode: formData.postcode,
+            country: formData.country
+          },
+          line_items: cart.filter(item => item).map(item => ({
+            product_id: item.id,
+            quantity: item.quantity,
+            price: parseFloat(item.sale_price || item.price || '0')
+          })),
+          payment_method: 'stripe',
+          payment_method_title: 'Credit Card (Stripe)',
+          set_paid: true,
+          customer_note: formData.notes || '',
+          transaction_id: paymentIntent.id
+        };
+
+        // Submit order to WooCommerce
+        const response = await api.post('/woocommerce/orders', orderData);
+        
+        if (response.data.success) {
+          setSuccess(true);
+          localStorage.removeItem('cart');
+          setCart([]);
+          setTimeout(() => {
+            navigate('/shop', { state: { orderSuccess: true, clearCart: true } });
+          }, 3000);
+        } else {
+          throw new Error(response.data.error || 'Failed to create order');
+        }
       } else {
-        throw new Error(response.data.error || 'Failed to process order');
+        // PayPal or other payment methods
+        const orderData = {
+          billing: {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            email: formData.email,
+            phone: formData.phone,
+            address_1: formData.address1,
+            address_2: formData.address2 || '',
+            city: formData.city,
+            state: formData.state,
+            postcode: formData.postcode,
+            country: formData.country
+          },
+          shipping: {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            address_1: formData.address1,
+            address_2: formData.address2 || '',
+            city: formData.city,
+            state: formData.state,
+            postcode: formData.postcode,
+            country: formData.country
+          },
+          line_items: cart.filter(item => item).map(item => ({
+            product_id: item.id,
+            quantity: item.quantity,
+            price: parseFloat(item.sale_price || item.price || '0')
+          })),
+          payment_method: formData.paymentMethod || 'bacs',
+          payment_method_title: formData.paymentMethod === 'paypal' ? 'PayPal' : 'Direct Bank Transfer',
+          set_paid: false,
+          customer_note: formData.notes || ''
+        };
+
+        // Submit order to WooCommerce
+        const response = await api.post('/woocommerce/orders', orderData);
+        
+        if (response.data.success) {
+          setSuccess(true);
+          localStorage.removeItem('cart');
+          setCart([]);
+          setTimeout(() => {
+            navigate('/shop', { state: { orderSuccess: true, clearCart: true } });
+          }, 3000);
+        } else {
+          throw new Error(response.data.error || 'Failed to create order');
+        }
       }
     } catch (err: any) {
       console.error('Checkout error:', err);
@@ -444,6 +523,49 @@ export default function Checkout() {
                           />
                           <Label htmlFor="paypal">PayPal</Label>
                         </div>
+
+                        {/* Stripe Card Input - Only show when card is selected */}
+                        {formData.paymentMethod === 'card' && (
+                          <div className="mt-4 space-y-3">
+                            <Label>Card Details *</Label>
+                            <div className="p-3 border border-gray-300 rounded-lg bg-white">
+                              <CardElement
+                                options={{
+                                  style: {
+                                    base: {
+                                      fontSize: '16px',
+                                      color: '#424770',
+                                      '::placeholder': {
+                                        color: '#aab7c4',
+                                      },
+                                    },
+                                    invalid: {
+                                      color: '#9e2146',
+                                    },
+                                  },
+                                }}
+                              />
+                            </div>
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                              <div className="flex items-center gap-2 text-blue-700">
+                                <Lock className="h-4 w-4" />
+                                <span className="text-xs font-medium">Secure Payment</span>
+                              </div>
+                              <p className="text-xs text-blue-600 mt-1">
+                                Your card details are encrypted and secure. We use Stripe for payment processing.
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* PayPal Notice */}
+                        {formData.paymentMethod === 'paypal' && (
+                          <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                            <p className="text-sm text-yellow-800">
+                              You will be redirected to PayPal to complete your payment.
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -525,3 +647,44 @@ export default function Checkout() {
   );
 }
 
+// Wrapper component with Stripe Elements provider
+export default function Checkout() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [cart, setCart] = useState<CartItem[]>(location.state?.cart || []);
+
+  // Load cart from localStorage if not provided via state
+  useEffect(() => {
+    if (!cart || cart.length === 0) {
+      const savedCart = localStorage.getItem('cart');
+      if (savedCart) {
+        try {
+          const parsedCart = JSON.parse(savedCart);
+          setCart(parsedCart);
+        } catch (error) {
+          console.error('Error parsing cart from localStorage:', error);
+        }
+      }
+    }
+  }, []);
+
+  // Redirect if no cart items
+  useEffect(() => {
+    if (!cart || cart.length === 0) {
+      const timer = setTimeout(() => {
+        navigate('/shop');
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [cart, navigate]);
+
+  if (!cart || cart.length === 0) {
+    return null;
+  }
+
+  return (
+    <Elements stripe={stripePromise}>
+      <CheckoutForm cart={cart} />
+    </Elements>
+  );
+}

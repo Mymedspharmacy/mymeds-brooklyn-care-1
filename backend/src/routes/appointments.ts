@@ -213,6 +213,60 @@ router.get('/admin/stats', authenticateAdmin, async (req: AuthRequest, res: Resp
   }
 });
 
+// Admin: update appointment status
+router.put('/:id', authenticateAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
+    
+    const appointmentId = Number(req.params.id);
+    const { status, reason, date, time } = req.body;
+    
+    // Validate status if provided
+    if (status && !['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED'].includes(status)) {
+      return res.status(400).json({ 
+        error: 'Invalid status', 
+        message: 'Status must be one of: PENDING, CONFIRMED, COMPLETED, CANCELLED' 
+      });
+    }
+    
+    // Prepare update data
+    const updateData: any = {};
+    if (status) updateData.status = status;
+    if (reason) updateData.reason = reason;
+    if (date) {
+      updateData.date = new Date(date);
+      updateData.time = time || new Date(date).toTimeString().split(' ')[0];
+    }
+    
+    const appointment = await prisma.appointment.update({
+      where: { id: appointmentId },
+      data: updateData,
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true
+          }
+        }
+      }
+    });
+    
+    res.json({
+      success: true,
+      data: appointment,
+      message: `Appointment ${status ? `status updated to ${status}` : 'updated successfully'}`
+    });
+  } catch (err) {
+    console.error('Error updating appointment:', err);
+    res.status(500).json({ 
+      error: 'Failed to update appointment',
+      message: err instanceof Error ? err.message : 'Unknown error'
+    });
+  }
+});
+
 // Admin: delete appointment
 router.delete('/:id', authenticateAdmin, async (req: AuthRequest, res: Response) => {
   try {

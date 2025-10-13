@@ -8,8 +8,21 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "lib": ["es2020"],
+    "declaration": false,
+    "sourceMap": true,
+    "removeComments": true,
+    "noImplicitAny": false,
+    "noImplicitReturns": false,
+    "noImplicitThis": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "src/types/**/*"],
   "exclude": ["node_modules", "dist"]
 }

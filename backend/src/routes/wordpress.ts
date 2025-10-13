@@ -351,7 +351,7 @@ router.post('/test-connection', unifiedAdminAuth, async (req: AuthRequest, res: 
       throw new Error('No response received from WordPress API');
     }
 
-    const siteInfo = await response.json();
+    const siteInfo = await response.json() as any;
     
     res.json({
       success: true,
@@ -411,7 +411,7 @@ router.post('/sync-posts', unifiedAdminAuth, async (req: AuthRequest, res: Respo
       throw new Error('No response received from WordPress API');
     }
 
-    const posts = await response.json();
+    const posts = await response.json() as any[];
     
     // Sync posts to local database using existing Blog model
     let syncedCount = 0;
@@ -554,7 +554,7 @@ router.post('/posts', unifiedAdminAuth, async (req: AuthRequest, res: Response) 
       throw new Error('No response received from WordPress API');
     }
 
-    const newPost = await response.json();
+    const newPost = await response.json() as any;
     
     // Clear cache after creating new post
     clearPostCache();
@@ -609,12 +609,12 @@ router.get('/pages', unifiedAdminAuth, async (req: AuthRequest, res: Response) =
       throw new Error('Failed to fetch WordPress pages');
     }
 
-    const pages = await response.json();
+    const pages = await response.json() as any[];
     const totalPages = response.headers.get('X-WP-Total');
     const totalPagesCount = response.headers.get('X-WP-TotalPages');
 
     res.json({
-      pages: pages.map((page: unknown) => ({
+      pages: pages.map((page: any) => ({
         id: getPostProperty(page, 'id', 0),
         title: (getPostProperty(page, 'title', {}) as any).rendered || '',
         content: (getPostProperty(page, 'content', {}) as any).rendered || '',
@@ -683,7 +683,7 @@ router.post('/pages', unifiedAdminAuth, async (req: AuthRequest, res: Response) 
       throw new Error('Failed to create WordPress page');
     }
 
-    const newPage = await response.json();
+    const newPage = await response.json() as any;
     
     // Clear cache
     clearPostCache();
@@ -739,12 +739,12 @@ router.get('/media', unifiedAdminAuth, async (req: AuthRequest, res: Response) =
       throw new Error('Failed to fetch WordPress media');
     }
 
-    const media = await response.json();
+    const media = await response.json() as any[];
     const totalMedia = response.headers.get('X-WP-Total');
     const totalPages = response.headers.get('X-WP-TotalPages');
 
     res.json({
-      media: media.map((item: unknown) => ({
+      media: media.map((item: any) => ({
         id: getMediaProperty(item, 'id', 0),
         title: (getMediaProperty(item, 'title', {}) as any).rendered || '',
         description: (getMediaProperty(item, 'description', {}) as any).rendered || '',
@@ -961,13 +961,13 @@ router.get('/post-types/:type/posts', unifiedAdminAuth, async (req: AuthRequest,
       throw new Error(`Failed to fetch ${type} posts`);
     }
 
-    const posts = await response.json();
+    const posts = await response.json() as any[];
     const totalPosts = response.headers.get('X-WP-Total');
     const totalPages = response.headers.get('X-WP-TotalPages');
 
     res.json({
       postType: type,
-      posts: posts.map((post: unknown) => ({
+      posts: posts.map((post: any) => ({
         id: getPostProperty(post, 'id', 0),
         title: (getPostProperty(post, 'title', {}) as any)?.rendered || getPostProperty(post, 'title', ''),
         content: (getPostProperty(post, 'content', {}) as any)?.rendered || getPostProperty(post, 'content', ''),
@@ -1100,7 +1100,7 @@ router.post('/auto-sync', async (req: Request, res: Response) => {
       throw new Error('No response received from WordPress API');
     }
 
-    const posts = await response.json();
+    const posts = await response.json() as any[];
     
     // Sync posts to local database using existing Blog model
     let syncedCount = 0;
@@ -1238,7 +1238,7 @@ router.get('/posts', async (req: Request, res: Response) => {
         );
 
         if (response && response.ok) {
-          const posts = await response.json();
+          const posts = await response.json() as any[];
           const totalPosts = response.headers.get('X-WP-Total');
           const totalPages = response.headers.get('X-WP-TotalPages');
 
@@ -1246,7 +1246,7 @@ router.get('/posts', async (req: Request, res: Response) => {
             console.log('✅ Successfully fetched real WordPress posts:', posts.length);
             
             realWordPressData = {
-              posts: posts.map((post: unknown) => ({
+              posts: posts.map((post: any) => ({
                 id: getPostProperty(post, 'id', 0),
                 title: (getPostProperty(post, 'title', {}) as any)?.rendered || getPostProperty(post, 'title', ''),
                 content: (getPostProperty(post, 'content', {}) as any)?.rendered || getPostProperty(post, 'content', ''),
@@ -1661,7 +1661,7 @@ router.get('/posts', async (req: Request, res: Response) => {
       throw new Error('No response received from WordPress API');
     }
 
-    const posts = await response.json();
+    const posts = await response.json() as any[];
     const totalPosts = response.headers.get('X-WP-Total');
     const totalPages = response.headers.get('X-WP-TotalPages');
 
@@ -1672,7 +1672,7 @@ router.get('/posts', async (req: Request, res: Response) => {
     }
 
     const result = {
-      posts: posts.map((post: unknown) => ({
+      posts: posts.map((post: any) => ({
         id: getPostProperty(post, 'id', 0),
         title: (getPostProperty(post, 'title', {}) as any)?.rendered || getPostProperty(post, 'title', ''),
         content: (getPostProperty(post, 'content', {}) as any)?.rendered || getPostProperty(post, 'content', ''),
@@ -1712,10 +1712,67 @@ router.get('/posts/:id', async (req, res) => {
     const { id } = req.params;
     const settings = await prisma.wordPressSettings.findUnique({ where: { id: 1 } });
     
-    if (!settings || !settings.enabled) {
-      // Return sample blog post for development/demo purposes
-      const samplePost = {
-        id: parseInt(id),
+    // Try to fetch from WordPress first, even if settings are not configured
+    let wpUrl, wpUsername, wpAppPassword;
+    
+    if (settings && settings.enabled) {
+      wpUrl = settings.siteUrl;
+      wpUsername = settings.username;
+      wpAppPassword = settings.applicationPassword;
+    } else {
+      // Try environment variables as fallback
+      wpUrl = process.env.WORDPRESS_URL || process.env.VITE_WORDPRESS_URL;
+      wpUsername = process.env.WORDPRESS_USERNAME;
+      wpAppPassword = process.env.WORDPRESS_APP_PASSWORD || process.env.WORDPRESS_PASSWORD;
+    }
+
+    // If WordPress is configured, try to fetch real content
+    if (wpUrl) {
+      try {
+        console.log(`🔄 Attempting to fetch WordPress post ${id} from ${wpUrl}`);
+        
+        let response;
+        if (wpUsername && wpAppPassword) {
+          // Use authentication
+          const auth = Buffer.from(`${wpUsername}:${wpAppPassword}`).toString('base64');
+          response = await fetch(`${wpUrl}/wp-json/wp/v2/posts/${id}`, {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Basic ${auth}`
+            }
+          });
+        } else {
+          // Try without authentication (for public posts)
+          response = await fetch(`${wpUrl}/wp-json/wp/v2/posts/${id}`, {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+        }
+
+        if (response.ok) {
+          const post = await response.json();
+          console.log(`✅ Successfully fetched WordPress post ${id}:`, post.title?.rendered);
+          
+          // Validate that the post has content
+          if (!post.content || !post.content.rendered || post.content.rendered.trim() === '') {
+            console.warn(`Post ${id} has no content`);
+            post.content = { rendered: '<p>This blog post content is currently unavailable.</p>' };
+          }
+          
+          return res.json({ post });
+        } else {
+          console.warn(`WordPress API returned ${response.status} for post ${id}`);
+        }
+      } catch (wpError) {
+        console.warn(`WordPress fetch failed for post ${id}:`, wpError);
+      }
+    }
+
+    // Fallback to sample posts with different content based on ID
+    const samplePosts = {
+      1: {
+        id: 1,
         title: { rendered: 'Managing Seasonal Allergies: A Complete Guide' },
         content: { rendered: '<p>Spring and fall bring beautiful weather, but for many people, they also bring seasonal allergies. Here\'s how to manage your symptoms effectively...</p><p>Seasonal allergies, also known as hay fever or allergic rhinitis, affect millions of people worldwide. The symptoms can range from mild to severe and can significantly impact your quality of life.</p><h3>Common Symptoms</h3><ul><li>Sneezing</li><li>Runny or stuffy nose</li><li>Itchy eyes, nose, or throat</li><li>Watery eyes</li><li>Coughing</li></ul><h3>Treatment Options</h3><p>There are several effective treatments available for seasonal allergies, including over-the-counter and prescription medications, as well as lifestyle changes that can help reduce symptoms.</p>' },
         excerpt: { rendered: 'Learn effective strategies for managing seasonal allergies, including medication options, lifestyle changes, and prevention tips.' },
@@ -1727,20 +1784,55 @@ router.get('/posts/:id', async (req, res) => {
         categories: [1],
         tags: [1],
         featured_media: 0
-      };
-      return res.json({ post: samplePost });
-    }
-    
-    const response = await fetch(`${settings.siteUrl}/wp-json/wp/v2/posts/${id}`, {
-      headers: {
-        'Content-Type': 'application/json'
+      },
+      2: {
+        id: 2,
+        title: { rendered: 'Understanding Blood Pressure: What You Need to Know' },
+        content: { rendered: '<p>Blood pressure is one of the most important vital signs that healthcare providers monitor. Understanding what it means and how to manage it is crucial for maintaining good health.</p><p>Blood pressure measures the force of blood against the walls of your arteries as your heart pumps blood through your body. It\'s recorded as two numbers: systolic pressure (when the heart beats) and diastolic pressure (when the heart rests between beats).</p><h3>Normal vs. High Blood Pressure</h3><ul><li>Normal: Less than 120/80 mmHg</li><li>Elevated: 120-129/less than 80 mmHg</li><li>High Stage 1: 130-139/80-89 mmHg</li><li>High Stage 2: 140/90 mmHg or higher</li></ul><h3>Risk Factors</h3><p>Several factors can increase your risk of developing high blood pressure, including age, family history, obesity, lack of physical activity, smoking, and excessive alcohol consumption.</p>' },
+        excerpt: { rendered: 'Learn about blood pressure readings, risk factors, and how to maintain healthy blood pressure levels.' },
+        date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+        modified: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+        slug: 'understanding-blood-pressure',
+        link: '/blog/understanding-blood-pressure',
+        author: 1,
+        categories: [2],
+        tags: [2],
+        featured_media: 0
+      },
+      3: {
+        id: 3,
+        title: { rendered: 'Diabetes Management: Lifestyle Tips for Better Health' },
+        content: { rendered: '<p>Living with diabetes requires careful management of your blood sugar levels, diet, and lifestyle choices. With the right approach, you can lead a healthy and fulfilling life.</p><p>Diabetes is a chronic condition that affects how your body processes glucose (sugar). There are two main types: Type 1 diabetes, where the body doesn\'t produce insulin, and Type 2 diabetes, where the body doesn\'t use insulin effectively.</p><h3>Key Management Strategies</h3><ul><li>Monitor blood glucose regularly</li><li>Follow a balanced diet</li><li>Engage in regular physical activity</li><li>Take medications as prescribed</li><li>Maintain regular healthcare appointments</li></ul><h3>Dietary Guidelines</h3><p>A healthy diet for diabetes includes plenty of vegetables, whole grains, lean proteins, and healthy fats. It\'s important to monitor carbohydrate intake and maintain consistent meal timing.</p>' },
+        excerpt: { rendered: 'Essential tips for managing diabetes through lifestyle changes, diet, and proper medication adherence.' },
+        date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+        modified: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+        slug: 'diabetes-management-tips',
+        link: '/blog/diabetes-management-tips',
+        author: 1,
+        categories: [3],
+        tags: [3],
+        featured_media: 0
       }
-    });
-    if (!response.ok) {
-      return res.status(404).json({ error: 'Post not found' });
-    }
-    const post = await response.json();
-    res.json({ post });
+    };
+
+    const postId = parseInt(id);
+    const samplePost = samplePosts[postId as keyof typeof samplePosts] || {
+      id: postId,
+      title: { rendered: `Sample Blog Post ${postId}` },
+      content: { rendered: `<p>This is a sample blog post with ID ${postId}. The content would normally be fetched from WordPress, but since WordPress is not configured, this sample content is being displayed instead.</p><p>To see real blog content, please configure your WordPress settings in the admin panel or set up the appropriate environment variables.</p>` },
+      excerpt: { rendered: `Sample excerpt for blog post ${postId}` },
+      date: new Date(Date.now() - postId * 24 * 60 * 60 * 1000).toISOString(),
+      modified: new Date(Date.now() - postId * 24 * 60 * 60 * 1000).toISOString(),
+      slug: `sample-post-${postId}`,
+      link: `/blog/sample-post-${postId}`,
+      author: 1,
+      categories: [postId],
+      tags: [postId],
+      featured_media: 0
+    };
+
+    console.log(`📝 Returning sample post ${postId}:`, samplePost.title.rendered);
+    return res.json({ post: samplePost });
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch post', details: isErrorWithMessage(error) ? error.message : 'Unknown error' });
   }

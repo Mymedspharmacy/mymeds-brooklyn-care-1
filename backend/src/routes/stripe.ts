@@ -98,11 +98,11 @@ router.post('/confirm-payment', async (req: Request, res: Response) => {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = await response.json() as any;
       throw new Error(errorData.message || 'WooCommerce API error');
     }
 
-    const order = await response.json();
+    const order = await response.json() as any;
 
     res.json({
       success: true,

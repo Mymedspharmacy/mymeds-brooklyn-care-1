@@ -7,6 +7,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Loader2, CreditCard, CheckCircle, AlertCircle, Lock, ExternalLink } from 'lucide-react';
 import { WooCommerceCartItem } from '@/lib/woocommerceCart';
 import { wooCommerceAPI } from '@/lib/woocommerce';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import api from '@/lib/api';
+
+// Initialize Stripe
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
 
 interface WooCommerceCheckoutFormProps {
   cart: WooCommerceCartItem[];
@@ -23,6 +29,9 @@ export const WooCommerceCheckoutForm: React.FC<WooCommerceCheckoutFormProps> = (
   onSuccess,
   onCancel
 }) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -116,6 +125,72 @@ export const WooCommerceCheckoutForm: React.FC<WooCommerceCheckoutFormProps> = (
 
       console.log('Creating order with data:', { formData, selectedPaymentMethod, cart, total });
 
+      // Check if Stripe payment is selected
+      const isStripePayment = selectedPaymentMethod === 'stripe' || 
+                             selectedPaymentMethod === 'stripe_gateway' ||
+                             selectedPaymentMethod === 'stripe_cc';
+
+      let paymentIntentId = null;
+
+      // Process Stripe payment first if applicable
+      if (isStripePayment) {
+        if (!stripe || !elements) {
+          setError('Stripe is not loaded. Please refresh the page and try again.');
+          setLoading(false);
+          return;
+        }
+
+        const cardElement = elements.getElement(CardElement);
+        if (!cardElement) {
+          setError('Card details are required for credit card payment.');
+          setLoading(false);
+          return;
+        }
+
+        try {
+          // Create payment intent
+          const paymentIntentResponse = await api.post('/stripe/create-payment-intent', {
+            amount: Math.round(total * 100), // Convert to cents
+            currency: currency.toLowerCase()
+          });
+
+          const { clientSecret } = paymentIntentResponse.data;
+
+          // Confirm card payment
+          const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+            payment_method: {
+              card: cardElement,
+              billing_details: {
+                name: `${formData.firstName} ${formData.lastName}`,
+                email: formData.email,
+                phone: formData.phone,
+                address: {
+                  line1: formData.address,
+                  city: formData.city,
+                  state: formData.state,
+                  postal_code: formData.zipCode,
+                  country: formData.country
+                }
+              }
+            }
+          });
+
+          if (stripeError) {
+            throw new Error(stripeError.message || 'Payment failed');
+          }
+
+          if (paymentIntent?.status !== 'succeeded') {
+            throw new Error('Payment was not completed successfully');
+          }
+
+          paymentIntentId = paymentIntent.id;
+          console.log('✅ Stripe payment successful:', paymentIntentId);
+        } catch (stripeErr) {
+          console.error('Stripe payment error:', stripeErr);
+          throw stripeErr;
+        }
+      }
+
       // Create order data for WooCommerce
       const orderData = {
         billing: {
@@ -145,8 +220,9 @@ export const WooCommerceCheckoutForm: React.FC<WooCommerceCheckoutFormProps> = (
         customer_note: formData.notes || '',
         payment_method: selectedPaymentMethod,
         payment_method_title: getPaymentMethodTitle(selectedPaymentMethod),
-        set_paid: false, // Let WooCommerce handle payment processing
-        status: 'pending'
+        set_paid: isStripePayment && paymentIntentId ? true : false,
+        status: isStripePayment && paymentIntentId ? 'processing' : 'pending',
+        transaction_id: paymentIntentId || undefined
       };
 
       console.log('Order data prepared:', orderData);
@@ -396,6 +472,43 @@ export const WooCommerceCheckoutForm: React.FC<WooCommerceCheckoutFormProps> = (
             </div>
           )}
 
+          {/* Stripe Card Input - Show when Stripe gateway is selected */}
+          {(selectedPaymentMethod === 'stripe' || 
+            selectedPaymentMethod === 'stripe_gateway' || 
+            selectedPaymentMethod === 'stripe_cc' ||
+            selectedPaymentMethod.includes('stripe')) && (
+            <div className="mt-4 space-y-3">
+              <Label>Card Details *</Label>
+              <div className="p-3 border border-gray-300 rounded-lg bg-white">
+                <CardElement
+                  options={{
+                    style: {
+                      base: {
+                        fontSize: '16px',
+                        color: '#424770',
+                        '::placeholder': {
+                          color: '#aab7c4',
+                        },
+                      },
+                      invalid: {
+                        color: '#9e2146',
+                      },
+                    },
+                  }}
+                />
+              </div>
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                <div className="flex items-center gap-2 text-green-700">
+                  <Lock className="h-4 w-4" />
+                  <span className="text-xs font-medium">Secure Card Processing</span>
+                </div>
+                <p className="text-xs text-green-600 mt-1">
+                  Your card details are encrypted and securely processed by Stripe. We never store your card information.
+                </p>
+              </div>
+            </div>
+          )}
+
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <div className="flex items-center gap-2 text-blue-700 mb-2">
               <Lock className="h-4 w-4" />
@@ -489,4 +602,13 @@ export const WooCommerceCheckoutForm: React.FC<WooCommerceCheckoutFormProps> = (
   );
 };
 
-export default WooCommerceCheckoutForm;
+// Wrapper with Stripe Elements provider
+const WooCommerceCheckoutFormWrapper: React.FC<WooCommerceCheckoutFormProps> = (props) => {
+  return (
+    <Elements stripe={stripePromise}>
+      <WooCommerceCheckoutForm {...props} />
+    </Elements>
+  );
+};
+
+export default WooCommerceCheckoutFormWrapper;

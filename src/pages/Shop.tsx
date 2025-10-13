@@ -224,7 +224,17 @@ export default function Shop() {
 
   // Handle pagination
   const handlePageChange = (page: number) => {
+    // Don't change page if it's the same page
+    if (page === currentPage) return;
+    
     setCurrentPage(page);
+    // Scroll to top of products section when page changes
+    setTimeout(() => {
+      const productsSection = document.querySelector('#products-section');
+      if (productsSection) {
+        productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
   };
 
   // Add to cart
@@ -410,7 +420,7 @@ export default function Shop() {
         </section>
 
         {/* Products Section */}
-        <section className="py-12">
+        <section id="products-section" className="py-12">
           <div className="container mx-auto px-4">
             {loading ? (
               <div className="flex justify-center items-center py-20">
@@ -555,8 +565,8 @@ export default function Shop() {
                     <Button
                       variant="outline"
                       onClick={() => handlePageChange(currentPage - 1)}
-                      disabled={currentPage === 1}
-                      className="bg-white text-[#376F6B] hover:bg-[#E8F4F3]"
+                      disabled={currentPage === 1 || loading}
+                      className="bg-white text-[#376F6B] hover:bg-[#E8F4F3] disabled:opacity-50"
                     >
                       <ChevronLeft className="h-4 w-4" />
                     </Button>
@@ -566,20 +576,25 @@ export default function Shop() {
                         key={i}
                         variant={currentPage === i + 1 ? "default" : "outline"}
                         onClick={() => handlePageChange(i + 1)}
+                        disabled={currentPage === i + 1 || loading}
                         className={currentPage === i + 1 
-                          ? "bg-[#57BBB6] hover:bg-[#376F6B] text-white" 
-                          : "bg-white text-[#376F6B] hover:bg-[#E8F4F3]"
+                          ? "bg-[#57BBB6] hover:bg-[#376F6B] text-white cursor-default" 
+                          : "bg-white text-[#376F6B] hover:bg-[#E8F4F3] disabled:opacity-50"
                         }
                       >
-                        {i + 1}
+                        {loading && currentPage === i + 1 ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          i + 1
+                        )}
                       </Button>
                     ))}
                     
                     <Button
                       variant="outline"
                       onClick={() => handlePageChange(currentPage + 1)}
-                      disabled={currentPage === totalPages}
-                      className="bg-white text-[#376F6B] hover:bg-[#E8F4F3]"
+                      disabled={currentPage === totalPages || loading}
+                      className="bg-white text-[#376F6B] hover:bg-[#E8F4F3] disabled:opacity-50"
                     >
                       <ChevronRight className="h-4 w-4" />
                     </Button>

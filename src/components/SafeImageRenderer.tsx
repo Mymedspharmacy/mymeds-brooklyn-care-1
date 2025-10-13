@@ -69,10 +69,20 @@ export const SafeContentRenderer: React.FC<SafeContentRendererProps> = ({
 }) => {
   // Process content to handle images safely using regex instead of DOM manipulation
   const processContent = (htmlContent: string) => {
-    if (!htmlContent) return '';
+    if (!htmlContent || htmlContent.trim() === '') {
+      return '<div class="text-gray-500 italic">No content available for this blog post.</div>';
+    }
+    
+    // Clean up common WordPress HTML issues
+    let cleanedContent = htmlContent
+      .replace(/<!--[\s\S]*?-->/g, '') // Remove HTML comments
+      .replace(/<script[\s\S]*?<\/script>/gi, '') // Remove script tags
+      .replace(/<style[\s\S]*?<\/style>/gi, '') // Remove style tags
+      .replace(/on\w+="[^"]*"/gi, '') // Remove event handlers
+      .trim();
     
     // Use regex to find and modify img tags
-    return htmlContent.replace(/<img([^>]*)>/gi, (match, attributes) => {
+    cleanedContent = cleanedContent.replace(/<img([^>]*)>/gi, (match, attributes) => {
       // Extract src attribute
       const srcMatch = attributes.match(/src\s*=\s*["']([^"']+)["']/i);
       const src = srcMatch ? srcMatch[1] : '';
@@ -101,12 +111,16 @@ export const SafeContentRenderer: React.FC<SafeContentRendererProps> = ({
       
       return `<img${newAttributes}>`;
     });
+    
+    return cleanedContent;
   };
+
+  const processedContent = processContent(content);
 
   return (
     <div 
-      className={className}
-      dangerouslySetInnerHTML={{ __html: processContent(content) }}
+      className={`prose prose-lg max-w-none ${className}`}
+      dangerouslySetInnerHTML={{ __html: processedContent }}
     />
   );
 };

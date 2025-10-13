@@ -3150,7 +3150,7 @@ export default function Admin() {
                                       appointment.status === 'confirmed' ? 'default' :
                                       appointment.status === 'scheduled' ? 'secondary' :
                                       appointment.status === 'completed' ? 'outline' :
-                                      appointment.status === 'cancelled' ? 'destructive' : 'secondary'
+                                      appointment.status === 'CANCELLED' ? 'destructive' : 'secondary'
                                     }
                                   >
                                     {appointment.status || 'Scheduled'}
@@ -3252,18 +3252,19 @@ export default function Admin() {
                                         if (confirm('Are you sure you want to cancel this appointment?')) {
                                           try {
                                             // Call API to cancel appointment
-                                            await api.put(`/appointments/${appointment.id}`, { status: 'cancelled' });
+                                            await api.put(`/appointments/${appointment.id}`, { status: 'CANCELLED' });
                                             toast({
                                               title: "Appointment Cancelled",
                                               description: "The appointment has been successfully cancelled.",
                                             });
                                             // Refresh appointments data
                                             loadAppointmentData();
-                                          } catch (error) {
+                                          } catch (error: any) {
                                             console.error('Error cancelling appointment:', error);
+                                            const errorMessage = error.response?.data?.message || error.message || 'Failed to cancel appointment. Please try again.';
                                             toast({
                                               title: "Error",
-                                              description: "Failed to cancel appointment. Please try again.",
+                                              description: errorMessage,
                                               variant: "destructive"
                                             });
                                           }
@@ -5353,18 +5354,19 @@ export default function Admin() {
                     onClick={async () => {
                       if (confirm('Are you sure you want to cancel this appointment?')) {
                         try {
-                          await api.put(`/appointments/${selectedAppointment.id}`, { status: 'cancelled' });
+                          await api.put(`/appointments/${selectedAppointment.id}`, { status: 'CANCELLED' });
                           toast({
                             title: "Appointment Cancelled",
                             description: "The appointment has been successfully cancelled.",
                           });
                           loadAppointmentData();
                           setShowAppointmentDetailsDialog(false);
-                        } catch (error) {
+                        } catch (error: any) {
                           console.error('Error cancelling appointment:', error);
+                          const errorMessage = error.response?.data?.message || error.message || 'Failed to cancel appointment. Please try again.';
                           toast({
                             title: "Error",
-                            description: "Failed to cancel appointment. Please try again.",
+                            description: errorMessage,
                             variant: "destructive"
                           });
                         }

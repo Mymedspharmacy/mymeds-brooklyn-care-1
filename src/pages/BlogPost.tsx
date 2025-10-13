@@ -126,7 +126,14 @@ const BlogPost = () => {
         }
       } catch (apiError) {
         console.error('Error fetching post from API:', apiError);
-        setError('Failed to load blog post. Please try again later.');
+        const errorMessage = apiError instanceof Error ? apiError.message : 'Failed to load blog post';
+        
+        // If it's a WordPress configuration error, provide helpful message
+        if (errorMessage.includes('WordPress not configured') || errorMessage.includes('not found')) {
+          setError('Blog content is not available. Please check WordPress configuration or try again later.');
+        } else {
+          setError('Failed to load blog post. Please try again later.');
+        }
       } finally {
         setLoading(false);
       }
@@ -285,7 +292,24 @@ const BlogPost = () => {
                     <CardContent className="p-8 lg:p-12">
                       {/* Article Content */}
                       <div className="prose prose-lg max-w-none">
-                        <SafeContentRenderer content={post.content?.rendered || ''} />
+                        {post.content?.rendered ? (
+                          <SafeContentRenderer content={post.content.rendered} />
+                        ) : (
+                          <div className="text-center py-12">
+                            <div className="text-gray-500 mb-4">
+                              <BookOpen className="h-12 w-12 mx-auto mb-4" />
+                              <h3 className="text-lg font-semibold mb-2">Content Not Available</h3>
+                              <p className="text-sm">This blog post content is currently unavailable. Please try again later.</p>
+                            </div>
+                            <Button 
+                              onClick={() => window.location.reload()} 
+                              variant="outline"
+                              className="mt-4"
+                            >
+                              Refresh Page
+                            </Button>
+                          </div>
+                        )}
                       </div>
 
                       {/* Tags */}
