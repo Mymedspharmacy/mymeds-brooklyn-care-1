@@ -77,33 +77,17 @@ const BlogPost: React.FC = () => {
       
       setPost(postData);
       
-      // Fetch author if available
-      if (postData.author) {
-        try {
-          const authorResponse = await api.get(`/wordpress/users/${postData.author}`);
-          setAuthor(authorResponse.data);
-        } catch (err) {
-          console.warn('Could not fetch author:', err);
-          // Set default author
-          setAuthor({ 
-            id: postData.author, 
-            name: 'Admin', 
-            slug: 'admin',
-            description: 'Health & Wellness Expert',
-            avatar_urls: {}
-          });
-        }
-      }
+      // Set default author (no API call needed)
+      setAuthor({ 
+        id: 1, 
+        name: 'Admin', 
+        slug: 'admin',
+        description: 'Health & Wellness Expert',
+        avatar_urls: {}
+      });
       
-      // Fetch categories if available
-      if (postData.categories && postData.categories.length > 0) {
-        try {
-          const categoriesResponse = await api.get(`/wordpress/categories?include=${postData.categories.join(',')}`);
-          setCategories(categoriesResponse.data);
-        } catch (err) {
-          console.warn('Could not fetch categories:', err);
-        }
-      }
+      // Set empty categories (no API call needed)
+      setCategories([]);
       
     } catch (err: any) {
       console.error('Error fetching post:', err);
