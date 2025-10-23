@@ -6,11 +6,6 @@ import {
   Mail, 
   MapPin, 
   Clock, 
-  Facebook, 
-  Twitter, 
-  Instagram, 
-  Linkedin, 
-  Youtube,
   Heart,
   Shield,
   Truck,
@@ -52,7 +47,7 @@ export const Footer = () => {
 
   const handleMapClick = () => {
     // Open Google Maps with the exact pharmacy location
-    const pharmacyAddress = "My Meds Pharmacy Inc, 2242 65th St, New York 11204, United States";
+    const pharmacyAddress = "My Meds Pharmacy Inc, 2242 65th St, NY 11204, United States";
     const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(pharmacyAddress)}`;
     window.open(mapsUrl, '_blank');
   };
@@ -60,13 +55,6 @@ export const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   // Config-driven data (does not change behavior)
-  const socialLinks = [
-    { icon: Facebook, url: import.meta.env.VITE_FACEBOOK_URL || "#", label: "Facebook" },
-    { icon: Twitter, url: import.meta.env.VITE_TWITTER_URL || "#", label: "Twitter" },
-    { icon: Instagram, url: import.meta.env.VITE_INSTAGRAM_URL || "#", label: "Instagram" },
-    { icon: Linkedin, url: import.meta.env.VITE_LINKEDIN_URL || "#", label: "LinkedIn" }
-  ];
-
   const quickLinks = [
     { to: '/', label: 'Home', icon: ArrowRight },
     { to: '/services', label: 'Services', icon: ArrowRight },
@@ -118,23 +106,6 @@ export const Footer = () => {
                 </p>
               </div>
               
-              {/* Social Media */}
-              <div className="flex space-x-4 mb-6">
-                {socialLinks.map((s, idx) => (
-                  <a
-                    key={idx}
-                    href={s.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-10 h-10 bg-[#57BBB6] rounded-full flex items-center justify-center"
-                    aria-label={`Follow us on ${s.label}`}
-                    tabIndex={0}
-                    onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.click()}
-                  >
-                    <s.icon className="h-5 w-5 text-white" />
-                  </a>
-                ))}
-              </div>
 
               {/* Trust Badges */}
                               <div className="flex items-center gap-4 text-sm text-[#57BBB6]">
@@ -288,7 +259,7 @@ export const Footer = () => {
                         className="text-gray-800 font-semibold whitespace-nowrap flex items-center"
                         aria-label="Open location in maps"
                       >
-                        2242 65th St, New York 11204
+                        2242 65th St, NY 11204
                         <ExternalLink className="h-3 w-3 ml-1" />
                       </button>
                     </div>

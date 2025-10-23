@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { SEOHead } from '@/components/SEOHead';
+import ShopByCategory from '@/components/ShopByCategory';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -362,6 +363,16 @@ export default function Shop() {
                 </div>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* Shop by Category Section */}
+        <section className="py-8">
+          <div className="container mx-auto px-4">
+            <ShopByCategory 
+              onCategorySelect={handleCategoryChange}
+              selectedCategory={selectedCategory}
+            />
           </div>
         </section>
 

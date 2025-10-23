@@ -470,7 +470,7 @@ export default function PatientAccountCreation() {
                             <SelectValue placeholder="Select state" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="NY">New York</SelectItem>
+                            <SelectItem value="NY">NY</SelectItem>
                             <SelectItem value="NJ">New Jersey</SelectItem>
                             <SelectItem value="CT">Connecticut</SelectItem>
                             <SelectItem value="PA">Pennsylvania</SelectItem>

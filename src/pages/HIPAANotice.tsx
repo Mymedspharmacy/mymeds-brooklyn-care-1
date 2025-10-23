@@ -227,7 +227,7 @@ const HIPAANotice = () => {
                     <p><strong>Privacy Officer:</strong> My Meds Pharmacy</p>
                     <p><strong>Email:</strong> mymedspharmacy@outlook.com</p>
                     <p><strong>Phone:</strong> (347) 312-6458</p>
-                    <p><strong>Address:</strong> J279+5V New York</p>
+                    <p><strong>Address:</strong> 2242 65th St, NY 11204</p>
                   </div>
                   <div className="mt-4 p-4 bg-blue-50 rounded-lg">
                     <p className="text-blue-800 text-sm">

@@ -260,7 +260,7 @@ export default function Services() {
       icon: Eye,
       title: "Vision Test for DMV",
       description: "Official DMV vision screening and certification for driver's license requirements",
-      longDescription: "Get your DMV vision test completed quickly and professionally at our pharmacy. Our certified vision screening meets all New York State DMV requirements for driver's license applications and renewals. We provide accurate testing with immediate results and official documentation.",
+      longDescription: "Get your DMV vision test completed quickly and professionally at our pharmacy. Our certified vision screening meets all NY State DMV requirements for driver's license applications and renewals. We provide accurate testing with immediate results and official documentation.",
       features: [
         "Official DMV-approved vision screening",
         "Immediate test results and certification",
@@ -397,7 +397,7 @@ export default function Services() {
 
   const handleMapClick = () => {
     // Open Google Maps with the exact pharmacy location
-    const pharmacyAddress = "My Meds Pharmacy Inc, 2242 65th St, New York 11204, United States";
+    const pharmacyAddress = "My Meds Pharmacy Inc, 2242 65th St, NY 11204, United States";
     const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(pharmacyAddress)}`;
     window.open(mapsUrl, '_blank');
   };

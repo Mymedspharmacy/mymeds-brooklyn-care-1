@@ -34,7 +34,7 @@ export const Map = ({ showDetails = true, className = "" }: MapProps) => {
     id: 0,
     name: "My Meds Pharmacy Inc",
     address: "2242 65th St",
-    city: "New York",
+    city: "NY",
     state: "NY",
     zipCode: "11204",
     phone: "347-312-6458",

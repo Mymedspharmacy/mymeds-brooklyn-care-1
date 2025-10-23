@@ -219,12 +219,12 @@ const Contact = () => {
                         </div>
                         <div className="min-w-0 flex-1">
                           <h4 className="font-bold text-[#376F6B] text-lg mb-2">Visit Our Location</h4>
-                          <p className="text-gray-600 mb-3">J279+5V New York</p>
+                          <p className="text-gray-600 mb-3">2242 65th St, NY 11204</p>
                           <Button 
                             variant="outline" 
                             size="sm"
                             onClick={() => {
-                              const pharmacyAddress = "My Meds Pharmacy Inc, 2242 65th St, New York 11204, United States";
+                              const pharmacyAddress = "My Meds Pharmacy Inc, 2242 65th St, NY 11204, United States";
                               const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(pharmacyAddress)}`;
                               window.open(mapsUrl, '_blank');
                             }}

@@ -197,7 +197,7 @@ const TermsOfService = () => {
                     Any disputes arising from these Terms or your use of our services shall be resolved through binding arbitration in accordance with the rules of the American Arbitration Association.
                   </p>
                   <p>
-                    The arbitration shall be conducted in New York, and the laws of the State of New York shall govern these Terms.
+                    The arbitration shall be conducted in NY, and the laws of the State of NY shall govern these Terms.
                   </p>
                 </div>
               </section>
@@ -228,7 +228,7 @@ const TermsOfService = () => {
                   <div className="space-y-2 text-[#57BBB6]">
                     <p><strong>Email:</strong> mymedspharmacy@outlook.com</p>
                     <p><strong>Phone:</strong> (347) 312-6458</p>
-                    <p><strong>Address:</strong> J279+5V New York</p>
+                    <p><strong>Address:</strong> 2242 65th St, NY 11204</p>
                   </div>
                 </div>
               </section>
