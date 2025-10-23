@@ -7,7 +7,12 @@ interface ProductCategory {
   name: string;
   slug: string;
   count: number;
-  image?: string;
+  image?: {
+    id: number;
+    src: string;
+    name: string;
+    alt: string;
+  };
 }
 
 interface ShopByCategoryProps {
@@ -15,33 +20,15 @@ interface ShopByCategoryProps {
   selectedCategory: string;
 }
 
-// Default category images/icons - you can customize these
-const getCategoryIcon = (categoryName: string): string => {
-  const categoryIcons: { [key: string]: string } = {
-    'vitamins-supplements': '/category-icons/vitamins.png',
-    'personal-care': '/category-icons/personal-care.png',
-    'beauty': '/category-icons/beauty.png',
-    'household': '/category-icons/household.png',
-    'medicines': '/category-icons/medicines.png',
-    'contact-lenses': '/category-icons/contact-lenses.png',
-    'nutrition': '/category-icons/nutrition.png',
-    'first-aid': '/category-icons/first-aid.png',
-    'home-health': '/category-icons/home-health.png',
-    'sexual-wellness': '/category-icons/sexual-wellness.png',
-    'toys-games': '/category-icons/toys-games.png',
-    'womens-wellness': '/category-icons/womens-wellness.png',
-    'party-supplies': '/category-icons/party-supplies.png',
-    'otc-medicines': '/category-icons/otc-medicines.png',
-    'new-trending': '/category-icons/new-trending.png',
-    'clearance': '/category-icons/clearance.png',
-    'halloween': '/category-icons/halloween.png',
-    'cough-cold-flu': '/category-icons/cough-cold.png',
-    'grocery-beverages': '/category-icons/grocery.png',
-  };
-
-  // Try to match by slug first, then by name
-  const slug = categoryName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-  return categoryIcons[slug] || '/category-icons/default.png';
+// Get category icon from WooCommerce or fallback to first letter
+const getCategoryIcon = (category: ProductCategory): string => {
+  // If the category has an image from WooCommerce, use it
+  if (category.image && category.image.src) {
+    return category.image.src;
+  }
+  
+  // Fallback to empty string to show first letter
+  return '';
 };
 
 const ShopByCategory: React.FC<ShopByCategoryProps> = ({ onCategorySelect, selectedCategory }) => {
@@ -145,20 +132,26 @@ const ShopByCategory: React.FC<ShopByCategoryProps> = ({ onCategorySelect, selec
           >
             <div className="relative">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-2 overflow-hidden">
-                <img
-                  src={getCategoryIcon(category.name)}
-                  alt={category.name}
-                  className="w-12 h-12 object-cover rounded-full"
-                  onError={(e) => {
-                    // Fallback to a generic icon if image fails to load
-                    e.currentTarget.style.display = 'none';
-                    e.currentTarget.parentElement!.innerHTML = `
-                      <div class="w-12 h-12 bg-[#57BBB6] rounded-full flex items-center justify-center">
-                        <span class="text-white font-bold text-lg">${category.name.charAt(0)}</span>
-                      </div>
-                    `;
-                  }}
-                />
+                {category.image && category.image.src ? (
+                  <img
+                    src={category.image.src}
+                    alt={category.image.alt || category.name}
+                    className="w-12 h-12 object-cover rounded-full"
+                    onError={(e) => {
+                      // Fallback to letter if image fails
+                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.parentElement!.innerHTML = `
+                        <div class="w-12 h-12 bg-[#57BBB6] rounded-full flex items-center justify-center">
+                          <span class="text-white font-bold text-lg">${category.name.charAt(0)}</span>
+                        </div>
+                      `;
+                    }}
+                  />
+                ) : (
+                  <div className="w-12 h-12 bg-[#57BBB6] rounded-full flex items-center justify-center">
+                    <span className="text-white font-bold text-lg">{category.name.charAt(0)}</span>
+                  </div>
+                )}
               </div>
               {/* Product count badge */}
               {category.count > 0 && (
