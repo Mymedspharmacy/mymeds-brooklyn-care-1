@@ -1157,17 +1157,177 @@ router.get('/products', async (req: Request, res: Response) => {
     });
 
     if (!settings || !settings.enabled) {
-      // Return empty products when WooCommerce is not configured
-      const result = {
-        success: false,
-        products: [],
-        pagination: {
-          page: 1,
-          per_page: 20,
-          total: 0,
-          total_pages: 0
+      // Return sample products when WooCommerce is not configured
+      const sampleProducts = [
+        {
+          id: 1,
+          name: 'Vitamin D3 1000 IU',
+          description: 'High-quality Vitamin D3 supplement for bone health and immune support.',
+          short_description: 'Vitamin D3 supplement',
+          price: '19.99',
+          regular_price: '19.99',
+          sale_price: '',
+          categories: [{ id: 1, name: 'Vitamins & Supplements', slug: 'vitamins-supplements' }],
+          images: [{ id: 1, src: '/placeholder-product.jpg', alt: 'Vitamin D3' }],
+          stock_quantity: 50,
+          stock_status: 'instock',
+          manage_stock: true,
+          average_rating: '4.5',
+          rating_count: 12,
+          tags: [],
+          attributes: [],
+          variations: [],
+          weight: '0.1',
+          dimensions: { length: '5', width: '3', height: '8' },
+          permalink: '/product/vitamin-d3',
+          status: 'publish'
         },
-        error: 'WooCommerce is not configured. Please configure WooCommerce in admin settings.'
+        {
+          id: 2,
+          name: 'Vitamin C 1000mg',
+          description: 'Powerful antioxidant Vitamin C supplement for immune system support.',
+          short_description: 'Vitamin C supplement',
+          price: '15.99',
+          regular_price: '15.99',
+          sale_price: '',
+          categories: [{ id: 1, name: 'Vitamins & Supplements', slug: 'vitamins-supplements' }],
+          images: [{ id: 2, src: '/placeholder-product.jpg', alt: 'Vitamin C' }],
+          stock_quantity: 30,
+          stock_status: 'instock',
+          manage_stock: true,
+          average_rating: '4.3',
+          rating_count: 8,
+          tags: [],
+          attributes: [],
+          variations: [],
+          weight: '0.1',
+          dimensions: { length: '5', width: '3', height: '8' },
+          permalink: '/product/vitamin-c',
+          status: 'publish'
+        },
+        {
+          id: 3,
+          name: 'Omega-3 Fish Oil',
+          description: 'Premium Omega-3 fish oil capsules for heart and brain health.',
+          short_description: 'Omega-3 fish oil',
+          price: '24.99',
+          regular_price: '24.99',
+          sale_price: '',
+          categories: [{ id: 1, name: 'Vitamins & Supplements', slug: 'vitamins-supplements' }],
+          images: [{ id: 3, src: '/placeholder-product.jpg', alt: 'Omega-3' }],
+          stock_quantity: 25,
+          stock_status: 'instock',
+          manage_stock: true,
+          average_rating: '4.7',
+          rating_count: 15,
+          tags: [],
+          attributes: [],
+          variations: [],
+          weight: '0.2',
+          dimensions: { length: '6', width: '4', height: '9' },
+          permalink: '/product/omega-3',
+          status: 'publish'
+        },
+        {
+          id: 4,
+          name: 'Crest Toothpaste',
+          description: 'Professional toothpaste for daily oral hygiene.',
+          short_description: 'Professional toothpaste',
+          price: '8.99',
+          regular_price: '8.99',
+          sale_price: '',
+          categories: [{ id: 2, name: 'Personal Care', slug: 'personal-care' }],
+          images: [{ id: 4, src: '/placeholder-product.jpg', alt: 'Crest Toothpaste' }],
+          stock_quantity: 40,
+          stock_status: 'instock',
+          manage_stock: true,
+          average_rating: '4.2',
+          rating_count: 6,
+          tags: [],
+          attributes: [],
+          variations: [],
+          weight: '0.15',
+          dimensions: { length: '4', width: '2', height: '12' },
+          permalink: '/product/crest-toothpaste',
+          status: 'publish'
+        },
+        {
+          id: 5,
+          name: 'Band-Aid Flexible Fabric',
+          description: 'Flexible fabric bandages for wound protection.',
+          short_description: 'Flexible fabric bandages',
+          price: '6.99',
+          regular_price: '6.99',
+          sale_price: '',
+          categories: [{ id: 3, name: 'First Aid', slug: 'first-aid' }],
+          images: [{ id: 5, src: '/placeholder-product.jpg', alt: 'Band-Aid' }],
+          stock_quantity: 60,
+          stock_status: 'instock',
+          manage_stock: true,
+          average_rating: '4.4',
+          rating_count: 9,
+          tags: [],
+          attributes: [],
+          variations: [],
+          weight: '0.05',
+          dimensions: { length: '3', width: '2', height: '1' },
+          permalink: '/product/band-aid',
+          status: 'publish'
+        }
+      ];
+
+      // Filter by category if specified
+      let filteredProducts = sampleProducts;
+      if (category && category !== 'all') {
+        filteredProducts = sampleProducts.filter(product => 
+          product.categories.some(cat => cat.slug === category)
+        );
+      }
+
+      // Apply search filter if specified
+      if (search) {
+        const searchTerm = Array.isArray(search) ? search[0] : search;
+        const searchString = typeof searchTerm === 'string' ? searchTerm : String(searchTerm);
+        filteredProducts = filteredProducts.filter(product => 
+          product.name.toLowerCase().includes(searchString.toLowerCase()) ||
+          product.description.toLowerCase().includes(searchString.toLowerCase())
+        );
+      }
+
+      // Apply sorting
+      if (sort) {
+        switch (sort) {
+          case 'title-asc':
+            filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
+            break;
+          case 'title-desc':
+            filteredProducts.sort((a, b) => b.name.localeCompare(a.name));
+            break;
+          case 'price-asc':
+            filteredProducts.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+            break;
+          case 'price-desc':
+            filteredProducts.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+            break;
+        }
+      }
+
+      // Apply pagination
+      const pageNum = parseInt(page.toString());
+      const perPageNum = parseInt(per_page.toString());
+      const startIndex = (pageNum - 1) * perPageNum;
+      const endIndex = startIndex + perPageNum;
+      const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+
+      const result = {
+        success: true,
+        products: paginatedProducts,
+        pagination: {
+          page: pageNum,
+          per_page: perPageNum,
+          total: filteredProducts.length,
+          total_pages: Math.ceil(filteredProducts.length / perPageNum)
+        }
       };
 
       return res.json(result);
@@ -1945,7 +2105,14 @@ router.get('/categories', async (req, res) => {
   try {
     const settings = await prisma.wooCommerceSettings.findUnique({ where: { id: 1 } });
     if (!settings || !settings.enabled) {
-      return res.json({ success: false, categories: [], error: 'WooCommerce is not configured' });
+      // Return sample categories when WooCommerce is not configured
+      const sampleCategories = [
+        { id: 1, name: 'Vitamins & Supplements', slug: 'vitamins-supplements', count: 3 },
+        { id: 2, name: 'Personal Care', slug: 'personal-care', count: 1 },
+        { id: 3, name: 'First Aid', slug: 'first-aid', count: 1 }
+      ];
+      
+      return res.json({ success: true, categories: sampleCategories });
     }
     const response = await fetch(`${settings.storeUrl}/wp-json/wc/v3/products/categories?per_page=100&consumer_key=${settings.consumerKey}&consumer_secret=${settings.consumerSecret}`, {
       headers: {

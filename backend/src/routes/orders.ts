@@ -50,7 +50,7 @@ function calculateShippingCost(method: string, subtotal: number): number {
 function calculateTax(subtotal: number, state: string): number {
   // Simplified tax calculation - in production, use a tax service
   const taxRates: { [key: string]: number } = {
-    'NY': 0.0875, // New York
+    'NY': 0.0875, // NY
     'CA': 0.0825, // California
     'TX': 0.0625, // Texas
     'FL': 0.0600, // Florida
