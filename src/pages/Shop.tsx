@@ -15,7 +15,6 @@ import {
   Search, 
   ShoppingCart, 
   Star, 
-  Filter, 
   ChevronLeft, 
   ChevronRight,
   Loader2,
@@ -379,24 +378,7 @@ export default function Shop() {
         {/* Filters and Controls */}
         <section className="bg-white py-6 border-b">
           <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-              {/* Category Filter */}
-              <div className="flex items-center gap-4">
-                <Filter className="h-5 w-5 text-gray-600" />
-                <Select value={selectedCategory} onValueChange={handleCategoryChange}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder="All Categories" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    {categories.map(category => (
-                      <SelectItem key={category.id} value={category.slug}>
-                        {category.name} ({category.count})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="flex flex-col md:flex-row gap-4 items-center justify-center">
 
               {/* Sort Controls */}
               <div className="flex items-center gap-4 w-full sm:w-auto">

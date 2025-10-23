@@ -47,12 +47,11 @@ const ShopByCategory: React.FC<ShopByCategoryProps> = ({ onCategorySelect, selec
         const response = await api.get('/woocommerce/categories');
         
         if (response.data.success) {
-          // Filter out categories with 0 products and sort by count
-          const filteredCategories = response.data.categories
-            .filter((cat: ProductCategory) => cat.count > 0)
+          // Sort categories by count (highest first) but show all categories
+          const sortedCategories = response.data.categories
             .sort((a: ProductCategory, b: ProductCategory) => b.count - a.count);
           
-          setCategories(filteredCategories);
+          setCategories(sortedCategories);
         } else {
           throw new Error(response.data.error || 'Failed to load categories');
         }
