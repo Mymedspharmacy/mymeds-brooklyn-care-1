@@ -1,8 +1,8 @@
-# MyMeds Pharmacy Inc.
+ MyMeds Pharmacy Inc.
 
 Modern pharmacy management system with e-commerce integration.
 
-## Quick Start
+
 
 ```bash
 # Frontend
@@ -12,10 +12,6 @@ npm run dev
 cd backend && npm run dev
 ```
 
-## Admin Access
-- **URL**: `/admin`
-- **Email**: `mymedspharmacy@outlook.com`
-- **Password**: `AdminPassword123!`
 
 ## Features
 - Patient management portal
@@ -24,8 +20,7 @@ cd backend && npm run dev
 - Admin dashboard
 - WordPress blog integration
 
-## Documentation
-See [docs/SETUP-GUIDE.md](docs/SETUP-GUIDE.md) for complete setup instructions.
+
 
 
 
